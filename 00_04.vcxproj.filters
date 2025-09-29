@@ -18,7 +18,7 @@
     <ClCompile Include="main.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="myMath.cpp">
+    <ClCompile Include="engine\math\myMath.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="externals\imgui\imgui.cpp">
@@ -42,19 +42,19 @@
     <ClCompile Include="externals\imgui\imgui_widgets.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="DebugCamera.cpp">
+    <ClCompile Include="engine\io\DebugCamera.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="GetKeyMouse.cpp">
+    <ClCompile Include="engine\io\GetKeyMouse.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="Object3d.PS.hlsl" />
-    <FxCompile Include="Object3d.VS.hlsl" />
+    <FxCompile Include="resources\shaders\Object3d.PS.hlsl" />
+    <FxCompile Include="resources\shaders\Object3d.VS.hlsl" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="myMath.h">
+    <ClInclude Include="engine\math\myMath.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="externals\imgui\imconfig.h">
@@ -81,10 +81,10 @@
     <ClInclude Include="externals\imgui\imstb_truetype.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="DebugCamera.h">
+    <ClInclude Include="engine\io\DebugCamera.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="GetKeyMouse.h">
+    <ClInclude Include="engine\io\GetKeyMouse.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
   </ItemGroup>
@@ -92,6 +92,6 @@
     <Text Include="externals\imgui\LICENSE.txt" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Object3d.hlsli" />
+    <None Include="resources\shaders\Object3d.hlsli" />
   </ItemGroup>
 </Project>

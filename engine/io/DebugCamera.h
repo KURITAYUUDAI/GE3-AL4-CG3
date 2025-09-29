@@ -1,6 +1,6 @@
 #pragma once
 #define _USE_MATH_DEFINES
-#include "myMath.h"
+#include "../math/myMath.h"
 #include <Windows.h>
 
 class GetKey;

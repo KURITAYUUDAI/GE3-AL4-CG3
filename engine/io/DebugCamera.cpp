@@ -1,6 +1,6 @@
 #include "DebugCamera.h"
 #include "GetKeyMouse.h"
-#include "externals/imgui/imgui.h"
+#include "../../externals/imgui/imgui.h"
 
 void DebugCamera::Initialize()
 {
