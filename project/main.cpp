@@ -805,7 +805,9 @@ void SoundPlayWave(IXAudio2* xAudio2, const SoundData& soundData)
 //	
 //}
 
-
+auto Align256 = [](size_t size) {
+	return (size + 255) & ~static_cast<size_t>(255);
+	};
 
 // ウィンドウプロシージャ
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
@@ -1201,6 +1203,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	// すべての色要素を書き込む
 	blendDesc.RenderTarget[0].RenderTargetWriteMask =
 		D3D12_COLOR_WRITE_ENABLE_ALL;
+	blendDesc.RenderTarget[0].BlendEnable = TRUE;
+	blendDesc.RenderTarget[0].SrcBlend = D3D12_BLEND_SRC_ALPHA;
+	blendDesc.RenderTarget[0].BlendOp = D3D12_BLEND_OP_ADD;
+	blendDesc.RenderTarget[0].DestBlend = D3D12_BLEND_INV_SRC_ALPHA;
+	blendDesc.RenderTarget[0].SrcBlendAlpha = D3D12_BLEND_ONE;
+	blendDesc.RenderTarget[0].BlendOpAlpha = D3D12_BLEND_OP_ADD;
+	blendDesc.RenderTarget[0].DestBlendAlpha = D3D12_BLEND_ZERO;
 
 	// RasiterzerStateの設定
 	D3D12_RASTERIZER_DESC rasterizerDesc{};
@@ -1346,8 +1355,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		vertexResource[i]->Map(0, nullptr, reinterpret_cast<void**>(&vertexData[i]));
 		// 頂点データをコピーする
 		std::memcpy(vertexData[i], modelData[i].vertices.data(), sizeof(VertexData) * modelData[i].vertices.size());
-
-		materialResource[i] = CreateBufferResource(device, sizeof(Material));
+		
+		materialResource[i] = CreateBufferResource(device, Align256(sizeof(Material)));
+		/*materialResource[i] = CreateBufferResource(device, sizeof(Material));*/
 		// マテリアルにデータを書き込む
 		materialData[i] = nullptr;
 		// 書き込むためのアドレスを取得
@@ -2003,20 +2013,20 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 			}
 			
-			// Sphereの描画
-			commandList->IASetVertexBuffers(0, 1, &vertexBufferViewSphere);	// VBVを設定
-			// SphereのIndexBufferViewを設定
-			commandList->IASetIndexBuffer(&indexBufferViewSphere);
-			// SphereのマテリアルのCBufferの場所を設定
-			commandList->SetGraphicsRootConstantBufferView(0, materialResourceSphere->GetGPUVirtualAddress());
-			// SphereのTransformationMatrixCBufferの場所を設定
-			commandList->SetGraphicsRootConstantBufferView(1, transformationResourceSphere->GetGPUVirtualAddress());
-			// SRV用のDescriptorTableの先頭を設定。2はrootParameter[2]である。
-			commandList->SetGraphicsRootDescriptorTable(2, textureSrvHandles[0]);	// SphereはCheckerを使う
-			// 平行光源用のCBufferをバインド（rootParameter[3] = b1）
-			commandList->SetGraphicsRootConstantBufferView(3, DirectionalLightResource->GetGPUVirtualAddress());
-			// 描画！（DrawCall/ドローコール）。
-			commandList->DrawIndexedInstanced(kSubdivision * kSubdivision * 6, 1, 0, 0, 0);
+			////// Sphereの描画
+			////commandList->IASetVertexBuffers(0, 1, &vertexBufferViewSphere);	// VBVを設定
+			////// SphereのIndexBufferViewを設定
+			////commandList->IASetIndexBuffer(&indexBufferViewSphere);
+			////// SphereのマテリアルのCBufferの場所を設定
+			////commandList->SetGraphicsRootConstantBufferView(0, materialResourceSphere->GetGPUVirtualAddress());
+			////// SphereのTransformationMatrixCBufferの場所を設定
+			////commandList->SetGraphicsRootConstantBufferView(1, transformationResourceSphere->GetGPUVirtualAddress());
+			////// SRV用のDescriptorTableの先頭を設定。2はrootParameter[2]である。
+			////commandList->SetGraphicsRootDescriptorTable(2, textureSrvHandles[0]);	// SphereはCheckerを使う
+			////// 平行光源用のCBufferをバインド（rootParameter[3] = b1）
+			////commandList->SetGraphicsRootConstantBufferView(3, DirectionalLightResource->GetGPUVirtualAddress());
+			////// 描画！（DrawCall/ドローコール）。
+			////commandList->DrawIndexedInstanced(kSubdivision * kSubdivision * 6, 1, 0, 0, 0);
 			
 
 			// Spriteの描画。変更が必要なものだけ変更する。
