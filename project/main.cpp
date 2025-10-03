@@ -165,7 +165,7 @@ struct SoundData
 	unsigned int bufferSize;
 };
 
-enum BlendMode
+enum class BlendMode
 {
 	//!< ブレンドなし
 	kBlendModeNone,
@@ -825,7 +825,25 @@ void SoundPlayWave(IXAudio2* xAudio2, const SoundData& soundData)
 
 auto Align256 = [](size_t size) {
 	return (size + 255) & ~static_cast<size_t>(255);
+};
+
+struct PsoKey
+{
+	BlendMode blend;
+	bool operator==(const PsoKey& o) const noexcept { return blend == o.blend; }
+};
+
+struct PsoKeyHash
+{
+	size_t operator()(const PsoKey& k) const noexcept {
+		return std::hash<int>()(int(k.blend));
 	};
+};
+
+std::unordered_map<PsoKey, Microsoft::WRL::ComPtr<ID3D12PipelineState>, PsoKeyHash> g_psoCache;
+
+
+
 
 // ウィンドウプロシージャ
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
