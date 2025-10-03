@@ -842,8 +842,92 @@ struct PsoKeyHash
 
 std::unordered_map<PsoKey, Microsoft::WRL::ComPtr<ID3D12PipelineState>, PsoKeyHash> g_psoCache;
 
+inline D3D12_BLEND_DESC MakeBlendDesc(BlendMode m) {
+	D3D12_BLEND_DESC d{};
+	auto& rt = d.RenderTarget[0];
+	rt.RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
 
+	switch (m) {
+	case BlendMode::kBlendModeNone:
+		rt.BlendEnable = FALSE;  // ブレンド無効＝完全不透明
+		break;
 
+	case BlendMode::kBlendModeNormal:
+		// out = Src * Sa + Dst * (1 - Sa)（非プリマルチの基本形）
+		rt.BlendEnable = TRUE;
+		rt.SrcBlend = D3D12_BLEND_SRC_ALPHA;
+		rt.DestBlend = D3D12_BLEND_INV_SRC_ALPHA;
+		rt.BlendOp = D3D12_BLEND_OP_ADD;
+		rt.SrcBlendAlpha = D3D12_BLEND_ONE;          // αは書き方次第
+		rt.DestBlendAlpha = D3D12_BLEND_INV_SRC_ALPHA;
+		rt.BlendOpAlpha = D3D12_BLEND_OP_ADD;
+		break;
+
+	case BlendMode::kBlendModeAdd:
+		// out = Src + Dst（発光・パーティクルなど）
+		rt.BlendEnable = TRUE;
+		rt.SrcBlend = D3D12_BLEND_ONE;
+		rt.DestBlend = D3D12_BLEND_ONE;
+		rt.BlendOp = D3D12_BLEND_OP_ADD;
+		rt.SrcBlendAlpha = D3D12_BLEND_ONE;
+		rt.DestBlendAlpha = D3D12_BLEND_ONE;
+		rt.BlendOpAlpha = D3D12_BLEND_OP_ADD;
+		break;
+
+	case BlendMode::kBlendModeSubtract:
+		// out = Dst - Src（色を引く効果）
+		rt.BlendEnable = TRUE;
+		rt.SrcBlend = D3D12_BLEND_ONE;
+		rt.DestBlend = D3D12_BLEND_ONE;
+		rt.BlendOp = D3D12_BLEND_OP_REV_SUBTRACT; // Dst - Src
+		rt.SrcBlendAlpha = D3D12_BLEND_ONE;
+		rt.DestBlendAlpha = D3D12_BLEND_ONE;
+		rt.BlendOpAlpha = D3D12_BLEND_OP_REV_SUBTRACT;
+		break;
+
+	case BlendMode::kBlendModeMultiply:
+		// 近似：out ≈ Dst * Src
+		// 実装：out = Dst * SrcColor（Srcをカラー係数として使う）
+		rt.BlendEnable = TRUE;
+		rt.SrcBlend = D3D12_BLEND_ZERO;        // 0 * Src
+		rt.DestBlend = D3D12_BLEND_SRC_COLOR;   // + Dst * Src
+		rt.BlendOp = D3D12_BLEND_OP_ADD;
+		rt.SrcBlendAlpha = D3D12_BLEND_ZERO;
+		rt.DestBlendAlpha = D3D12_BLEND_SRC_ALPHA;
+		rt.BlendOpAlpha = D3D12_BLEND_OP_ADD;
+		break;
+
+	case BlendMode::kBlendModeScreen:
+		// 近似：out ≈ 1 - (1-Dst)*(1-Src) = Dst + Src*(1 - Dst)
+		rt.BlendEnable = TRUE;
+		rt.SrcBlend = D3D12_BLEND_INV_DEST_COLOR; // Src*(1-Dst)
+		rt.DestBlend = D3D12_BLEND_ONE;            // + Dst
+		rt.BlendOp = D3D12_BLEND_OP_ADD;
+		rt.SrcBlendAlpha = D3D12_BLEND_INV_DEST_ALPHA;
+		rt.DestBlendAlpha = D3D12_BLEND_ONE;
+		rt.BlendOpAlpha = D3D12_BLEND_OP_ADD;
+		break;
+	}
+	return d;
+}
+
+Microsoft::WRL::ComPtr<ID3D12PipelineState>
+CreatePsoWithBlend(ID3D12Device* dev, const D3D12_GRAPHICS_PIPELINE_STATE_DESC& base, BlendMode mode) 
+{
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC desc = base;
+	desc.BlendState = MakeBlendDesc(mode);
+	Microsoft::WRL::ComPtr<ID3D12PipelineState> pso;
+	dev->CreateGraphicsPipelineState(&desc, IID_PPV_ARGS(&pso));
+	return pso;
+}
+
+ID3D12PipelineState* GetPso(ID3D12Device* dev, const D3D12_GRAPHICS_PIPELINE_STATE_DESC& base, BlendMode mode) {
+	PsoKey key{ mode };
+	if (auto it = g_psoCache.find(key); it != g_psoCache.end()) return it->second.Get();
+	auto pso = CreatePsoWithBlend(dev, base, mode);
+	g_psoCache.emplace(key, pso);
+	return pso.Get();
+}
 
 // ウィンドウプロシージャ
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
@@ -2021,8 +2105,20 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 			commandList->RSSetViewports(1, &viewport); // Viewportを設定
 			commandList->RSSetScissorRects(1, &scissorRect);	// Scissorを設定
 			// RootSignatureを設定。PSOに設定しているけど別途設定が必要
+
+
+			//commandList->SetGraphicsRootSignature(rootSignature.Get());
+			//commandList->SetPipelineState(graphicsPipeLineState.Get());	// PS0を設定
+
 			commandList->SetGraphicsRootSignature(rootSignature.Get());
-			commandList->SetPipelineState(graphicsPipeLineState.Get());	// PS0を設定
+
+			// UIの選択肢(0..n) → 列挙型に変換
+			BlendMode selected = static_cast<BlendMode>(BlendModeIndex);
+
+			// ベースDESCからPSOを取得（キャッシュ済み）
+			ID3D12PipelineState* pso3D =
+				GetPso(device.Get(), graphicsPipelineStateDesc, selected);
+			commandList->SetPipelineState(pso3D);
 
 
 			// 形状を設定。PS0に設定しているものとはまた別。同じものを設定すると考えておけば良い
@@ -2073,7 +2169,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 			
 
 			// Spriteの描画。変更が必要なものだけ変更する。
-			commandList->SetPipelineState(graphicsPipeLineStateSprite.Get());	// PS0を設定
+			//commandList->SetPipelineState(graphicsPipeLineStateSprite.Get());	// PS0を設定
+			ID3D12PipelineState* psoSprite =
+				GetPso(device.Get(), graphicsPipelineStateDescSprite, selected);
+			commandList->SetPipelineState(psoSprite);
+
 
 			commandList->IASetVertexBuffers(0, 1, &vertexBufferViewSprite);
 
@@ -2155,6 +2255,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 	// XAudio2解放
 	xAudio2.Reset();
+
+	// PSOキャッシュの解放
+	g_psoCache.clear();
 
 	// 音声データ解放
 	SoundUnload(&soundData1);
