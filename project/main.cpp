@@ -165,6 +165,24 @@ struct SoundData
 	unsigned int bufferSize;
 };
 
+enum BlendMode
+{
+	//!< ブレンドなし
+	kBlendModeNone,
+	//!< 通常αブレンド。デフォルト。Src * SrcA + Dest * (1 - SrcA)
+	kBlendModeNormal,
+	//!< 加算ブレンド。Src + SrcA + Dest * 1
+	kBlendModeAdd,
+	//!< 減算ブレンド。Dest * 1 - Src * SrcA
+	kBlendModeSubtract,
+	//!< 乗算ブレンド。Src * 0 + Dest * Src
+	kBlendModeMultiply,
+	//!< スクリーンブレンド。Src * (1 - Dest) + Dest * 1
+	kBlendModeScreen,
+	// 利用しては、いけない
+	kCountOfBlendMode,
+};
+
 void Log(const std::string& message)
 {
 	OutputDebugStringA(message.c_str());
@@ -1204,9 +1222,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	blendDesc.RenderTarget[0].RenderTargetWriteMask =
 		D3D12_COLOR_WRITE_ENABLE_ALL;
 	blendDesc.RenderTarget[0].BlendEnable = TRUE;
+
 	blendDesc.RenderTarget[0].SrcBlend = D3D12_BLEND_SRC_ALPHA;
 	blendDesc.RenderTarget[0].BlendOp = D3D12_BLEND_OP_ADD;
 	blendDesc.RenderTarget[0].DestBlend = D3D12_BLEND_INV_SRC_ALPHA;
+
 	blendDesc.RenderTarget[0].SrcBlendAlpha = D3D12_BLEND_ONE;
 	blendDesc.RenderTarget[0].BlendOpAlpha = D3D12_BLEND_OP_ADD;
 	blendDesc.RenderTarget[0].DestBlendAlpha = D3D12_BLEND_ZERO;
@@ -1725,6 +1745,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	int textureIndex = 0;
 	const char* textureOptions[] = { "Checker", "monsterBall" };
 
+	int BlendModeIndex = 0;
+	const char* BlendModeOptions[] = { "kBlendModeNone", "kBlendModeAdd", "kBlendModeSubtract", "kBlendModeMultiply", "kBlendModeScreen"};
 	
 
 
@@ -1853,6 +1875,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 					// （＝GPU 側で使われるマテリアル色を更新）
 				}
 			}
+			
+			ImGui::Combo("Blend", &BlendModeIndex, BlendModeOptions, IM_ARRAYSIZE(BlendModeOptions));
+
 
 			ImGui::DragFloat3("Scale 2", &transformSphere.scale.x, 0.01f);
 			ImGui::DragFloat3("Rotate 2", &transformSphere.rotate.x, 1.0f / 180.0f * pi);

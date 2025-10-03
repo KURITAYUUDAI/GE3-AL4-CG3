@@ -35,6 +35,11 @@ PixelShaderOutput main(VertexShaderOutput input)
     float4 textureColor = gTexture.Sample(gSampler, transformedUV.xy);
     PixelShaderOutput output;
     
+    if(textureColor.a == 0.0f)
+    {
+        discard;
+    }
+    
     if(gMaterial.enableLighting != 0)   // Lightningする場合
     {
         float NdotL = dot(normalize(input.normal), -gDirectionalLight.direction);   // Normal dot LightDirection
@@ -48,6 +53,11 @@ PixelShaderOutput main(VertexShaderOutput input)
     else
     {
         output.color = gMaterial.color * textureColor;
+    }
+    
+    if(output.color.a == 0.0f)
+    {
+        discard;
     }
     
     return output;
