@@ -31,7 +31,7 @@
 #include <DirectXMath.h>
 using namespace DirectX;
 
-#include "myMath.h"
+#include "engine/math/myMath.h"
 
 float pi = static_cast<float>(M_PI);
 
@@ -54,9 +54,9 @@ extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hwnd, UINT msg
 #include <xaudio2.h>
 #pragma comment(lib, "xaudio2.lib")
 
-#include "GetKeyMouse.h"
+#include "engine/io/DebugCamera.h"
 
-#include "DebugCamera.h"
+#include "engine/io/GetKeyMouse.h"
 
 struct VertexData
 {
@@ -1210,11 +1210,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	rasterizerDesc.FillMode = D3D12_FILL_MODE_SOLID;
 
 	// Shaderをコンパイルする
-	Microsoft::WRL::ComPtr<IDxcBlob> vertexShaderBlob = CompileShader(L"Object3D.Vs.hlsl",
+	Microsoft::WRL::ComPtr<IDxcBlob> vertexShaderBlob = CompileShader(L"resources/shaders/Object3D.Vs.hlsl",
 		L"vs_6_0", dxcUtils, dxcCompiler, includeHandler);
 	assert(vertexShaderBlob != nullptr);
 
-	Microsoft::WRL::ComPtr<IDxcBlob> pixelShaderBlob = CompileShader(L"Object3D.PS.hlsl",
+	Microsoft::WRL::ComPtr<IDxcBlob> pixelShaderBlob = CompileShader(L"resources/shaders/Object3D.PS.hlsl",
 		L"ps_6_0", dxcUtils, dxcCompiler, includeHandler);
 	assert(pixelShaderBlob != nullptr);
 
