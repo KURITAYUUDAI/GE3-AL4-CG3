@@ -8,12 +8,13 @@ env:
   SOLUTION_FILE_PATH: project/00_04.sln
   # Visual Studio の構成(Debug / Release )
   CONFIGURATION: Debug
+  
 jobs:
   bulid:
     runs-on: windows-2022
 
     steps:
-    　- name: Checkout
+      - name: Checkout
 　      uses: actions/checkout@v4
 
       - name: Add MSBuild to PATH
