@@ -1445,7 +1445,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	// ==================================================
 
 	// モデル読み込み
-	std::vector<ModelData> modelData = LoadObjFile("resources", "multiMaterial.obj");
+	std::vector<ModelData> modelData = LoadObjFile("resources", "fence.obj");
 
 	// 頂点リソースを作る
 	std::vector<Microsoft::WRL::ComPtr<ID3D12Resource>> vertexResource(modelData.size());
@@ -2195,7 +2195,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 			
 			
 
-			if (getKey.IsPress(DIK_0))
+			if (getKey.IsPress(DIK_1))
 			{
 				SoundPlayWave(xAudio2.Get(), soundData1);
 			}
