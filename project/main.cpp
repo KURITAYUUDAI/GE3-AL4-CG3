@@ -2107,6 +2107,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	// 音声データ解放
 	SoundUnload(&soundData1);
 
+	delete input;
+
 	// オブジェクトの解放処理
 	CloseHandle(fenceEvent);
 
