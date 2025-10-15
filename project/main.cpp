@@ -1056,9 +1056,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	Input* input = new Input;
 	input->Initialize(wc.hInstance, hwnd);
 
-	GetMouse getMouse;
-	getMouse.Initialize(wc.hInstance, hwnd);
-
 	// サウンド再生エンジンをローカル変数で宣言
 	Microsoft::WRL::ComPtr<IXAudio2> xAudio2;
 	// インスタンスを生成
@@ -1806,8 +1803,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		else
 		{
 			input->Update();
-
-			getMouse.Update(hwnd);
 
 			ImGui_ImplDX12_NewFrame();
 			ImGui_ImplWin32_NewFrame();

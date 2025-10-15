@@ -44,24 +44,5 @@ private:
 
 };
 
-class GetMouse
-{
-public:
-
-	void Initialize(const HINSTANCE hInstance, const HWND hwnd);
-
-	void Update(const HWND hwnd);
-
-	POINT GetMousePoint() { return mousePoint_; }
-	bool GetMouseButton(const int buttonNum) { return mouseButton_[buttonNum]; }
-
-private:
-
-	IDirectInputDevice8* mouse_ = nullptr;
-	BYTE mouseButton_[3] = { 0, 0, 0 };	// 左、中央、右ボタンの状態
-	POINT mousePoint_ = { 0, 0 };	// マウスカーソルの位置 = nullptr;
-	
-};
-
 
 
