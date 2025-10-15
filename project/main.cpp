@@ -56,7 +56,7 @@ extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hwnd, UINT msg
 
 #include "engine/io/DebugCamera.h"
 
-#include "engine/io/GetKeyMouse.h"
+#include "engine/io/Input.h"
 
 struct VertexData
 {
@@ -1053,11 +1053,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	rtvHandles[1] = GetCPUDescriptorHandle(rtvDescriptorHeap, device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV), 1);
 	device->CreateRenderTargetView(swapChainResources[1].Get(), &rtvDesc, rtvHandles[1]);
 
-	GetKey getKey;
-	getKey.Initialize(wc.hInstance, hwnd);
-
-	GetMouse getMouse;
-	getMouse.Initialize(wc.hInstance, hwnd);
+	Input* input = new Input;
+	input->Initialize(wc.hInstance, hwnd);
 
 	// サウンド再生エンジンをローカル変数で宣言
 	Microsoft::WRL::ComPtr<IXAudio2> xAudio2;
@@ -1792,6 +1789,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	DebugCamera debugCamera;
 	bool isDebugCamera = false;
 	
+	Vector2 mousePosition = { 0.0f, 0.0f };
 
 	// ウィンドウの×ボタンが押されるまでループ
 	while (msg.message != WM_QUIT)
@@ -1804,9 +1802,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		}
 		else
 		{
-			getKey.Update();
-
-			getMouse.Update(hwnd);
+			input->Update();
 
 			ImGui_ImplDX12_NewFrame();
 			ImGui_ImplWin32_NewFrame();
@@ -1865,6 +1861,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 			ImGui::DragFloat3("CameraRotate", &cameraTransform.rotate.x, 1.0f / 180.0f * pi);
 			ImGui::DragFloat3("CameraTranslate", &cameraTransform.translate.x, 0.01f);
 
+			ImGui::Text("MouseX: %.2f, MouseY: %.2f", mousePosition.x, mousePosition.y);
+
 			ImGui::Text("Press 0 to play the sound");
 
 			ImGui::End();
@@ -1883,7 +1881,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 			if (isDebugCamera)
 			{
-				debugCamera.Update(getKey, cameraTransform);
+				debugCamera.Update(input, cameraTransform);
 				viewMatrix = debugCamera.GetViewMatrix();
 			}
 			else
@@ -1916,6 +1914,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 			uvTransformMatrix = Multiply(uvTransformMatrix, MakeRotateZMatrix(uvTransformSprite.rotate.z));
 			uvTransformMatrix = Multiply(uvTransformMatrix, MakeTranslateMatrix(uvTransformSprite.translate));
 			materialDataSprite->uvTransform = uvTransformMatrix;
+
+			mousePosition.x = static_cast<float>(input->MousePoint(hwnd).x);
+			mousePosition.y = static_cast<float>(input->MousePoint(hwnd).y);
 
 			// ImGuiの内部コマンドを生成する
 			ImGui::Render();
@@ -2042,7 +2043,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 			
 			
 
-			if (getKey.IsPress(DIK_0))
+			if (input->TriggerKey(DIK_0))
 			{
 				SoundPlayWave(xAudio2.Get(), soundData1);
 			}

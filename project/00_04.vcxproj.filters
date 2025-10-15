@@ -102,7 +102,7 @@
     <ClCompile Include="engine\io\DebugCamera.cpp">
       <Filter>ソース ファイル\engine</Filter>
     </ClCompile>
-    <ClCompile Include="engine\io\GetKeyMouse.cpp">
+    <ClCompile Include="engine\io\Input.cpp">
       <Filter>ソース ファイル\engine</Filter>
     </ClCompile>
   </ItemGroup>
@@ -118,7 +118,7 @@
     <ClInclude Include="engine\io\DebugCamera.h">
       <Filter>ヘッダー ファイル\io</Filter>
     </ClInclude>
-    <ClInclude Include="engine\io\GetKeyMouse.h">
+    <ClInclude Include="engine\io\Input.h">
       <Filter>ヘッダー ファイル\io</Filter>
     </ClInclude>
     <ClInclude Include="engine\math\myMath.h">

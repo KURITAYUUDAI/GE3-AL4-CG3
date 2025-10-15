@@ -1,5 +1,5 @@
 #include "DebugCamera.h"
-#include "GetKeyMouse.h"
+#include "Input.h"
 #include "../../externals/imgui/imgui.h"
 
 void DebugCamera::Initialize()
@@ -9,28 +9,28 @@ void DebugCamera::Initialize()
 	projectionMatrix_ = MakeIdentity4x4();
 }
 
-void DebugCamera::Update(GetKey getKey, Transform originCamera)
+void DebugCamera::Update(Input* input, Transform originCamera)
 {
-	getKey_ = &getKey;
+	input_ = input;
 
 	Vector3 move = { 0.0f, 0.0f, 0.0f };
 
 	Transform camera = { 0.0f, 0.0f, 0.0f };
 
-	if (getKey_->IsPress(DIK_RIGHT))
+	if (input_->PushKey(DIK_RIGHT))
 	{
 		debugCamera_.rotate.y += 0.5f / 180.0f * static_cast<float>(M_PI);
 	}
-	else if (getKey_->IsPress(DIK_LEFT))
+	else if (input_->PushKey(DIK_LEFT))
 	{
 		debugCamera_.rotate.y -= 0.5f / 180.0f * static_cast<float>(M_PI);
 	}
 
-	if (getKey_->IsPress(DIK_UP))
+	if (input_->PushKey(DIK_UP))
 	{
 		debugCamera_.rotate.x += 0.5f / 180.0f * static_cast<float>(M_PI);
 	}
-	else if (getKey_->IsPress(DIK_DOWN))
+	else if (input_->PushKey(DIK_DOWN))
 	{
 		debugCamera_.rotate.x -= 0.5f / 180.0f * static_cast<float>(M_PI);
 	}
@@ -39,34 +39,34 @@ void DebugCamera::Update(GetKey getKey, Transform originCamera)
 	camera.rotate.y = debugCamera_.rotate.y + originCamera.rotate.y;
 	camera.rotate.z = debugCamera_.rotate.z + originCamera.rotate.z;
 
-	if (getKey_->IsPress(DIK_W))
+	if (input_->PushKey(DIK_W))
 	{
 		const float speed = 0.5f;
 		move.z = speed;
 	}
-	else if (getKey_->IsPress(DIK_S))
+	else if (input_->PushKey(DIK_S))
 	{
 		const float speed = -0.5f;
 		move.z = speed;
 	}
 
-	if (getKey_->IsPress(DIK_A))
+	if (input_->PushKey(DIK_A))
 	{
 		const float speed = 0.5f;
 		move.x = speed;
 	}
-	else if (getKey_->IsPress(DIK_D))
+	else if (input_->PushKey(DIK_D))
 	{
 		const float speed = -0.5f;
 		move.x = speed;
 	}
 
-	if (getKey_->IsPress(DIK_R))
+	if (input_->PushKey(DIK_R))
 	{
 		const float speed = 0.5f;
 		move.y = speed;
 	}
-	else if (getKey_->IsPress(DIK_F))
+	else if (input_->PushKey(DIK_F))
 	{
 		const float speed = -0.5f;
 		move.y = speed;

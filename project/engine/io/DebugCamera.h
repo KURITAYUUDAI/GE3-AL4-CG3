@@ -3,7 +3,7 @@
 #include "../math/myMath.h"
 #include <Windows.h>
 
-class GetKey;
+class Input;
 
 /// <summary>
 ///  デバッグカメラ
@@ -12,7 +12,7 @@ class DebugCamera
 {
 public:
 
-	GetKey* getKey_;
+	Input* input_;
 
 	/// <summary>
 	///  初期化
@@ -22,7 +22,7 @@ public:
 	/// <summary>
 	///  更新
 	/// </summary>
-	void Update(GetKey getKey, Transform camera);
+	void Update(Input* input, Transform camera);
 
 	Matrix4x4 GetViewMatrix() { return viewMatrix_;}
 
