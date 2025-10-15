@@ -2048,7 +2048,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 			
 			
 
-			if (getKey.IsPress(DIK_1))
+			if (input->TriggerKey(DIK_0))
 			{
 				SoundPlayWave(xAudio2.Get(), soundData1);
 			}
