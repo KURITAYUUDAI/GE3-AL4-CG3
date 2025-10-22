@@ -13,30 +13,6 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="ヘッダー ファイル\2d">
-      <UniqueIdentifier>{566614f6-34fb-4f19-a7a6-b004317fdf4f}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ヘッダー ファイル\3d">
-      <UniqueIdentifier>{d310a02b-197e-4a83-84bf-0cea2f28221a}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ヘッダー ファイル\audio">
-      <UniqueIdentifier>{da496903-b1ae-4a87-aa6a-f8ab40e96096}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ヘッダー ファイル\base">
-      <UniqueIdentifier>{e519db17-ff96-4bd0-b79d-0da7dbe05687}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ヘッダー ファイル\io">
-      <UniqueIdentifier>{b0a6d89c-e18d-43b7-b9d6-d5e528c4c329}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ヘッダー ファイル\math">
-      <UniqueIdentifier>{ecaa3c35-573f-4164-8f39-f8c505a6c2fb}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ヘッダー ファイル\externals">
-      <UniqueIdentifier>{03eb59fe-5538-4b8e-b4be-f51309359e8f}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ヘッダー ファイル\scene">
-      <UniqueIdentifier>{5bc7946b-6070-4b75-ab30-51e02e74b02c}</UniqueIdentifier>
-    </Filter>
     <Filter Include="シェーダーファイル">
       <UniqueIdentifier>{ca5f9e2c-6aa3-47bf-bdea-015b20621e3b}</UniqueIdentifier>
     </Filter>
@@ -64,11 +40,38 @@
     <Filter Include="ソース ファイル\engine\scene">
       <UniqueIdentifier>{f0312c46-86d4-452b-bbdf-a714e7739c2d}</UniqueIdentifier>
     </Filter>
-    <Filter Include="externals">
-      <UniqueIdentifier>{fb31b1f6-577b-4262-a1e4-f70cca8ac98e}</UniqueIdentifier>
-    </Filter>
     <Filter Include="ソース ファイル\application">
       <UniqueIdentifier>{19bcf166-b754-469c-9dd3-107949f235a4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\engine">
+      <UniqueIdentifier>{5a89fdb2-f40d-4c11-b5d7-b64eff6c8f0b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\engine\math">
+      <UniqueIdentifier>{ecaa3c35-573f-4164-8f39-f8c505a6c2fb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\engine\io">
+      <UniqueIdentifier>{b0a6d89c-e18d-43b7-b9d6-d5e528c4c329}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\engine\base">
+      <UniqueIdentifier>{e519db17-ff96-4bd0-b79d-0da7dbe05687}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\engine\2d">
+      <UniqueIdentifier>{566614f6-34fb-4f19-a7a6-b004317fdf4f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\engine\3d">
+      <UniqueIdentifier>{d310a02b-197e-4a83-84bf-0cea2f28221a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\application">
+      <UniqueIdentifier>{7319b41f-ac6d-40af-b3e8-54ec9adbdbe2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\engine\scene">
+      <UniqueIdentifier>{5bc7946b-6070-4b75-ab30-51e02e74b02c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\engine\audio">
+      <UniqueIdentifier>{da496903-b1ae-4a87-aa6a-f8ab40e96096}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="imgui">
+      <UniqueIdentifier>{fb31b1f6-577b-4262-a1e4-f70cca8ac98e}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -79,31 +82,34 @@
       <Filter>ソース ファイル\engine\math</Filter>
     </ClCompile>
     <ClCompile Include="externals\imgui\imgui.cpp">
-      <Filter>externals</Filter>
+      <Filter>imgui</Filter>
     </ClCompile>
     <ClCompile Include="externals\imgui\imgui_demo.cpp">
-      <Filter>externals</Filter>
+      <Filter>imgui</Filter>
     </ClCompile>
     <ClCompile Include="externals\imgui\imgui_draw.cpp">
-      <Filter>externals</Filter>
+      <Filter>imgui</Filter>
     </ClCompile>
     <ClCompile Include="externals\imgui\imgui_impl_dx12.cpp">
-      <Filter>externals</Filter>
+      <Filter>imgui</Filter>
     </ClCompile>
     <ClCompile Include="externals\imgui\imgui_impl_win32.cpp">
-      <Filter>externals</Filter>
+      <Filter>imgui</Filter>
     </ClCompile>
     <ClCompile Include="externals\imgui\imgui_tables.cpp">
-      <Filter>externals</Filter>
+      <Filter>imgui</Filter>
     </ClCompile>
     <ClCompile Include="externals\imgui\imgui_widgets.cpp">
-      <Filter>externals</Filter>
+      <Filter>imgui</Filter>
     </ClCompile>
-    <ClCompile Include="engine\io\DebugCamera.cpp">
-      <Filter>ソース ファイル\engine</Filter>
+    <ClCompile Include="engine\base\WindowsAPI.cpp">
+      <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="engine\io\Input.cpp">
-      <Filter>ソース ファイル\engine</Filter>
+      <Filter>ソース ファイル\engine\io</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\io\DebugCamera.cpp">
+      <Filter>ソース ファイル\engine\io</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -116,37 +122,40 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="engine\io\DebugCamera.h">
-      <Filter>ヘッダー ファイル\io</Filter>
+      <Filter>ヘッダー ファイル\engine\io</Filter>
     </ClInclude>
     <ClInclude Include="engine\io\Input.h">
-      <Filter>ヘッダー ファイル\io</Filter>
+      <Filter>ヘッダー ファイル\engine\io</Filter>
     </ClInclude>
     <ClInclude Include="engine\math\myMath.h">
-      <Filter>ヘッダー ファイル\math</Filter>
+      <Filter>ヘッダー ファイル\engine\math</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\base\WindowsAPI.h">
+      <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="externals\imgui\imconfig.h">
-      <Filter>ヘッダー ファイル\externals</Filter>
+      <Filter>imgui</Filter>
     </ClInclude>
     <ClInclude Include="externals\imgui\imgui.h">
-      <Filter>ヘッダー ファイル\externals</Filter>
+      <Filter>imgui</Filter>
     </ClInclude>
     <ClInclude Include="externals\imgui\imgui_impl_dx12.h">
-      <Filter>ヘッダー ファイル\externals</Filter>
+      <Filter>imgui</Filter>
     </ClInclude>
     <ClInclude Include="externals\imgui\imgui_impl_win32.h">
-      <Filter>ヘッダー ファイル\externals</Filter>
+      <Filter>imgui</Filter>
     </ClInclude>
     <ClInclude Include="externals\imgui\imgui_internal.h">
-      <Filter>ヘッダー ファイル\externals</Filter>
+      <Filter>imgui</Filter>
     </ClInclude>
     <ClInclude Include="externals\imgui\imstb_rectpack.h">
-      <Filter>ヘッダー ファイル\externals</Filter>
+      <Filter>imgui</Filter>
     </ClInclude>
     <ClInclude Include="externals\imgui\imstb_textedit.h">
-      <Filter>ヘッダー ファイル\externals</Filter>
+      <Filter>imgui</Filter>
     </ClInclude>
     <ClInclude Include="externals\imgui\imstb_truetype.h">
-      <Filter>ヘッダー ファイル\externals</Filter>
+      <Filter>imgui</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

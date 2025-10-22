@@ -1,12 +1,16 @@
 #include "Input.h"
 
-void Input::Initialize(const HINSTANCE hInstance, const HWND hwnd)
+void Input::Initialize(WindowsAPI* winAPI)
 {
 	HRESULT hr;
 
+	// ポインタで渡されたWinAPIのインスタンスを記録
+
+	this->winAPI_ = winAPI;
+
 	// DirectInputのオブジェクトを生成
 	hr = DirectInput8Create(
-		hInstance, DIRECTINPUT_VERSION, IID_IDirectInput8,
+		winAPI_->GetHInstance(), DIRECTINPUT_VERSION, IID_IDirectInput8,
 		(void**)&directInput_, nullptr);
 	assert(SUCCEEDED(hr));
 
@@ -18,7 +22,7 @@ void Input::Initialize(const HINSTANCE hInstance, const HWND hwnd)
 	assert(SUCCEEDED(hr));
 	// 排他制御レベルのセット
 	hr = keyboard_->SetCooperativeLevel(
-		hwnd, DISCL_FOREGROUND | DISCL_NONEXCLUSIVE | DISCL_NOWINKEY);
+		winAPI_->GetHwnd(), DISCL_FOREGROUND | DISCL_NONEXCLUSIVE | DISCL_NOWINKEY);
 	assert(SUCCEEDED(hr));
 
 	// マウスデバイスの生成
@@ -29,7 +33,7 @@ void Input::Initialize(const HINSTANCE hInstance, const HWND hwnd)
 	assert(SUCCEEDED(hr));
 	// 排他制御レベルのセット
 	hr = mouse_->SetCooperativeLevel(
-		hwnd, DISCL_FOREGROUND | DISCL_NONEXCLUSIVE | DISCL_NOWINKEY);
+		winAPI_->GetHwnd(), DISCL_FOREGROUND | DISCL_NONEXCLUSIVE | DISCL_NOWINKEY);
 	assert(SUCCEEDED(hr));
 }
 
