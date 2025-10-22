@@ -4,6 +4,8 @@
 #include <cassert>
 #include <wrl.h>
 
+#include "WindowsAPI.h"
+
 #define DIRECTINPUT_VESION		0x0800	// DirectInputのバージョンを指定
 #include <dinput.h>
 #pragma comment(lib, "dinput8.lib")
@@ -17,7 +19,7 @@ public:
 
 public:
 
-	void Initialize(const HINSTANCE hInstance, const HWND hwnd);
+	void Initialize(WindowsAPI* winAPI);
 
 	void Update();
 
@@ -30,6 +32,9 @@ public:
 
 
 private:
+
+	// WindowsAPI
+	WindowsAPI* winAPI_ = nullptr;
 
 	// DirecctInputの初期化
 	ComPtr<IDirectInput8> directInput_ = nullptr;
