@@ -5,10 +5,12 @@
 #include "externals/imgui/imgui_impl_win32.h"
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);
 
+#pragma comment(lib, "winmm.lib")
 
 void WindowsAPI::Initialize()
 {
-	
+	timeBeginPeriod(1);
+
 	// ウィンドウプロシージャ
 	wc_.lpfnWndProc = WindowProc;
 	// ウィンドウクラス名(なんでも良い)
@@ -40,6 +42,8 @@ void WindowsAPI::Initialize()
 		nullptr,
 		wc_.hInstance,
 		nullptr);
+
+	assert(hwnd_ != nullptr);
 
 	// ウィンドウを表示する
 	ShowWindow(hwnd_, SW_SHOW);
