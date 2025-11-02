@@ -61,6 +61,9 @@ float pi = static_cast<float>(M_PI);
 #include "WindowsAPI.h"
 #include "DirectXBase.h"
 
+#include "SpriteBase.h"
+#include "Sprite.h"
+
 struct VertexData
 {
 	XMFLOAT4 position;
@@ -375,6 +378,7 @@ std::vector<ModelData> LoadObjFile(const std::string& directoryPath, const std::
 				XMFLOAT4 position = positions[elementIndices[0] - 1];
 				XMFLOAT2 texcoord = texcoords[elementIndices[1] - 1];
 				XMFLOAT3 normal = normals[elementIndices[2] - 1];
+
 				/*VertexData vertex = { position, texcoord, normal };
 				modelData.vertices.push_back(vertex);*/
 				triangle[faceVertex] = { position, texcoord, normal };
@@ -576,6 +580,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	DirectXBase* dxBase = new DirectXBase();
 	dxBase->Initialize(winAPI);
 
+	
 
 
 #ifdef _DEBUG
@@ -729,11 +734,14 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	assert(pixelShaderBlob != nullptr);
 
 
-
-
-
-
-
+	
+	// スプライトの共通処理を生成
+	SpriteBase* spriteBase = nullptr;
+	// スプライトの共通部を初期化
+	spriteBase = new SpriteBase;
+	spriteBase->Initialize(dxBase, 
+		signatureBlob.Get(), inputLayoutDesc, vertexShaderBlob.Get(), 
+		pixelShaderBlob.Get(), blendDesc, rasterizerDesc);
 
 
 
@@ -778,41 +786,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 
 
-	D3D12_GRAPHICS_PIPELINE_STATE_DESC graphicsPipelineStateDescSprite{};
-
-	// DepthStencilStateの設定
-	D3D12_DEPTH_STENCIL_DESC depthStencilDescSprite{};
-	// Depthの機能を有効化する
-	depthStencilDescSprite.DepthEnable = false;
-	// 書き込みします
-	depthStencilDescSprite.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO;
-
-	// DepthStencilの設定
-	graphicsPipelineStateDescSprite.DepthStencilState = depthStencilDescSprite;
-	graphicsPipelineStateDescSprite.DSVFormat = DXGI_FORMAT_UNKNOWN;
-
-	graphicsPipelineStateDescSprite.pRootSignature = rootSignature.Get();	// RootSignature
-	graphicsPipelineStateDescSprite.InputLayout = inputLayoutDesc;	// InputLayout
-	graphicsPipelineStateDescSprite.VS = { vertexShaderBlob->GetBufferPointer(),
-	vertexShaderBlob->GetBufferSize() };	// VertexShader
-	graphicsPipelineStateDescSprite.PS = { pixelShaderBlob->GetBufferPointer(),
-	pixelShaderBlob->GetBufferSize() };		// PixelShader
-	graphicsPipelineStateDescSprite.BlendState = blendDesc;	// BlendState
-	graphicsPipelineStateDescSprite.RasterizerState = rasterizerDesc;	// RasterizerState
-	// 書き込むRTVの情報
-	graphicsPipelineStateDescSprite.NumRenderTargets = 1;
-	graphicsPipelineStateDescSprite.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
-	// 利用するトポロジ（形状）のタイプ。三角形
-	graphicsPipelineStateDescSprite.PrimitiveTopologyType =
-		D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-	// どのように画面に色を打ち込むかの設定（気にしなくて良い）
-	graphicsPipelineStateDescSprite.SampleDesc.Count = 1;
-	graphicsPipelineStateDescSprite.SampleMask = D3D12_DEFAULT_SAMPLE_MASK;
-	// 実際に生成
-	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipeLineStateSprite = nullptr;
-	hr = dxBase->GetDevice()->CreateGraphicsPipelineState(&graphicsPipelineStateDescSprite,
-		IID_PPV_ARGS(&graphicsPipeLineStateSprite));
-	assert(SUCCEEDED(hr));
+	
 
 	Input* input = new Input;
 	input->Initialize(winAPI);
@@ -828,6 +802,16 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	// インスタンスを生成
 	hr = xAudio2->CreateMasteringVoice(&masterVoice);
 	assert(SUCCEEDED(hr));
+
+
+	// シーン初期化始め
+
+
+	Sprite* sprite = new Sprite();
+	sprite->Initialize(spriteBase);
+
+
+	// シーン初期化終わり
 
 
 
@@ -1487,8 +1471,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 			dxBase->GetCommandList()->DrawIndexedInstanced(kSubdivision * kSubdivision * 6, 1, 0, 0, 0);
 			
 
+			spriteBase->DrawingCommon();
+
 			// Spriteの描画。変更が必要なものだけ変更する。
-			dxBase->GetCommandList()->SetPipelineState(graphicsPipeLineStateSprite.Get());	// PS0を設定
+			dxBase->GetCommandList()->SetPipelineState(spriteBase->GetGraphicsPipeLineState());	// PS0を設定
 
 			dxBase->GetCommandList()->IASetVertexBuffers(0, 1, &vertexBufferViewSprite);
 
@@ -1547,6 +1533,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	winAPI->Finalize();
 
 	// ポインタ解放
+	delete spriteBase;
+	spriteBase = nullptr;
+	delete sprite;
+	sprite = nullptr;
 	delete dxBase;
 	dxBase = nullptr;
 	delete winAPI;

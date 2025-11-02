@@ -232,6 +232,7 @@ private:
 
 	// FenceのSignalを待つためのイベントを作成する
 	HANDLE fenceEvent_ = 0;
+
 };
 
 
