@@ -5,10 +5,7 @@ class SpriteBase
 {
 public:
 
-	void Initialize(DirectXBase* dxBase, 
-	ID3DBlob* signatureBlob, D3D12_INPUT_LAYOUT_DESC inputLayoutDesc,
-	IDxcBlob* vertexShaderBlob, IDxcBlob* pixelShaderBlob,
-	D3D12_BLEND_DESC blendDesc, D3D12_RASTERIZER_DESC rasterizerDesc);
+	void Initialize(DirectXBase* dxBase);
 
 	void Update();
 
@@ -29,10 +26,7 @@ private:
 
 	void CreateRootSignature(ID3DBlob* signatureBlob);
 
-	void CreateGraphicsPipelineState(
-	ID3DBlob* signatureBlob, D3D12_INPUT_LAYOUT_DESC inputLayoutDesc,
-	IDxcBlob* vertexShaderBlob, IDxcBlob* pixelShaderBlob,
-	D3D12_BLEND_DESC blendDesc, D3D12_RASTERIZER_DESC rasterizerDesc);
+	void CreateGraphicsPipelineState();
 
 private:
 

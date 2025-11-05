@@ -60,6 +60,7 @@ float pi = static_cast<float>(M_PI);
 #include "D3DResourceLeakChecker.h"
 #include "WindowsAPI.h"
 #include "DirectXBase.h"
+#include "TextureManager.h"
 
 #include "SpriteBase.h"
 #include "Sprite.h"
@@ -580,7 +581,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	DirectXBase* dxBase = new DirectXBase();
 	dxBase->Initialize(winAPI);
 
-	
+	TextureManager* textureManager = TextureManager::GetInstance();
+	textureManager->SetDxBase(dxBase);
 
 
 #ifdef _DEBUG
@@ -733,17 +735,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		L"resources/shaders/Object3D.PS.hlsl",L"ps_6_0");
 	assert(pixelShaderBlob != nullptr);
 
-
 	
 	// スプライトの共通処理を生成
 	SpriteBase* spriteBase = nullptr;
 	// スプライトの共通部を初期化
 	spriteBase = new SpriteBase;
-	spriteBase->Initialize(dxBase, 
-		signatureBlob.Get(), inputLayoutDesc, vertexShaderBlob.Get(), 
-		pixelShaderBlob.Get(), blendDesc, rasterizerDesc);
-
-
+	spriteBase->Initialize(dxBase);
 
 
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC graphicsPipelineStateDesc{};
@@ -1062,17 +1059,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 
 
-	
-	
-
-
-
-	
-
-	
-
-	
-
 
 	//// SRVを作成するDescriptorHeapの場所を決める
 	//D3D12_CPU_DESCRIPTOR_HANDLE textureSrvHandleCPU = dxBase->GetSrvDescriptorHeap()->GetCPUDescriptorHandleForHeapStart();
@@ -1084,84 +1070,58 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	//textureSrvHandleGPU.ptr += dxBase->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 
 	// Textureを読んで転送する
-	DirectX::ScratchImage mipImages[2];
-	mipImages[0] = dxBase->LoadTexture("resources/uvChecker.png");
-	mipImages[1] = dxBase->LoadTexture("resources/monsterBall.png");
+	textureManager->LoadTexture("resources/uvChecker.png");
+	textureManager->LoadTexture("resources/monsterBall.png");
 
-	const int textureNum = 2;
-	D3D12_GPU_DESCRIPTOR_HANDLE textureSrvHandles[textureNum];
-	Microsoft::WRL::ComPtr<ID3D12Resource> textureResource[textureNum];
+	//std::vector<DirectX::ScratchImage> mipImagesMtl(modelData.size());
+	//for (size_t i = 0; i < modelData.size(); ++i)
+	//{
+	//	mipImagesMtl[i] = dxBase->LoadTexture(modelData[i].material.textureFilePath);
+	//}
 
-	for (int i = 0; i < textureNum; i++)
-	{
-		const DirectX::TexMetadata& metadata = mipImages[i].GetMetadata();
+	//std::vector<D3D12_GPU_DESCRIPTOR_HANDLE> textureSrvHandlesMtl(modelData.size());
+	//std::vector<Microsoft::WRL::ComPtr<ID3D12Resource>> textureResourceMtl(modelData.size());
+	//for (size_t i = 0; i < modelData.size(); ++i)
+	//{
+	//	const DirectX::TexMetadata& metadata = mipImagesMtl[i].GetMetadata();
 
-		textureResource[i] = dxBase->CreateTextureResource(metadata);
+	//	textureResourceMtl[i] = dxBase->CreateTextureResource(metadata);
 
-		// metaDataを基にSRVの設定
-		D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc{};
-		srvDesc.Format = metadata.format;
-		srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-		srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D; // 2Dテクスチャ
-		srvDesc.Texture2D.MipLevels = UINT(metadata.mipLevels);
+	//	// metaDataを基にSRVの設定
+	//	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc{};
+	//	srvDesc.Format = metadata.format;
+	//	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+	//	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D; // 2Dテクスチャ
+	//	srvDesc.Texture2D.MipLevels = UINT(metadata.mipLevels);
 
-		dxBase->UploadTextureData(textureResource[i].Get(), mipImages[i]);
+	//	dxBase->UploadTextureData(textureResourceMtl[i].Get(), mipImagesMtl[i]);
 
-		// CPU 側（ImGui分の1 + i）
-		auto cpuHandle = dxBase->GetSRVCPUDescriptorHandle(1 + i);
-		// GetCPUDescriptorHandle(srvDescriptorHeap, descriptorSize, /*index=*/ 1 + i);
-		// GPU 側も同様に
-		auto gpuHandle = dxBase->GetSRVGPUDescriptorHandle(1 + i);
-		// GetGPUDescriptorHandle(srvDescriptorHeap, descriptorSize, /*index=*/ 1 + i);
+	//	// CPU 側（ImGui分の1 + i）
+	//	auto cpuHandle = dxBase->GetSRVCPUDescriptorHandle(static_cast<uint32_t>(1 + textureNum + i));
+	//	// GetCPUDescriptorHandle(srvDescriptorHeap, descriptorSize, /*index=*/ static_cast<uint32_t>(1 + textureNum + i));
+	//	// GPU 側も同様に
+	//	auto gpuHandle = dxBase->GetSRVGPUDescriptorHandle(static_cast<uint32_t>(1 + textureNum + i));
+	//	// GetGPUDescriptorHandle(srvDescriptorHeap, descriptorSize, /*index=*/ static_cast<uint32_t>(1 + textureNum + i));
 
-		// SRV を生成
-		dxBase->GetDevice()->CreateShaderResourceView(textureResource[i].Get(), &srvDesc, cpuHandle);
-		textureSrvHandles[i] = gpuHandle;
-	}
-
-	std::vector<DirectX::ScratchImage> mipImagesMtl(modelData.size());
-	for (size_t i = 0; i < modelData.size(); ++i)
-	{
-		mipImagesMtl[i] = dxBase->LoadTexture(modelData[i].material.textureFilePath);
-	}
-
-	std::vector<D3D12_GPU_DESCRIPTOR_HANDLE> textureSrvHandlesMtl(modelData.size());
-	std::vector<Microsoft::WRL::ComPtr<ID3D12Resource>> textureResourceMtl(modelData.size());
-	for (size_t i = 0; i < modelData.size(); ++i)
-	{
-		const DirectX::TexMetadata& metadata = mipImagesMtl[i].GetMetadata();
-
-		textureResourceMtl[i] = dxBase->CreateTextureResource(metadata);
-
-		// metaDataを基にSRVの設定
-		D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc{};
-		srvDesc.Format = metadata.format;
-		srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-		srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D; // 2Dテクスチャ
-		srvDesc.Texture2D.MipLevels = UINT(metadata.mipLevels);
-
-		dxBase->UploadTextureData(textureResourceMtl[i].Get(), mipImagesMtl[i]);
-
-		// CPU 側（ImGui分の1 + i）
-		auto cpuHandle = dxBase->GetSRVCPUDescriptorHandle(static_cast<uint32_t>(1 + textureNum + i));
-		// GetCPUDescriptorHandle(srvDescriptorHeap, descriptorSize, /*index=*/ static_cast<uint32_t>(1 + textureNum + i));
-		// GPU 側も同様に
-		auto gpuHandle = dxBase->GetSRVGPUDescriptorHandle(static_cast<uint32_t>(1 + textureNum + i));
-		// GetGPUDescriptorHandle(srvDescriptorHeap, descriptorSize, /*index=*/ static_cast<uint32_t>(1 + textureNum + i));
-
-		// SRV を生成
-		dxBase->GetDevice()->CreateShaderResourceView(textureResourceMtl[i].Get(), &srvDesc, cpuHandle);
-		textureSrvHandlesMtl[i] = gpuHandle;
-	}
+	//	// SRV を生成
+	//	dxBase->GetDevice()->CreateShaderResourceView(textureResourceMtl[i].Get(), &srvDesc, cpuHandle);
+	//	textureSrvHandlesMtl[i] = gpuHandle;
+	//}
 
 	int textureIndex = 0;
 	const char* textureOptions[] = { "Checker", "monsterBall" };
 
 	// シーン初期化始め
 
+	std::vector<Sprite*> sprites;
 
-	Sprite* sprite = new Sprite();
-	sprite->Initialize(spriteBase, textureSrvHandles[0]);
+	for (size_t i = 0; i < 2; i++)
+	{
+		Sprite* newSprite = new Sprite();
+		newSprite->Initialize(spriteBase, "resources/uvChecker.png");
+		newSprite->SetAnchorPoint(Vector2{ 0.5f, 0.5f });
+		sprites.push_back(newSprite);
+	}
 
 
 	// シーン初期化終わり
@@ -1199,8 +1159,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 	bool isDrawSprite = false;
 
-	Transform transformSprite = { {1.0f, 1.0f, 1.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f} };
-	Transform uvTransformSprite = { {1.0f, 1.0f, 1.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f} };
+	
+	
 
 	DebugCamera debugCamera;
 	bool isDebugCamera = false;
@@ -1228,24 +1188,139 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 			//// 開発用ImGuiの処理。実際に開発用のUIを出す場合はここをゲーム固有の処理に置き換えること。
 			//ImGui::ShowDemoWindow();
 
-			ImGui::Begin("Window");
+			ImGui::Begin("SpriteSetting");
 
 			ImGui::Checkbox("DrawSprite", &isDrawSprite);
-			ImGui::Checkbox("DebugCamera", &isDebugCamera);
 
-			
-			if (ImGui::DragFloat2("UVScale", &uvTransformSprite.scale.x, 0.01f, -10.0f, 10.0f))
+			if (ImGui::BeginTable("ItemsTable", 7, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg))
 			{
-				sprite->SetUVScale(uvTransformSprite.scale);
+				ImGui::TableSetupScrollFreeze(1, 1);
+				ImGui::TableSetupColumn("position", ImGuiTableColumnFlags_WidthFixed, 80.0f);
+				ImGui::TableSetupColumn("rotation", ImGuiTableColumnFlags_WidthFixed, 80.0f);
+				ImGui::TableSetupColumn("size", ImGuiTableColumnFlags_WidthFixed, 80.0f);
+				ImGui::TableSetupColumn("color", ImGuiTableColumnFlags_WidthFixed, 180.0f);
+				ImGui::TableSetupColumn("uvTransform", ImGuiTableColumnFlags_WidthFixed, 160.0f);
+				ImGui::TableSetupColumn("texture", ImGuiTableColumnFlags_WidthFixed, 80.0f);
+				ImGui::TableSetupColumn("Ops", ImGuiTableColumnFlags_WidthFixed, 50.0f);
+				ImGui::TableHeadersRow();
+
+				int to_delete = -1;
+				size_t i = 0;
+
+				for (auto it = sprites.begin(); it != sprites.end(); ++it, ++i)
+				{
+					Sprite* sprite = *it;
+					if (!sprite) continue;
+				
+					ImGui::TableNextRow();
+
+					// 要素ごとにIDスタックを分ける
+					ImGui::PushID((void*)sprite);
+					
+					ImGui::TableSetColumnIndex(0);
+					Vector2 positionSprite = sprite->GetPosition();
+					if (ImGui::DragFloat2("##positionSprite", &positionSprite.x, 1.0f, 0.0f, 1280.0f))
+					{
+						sprite->SetPosition(positionSprite);
+					}
+
+					ImGui::TableSetColumnIndex(1);
+					float rotationSprite = sprite->GetRotation();
+					if (ImGui::SliderAngle("##rotationSprite", &rotationSprite))
+					{
+						sprite->SetRotation(rotationSprite);
+					}
+
+					ImGui::TableSetColumnIndex(2);
+					Vector2 sizeSprite = sprite->GetSize();
+					if (ImGui::DragFloat2("##sizeSprite", &sizeSprite.x, 1.0f, 0.0f, 1280.0f))
+					{
+						sprite->SetSize(sizeSprite);
+					}
+
+					ImGui::TableSetColumnIndex(3);
+					Vector4 colorSprite = sprite->GetColor();
+					if (ImGui::ColorEdit4("##colorSprite", &colorSprite.x))
+					{
+						sprite->SetColor(colorSprite);
+					}
+
+					ImGui::TableSetColumnIndex(4);
+					Transform uvTransformSprite = sprite->GetUVTransform();
+					if (ImGui::DragFloat2("##UVScale", &uvTransformSprite.scale.x, 0.01f, -10.0f, 10.0f))
+					{
+						sprite->SetUVScale(uvTransformSprite.scale);
+					}
+					if (ImGui::DragFloat2("##UVTranslate", &uvTransformSprite.translate.x, 0.01f, -10.0f, 10.0f))
+					{
+						sprite->SetUVTranslate(uvTransformSprite.translate);
+					}
+					if (ImGui::SliderAngle("##UVRotate", &uvTransformSprite.rotate.z))
+					{
+						sprite->SetUVRotate(uvTransformSprite.rotate);
+					}
+					Vector2 textureLeftTopSprite = sprite->GetTextureLeftTop();
+					if(ImGui::DragFloat2("##LeftTop", &textureLeftTopSprite.x))
+					{
+						sprite->SetTextureLeftTop(textureLeftTopSprite);
+					}
+					Vector2 textureSizeSprite = sprite->GetTextureSize();
+					if (ImGui::DragFloat2("##Size", &textureSizeSprite.x))
+					{
+						sprite->SetTextureSize(textureSizeSprite);
+					}
+
+					ImGui::TableSetColumnIndex(5);
+					if (ImGui::SmallButton("UV"))
+					{
+						sprite->SetTexture("resources/uvChecker.png");
+					}
+					if (ImGui::SmallButton("MB"))
+					{
+						sprite->SetTexture("resources/monsterBall.png");
+					}
+					bool isFlipXSprite = sprite->GetIsFlipX();
+					if (ImGui::Checkbox("FlipX", &isFlipXSprite))
+					{
+						sprite->SetFlipX(isFlipXSprite);
+					}
+					bool isFlipYSprite = sprite->GetIsFlipY();
+					if (ImGui::Checkbox("FlipY", &isFlipYSprite))
+					{
+						sprite->SetFlipY(isFlipYSprite);
+					}
+
+
+					ImGui::TableSetColumnIndex(6);
+					if (ImGui::SmallButton("Delete##del")) 
+					{
+						to_delete = int(i);
+					}
+
+					ImGui::PopID();
+				}
+
+				ImGui::EndTable();
+
+				if (to_delete >= 0 && to_delete < (int) sprites.size()) 
+				{
+					sprites.erase(sprites.begin() + to_delete);
+				}
+
+				if (ImGui::SmallButton("Add##del"))
+				{
+					Sprite* sprite = new Sprite();
+					sprite->Initialize(spriteBase, "resources/uvChecker.png");
+					sprites.push_back(sprite);
+				}
 			}
-			if (ImGui::DragFloat2("UVTranslate", &uvTransformSprite.translate.x, 0.01f, -10.0f, 10.0f))
-			{
-				sprite->SetUVTranslate(uvTransformSprite.translate);
-			}
-			if(ImGui::SliderAngle("UVRotate", &uvTransformSprite.rotate.z))
-			{
-				sprite->SetUVRotate(uvTransformSprite.rotate);
-			}
+
+			ImGui::End();
+
+
+			ImGui::Begin("Window");
+
+			ImGui::Checkbox("DebugCamera", &isDebugCamera);
 
 			ImGui::Combo("Texture", &textureIndex, textureOptions, IM_ARRAYSIZE(textureOptions));
 
@@ -1328,8 +1403,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 			mousePosition.x = static_cast<float>(input->MousePoint(winAPI->GetHwnd()).x);
 			mousePosition.y = static_cast<float>(input->MousePoint(winAPI->GetHwnd()).y);
 
-
-			sprite->Update();
+			for (auto it = sprites.begin(); it != sprites.end(); ++it)
+			{ 
+				Sprite* sprite = *it;
+				sprite->Update();
+			}
 
 			// ImGuiの内部コマンドを生成する
 			ImGui::Render();
@@ -1353,52 +1431,55 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 			//// SphereのIndexBufferViewを設定
 			//commandList->IASetIndexBuffer(&indexBufferView);
 
-			for (size_t i = 0; i < modelData.size(); ++i)
-			{
+			//for (size_t i = 0; i < modelData.size(); ++i)
+			//{
 
-				dxBase->GetCommandList()->IASetVertexBuffers(0, 1, &vertexBufferView[i]);	// VBVを設定
-				
-				// マテリアルのCBufferの場所を設定
-				dxBase->GetCommandList()->SetGraphicsRootConstantBufferView(0, materialResource[i]->GetGPUVirtualAddress());
+			//	dxBase->GetCommandList()->IASetVertexBuffers(0, 1, &vertexBufferView[i]);	// VBVを設定
+			//	
+			//	// マテリアルのCBufferの場所を設定
+			//	dxBase->GetCommandList()->SetGraphicsRootConstantBufferView(0, materialResource[i]->GetGPUVirtualAddress());
 
-				// wvp用のCBufferの場所を設定
-				dxBase->GetCommandList()->SetGraphicsRootConstantBufferView(1, transformationResource->GetGPUVirtualAddress());
+			//	// wvp用のCBufferの場所を設定
+			//	dxBase->GetCommandList()->SetGraphicsRootConstantBufferView(1, transformationResource->GetGPUVirtualAddress());
 
-				// SRV用のDescriptorTableの先頭を設定。2はrootParameter[2]である。
-				dxBase->GetCommandList()->SetGraphicsRootDescriptorTable(2, textureSrvHandlesMtl[i]);
+			//	// SRV用のDescriptorTableの先頭を設定。2はrootParameter[2]である。
+			//	dxBase->GetCommandList()->SetGraphicsRootDescriptorTable(2, textureSrvHandlesMtl[i]);
 
-				// 平行光源用のCBufferをバインド（rootParameter[3] = b1）
-				dxBase->GetCommandList()->SetGraphicsRootConstantBufferView(3, DirectionalLightResource->GetGPUVirtualAddress());
+			//	// 平行光源用のCBufferをバインド（rootParameter[3] = b1）
+			//	dxBase->GetCommandList()->SetGraphicsRootConstantBufferView(3, DirectionalLightResource->GetGPUVirtualAddress());
 
-				// 描画！（DrawCall/ドローコール）。
-				dxBase->GetCommandList()->DrawInstanced(UINT(modelData[i].vertices.size()), 1, 0, 0);
+			//	// 描画！（DrawCall/ドローコール）。
+			//	dxBase->GetCommandList()->DrawInstanced(UINT(modelData[i].vertices.size()), 1, 0, 0);
 
-				//// 描画！（DrawCall/ドローコール）。
-				//commandList->DrawIndexedInstanced(kSubdivision * kSubdivision * 6, 1, 0, 0, 0);
+			//	//// 描画！（DrawCall/ドローコール）。
+			//	//commandList->DrawIndexedInstanced(kSubdivision * kSubdivision * 6, 1, 0, 0, 0);
 
-			}
-			
-			// Sphereの描画
-			dxBase->GetCommandList()->IASetVertexBuffers(0, 1, &vertexBufferViewSphere);	// VBVを設定
-			// SphereのIndexBufferViewを設定
-			dxBase->GetCommandList()->IASetIndexBuffer(&indexBufferViewSphere);
-			// SphereのマテリアルのCBufferの場所を設定
-			dxBase->GetCommandList()->SetGraphicsRootConstantBufferView(0, materialResourceSphere->GetGPUVirtualAddress());
-			// SphereのTransformationMatrixCBufferの場所を設定
-			dxBase->GetCommandList()->SetGraphicsRootConstantBufferView(1, transformationResourceSphere->GetGPUVirtualAddress());
-			// SRV用のDescriptorTableの先頭を設定。2はrootParameter[2]である。
-			dxBase->GetCommandList()->SetGraphicsRootDescriptorTable(2, textureSrvHandles[0]);	// SphereはCheckerを使う
-			// 平行光源用のCBufferをバインド（rootParameter[3] = b1）
-			dxBase->GetCommandList()->SetGraphicsRootConstantBufferView(3, DirectionalLightResource->GetGPUVirtualAddress());
-			// 描画！（DrawCall/ドローコール）。
-			dxBase->GetCommandList()->DrawIndexedInstanced(kSubdivision * kSubdivision * 6, 1, 0, 0, 0);
+			//}
+			//
+			//// Sphereの描画
+			//dxBase->GetCommandList()->IASetVertexBuffers(0, 1, &vertexBufferViewSphere);	// VBVを設定
+			//// SphereのIndexBufferViewを設定
+			//dxBase->GetCommandList()->IASetIndexBuffer(&indexBufferViewSphere);
+			//// SphereのマテリアルのCBufferの場所を設定
+			//dxBase->GetCommandList()->SetGraphicsRootConstantBufferView(0, materialResourceSphere->GetGPUVirtualAddress());
+			//// SphereのTransformationMatrixCBufferの場所を設定
+			//dxBase->GetCommandList()->SetGraphicsRootConstantBufferView(1, transformationResourceSphere->GetGPUVirtualAddress());
+			//// SRV用のDescriptorTableの先頭を設定。2はrootParameter[2]である。
+			//dxBase->GetCommandList()->SetGraphicsRootDescriptorTable(2, textureSrvHandles[0]);	// SphereはCheckerを使う
+			//// 平行光源用のCBufferをバインド（rootParameter[3] = b1）
+			//dxBase->GetCommandList()->SetGraphicsRootConstantBufferView(3, DirectionalLightResource->GetGPUVirtualAddress());
+			//// 描画！（DrawCall/ドローコール）。
+			//dxBase->GetCommandList()->DrawIndexedInstanced(kSubdivision * kSubdivision * 6, 1, 0, 0, 0);
 			
 
 			spriteBase->DrawingCommon();
 
 			if (isDrawSprite)
 			{
-				sprite->Draw();
+				for (size_t i = 0; i < sprites.size(); i++)
+				{
+					sprites[i]->Draw();
+				}
 			}
 						
 			
@@ -1433,6 +1514,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	// オブジェクトの解放処理
 	CloseHandle(dxBase->GetFenceEvent());
 
+	// TextureManager終了処理
+	textureManager->Finalize();
+
 	// DirectXBase終了処理
 	dxBase->Finalize();
 
@@ -1442,8 +1526,14 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	// ポインタ解放
 	delete spriteBase;
 	spriteBase = nullptr;
-	delete sprite;
-	sprite = nullptr;
+
+	for (auto it = sprites.begin(); it != sprites.end(); ++it)
+	{
+		Sprite* sprite = *it;
+		delete sprite;
+	}
+	sprites.clear();
+
 	delete dxBase;
 	dxBase = nullptr;
 	delete winAPI;

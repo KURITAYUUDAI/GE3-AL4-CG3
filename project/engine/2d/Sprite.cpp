@@ -1,7 +1,8 @@
 #include "Sprite.h"
 #include "SpriteBase.h"
+#include "TextureManager.h"
 
-void Sprite::Initialize(SpriteBase* spriteBase, const D3D12_GPU_DESCRIPTOR_HANDLE& textureSrvHandle)
+void Sprite::Initialize(SpriteBase* spriteBase, std::string textureFilePath)
 {
 	// スプライトの共通処理を受け取る
 	spriteBase_ = spriteBase;
@@ -12,12 +13,42 @@ void Sprite::Initialize(SpriteBase* spriteBase, const D3D12_GPU_DESCRIPTOR_HANDL
 
 	CreateTransformationMatrixResource();
 
-	// テクスチャ―リソースを受け取る
-	textureSrvHandle_ = textureSrvHandle;
+	// テクスチャインデックスを受け取る
+	textureIndex_ = TextureManager::GetInstance()->GetTextureIndexByFilePath(textureFilePath);
+
+	AdjustTextureSize();
 }
 
 void Sprite::Update()
 {
+
+
+	float left = 0.0f - anchorPoint_.x;
+	float right = 1.0f - anchorPoint_.x;
+	float top = 0.0f - anchorPoint_.y;
+	float bottom = 1.0f - anchorPoint_.y;
+
+	if (isFlipX_)
+	{
+		left = -left;
+		right = -right;
+	}
+
+	if (isFlipY_)
+	{
+		top = -top;
+		bottom = -bottom;
+	}
+
+	vertexData_[0].position = { left, bottom, 0.0f, 1.0f };
+	vertexData_[1].position = { left, top, 0.0f, 1.0f };
+	vertexData_[2].position = { right, bottom, 0.0f, 1.0f };
+	vertexData_[3].position = { right, top, 0.0f, 1.0f };
+
+	// transformに値を代入
+	transform_.translate = Vector3{ position_.x, position_.y, 0.0f };
+	transform_.rotate = Vector3{ 0.0f, 0.0f, rotation_ };
+	transform_.scale = Vector3{ size_.x, size_.y, 1.0f };
 
 	// WorldViewProjectionMatrixを作る
 	worldMatrix_ = MakeAffineMatrix(transform_.scale, transform_.rotate, transform_.translate);
@@ -29,6 +60,19 @@ void Sprite::Update()
 	// 座標変換行列データに各行列をコピー
 	transformationMatrixData_->World = worldMatrix_;
 	transformationMatrixData_->WVP = worldViewProjectionMatrix_;
+
+	const DirectX::TexMetadata& metaData =
+		TextureManager::GetInstance()->GetMetaData(textureIndex_);
+	float tex_left = textureLeftTop_.x / metaData.width;
+	float tex_right = (textureLeftTop_.x + textureSize_.x) / metaData.width;
+	float tex_top = textureLeftTop_.y / metaData.height;
+	float tex_bottom = (textureLeftTop_.y + textureSize_.y) / metaData.height;
+
+	// 頂点リソースにデータを書き込む
+	vertexData_[0].texcoord = { tex_left, tex_bottom };
+	vertexData_[1].texcoord = { tex_left, tex_top };
+	vertexData_[2].texcoord = { tex_right, tex_bottom };
+	vertexData_[3].texcoord = { tex_right, tex_top };
 
 	uvTransformMatrix_ = MakeScaleMatrix(uvTransform_.scale);
 	uvTransformMatrix_ = Multiply(uvTransformMatrix_, MakeRotateZMatrix(uvTransform_.rotate.z));
@@ -52,7 +96,7 @@ void Sprite::Draw()
 	// TransformationMatrixCBufferの」場所を設定
 	spriteBase_->GetDxBase()->GetCommandList()->SetGraphicsRootConstantBufferView(1, transformationMatrixResource_->GetGPUVirtualAddress());
 	// SRV用のDescriptorTableの先頭を設定。2はrootParameter[2]である。
-	spriteBase_->GetDxBase()->GetCommandList()->SetGraphicsRootDescriptorTable(2, textureSrvHandle_);
+	spriteBase_->GetDxBase()->GetCommandList()->SetGraphicsRootDescriptorTable(2, TextureManager::GetInstance()->GetSRVHandleGPU(textureIndex_));
 
 	// 描画！(DrawCall)
 	spriteBase_->GetDxBase()->GetCommandList()->DrawIndexedInstanced(6, 1, 0, 0, 0);
@@ -61,6 +105,12 @@ void Sprite::Draw()
 
 void Sprite::Finalize()
 {
+}
+
+void Sprite::SetTexture(std::string textureFilePath)
+{
+	// テクスチャインデックスを受け取る
+	textureIndex_ = TextureManager::GetInstance()->GetTextureIndexByFilePath(textureFilePath);
 }
 
 void Sprite::CreateVertexResource()
@@ -90,16 +140,16 @@ void Sprite::CreateVertexResource()
 	// VertexResourceにデータを書き込むためのアドレスを取得してVertexDataに割り当てる
 	vertexResource_->Map(0, nullptr, reinterpret_cast<void**>(&vertexData_));
 	// 1枚目の三角形
-	vertexData_[0].position = { 0.0f, 360.0f, 0.0f, 1.0f };
+	vertexData_[0].position = { 0.0f, 1.0f, 0.0f, 1.0f };
 	vertexData_[0].texcoord = { 0.0f, 1.0f };
 	vertexData_[0].normal = { 0.0f, 0.0f, -1.0f };
 	vertexData_[1].position = { 0.0f, 0.0f, 0.0f, 1.0f };
 	vertexData_[1].texcoord = { 0.0f, 0.0f };
 	vertexData_[1].normal = { 0.0f, 0.0f, -1.0f };
-	vertexData_[2].position = { 640.0f, 360.0f, 0.0f, 1.0f };
+	vertexData_[2].position = { 1.0f, 1.0f, 0.0f, 1.0f };
 	vertexData_[2].texcoord = { 1.0f, 1.0f };
 	vertexData_[2].normal = { 0.0f, 0.0f, -1.0f };
-	vertexData_[3].position = { 640.0f, 0.0f, 0.0f, 1.0f };
+	vertexData_[3].position = { 1.0f, 0.0f, 0.0f, 1.0f };
 	vertexData_[3].texcoord = { 1.0f, 0.0f };
 	vertexData_[3].normal = { 0.0f, 0.0f, -1.0f };
 
@@ -133,4 +183,16 @@ void Sprite::CreateTransformationMatrixResource()
 	transformationMatrixData_->World = MakeIdentity4x4();
 	transformationMatrixData_->WVP = MakeIdentity4x4();
 
+}
+
+void Sprite::AdjustTextureSize()
+{
+	// テクスチャメタデータを取得
+	const DirectX::TexMetadata& metadata = TextureManager::GetInstance()->GetMetaData(textureIndex_);
+
+	textureSize_.x = static_cast<float>(metadata.width);
+	textureSize_.y = static_cast<float>(metadata.height);
+
+	// 画像サイズをテクスチャサイズに合わせる
+	size_ = textureSize_;
 }
