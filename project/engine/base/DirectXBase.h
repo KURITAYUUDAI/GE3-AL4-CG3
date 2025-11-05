@@ -53,13 +53,7 @@ public:
 	// バッファリソース生成
 	ComPtr<ID3D12Resource> CreateBufferResource(size_t sizeInBytes);
 
-	/// <summary>
-	/// テクスチャファイルの読み込み
-	/// </summary>
-	/// <param name="filePath">テクスチャファイルのパス</param>
-	/// <returns>画像イメージデータ</returns>
-	static DirectX::ScratchImage LoadTexture(const std::string& filePath);
-
+	
 	// テクスチャリソース生成
 	ComPtr<ID3D12Resource> CreateTextureResource(const DirectX::TexMetadata& metadata);
 
@@ -153,7 +147,10 @@ private: // 静的関数
 		const ComPtr<ID3D12DescriptorHeap>& descriptorHeap, uint32_t descriptorSize, uint32_t index);
 
 
+public:	// 動的変数
 
+	// 最大SRV数（最大テクスチャ枚数）
+	static const uint32_t kMaxSRVCount;
 	
 
 private:
@@ -232,6 +229,7 @@ private:
 
 	// FenceのSignalを待つためのイベントを作成する
 	HANDLE fenceEvent_ = 0;
+
 };
 
 
