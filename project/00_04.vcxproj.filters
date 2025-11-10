@@ -129,11 +129,26 @@
     <ClCompile Include="engine\base\FixFPS.cpp">
       <Filter>ソース ファイル\engine\base</Filter>
     </ClCompile>
-    <ClCompile Include="engine\2d\Sprite.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
     <ClCompile Include="engine\base\TextureManager.cpp">
       <Filter>ソース ファイル\engine\base</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\3d\Object3dBase.cpp">
+      <Filter>ソース ファイル\engine\3d</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\2d\Sprite.cpp">
+      <Filter>ソース ファイル\engine\2d</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\3d\Object3d.cpp">
+      <Filter>ソース ファイル\engine\3d</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\3d\Model.cpp">
+      <Filter>ソース ファイル\engine\3d</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\3d\ModelBase.cpp">
+      <Filter>ソース ファイル\engine\3d</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\3d\ModelManager.cpp">
+      <Filter>ソース ファイル\engine\3d</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -199,11 +214,26 @@
     <ClInclude Include="engine\2d\SpriteBase.h">
       <Filter>ヘッダー ファイル\engine\2d</Filter>
     </ClInclude>
-    <ClInclude Include="engine\2d\Sprite.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
     <ClInclude Include="engine\base\TextureManager.h">
       <Filter>ヘッダー ファイル\engine\base</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\3d\Object3dBase.h">
+      <Filter>ヘッダー ファイル\engine\3d</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\2d\Sprite.h">
+      <Filter>ヘッダー ファイル\engine\2d</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\3d\Object3d.h">
+      <Filter>ヘッダー ファイル\engine\3d</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\3d\Model.h">
+      <Filter>ヘッダー ファイル\engine\3d</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\3d\ModelBase.h">
+      <Filter>ヘッダー ファイル\engine\3d</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\3d\ModelManager.h">
+      <Filter>ヘッダー ファイル\engine\3d</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
