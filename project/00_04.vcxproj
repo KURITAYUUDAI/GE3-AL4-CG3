@@ -171,6 +171,11 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="engine\2d\SpriteBase.cpp" />
     <ClCompile Include="engine\2d\Sprite.cpp" />
     <ClCompile Include="engine\base\TextureManager.cpp" />
+    <ClCompile Include="engine\3d\Object3dBase.cpp" />
+    <ClCompile Include="engine\3d\Object3d.cpp" />
+    <ClCompile Include="engine\3d\Model.cpp" />
+    <ClCompile Include="engine\3d\ModelBase.cpp" />
+    <ClCompile Include="engine\3d\ModelManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="resources\shaders\Object3d.PS.hlsl">
@@ -211,6 +216,11 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="engine\2d\SpriteBase.h" />
     <ClInclude Include="engine\2d\Sprite.h" />
     <ClInclude Include="engine\base\TextureManager.h" />
+    <ClInclude Include="engine\3d\Object3dBase.h" />
+    <ClInclude Include="engine\3d\Object3d.h" />
+    <ClInclude Include="engine\3d\Model.h" />
+    <ClInclude Include="engine\3d\ModelBase.h" />
+    <ClInclude Include="engine\3d\ModelManager.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="externals\imgui\LICENSE.txt" />

@@ -19,20 +19,20 @@ void DebugCamera::Update(Input* input, Transform originCamera)
 
 	if (input_->PushKey(DIK_RIGHT))
 	{
-		debugCamera_.rotate.y += 0.5f / 180.0f * static_cast<float>(M_PI);
+		debugCamera_.rotate.y += 0.5f / 180.0f * pi;
 	}
 	else if (input_->PushKey(DIK_LEFT))
 	{
-		debugCamera_.rotate.y -= 0.5f / 180.0f * static_cast<float>(M_PI);
+		debugCamera_.rotate.y -= 0.5f / 180.0f * pi;
 	}
 
 	if (input_->PushKey(DIK_UP))
 	{
-		debugCamera_.rotate.x += 0.5f / 180.0f * static_cast<float>(M_PI);
+		debugCamera_.rotate.x += 0.5f / 180.0f * pi;
 	}
 	else if (input_->PushKey(DIK_DOWN))
 	{
-		debugCamera_.rotate.x -= 0.5f / 180.0f * static_cast<float>(M_PI);
+		debugCamera_.rotate.x -= 0.5f / 180.0f * pi;
 	}
 
 	camera.rotate.x = debugCamera_.rotate.x + originCamera.rotate.x;

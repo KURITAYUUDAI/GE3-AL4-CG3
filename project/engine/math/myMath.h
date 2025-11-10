@@ -2,6 +2,7 @@
 #include <cmath>
 #include <stdlib.h>
 #include <assert.h>
+#include <numbers>
 
 struct Vector2
 {
@@ -37,6 +38,8 @@ struct Transform
 
 static const int kColumnWidth = 60;
 static const int kRowHeight = 20;
+
+static const float pi = std::numbers::pi_v<float>;
 
 // 00_01
 // 加算
@@ -115,3 +118,7 @@ Matrix4x4 MakeViewportMatrix(float left, float top, float width, float height, f
 // 01_01
 // クロス積関数
 Vector3 Cross(const Vector3& a, const Vector3& b);
+
+inline Matrix4x4 operator+(const Matrix4x4& m1, const Matrix4x4& m2) { return Add(m1, m2); }
+inline Matrix4x4 operator-(const Matrix4x4& m1, const Matrix4x4& m2) { return Subtract(m1, m2); }
+inline Matrix4x4 operator*(const Matrix4x4& m1, const Matrix4x4& m2) { return Multiply(m1, m2); }
