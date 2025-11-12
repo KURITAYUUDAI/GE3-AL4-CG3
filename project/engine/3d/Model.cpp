@@ -256,3 +256,162 @@ void Model::CreateMaterialResource()
 	materialData_->enableLighting = false;
 	materialData_->uvTransform = MakeIdentity4x4();
 }
+
+void Model::CreateSphere()
+{
+	/// 球の作成
+
+	const int kSubdivision = 16;
+	int sphereSize = kSubdivision * kSubdivision * 4; // 1つの経度分割で4つの頂点が必要
+
+
+	Microsoft::WRL::ComPtr<ID3D12Resource> vertexResourceSphere = 
+		modelBase_->GetDxBase()->CreateBufferResource(sizeof(VertexData) * sphereSize);
+
+	// 頂点バッファビューを作成する
+	D3D12_VERTEX_BUFFER_VIEW vertexBufferViewSphere{};
+	// リソースの先頭のアドレスから使う
+	vertexBufferViewSphere.BufferLocation = vertexResourceSphere->GetGPUVirtualAddress();
+	// 使用するリソースのサイズ
+	vertexBufferViewSphere.SizeInBytes = sizeof(VertexData) * kSubdivision * kSubdivision * 4;
+	// 1頂点当たりのサイズ
+	vertexBufferViewSphere.StrideInBytes = sizeof(VertexData);
+
+	// 頂点リソースにデータを書き込む
+	VertexData* vertexDataSphere = nullptr;
+	// 書き込むためのアドレスを取得
+	vertexResourceSphere->Map(0, nullptr,
+		reinterpret_cast<void**>(&vertexDataSphere));
+
+	// 経度分割1つ分の角度 Φ
+	const float kLonEvery = pi * 2.0f / static_cast<float>(kSubdivision);
+	// 緯度分割1つ分の角度 Θ
+	const float kLatEvery = pi / static_cast<float>(kSubdivision);
+	// 緯度の方向に分割
+	for (int latIndex = 0; latIndex < kSubdivision; ++latIndex)
+	{
+		float lat = -pi / 2.0f + kLatEvery * latIndex;
+		// 経度の方向に分割しながら線を描く
+		for (int lonIndex = 0; lonIndex < kSubdivision; ++lonIndex)
+		{
+			uint32_t start = (latIndex * kSubdivision + lonIndex) * 4;
+			float lon = lonIndex * kLonEvery; // Φ
+			// 頂点にデータを入力する。基準点a
+			vertexDataSphere[start].position =
+			{
+				std::cos(lat) * std::cos(lon),
+				std::sin(lat),
+				std::cos(lat) * std::sin(lon),
+				1.0f,
+			};
+			vertexDataSphere[start].texcoord =
+			{
+				static_cast<float>(lonIndex) / static_cast<float>(kSubdivision),
+				1.0f - static_cast<float>(latIndex) / static_cast<float>(kSubdivision),
+			};
+			vertexDataSphere[start].normal.x = vertexDataSphere[start].position.x;
+			vertexDataSphere[start].normal.y = vertexDataSphere[start].position.y;
+			vertexDataSphere[start].normal.z = vertexDataSphere[start].position.z;
+
+			vertexDataSphere[start + 1].position =
+			{
+				std::cos(lat + kLatEvery) * std::cos(lon),
+				std::sin(lat + kLatEvery),
+				std::cos(lat + kLatEvery) * std::sin(lon),
+				1.0f,
+			};
+			vertexDataSphere[start + 1].texcoord =
+			{
+				static_cast<float>(lonIndex) / static_cast<float>(kSubdivision),
+				1.0f - static_cast<float>(latIndex + 1) / static_cast<float>(kSubdivision),
+			};
+			vertexDataSphere[start + 1].normal.x = vertexDataSphere[start + 1].position.x;
+			vertexDataSphere[start + 1].normal.y = vertexDataSphere[start + 1].position.y;
+			vertexDataSphere[start + 1].normal.z = vertexDataSphere[start + 1].position.z;
+
+			vertexDataSphere[start + 2].position =
+			{
+				std::cos(lat) * std::cos(lon + kLonEvery),
+				std::sin(lat),
+				std::cos(lat) * std::sin(lon + kLonEvery),
+				1.0f,
+			};
+			vertexDataSphere[start + 2].texcoord =
+			{
+				static_cast<float>(lonIndex + 1) / static_cast<float>(kSubdivision),
+				1.0f - static_cast<float>(latIndex) / static_cast<float>(kSubdivision),
+			};
+			vertexDataSphere[start + 2].normal.x = vertexDataSphere[start + 2].position.x;
+			vertexDataSphere[start + 2].normal.y = vertexDataSphere[start + 2].position.y;
+			vertexDataSphere[start + 2].normal.z = vertexDataSphere[start + 2].position.z;
+
+
+
+			vertexDataSphere[start + 3].position =
+			{
+				std::cos(lat + kLatEvery) * std::cos(lon + kLonEvery),
+				std::sin(lat + kLatEvery),
+				std::cos(lat + kLatEvery) * std::sin(lon + kLonEvery),
+				1.0f,
+			};
+			vertexDataSphere[start + 3].texcoord =
+			{
+				static_cast<float>(lonIndex + 1) / static_cast<float>(kSubdivision),
+				1.0f - static_cast<float>(latIndex + 1) / static_cast<float>(kSubdivision),
+			};
+			vertexDataSphere[start + 3].normal.x = vertexDataSphere[start + 3].position.x;
+			vertexDataSphere[start + 3].normal.y = vertexDataSphere[start + 3].position.y;
+			vertexDataSphere[start + 3].normal.z = vertexDataSphere[start + 3].position.z;
+		}
+	}
+
+	// Sphere用のindexResourceを作成する。
+	Microsoft::WRL::ComPtr<ID3D12Resource> indexResource = 
+		modelBase_->GetDxBase()->CreateBufferResource(sizeof(uint32_t) * kSubdivision * kSubdivision * 6);
+	// IndexBufferViewを作成する
+	D3D12_INDEX_BUFFER_VIEW indexBufferViewSphere{};
+	// リソースの先頭のアドレスから使う
+	indexBufferViewSphere.BufferLocation = indexResource->GetGPUVirtualAddress();
+	// 使用するリソースのサイズ
+	indexBufferViewSphere.SizeInBytes = sizeof(uint32_t) * kSubdivision * kSubdivision * 6;
+	// 1つのIndexのサイズ
+	indexBufferViewSphere.Format = DXGI_FORMAT_R32_UINT;
+	// IndexResourceにデータを書き込む
+	uint32_t* indexData = nullptr;
+	// 書き込むためのアドレスを取得
+	indexResource->Map(0, nullptr, reinterpret_cast<void**>(&indexData));
+
+	// Indexは6つの三角形で1つの四角形を表すので、6つずつ書き込む
+	for (int latIndex = 0; latIndex < kSubdivision; ++latIndex)
+	{
+		for (int lonIndex = 0; lonIndex < kSubdivision; ++lonIndex)
+		{
+			// Vertexの読み込み開始位置
+			uint32_t vertexStart = (latIndex * kSubdivision + lonIndex) * 4;
+			// Indexの書き込み開始位置
+			uint32_t indexStart = (latIndex * kSubdivision + lonIndex) * 6;
+
+			indexData[indexStart + 0] = vertexStart + 0;
+			indexData[indexStart + 1] = vertexStart + 1;
+			indexData[indexStart + 2] = vertexStart + 2;
+			indexData[indexStart + 3] = vertexStart + 1;
+			indexData[indexStart + 4] = vertexStart + 3;
+			indexData[indexStart + 5] = vertexStart + 2;
+		}
+	}
+
+
+
+	// マテリアル用のリソースを作る。
+	Microsoft::WRL::ComPtr<ID3D12Resource> materialResourceSphere =
+		modelBase_->GetDxBase()->CreateBufferResource(sizeof(Material));
+	// マテリアルにデータを書き込む
+	Material* materialDataSphere = nullptr;
+	// 書き込むためのアドレスを取得
+	materialResourceSphere->Map(0, nullptr, reinterpret_cast<void**>(&materialDataSphere));
+	// 色の書き込み
+	materialDataSphere->color = Vector4{ 1.0f, 1.0f, 1.0f, 1.0f };
+	materialDataSphere->enableLighting = true;
+	materialDataSphere->uvTransform = MakeIdentity4x4();
+
+}

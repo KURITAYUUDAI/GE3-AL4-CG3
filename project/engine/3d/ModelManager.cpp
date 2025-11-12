@@ -18,6 +18,8 @@ void ModelManager::Finalize()
 {
 	models_.clear();
 
+	delete modelBase_;
+
 	delete instance;
 	instance = nullptr;
 

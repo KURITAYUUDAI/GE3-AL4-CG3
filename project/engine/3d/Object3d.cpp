@@ -2,13 +2,14 @@
 #include "Object3dBase.h"
 #include "Model.h"
 #include "ModelManager.h"
+#include "Camera.h"
 
 void Object3d::Initialize(Object3dBase* object3dBase)
 {
 
 	object3dBase_ = object3dBase;
 
-	
+	camera_ = object3dBase_->GetDefaultCamera();
 
 	CreateTransformationMatrixResource();
 
@@ -18,7 +19,7 @@ void Object3d::Initialize(Object3dBase* object3dBase)
 
 	// Transform変数を作る
 	transform_ = { {1.0f, 1.0f, 1.0f}, {0.0f, pi, 0.0f}, {0.0f, 0.0f, 0.0f} };
-	cameraTransform_ = { {1.0f, 1.0f, 1.0f}, {0.3f, 0.0f, 0.0f}, {0.0f, 4.0f, -10.0f} };
+	
 }
 
 void Object3d::Update()
@@ -26,13 +27,19 @@ void Object3d::Update()
 	/*transform_.rotate.y += (1.0f / 180.0f) * pi;*/
 
 	Matrix4x4 worldMatrix = MakeAffineMatrix(transform_.scale, transform_.rotate, transform_.translate);
-	Matrix4x4 cameraMatrix = MakeAffineMatrix(cameraTransform_.scale, cameraTransform_.rotate, cameraTransform_.translate);
-	Matrix4x4 viewMatrix = Inverse(cameraMatrix);
-	Matrix4x4 projectionMatrix = MakePerspectiveFovMatrix(0.45f, static_cast<float>(WindowsAPI::kClientWidth) / static_cast<float>(WindowsAPI::kClientHeight), 0.1f, 100.0f);
-
+	Matrix4x4 worldViewProjectionMatrix;
+	if (camera_)
+	{
+		const Matrix4x4& viewProjectionMatrix = camera_->GetViewProjectionMatrix();
+		worldViewProjectionMatrix = Multiply(worldMatrix, viewProjectionMatrix);
+	}
+	else
+	{
+		worldViewProjectionMatrix = worldMatrix;
+	}
 	
 	transformationMatrixData_->World = worldMatrix;
-	transformationMatrixData_->WVP = worldMatrix * viewMatrix * projectionMatrix;
+	transformationMatrixData_->WVP = worldViewProjectionMatrix;
 
 }
 

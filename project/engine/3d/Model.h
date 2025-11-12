@@ -62,6 +62,9 @@ private:
 	// MaterialResourceを作成
 	void CreateMaterialResource();
 
+	// 球作成
+	void CreateSphere();
+
 public:	// 外部入出力
 
 
