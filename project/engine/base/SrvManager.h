@@ -9,6 +9,14 @@ public:
 	template <class T> using ComPtr = Microsoft::WRL::ComPtr<T>;
 
 public:
+  
+	// シングルトンインスタンスの取得
+	static SrvManager* GetInstance();
+	// 終了
+	void Finalize();
+
+public:
+
 
 	// 初期化
 	void Initialize(DirectXBase* dxBase);
@@ -36,9 +44,15 @@ public:
 	// 最大SRV数（最大テクスチャ枚数）
 	static const uint32_t kMaxSRVCount;
 
-private:
+private: 	// シングルトンインスタンス
 
-	
+	static SrvManager* instance;
+
+	SrvManager() = default;
+	~SrvManager() = default;
+	SrvManager(SrvManager&) = delete;
+	SrvManager& operator=(SrvManager&) = delete;
+
 
 private:
 	

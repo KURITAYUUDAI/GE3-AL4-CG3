@@ -27,15 +27,12 @@ public:
 	/// <param name="filePath">テクスチャファイルのパス</param>
 	/// <returns>画像イメージデータ</returns>
 	void LoadTexture(const std::string& filePath);
-
-	void LoadInstancingTexture(const std::string& filePath, UINT numElements, UINT structureByteStride);
-
+  
 public:	// 外部入出力
 
 	// ゲッター
 	D3D12_GPU_DESCRIPTOR_HANDLE GetSRVHandleGPU(const std::string& filePath);
 	const DirectX::TexMetadata& GetMetaData(const std::string& filePath);
-	SrvManager* GetSrvManager(){ return srvManager_; }
 
 	// セッター
 	void SetDxBase(DirectXBase* dxBase){ dxBase_ = dxBase; }
@@ -96,13 +93,8 @@ private:	// 静的変数
 
 	// テクスチャデータ
 	std::unordered_map<std::string, TextureData> textureDatas_;
-	
-	// インスタンシングテクスチャデータ
-	std::unordered_map<std::string, TextureData> instancingTextureDatas_;
 
 	DirectXBase* dxBase_;
 
-	SrvManager* srvManager_;
-	
 
 };

@@ -73,6 +73,9 @@ using namespace DirectX;
 
 #include "SrvManager.h"
 
+#include "ParticleBase.h"
+#include "Particle.h"
+
 //class ResourceObject
 //{
 //public:
@@ -358,8 +361,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	DirectXBase* dxBase = new DirectXBase();
 	dxBase->Initialize(winAPI);
 
-	SrvManager* srvManager = nullptr;
-	srvManager = new SrvManager();
+	SrvManager* srvManager = SrvManager::GetInstance();
 	srvManager->Initialize(dxBase);
 
 	TextureManager* textureManager = TextureManager::GetInstance();
@@ -530,6 +532,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	// 3Dオブジェクトの共通部を初期化
 	object3dBase = new Object3dBase;
 	object3dBase->Initialize(dxBase);
+
+	// パーティクルの共通処理を初期化
+	ParticleBase* particleBase = nullptr;
+	// パーティクルの共通部を初期化
+	particleBase = new ParticleBase;
+	particleBase->Initialize(dxBase);
 
 
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC graphicsPipelineStateDesc{};
@@ -737,8 +745,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	// シーン初期化始め
 	Camera* camera = new Camera;
 	camera->Initialize();
-	camera->SetTranslate({0.0f, 0.0f, -50.0f});
+	camera->SetTranslate({0.0f, 0.0f, -10.0f});
 	object3dBase->SetDefaultCamera(camera);
+	particleBase->SetDefaultCamera(camera);
 
 	std::vector<Sprite*> sprites;
 
@@ -768,14 +777,15 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	}
 
 	object3ds[1]->SetModel("axis.obj");
-
-	std::vector<Object3d*> particle3ds;
+  
+	std::vector<Particle*> particles;
 	for (size_t i = 0; i < 1; i++)
 	{
-		Object3d* newObject3d = new Object3d();
-		newObject3d->Initialize(object3dBase);
-		newObject3d->SetModel("plane.obj");
-		particle3ds.push_back(newObject3d);
+		Particle* particle = new Particle();
+		particle->Initialize(particleBase, 10);
+		particle->SetModel("plane.obj");
+		particles.push_back(particle);
+
 	}
 
 
@@ -814,7 +824,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 	bool isDrawSprite = true;
 
-	
+	bool isDrawObject3d = false;
 	
 
 	DebugCamera debugCamera;
@@ -1146,11 +1156,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 				object3d->Update();
 			}
 
-			/*for (auto it = particle3ds.begin(); it != particle3ds.end(); ++it)
+			for (auto it = particles.begin(); it != particles.end(); ++it)
 			{
-				Object3d* particle3d = *it;
-				particle3d->Update();
-			}*/
+				Particle* particle = *it;
+				particle->Update();
+			}
+
 
 			//// ImGuiの内部コマンドを生成する
 			//ImGui::Render();
@@ -1163,11 +1174,23 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 			srvManager->PreDraw();
 
-			object3dBase->DrawingCommon();
-
-			for (size_t i = 0; i < object3ds.size(); i++)
+			if (isDrawObject3d)
 			{
-				object3ds[i]->Draw();
+				object3dBase->DrawingCommon();
+
+				for (size_t i = 0; i < object3ds.size(); i++)
+				{
+					object3ds[i]->Draw();
+				}
+			}
+
+
+			particleBase->DrawingCommon();
+
+
+			for (size_t i = 0; i < particles.size(); i++)
+			{
+				particles[i]->Draw();
 			}
 
 			/*for (size_t i = 0; i < particle3ds.size(); i++)
@@ -1194,10 +1217,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 			//dxBase->GetCommandList()->DrawIndexedInstanced(kSubdivision * kSubdivision * 6, 1, 0, 0, 0);
 			
 
-			spriteBase->DrawingCommon();
-
 			if (isDrawSprite)
 			{
+				spriteBase->DrawingCommon();
+
 				for (size_t i = 0; i < sprites.size(); i++)
 				{
 					sprites[i]->Draw();
@@ -1233,13 +1256,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	// 音声データ解放
 	SoundUnload(&soundData1);
 
-
-	for (auto it = particle3ds.begin(); it != particle3ds.end(); ++it)
+	for (auto it = particles.begin(); it != particles.end(); ++it)
 	{
-		Object3d* particle3d = *it;
-		delete particle3d;
+		Particle* particle = *it;
+		delete particle;
 	}
-	particle3ds.clear();
+	particles.clear();
+
 
 	for (auto it = object3ds.begin(); it != object3ds.end(); ++it)
 	{
@@ -1265,7 +1288,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	spriteBase = nullptr;
 
 	// SrvManager終了処理
-	delete srvManager;
+	SrvManager::GetInstance()->Finalize();
 
 	// ModelManager終了処理
 	ModelManager::GetInstance()->Finalize();

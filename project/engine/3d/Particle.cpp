@@ -3,56 +3,76 @@
 #include "Model.h"
 #include "ModelManager.h"
 #include "Camera.h"
-#include "TextureManager.h"
+#include "SrvManager.h"
 
-void Particle::Initialize(ParticleBase* particleBase)
+void Particle::Initialize(ParticleBase* particleBase, const uint32_t& instanceNum)
 {
 	particleBase_ = particleBase;
 
+	instanceNum_ = instanceNum;
+
 	camera_ = particleBase_->GetDefaultCamera();
 
-	CreateTransformationMatrixResource();
+	/*CreateTransformationMatrixResource();*/
 
 	/*CreateDirectionalLightResource();*/
 
 	CreateInstancingResource();
 
-	TextureManager::GetInstance()->LoadInstancingTexture(
-		"Resources/Textures/uvChecker.png", kNumInstance_, sizeof(TransformationMatrix));
-
 	// Transform変数を作る
-	transform_ = { {1.0f, 1.0f, 1.0f}, {0.0f, pi, 0.0f}, {0.0f, 0.0f, 0.0f} };
+	transforms_.resize(instanceNum_);
+	for (size_t index = 0; index < instanceNum_; ++index)
+	{
+		transforms_[index] =
+		{
+			{1.0f, 1.0f, 1.0f},
+			{0.0f, pi, 0.0f},
+			{ static_cast<float>(index * 0.1f), 
+			  static_cast<float>(index * 0.1f), 
+			  static_cast<float>(index * 0.1f)  }
+		};
+	}
+
 }
 
 void Particle::Update()
 {
-	transform_.rotate.y += (5.0f / 180.0f) * pi;
+	for (uint32_t index = 0; index < instanceNum_; ++index)
+	{
+		transforms_[index].rotate.y += (static_cast<float>(index + 1) / 180.0f) * pi;
 
-	Matrix4x4 worldMatrix = MakeAffineMatrix(transform_.scale, transform_.rotate, transform_.translate);
-	Matrix4x4 worldViewProjectionMatrix;
-	if (camera_)
-	{
-		const Matrix4x4& viewProjectionMatrix = camera_->GetViewProjectionMatrix();
-		worldViewProjectionMatrix = Multiply(worldMatrix, viewProjectionMatrix);
-	} else
-	{
-		worldViewProjectionMatrix = worldMatrix;
+		Matrix4x4 worldMatrix = MakeAffineMatrix(
+			transforms_[index].scale, transforms_[index].rotate, transforms_[index].translate);
+		Matrix4x4 worldViewProjectionMatrix;
+		if (camera_)
+		{
+			const Matrix4x4& viewProjectionMatrix = camera_->GetViewProjectionMatrix();
+			worldViewProjectionMatrix = Multiply(worldMatrix, viewProjectionMatrix);
+		} else
+		{
+			worldViewProjectionMatrix = worldMatrix;
+		}
+
+		instancingData_[index].WVP = worldViewProjectionMatrix;
+		instancingData_[index].World = worldMatrix;
 	}
 
-	transformationMatrixData_->World = worldMatrix;
-	transformationMatrixData_->WVP = worldViewProjectionMatrix;
 }
 
 void Particle::Draw()
 {
-	// wvp用のCBufferの場所を設定
-	particleBase_->GetDxBase()->GetCommandList()
-		->SetGraphicsRootConstantBufferView(1, transformationMatrixResource_->GetGPUVirtualAddress());
+
+	//// wvp用のCBufferの場所を設定
+	//particleBase_->GetDxBase()->GetCommandList()
+	//	->SetGraphicsRootConstantBufferView(1, transformationMatrixResource_->GetGPUVirtualAddress());
+
 
 	//// 平行光源用のCBufferをバインド（rootParameter[3] = b1）
 	//particleBase_->GetDxBase()->GetCommandList()
 	//  ->SetGraphicsRootConstantBufferView(3, DirectionalLightResource_->GetGPUVirtualAddress());
-
+	
+  particleBase_->GetDxBase()->GetCommandList()
+		->SetGraphicsRootDescriptorTable(1, instancingSrvHandleGPU_);
 
 	// 3Dモデルが割り当てられていれば描画する
 	if (model_)
@@ -70,16 +90,7 @@ void Particle::Finalize()
 void Particle::SetModel(const std::string& filePath)
 {
 	model_ = ModelManager::GetInstance()->FindModel(filePath);
-}
-
-void Particle::SetModelInstanceCount(const UINT instanceCount)
-{
-	model_->SetInstanceCount(instanceCount);
-}
-
-const UINT& Particle::GetModelInstanceCount() const
-{
-	return model_->GetInstanceCount();
+	model_->SetInstanceCount(instanceNum_);
 }
 
 void Particle::CreateTransformationMatrixResource()
@@ -109,18 +120,26 @@ void Particle::CreateTransformationMatrixResource()
 
 void Particle::CreateInstancingResource()
 {
-	kNumInstance_ = 10;
-
 	// Instancing用のTransformationMatrixResourceを作成する。
 	instancingResource_
-		= particleBase_->GetDxBase()->CreateBufferResource(sizeof(TransformationMatrix) * kNumInstance_);
+		= particleBase_->GetDxBase()->CreateBufferResource(sizeof(TransformationMatrix) * instanceNum_);
 	// InstancingResourceにデータを書き込むためのアドレスを取得してInstancingDataに割り当てる
-	instancingResource_->Map(0, nullptr, reinterpret_cast<void**>(&instancingDara_));
+	instancingResource_->Map(0, nullptr, reinterpret_cast<void**>(&instancingData_));
 
 	// インスタンスごとの座標変換行列データを書き込む
-	for (size_t i = 0; i < kNumInstance_; ++i)
+	for (size_t i = 0; i < instanceNum_; ++i)
 	{
-		instancingDara_[i].World = MakeIdentity4x4();
-		instancingDara_[i].WVP = MakeIdentity4x4();
+		instancingData_[i].World = MakeIdentity4x4();
+		instancingData_[i].WVP = MakeIdentity4x4();
 	}
+
+	// SRVを作成
+	instancingSrvIndex_ = SrvManager::GetInstance()->Allocate();
+	instancingSrvHandleCPU_ = SrvManager::GetInstance()->GetCPUDescriptorHandle(instancingSrvIndex_);
+	instancingSrvHandleGPU_ = SrvManager::GetInstance()->GetGPUDescriptorHandle(instancingSrvIndex_);
+
+	SrvManager::GetInstance()->CreateSRVforStructuredBuffer(
+		instancingSrvIndex_, 
+		instancingResource_.Get(),
+		instanceNum_, sizeof(TransformationMatrix));
 }

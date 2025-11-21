@@ -28,7 +28,7 @@ public:
 
 public:	// メンバ関数
 
-	void Initialize(ParticleBase* particleBase);
+	void Initialize(ParticleBase* particleBase, const uint32_t& instanceNum);
 
 	void Update();
 
@@ -42,18 +42,18 @@ public:	// 外部入出力
 	void SetModel(const std::string& filePath);
 	void SetCamera(Camera* camera){ camera_ = camera; }
 
-	void SetScale(const Vector3& scale){ transform_.scale = scale; }
-	void SetRotate(const Vector3& rotate){ transform_.rotate = rotate; }
-	void SetTranslate(const Vector3& translate){ transform_.translate = translate; }
-
-	void SetModelInstanceCount(const UINT instanceCount);
+	//void SetScale(const Vector3& scale){ transform_.scale = scale; }
+	//void SetRotate(const Vector3& rotate){ transform_.rotate = rotate; }
+	//void SetTranslate(const Vector3& translate){ transform_.translate = translate; }
 
 	// ゲッター
-	const Vector3& GetScale() const { return transform_.scale; }
-	const Vector3& GetRotate() const { return transform_.rotate; }
-	const Vector3& GetTranslate() const { return transform_.translate; }
+	const UINT& GetInstanceCount() const { return instanceNum_; }
 
-	const UINT& GetModelInstanceCount() const;
+	//const Vector3& GetScale() const { return transform_.scale; }
+	//const Vector3& GetRotate() const { return transform_.rotate; }
+	//const Vector3& GetTranslate() const { return transform_.translate; }
+
+
 
 private: // 静的関数
 
@@ -77,6 +77,20 @@ private:
 	// カメラ
 	Camera* camera_ = nullptr;
 
+	// インスタンス数
+	uint32_t instanceNum_;
+
+	// インスタンスデータ用バッファリソース
+	Microsoft::WRL::ComPtr<ID3D12Resource> instancingResource_ = nullptr;
+	// インスタンスデータ用バッファリソース内のデータを指すポインタ
+	TransformationMatrix* instancingData_ = nullptr;
+	// インスタンス用SRVのインデックス
+	uint32_t instancingSrvIndex_;
+	// インスタンス用SRVのCPUハンドル
+	D3D12_CPU_DESCRIPTOR_HANDLE instancingSrvHandleCPU_;
+	// インスタンス用SRVのGPUハンドル
+	D3D12_GPU_DESCRIPTOR_HANDLE instancingSrvHandleGPU_;
+
 	// 座標変換行列用バッファリソース
 	Microsoft::WRL::ComPtr<ID3D12Resource> transformationMatrixResource_ = nullptr;
 	// バッファリソース内のデータを指すポインタ
@@ -88,14 +102,7 @@ private:
 	//DirectionalLight* directionalLightData = nullptr;
 
 	// トランスフォーム
-	Transform transform_;
+	std::vector<Transform> transforms_;
 
-	// インスタンス数（Particle用）
-	uint32_t kNumInstance_;
-
-	// インスタンスデータ用バッファリソース（Particle用）
-	Microsoft::WRL::ComPtr<ID3D12Resource> instancingResource_ = nullptr;
-	// インスタンスデータ用バッファリソース内のデータを指すポインタ（Particle用）
-	TransformationMatrix* instancingDara_ = nullptr;
 };
 

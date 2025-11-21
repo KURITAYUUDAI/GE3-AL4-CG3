@@ -33,7 +33,7 @@ void Model::Draw()
 	modelBase_->GetDxBase()->GetCommandList()->
 		SetGraphicsRootConstantBufferView(0, materialResource_->GetGPUVirtualAddress());
 
-	TextureManager::GetInstance()->GetSrvManager()->SetGraphicsRootDescriptorTable(
+	SrvManager::GetInstance()->SetGraphicsRootDescriptorTable(
 		2, modelData_.material.textureIndex);
 
 	// 描画！（DrawCall/ドローコール）。

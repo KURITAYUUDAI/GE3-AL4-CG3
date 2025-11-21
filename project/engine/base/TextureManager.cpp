@@ -14,8 +14,6 @@ void TextureManager::Initialize(DirectXBase* dxBase, SrvManager* srvManager)
 	textureDatas_.reserve(SrvManager::kMaxSRVCount);
 
 	dxBase_ = dxBase;
-
-	srvManager_ = srvManager;
 }
 
 TextureManager* TextureManager::GetInstance()
@@ -62,64 +60,20 @@ void TextureManager::LoadTexture(const std::string& filePath)
 	textureData.metadata = mipImages.GetMetadata();
 	textureData.resource = dxBase_->CreateTextureResource(textureData.metadata);
 
-	textureData.srvIndex = srvManager_->Allocate();
-	textureData.srvHandleCPU = srvManager_->GetCPUDescriptorHandle(textureData.srvIndex);
-	textureData.srvHandleGPU = srvManager_->GetGPUDescriptorHandle(textureData.srvIndex);
+	textureData.srvIndex = SrvManager::GetInstance()->Allocate();
+	textureData.srvHandleCPU = SrvManager::GetInstance()->GetCPUDescriptorHandle(textureData.srvIndex);
+	textureData.srvHandleGPU = SrvManager::GetInstance()->GetGPUDescriptorHandle(textureData.srvIndex);
+
 
 	dxBase_->UploadTextureData(textureData.resource.Get(), mipImages);
 
 	// SRV を生成
-	srvManager_->CreateSRVforTexture2D(
+	SrvManager::GetInstance()->CreateSRVforTexture2D(
+
 		textureData.srvIndex,
 		textureData.resource.Get(),
 		textureData.metadata.format,
 		UINT(textureData.metadata.mipLevels)
-	);
-}
-
-void TextureManager::LoadInstancingTexture(const std::string& filePath, UINT numElements, UINT structureByteStride)
-{
-	// 読み込み済みテクスチャを検索
-	if (instancingTextureDatas_.contains(filePath))
-	{
-		return;
-	}
-
-	// テクスチャ枚数上限チェック
-	assert(instancingTextureDatas_.size() + kSRVIndexTop < SrvManager::kMaxSRVCount);
-
-	// テクスチャファイルを呼んでプログラムで扱えるようにする
-	DirectX::ScratchImage image{};
-	std::wstring filePathW = StringUtility::ConvertString(filePath);
-	// DirectX::WIC_FLAGS_FORCE_SRGB : sRGB空間で作られたモノとして読む。
-	HRESULT hr = DirectX::LoadFromWICFile(filePathW.c_str(), DirectX::WIC_FLAGS_FORCE_SRGB, nullptr, image);
-	assert(SUCCEEDED(hr));
-
-	// ミップマップの作成　（MipMap : 元画像より小さなテクスチャ群）
-	DirectX::ScratchImage mipImages{};
-	hr = DirectX::GenerateMipMaps(image.GetImages(), image.GetImageCount(), image.GetMetadata(), DirectX::TEX_FILTER_SRGB, 0, mipImages);
-	assert(SUCCEEDED(hr));
-
-	// テクスチャデータを追加して書き込む
-	TextureData& textureData = instancingTextureDatas_[filePath];
-
-	textureData.metadata = mipImages.GetMetadata();
-	textureData.resource = dxBase_->CreateTextureResource(textureData.metadata);
-
-	textureData.srvIndex = srvManager_->Allocate();
-	textureData.srvHandleCPU = srvManager_->GetCPUDescriptorHandle(textureData.srvIndex);
-	textureData.srvHandleGPU = srvManager_->GetGPUDescriptorHandle(textureData.srvIndex);
-
-	dxBase_->UploadTextureData(textureData.resource.Get(), mipImages);
-
-
-
-	// SRV を生成
-	srvManager_->CreateSRVforStructuredBuffer(
-		textureData.srvIndex,
-		textureData.resource.Get(),
-		numElements,
-		structureByteStride
 	);
 }
 
