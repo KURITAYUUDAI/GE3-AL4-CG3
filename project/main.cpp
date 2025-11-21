@@ -511,11 +511,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 	// Shaderをコンパイルする
 	Microsoft::WRL::ComPtr<IDxcBlob> vertexShaderBlob = dxBase->CompileShader(
-		L"resources/shaders/Object3D.Vs.hlsl", L"vs_6_0");
+		L"resources/shaders/Object3d.VS.hlsl", L"vs_6_0");
 	assert(vertexShaderBlob != nullptr);
 
 	Microsoft::WRL::ComPtr<IDxcBlob> pixelShaderBlob = dxBase->CompileShader(
-		L"resources/shaders/Object3D.PS.hlsl",L"ps_6_0");
+		L"resources/shaders/Object3d.PS.hlsl",L"ps_6_0");
 	assert(pixelShaderBlob != nullptr);
 
 	
@@ -750,6 +750,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		sprites.push_back(newSprite);
 	}
 
+	sprites[1]->SetTexture("resources/monsterBall.png");
+	sprites[1]->SetPosition(Vector2{ 720.0f, 360.0f });
+	sprites[1]->AdjustTextureSize();
+
 	std::vector<Object3d*> object3ds;
 
 	ModelManager::GetInstance()->LoadModel("plane.obj");
@@ -766,7 +770,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	object3ds[1]->SetModel("axis.obj");
 
 	std::vector<Object3d*> particle3ds;
-	for (size_t i = 0; i < 2; i++)
+	for (size_t i = 0; i < 1; i++)
 	{
 		Object3d* newObject3d = new Object3d();
 		newObject3d->Initialize(object3dBase);
@@ -1142,6 +1146,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 				object3d->Update();
 			}
 
+			/*for (auto it = particle3ds.begin(); it != particle3ds.end(); ++it)
+			{
+				Object3d* particle3d = *it;
+				particle3d->Update();
+			}*/
+
 			//// ImGuiの内部コマンドを生成する
 			//ImGui::Render();
 
@@ -1159,6 +1169,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 			{
 				object3ds[i]->Draw();
 			}
+
+			/*for (size_t i = 0; i < particle3ds.size(); i++)
+			{
+				particle3ds[i]->Draw();
+			}*/
 
 			//// SphereのIndexBufferViewを設定
 			//commandList->IASetIndexBuffer(&indexBufferView);

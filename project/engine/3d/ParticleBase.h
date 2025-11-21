@@ -3,11 +3,11 @@
 
 class Camera;
 
-class Object3dBase
+class ParticleBase
 {
 
 public: // メンバ関数
-	
+
 	// 初期化
 	void Initialize(DirectXBase* dxBase);
 

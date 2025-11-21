@@ -67,7 +67,11 @@ private:
 
 public:	// 外部入出力
 
+	// セッター
+	void SetInstanceCount(const UINT& instanceCount) { instanceCount_ = instanceCount; }
 
+	// ゲッター
+	const UINT& GetInstanceCount() const { return instanceCount_; }
 
 private:
 
@@ -89,6 +93,8 @@ private:
 	Material* materialData_ = nullptr;
 
 	bool isSphere_ = false;
+
+	UINT instanceCount_ = 1;
 
 };
 

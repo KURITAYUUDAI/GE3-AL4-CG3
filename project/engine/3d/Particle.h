@@ -6,9 +6,9 @@ class Model;
 
 class Camera;
 
-class Object3dBase;
+class ParticleBase;
 
-class Object3d
+class Particle
 {
 
 public:
@@ -27,8 +27,8 @@ public:
 	};
 
 public:	// メンバ関数
-	
-	void Initialize(Object3dBase* object3dBase);
+
+	void Initialize(ParticleBase* particleBase);
 
 	void Update();
 
@@ -46,23 +46,30 @@ public:	// 外部入出力
 	void SetRotate(const Vector3& rotate){ transform_.rotate = rotate; }
 	void SetTranslate(const Vector3& translate){ transform_.translate = translate; }
 
+	void SetModelInstanceCount(const UINT instanceCount);
+
 	// ゲッター
 	const Vector3& GetScale() const { return transform_.scale; }
 	const Vector3& GetRotate() const { return transform_.rotate; }
 	const Vector3& GetTranslate() const { return transform_.translate; }
+
+	const UINT& GetModelInstanceCount() const;
 
 private: // 静的関数
 
 	// TransformationMatrixResourceを作成
 	void CreateTransformationMatrixResource();
 
-	// DirectionalLightResourceを作成
-	void CreateDirectionalLightResource();
+	//// DirectionalLightResourceを作成
+	//void CreateDirectionalLightResource();
+
+	// InstancinResourceを作成（Particle用）
+	void CreateInstancingResource();
 
 private:
 
-	// 3Dオブジェクト共通処理
-	Object3dBase* object3dBase_ = nullptr;
+	// パーティクル共通処理
+	ParticleBase* particleBase_ = nullptr;
 
 	// モデル
 	Model* model_ = nullptr;
@@ -75,12 +82,20 @@ private:
 	// バッファリソース内のデータを指すポインタ
 	TransformationMatrix* transformationMatrixData_ = nullptr;
 
-	// 平行光源用のリソースを作成
-	Microsoft::WRL::ComPtr<ID3D12Resource> DirectionalLightResource_ = nullptr;
-	// バッファリソース内のデータを指すポインタ
-	DirectionalLight* directionalLightData = nullptr;
-	
+	//// 平行光源用のリソースを作成
+	//Microsoft::WRL::ComPtr<ID3D12Resource> DirectionalLightResource_ = nullptr;
+	//// バッファリソース内のデータを指すポインタ
+	//DirectionalLight* directionalLightData = nullptr;
+
 	// トランスフォーム
 	Transform transform_;
+
+	// インスタンス数（Particle用）
+	uint32_t kNumInstance_;
+
+	// インスタンスデータ用バッファリソース（Particle用）
+	Microsoft::WRL::ComPtr<ID3D12Resource> instancingResource_ = nullptr;
+	// インスタンスデータ用バッファリソース内のデータを指すポインタ（Particle用）
+	TransformationMatrix* instancingDara_ = nullptr;
 };
 

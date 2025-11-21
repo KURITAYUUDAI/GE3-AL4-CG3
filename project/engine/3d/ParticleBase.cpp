@@ -1,39 +1,36 @@
-#include "Object3dBase.h"
+#include "ParticleBase.h"
 #include "Logger.h"
 
-
-void Object3dBase::Initialize(DirectXBase* dxBase)
+void ParticleBase::Initialize(DirectXBase* dxBase)
 {
-
 	dxBase_ = dxBase;
 
 	CreateGraphicsPipelineState();
 }
 
-void Object3dBase::Update()
+void ParticleBase::Update()
 {
 }
 
-void Object3dBase::Draw()
+void ParticleBase::Draw()
 {
 }
 
-void Object3dBase::Finalize()
+void ParticleBase::Finalize()
 {
 }
 
-void Object3dBase::DrawingCommon()
+void ParticleBase::DrawingCommon()
 {
 	// RootSignatureを設定。PSOに設定しているけど別途設定が必要
 	dxBase_->GetCommandList()->SetGraphicsRootSignature(rootSignature_.Get());
 	dxBase_->GetCommandList()->SetPipelineState(graphicsPipeLineState_.Get());	// PS0を設定
-
+	
 	// 形状を設定。PS0に設定しているものとはまた別。同じものを設定すると考えておけば良い
 	dxBase_->GetCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
 }
 
-void Object3dBase::CreateRootSignature(ID3DBlob* signatureBlob)
+void ParticleBase::CreateRootSignature(ID3DBlob* signatureBlob)
 {
 	HRESULT hr;
 	hr = dxBase_->GetDevice()->CreateRootSignature(0,
@@ -42,15 +39,15 @@ void Object3dBase::CreateRootSignature(ID3DBlob* signatureBlob)
 	assert(SUCCEEDED(hr));
 }
 
-void Object3dBase::CreateGraphicsPipelineState()
+void ParticleBase::CreateGraphicsPipelineState()
 {
 	HRESULT hr;
 
-	D3D12_DESCRIPTOR_RANGE descriptorRange[1] = {};
-	descriptorRange[0].BaseShaderRegister = 0; // 0から始まる
-	descriptorRange[0].NumDescriptors = 1;	// 数は一つ
-	descriptorRange[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV; // SRVを使う
-	descriptorRange[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND; // Offsetを自動計算
+	D3D12_DESCRIPTOR_RANGE descriptorRangeForInstancing[1] = {};
+	descriptorRangeForInstancing[0].BaseShaderRegister = 0; // 0から始まる
+	descriptorRangeForInstancing[0].NumDescriptors = 1;	// 数は一つ
+	descriptorRangeForInstancing[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV; // SRVを使う
+	descriptorRangeForInstancing[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND; // Offsetを自動計算
 
 	// RootSignature作成
 	D3D12_ROOT_SIGNATURE_DESC descriptionRootSignature{};
@@ -63,14 +60,15 @@ void Object3dBase::CreateGraphicsPipelineState()
 	rootParameters[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;	// PixelShaderで使う
 	rootParameters[0].Descriptor.ShaderRegister = 0;	// レジスタ番号0とバインド
 
-	rootParameters[1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;	// CBVを使う
+	rootParameters[1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE; // DescriptorTableを使う
 	rootParameters[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;	// VertexShaderで使う
-	rootParameters[1].Descriptor.ShaderRegister = 0;	// レジスタ番号0とバインド
+	rootParameters[1].DescriptorTable.pDescriptorRanges = descriptorRangeForInstancing;	// Tableの中身の配列を指定
+	rootParameters[1].DescriptorTable.NumDescriptorRanges = _countof(descriptorRangeForInstancing);	// Tableで利用する数
 
 	rootParameters[2].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE; // DescriptorTableを使う
 	rootParameters[2].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL; // PixelShaderで使う
-	rootParameters[2].DescriptorTable.pDescriptorRanges = descriptorRange;	// Tableの中身の配列を指定
-	rootParameters[2].DescriptorTable.NumDescriptorRanges = _countof(descriptorRange);	// Tableで利用する数
+	rootParameters[2].DescriptorTable.pDescriptorRanges = descriptorRangeForInstancing;	// Tableの中身の配列を指定
+	rootParameters[2].DescriptorTable.NumDescriptorRanges = _countof(descriptorRangeForInstancing);	// Tableで利用する数
 
 	rootParameters[3].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;	// CBVを使う
 	rootParameters[3].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;	// PixelShaderで使う
@@ -154,11 +152,11 @@ void Object3dBase::CreateGraphicsPipelineState()
 
 	// Shaderをコンパイルする
 	Microsoft::WRL::ComPtr<IDxcBlob> vertexShaderBlob = dxBase_->CompileShader(
-		L"resources/shaders/Object3d.Vs.hlsl", L"vs_6_0");
+		L"resources/shaders/Particle.Vs.hlsl", L"vs_6_0");
 	assert(vertexShaderBlob != nullptr);
 
 	Microsoft::WRL::ComPtr<IDxcBlob> pixelShaderBlob = dxBase_->CompileShader(
-		L"resources/shaders/Object3d.PS.hlsl", L"ps_6_0");
+		L"resources/shaders/Particle.PS.hlsl", L"ps_6_0");
 	assert(pixelShaderBlob != nullptr);
 
 

@@ -56,15 +56,14 @@ void SrvManager::CreateSRVforStructuredBuffer(uint32_t srvIndex, ID3D12Resource*
 	}
 
 	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc{};
-	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_BUFFER;
 	srvDesc.Format = DXGI_FORMAT_UNKNOWN; // StructuredBuffer は常に UNKNOWN
 	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-
+	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_BUFFER;
 	srvDesc.Buffer.FirstElement = 0;
-	srvDesc.Buffer.NumElements = numElements;          // 構造体の個数
-	srvDesc.Buffer.StructureByteStride = structureByteStride;  // 構造体1個のバイト数
 	srvDesc.Buffer.Flags = D3D12_BUFFER_SRV_FLAG_NONE;
-
+	srvDesc.Buffer.NumElements = numElements;					// 構造体の個数
+	srvDesc.Buffer.StructureByteStride = structureByteStride;	// 構造体1個のバイト数
+	
 	dxBase_->GetDevice()->CreateShaderResourceView(
 		pResource, &srvDesc, GetCPUDescriptorHandle(srvIndex));
 }

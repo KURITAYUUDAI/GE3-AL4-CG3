@@ -37,7 +37,7 @@ void Model::Draw()
 		2, modelData_.material.textureIndex);
 
 	// 描画！（DrawCall/ドローコール）。
-	modelBase_->GetDxBase()->GetCommandList()->DrawInstanced(UINT(modelData_.vertices.size()), 1, 0, 0);
+	modelBase_->GetDxBase()->GetCommandList()->DrawInstanced(UINT(modelData_.vertices.size()), instanceCount_, 0, 0);
 }
 
 Model::MaterialData Model::LoadMaterialTemplateFile(const std::string& directoryPath, const std::string& filename, const std::string& mtlname)

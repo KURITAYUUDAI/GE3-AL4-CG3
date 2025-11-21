@@ -28,6 +28,8 @@ public:
 	/// <returns>画像イメージデータ</returns>
 	void LoadTexture(const std::string& filePath);
 
+	void LoadInstancingTexture(const std::string& filePath, UINT numElements, UINT structureByteStride);
+
 public:	// 外部入出力
 
 	// ゲッター
@@ -47,6 +49,8 @@ public:	// 動的変数
 
 private:
 
+
+
 	// テクスチャ1枚分のデータ
 	struct TextureData
 	{
@@ -56,6 +60,23 @@ private:
 		D3D12_CPU_DESCRIPTOR_HANDLE srvHandleCPU;
 		D3D12_GPU_DESCRIPTOR_HANDLE srvHandleGPU;
 	};
+
+	//// テクスチャの使用方法
+	//enum class TextureUsage
+	//{
+	//	NORMAL,
+	//	INSTANCING
+	//};
+
+	//struct TextureEntry
+	//{
+	//	TextureUsage usage;
+	//	
+	//	DirectX::TexMetadata metadata;
+	//	Microsoft::WRL::ComPtr<ID3D12Resource> resource;
+
+	//	std::vector<TextureData> dates;
+	//};
 
 private:	// シングルトン化
 
@@ -75,6 +96,9 @@ private:	// 静的変数
 
 	// テクスチャデータ
 	std::unordered_map<std::string, TextureData> textureDatas_;
+	
+	// インスタンシングテクスチャデータ
+	std::unordered_map<std::string, TextureData> instancingTextureDatas_;
 
 	DirectXBase* dxBase_;
 
