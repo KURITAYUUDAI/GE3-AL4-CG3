@@ -10,6 +10,8 @@
 
 class DirectXBase;
 
+class SrvManager;
+
 class TextureManager
 {
 public:
@@ -25,7 +27,7 @@ public:
 	/// <param name="filePath">テクスチャファイルのパス</param>
 	/// <returns>画像イメージデータ</returns>
 	void LoadTexture(const std::string& filePath);
-
+  
 public:	// 外部入出力
 
 	// ゲッター
@@ -34,6 +36,7 @@ public:	// 外部入出力
 
 	// セッター
 	void SetDxBase(DirectXBase* dxBase){ dxBase_ = dxBase; }
+	void SetSrvManager(SrvManager* srvManager){ srvManager_ = srvManager; }
 
 public:	// 動的変数
 
@@ -55,6 +58,23 @@ private:
 		D3D12_GPU_DESCRIPTOR_HANDLE srvHandleGPU;
 	};
 
+	//// テクスチャの使用方法
+	//enum class TextureUsage
+	//{
+	//	NORMAL,
+	//	INSTANCING
+	//};
+
+	//struct TextureEntry
+	//{
+	//	TextureUsage usage;
+	//	
+	//	DirectX::TexMetadata metadata;
+	//	Microsoft::WRL::ComPtr<ID3D12Resource> resource;
+
+	//	std::vector<TextureData> dates;
+	//};
+
 private:	// シングルトン化
 
 	static TextureManager* instance;
@@ -67,7 +87,7 @@ private:	// シングルトン化
 private:	// 静的関数
 
 	// 初期化
-	void Initialize(DirectXBase* dxBase);
+	void Initialize(DirectXBase* dxBase, SrvManager* srvManager);
 
 private:	// 静的変数
 
@@ -75,5 +95,6 @@ private:	// 静的変数
 	std::unordered_map<std::string, TextureData> textureDatas_;
 
 	DirectXBase* dxBase_;
+
 
 };

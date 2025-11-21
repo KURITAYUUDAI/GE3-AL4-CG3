@@ -24,7 +24,7 @@ void Object3d::Initialize(Object3dBase* object3dBase)
 
 void Object3d::Update()
 {
-	/*transform_.rotate.y += (1.0f / 180.0f) * pi;*/
+	transform_.rotate.y += (5.0f / 180.0f) * pi;
 
 	Matrix4x4 worldMatrix = MakeAffineMatrix(transform_.scale, transform_.rotate, transform_.translate);
 	Matrix4x4 worldViewProjectionMatrix;
@@ -69,8 +69,6 @@ void Object3d::SetModel(const std::string& filePath)
 	model_ = ModelManager::GetInstance()->FindModel(filePath);
 }
 
-
-
 void Object3d::CreateTransformationMatrixResource()
 {
 
@@ -96,6 +94,4 @@ void Object3d::CreateDirectionalLightResource()
 	directionalLightData->color = Vector4{ 1.0f, 1.0f, 1.0f, 1.0f };
 	directionalLightData->direction = Vector3{ 0.0f, -1.0f, 0.0f };
 	directionalLightData->intensity = 1.0f;
-
-
 }

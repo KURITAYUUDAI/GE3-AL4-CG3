@@ -19,6 +19,7 @@ void SrvManager::Finalize()
 	instance = nullptr;
 }
 
+
 void SrvManager::Initialize(DirectXBase* dxBase)
 {
 	dxBase_ = dxBase;

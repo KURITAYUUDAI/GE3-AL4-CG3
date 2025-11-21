@@ -8,7 +8,7 @@ TextureManager* TextureManager::instance = nullptr;
 // ImGuiで0番を使用するため、1番から使用
 uint32_t TextureManager::kSRVIndexTop = 1;
 
-void TextureManager::Initialize(DirectXBase* dxBase)
+void TextureManager::Initialize(DirectXBase* dxBase, SrvManager* srvManager)
 {
 	// SRVの数と同数
 	textureDatas_.reserve(SrvManager::kMaxSRVCount);
@@ -64,10 +64,12 @@ void TextureManager::LoadTexture(const std::string& filePath)
 	textureData.srvHandleCPU = SrvManager::GetInstance()->GetCPUDescriptorHandle(textureData.srvIndex);
 	textureData.srvHandleGPU = SrvManager::GetInstance()->GetGPUDescriptorHandle(textureData.srvIndex);
 
+
 	dxBase_->UploadTextureData(textureData.resource.Get(), mipImages);
 
 	// SRV を生成
 	SrvManager::GetInstance()->CreateSRVforTexture2D(
+
 		textureData.srvIndex,
 		textureData.resource.Get(),
 		textureData.metadata.format,

@@ -9,13 +9,14 @@ public:
 	template <class T> using ComPtr = Microsoft::WRL::ComPtr<T>;
 
 public:
-
+  
 	// シングルトンインスタンスの取得
 	static SrvManager* GetInstance();
 	// 終了
 	void Finalize();
 
 public:
+
 
 	// 初期化
 	void Initialize(DirectXBase* dxBase);
@@ -51,6 +52,7 @@ private: 	// シングルトンインスタンス
 	~SrvManager() = default;
 	SrvManager(SrvManager&) = delete;
 	SrvManager& operator=(SrvManager&) = delete;
+
 
 private:
 	

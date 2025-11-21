@@ -366,6 +366,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 	TextureManager* textureManager = TextureManager::GetInstance();
 	textureManager->SetDxBase(dxBase);
+	textureManager->SetSrvManager(srvManager);
 
 	ModelManager::GetInstance()->Initialize(dxBase);
 
@@ -776,7 +777,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	}
 
 	object3ds[1]->SetModel("axis.obj");
-
+  
 	std::vector<Particle*> particles;
 	for (size_t i = 0; i < 1; i++)
 	{
@@ -784,6 +785,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		particle->Initialize(particleBase, 10);
 		particle->SetModel("plane.obj");
 		particles.push_back(particle);
+
 	}
 
 
@@ -820,7 +822,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	directionLightDirection.y = directionalLightData->direction.y;
 	directionLightDirection.z = directionalLightData->direction.z;*/
 
-	bool isDrawSprite = false;
+	bool isDrawSprite = true;
 
 	bool isDrawObject3d = false;
 	
@@ -1160,6 +1162,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 				particle->Update();
 			}
 
+
 			//// ImGuiの内部コマンドを生成する
 			//ImGui::Render();
 
@@ -1184,10 +1187,16 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 			particleBase->DrawingCommon();
 
+
 			for (size_t i = 0; i < particles.size(); i++)
 			{
 				particles[i]->Draw();
 			}
+
+			/*for (size_t i = 0; i < particle3ds.size(); i++)
+			{
+				particle3ds[i]->Draw();
+			}*/
 
 			//// SphereのIndexBufferViewを設定
 			//commandList->IASetIndexBuffer(&indexBufferView);
@@ -1247,13 +1256,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	// 音声データ解放
 	SoundUnload(&soundData1);
 
-
 	for (auto it = particles.begin(); it != particles.end(); ++it)
 	{
 		Particle* particle = *it;
 		delete particle;
 	}
 	particles.clear();
+
 
 	for (auto it = object3ds.begin(); it != object3ds.end(); ++it)
 	{

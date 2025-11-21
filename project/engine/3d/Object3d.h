@@ -82,6 +82,5 @@ private:
 	
 	// トランスフォーム
 	Transform transform_;
-
 };
 

@@ -32,6 +32,7 @@ void Particle::Initialize(ParticleBase* particleBase, const uint32_t& instanceNu
 			  static_cast<float>(index * 0.1f)  }
 		};
 	}
+
 }
 
 void Particle::Update()
@@ -55,19 +56,22 @@ void Particle::Update()
 		instancingData_[index].WVP = worldViewProjectionMatrix;
 		instancingData_[index].World = worldMatrix;
 	}
+
 }
 
 void Particle::Draw()
 {
+
 	//// wvp用のCBufferの場所を設定
 	//particleBase_->GetDxBase()->GetCommandList()
 	//	->SetGraphicsRootConstantBufferView(1, transformationMatrixResource_->GetGPUVirtualAddress());
 
+
 	//// 平行光源用のCBufferをバインド（rootParameter[3] = b1）
 	//particleBase_->GetDxBase()->GetCommandList()
 	//  ->SetGraphicsRootConstantBufferView(3, DirectionalLightResource_->GetGPUVirtualAddress());
-
-	particleBase_->GetDxBase()->GetCommandList()
+	
+  particleBase_->GetDxBase()->GetCommandList()
 		->SetGraphicsRootDescriptorTable(1, instancingSrvHandleGPU_);
 
 	// 3Dモデルが割り当てられていれば描画する

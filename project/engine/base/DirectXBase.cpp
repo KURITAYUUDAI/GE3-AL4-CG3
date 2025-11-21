@@ -8,7 +8,7 @@
 #include "Logger.h"
 #include "StringUtility.h"
 
-const uint32_t DirectXBase::kMaxSRVCount = 512;
+
 
 using namespace Logger;
 using namespace StringUtility;
@@ -56,8 +56,8 @@ void DirectXBase::Initialize(WindowsAPI* winAPI)
 	// DXCコンパイラの生成
 	CreateDXCCompiler();
 
-	// ImGuiの初期化
-	InitializeImGui(winAPI);
+	//// ImGuiの初期化
+	//InitializeImGui(winAPI);
 
 }
 
@@ -111,9 +111,6 @@ void DirectXBase::PreDraw()
 
 
 
-	// 描画用のDescriptorHeapの設定
-	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> descriptorHeaps[] = { srvDescriptorHeap_ };
-	commandList_->SetDescriptorHeaps(1, descriptorHeaps->GetAddressOf());
 
 	// 02_00
 	commandList_->RSSetViewports(1, &viewport_); // Viewportを設定
@@ -489,15 +486,10 @@ void DirectXBase::CreateDescriptorHeaps()
 
 	// RTV用のヒープでディスクリプタの数は2、RTVはShader内で触るものではないので、ShaderVisibleはfalse
 	rtvDescriptorHeap_ = CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_RTV, 2, false);
-
-	// SRV用のヒープ。SRVはShader内で触るものなので、ShaderVisibleはtrue
-	srvDescriptorHeap_ = CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, kMaxSRVCount, true);
-
 	// DSV用のヒープディスクリプタの数は1。DSVはShader内で飾るものではないので、ShaderVisibleはfalse
 	dsvDescriptorHeap_ = CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_DSV, 1, false);
 
 	rtvDescriptorSize_ = device_->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
-	srvDescriptorSize_ = device_->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 	dsvDescriptorSize_ = device_->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_DSV);
 	
 }
@@ -554,17 +546,7 @@ D3D12_GPU_DESCRIPTOR_HANDLE DirectXBase::GetRTVGPUDescriptorHandle(uint32_t inde
 		rtvDescriptorHeap_, rtvDescriptorSize_, index);
 }
 
-D3D12_CPU_DESCRIPTOR_HANDLE DirectXBase::GetSRVCPUDescriptorHandle(uint32_t index)
-{
-	return GetCPUDescriptorHandle(
-		srvDescriptorHeap_, srvDescriptorSize_, index);
-}
 
-D3D12_GPU_DESCRIPTOR_HANDLE DirectXBase::GetSRVGPUDescriptorHandle(uint32_t index)
-{
-	return GetGPUDescriptorHandle(
-		srvDescriptorHeap_, srvDescriptorSize_, index);
-}
 
 D3D12_CPU_DESCRIPTOR_HANDLE DirectXBase::GetDSVCPUDescriptorHandle(uint32_t index)
 {
@@ -638,18 +620,18 @@ void DirectXBase::CreateDXCCompiler()
 	assert(SUCCEEDED(hr));
 }
 
-void DirectXBase::InitializeImGui(WindowsAPI* winAPI)
-{
-	// ImGuiの初期化。詳細は省かれたが「こういうもん」らしい。
-	IMGUI_CHECKVERSION();
-	ImGui::CreateContext();
-	ImGui::StyleColorsDark();
-	ImGui_ImplWin32_Init(winAPI->GetHwnd());
-	ImGui_ImplDX12_Init(device_.Get(),
-		kSwapChainBufferCount,
-		kRtvFormat,
-		srvDescriptorHeap_.Get(),
-		srvDescriptorHeap_->GetCPUDescriptorHandleForHeapStart(),
-		srvDescriptorHeap_->GetGPUDescriptorHandleForHeapStart());
-
-}
+//void DirectXBase::InitializeImGui(WindowsAPI* winAPI)
+//{
+//	// ImGuiの初期化。詳細は省かれたが「こういうもん」らしい。
+//	IMGUI_CHECKVERSION();
+//	ImGui::CreateContext();
+//	ImGui::StyleColorsDark();
+//	ImGui_ImplWin32_Init(winAPI->GetHwnd());
+//	ImGui_ImplDX12_Init(device_.Get(),
+//		kSwapChainBufferCount,
+//		kRtvFormat,
+//		srvDescriptorHeap_.Get(),
+//		srvDescriptorHeap_->GetCPUDescriptorHandleForHeapStart(),
+//		srvDescriptorHeap_->GetGPUDescriptorHandleForHeapStart());
+//
+//}

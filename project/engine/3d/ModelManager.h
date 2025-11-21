@@ -35,6 +35,8 @@ public:
 	/// <returns>モデル</returns>
 	Model* FindModel(const std::string& filePath);
 
+	void CreateSphere(const std::string& materialPath);
+
 public: // 外部入出力
 
 	ModelBase* GetModelBase(){ return modelBase_; }

@@ -53,6 +53,8 @@ public:	// 外部入出力
 	//const Vector3& GetRotate() const { return transform_.rotate; }
 	//const Vector3& GetTranslate() const { return transform_.translate; }
 
+
+
 private: // 静的関数
 
 	// TransformationMatrixResourceを作成
@@ -102,6 +104,5 @@ private:
 	// トランスフォーム
 	std::vector<Transform> transforms_;
 
-	
 };
 

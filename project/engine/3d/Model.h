@@ -67,7 +67,11 @@ private:
 
 public:	// 外部入出力
 
+	// セッター
+	void SetInstanceCount(const UINT& instanceCount) { instanceCount_ = instanceCount; }
 
+	// ゲッター
+	const UINT& GetInstanceCount() const { return instanceCount_; }
 
 private:
 
@@ -87,6 +91,10 @@ private:
 	Microsoft::WRL::ComPtr<ID3D12Resource> materialResource_ = nullptr;
 	// バッファリソース内のデータを指すポインタ
 	Material* materialData_ = nullptr;
+
+	bool isSphere_ = false;
+
+	UINT instanceCount_ = 1;
 
 };
 

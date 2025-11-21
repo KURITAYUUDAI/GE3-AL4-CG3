@@ -55,6 +55,12 @@ Model* ModelManager::FindModel(const std::string& filePath)
 	return nullptr;
 }
 
+void ModelManager::CreateSphere(const std::string& materialPath)
+{
+
+
+}
+
 void ModelManager::Initialize(DirectXBase* dxBase)
 {
 	modelBase_ = new ModelBase;
