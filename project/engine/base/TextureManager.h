@@ -6,6 +6,7 @@
 
 #include "externals/DirectXTex/DirectXTex.h"
 #include <wrl.h>
+#include <unordered_map>
 
 class DirectXBase;
 
@@ -25,14 +26,11 @@ public:
 	/// <returns>画像イメージデータ</returns>
 	void LoadTexture(const std::string& filePath);
 
-	// SRVインデックスの開始番号
-	uint32_t GetTextureIndexByFilePath(const std::string& filePath);
-
 public:	// 外部入出力
 
 	// ゲッター
-	D3D12_GPU_DESCRIPTOR_HANDLE GetSRVHandleGPU(uint32_t textureIndex);
-	const DirectX::TexMetadata& GetMetaData(uint32_t textureIndex);
+	D3D12_GPU_DESCRIPTOR_HANDLE GetSRVHandleGPU(const std::string& filePath);
+	const DirectX::TexMetadata& GetMetaData(const std::string& filePath);
 
 	// セッター
 	void SetDxBase(DirectXBase* dxBase){ dxBase_ = dxBase; }
@@ -45,12 +43,14 @@ public:	// 動的変数
 
 private:
 
+
+
 	// テクスチャ1枚分のデータ
 	struct TextureData
 	{
-		std::string filePath;
 		DirectX::TexMetadata metadata;
 		Microsoft::WRL::ComPtr<ID3D12Resource> resource;
+		uint32_t srvIndex;
 		D3D12_CPU_DESCRIPTOR_HANDLE srvHandleCPU;
 		D3D12_GPU_DESCRIPTOR_HANDLE srvHandleGPU;
 	};
@@ -72,10 +72,8 @@ private:	// 静的関数
 private:	// 静的変数
 
 	// テクスチャデータ
-	std::vector<TextureData> textureDatas_;
+	std::unordered_map<std::string, TextureData> textureDatas_;
 
 	DirectXBase* dxBase_;
-
-	
 
 };

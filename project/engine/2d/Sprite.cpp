@@ -1,6 +1,7 @@
 #include "Sprite.h"
 #include "SpriteBase.h"
 #include "TextureManager.h"
+#include "SrvManager.h"
 
 void Sprite::Initialize(SpriteBase* spriteBase, std::string textureFilePath)
 {
