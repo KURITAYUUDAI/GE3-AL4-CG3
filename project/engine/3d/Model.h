@@ -88,5 +88,7 @@ private:
 	// バッファリソース内のデータを指すポインタ
 	Material* materialData_ = nullptr;
 
+	bool isSphere_ = false;
+
 };
 

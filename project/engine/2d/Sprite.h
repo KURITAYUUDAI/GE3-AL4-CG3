@@ -154,7 +154,6 @@ private:	// 静的変数
 	Matrix4x4 uvTransformMatrix_ = {};
 
 	
-
-	// テクスチャ番号
-	uint32_t textureIndex_ = 0;
+	// テクスチャファイルパス
+	std::string textureFilePath_ = "";
 };
