@@ -102,7 +102,7 @@
     <ClCompile Include="externals\imgui\imgui_widgets.cpp">
       <Filter>imgui</Filter>
     </ClCompile>
-    <ClCompile Include="engine\io\Input.cpp">
+    <ClCompile Include="engine\io\InputManager.cpp">
       <Filter>ソース ファイル\engine\io</Filter>
     </ClCompile>
     <ClCompile Include="engine\io\DebugCamera.cpp">
@@ -180,7 +180,7 @@
     <ClInclude Include="engine\io\DebugCamera.h">
       <Filter>ヘッダー ファイル\engine\io</Filter>
     </ClInclude>
-    <ClInclude Include="engine\io\Input.h">
+    <ClInclude Include="engine\io\InputManager.h">
       <Filter>ヘッダー ファイル\engine\io</Filter>
     </ClInclude>
     <ClInclude Include="engine\math\myMath.h">

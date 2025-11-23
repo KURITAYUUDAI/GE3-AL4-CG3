@@ -5,6 +5,7 @@
 #include "Camera.h"
 #include "SrvManager.h"
 #include "SeedManager.h"
+#include "InputManager.h"
 
 void Particle::Initialize(ParticleBase* particleBase, const uint32_t& instanceNum)
 {
@@ -27,10 +28,12 @@ void Particle::Initialize(ParticleBase* particleBase, const uint32_t& instanceNu
 		particles_[index].transform =
 		{
 			{1.0f, 1.0f, 1.0f},
-			{0.0f, pi, 0.0f},
-			{ static_cast<float>(index * 0.1f), 
-			  static_cast<float>(index * 0.1f), 
-			  static_cast<float>(index * 0.1f)  }
+			{0.0f, 0.0f, 0.0f},
+			{ 
+				SeedManager::GetInstance()->GenerateFloat(-1.0f, 1.0f),
+				SeedManager::GetInstance()->GenerateFloat(-1.0f, 1.0f),
+				SeedManager::GetInstance()->GenerateFloat(-1.0f, 1.0f),  
+			}
 		};
 
 		particles_[index].velocity =
@@ -66,19 +69,31 @@ void Particle::Update()
 			continue;
 		}
 
-		particles_[index].transform.translate += particles_[index].velocity * kDeltaTime;
+		/*particles_[index].transform.translate += particles_[index].velocity * kDeltaTime;*/
 
 		/*transforms_[index].rotate.y += (static_cast<float>(index + 1) / 180.0f) * pi;*/
 
 		particles_[index].color.w =
 			1.0f - (particles_[index].currentTime / particles_[index].lifeTime);
 
-		particles_[index].currentTime += kDeltaTime;
+		/*particles_[index].currentTime += kDeltaTime;*/
 
-		Matrix4x4 worldMatrix = MakeAffineMatrix(
-			particles_[index].transform.scale, 
-			particles_[index].transform.rotate, 
+		Matrix4x4 worldMatrix;
+
+		if (InputManager::GetInstance()->PushKey(DIK_1))
+		{
+			worldMatrix = camera_->GetBillboardWorldMatrix(
+				particles_[index].transform.scale,
+				particles_[index].transform.translate);
+		}
+		else
+		{
+			worldMatrix = MakeAffineMatrix(
+			particles_[index].transform.scale,
+			particles_[index].transform.rotate,
 			particles_[index].transform.translate);
+		}
+
 		Matrix4x4 worldViewProjectionMatrix;
 		if (camera_)
 		{

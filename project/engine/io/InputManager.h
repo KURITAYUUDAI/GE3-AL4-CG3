@@ -11,11 +11,17 @@
 #pragma comment(lib, "dinput8.lib")
 #pragma comment(lib, "dxguid.lib")
 
-class Input
+class InputManager
 {
 public:
 	// namespace省略
 	template <class T> using ComPtr = Microsoft::WRL::ComPtr<T>;
+
+public: 
+	// シングルトンインスタンスの取得
+	static InputManager* GetInstance();
+	// 終了
+	void Finalize();
 
 public:
 
@@ -30,6 +36,13 @@ public:
 	bool PushMouse(BYTE mouseButton);
 	bool TriggerMouse(BYTE mouseButton);
 
+private: 	// シングルトンインスタンス
+
+	static InputManager* instance_;
+	InputManager() = default;
+	~InputManager() = default;
+	InputManager(InputManager&) = delete;
+	InputManager& operator=(InputManager&) = delete;
 
 private:
 

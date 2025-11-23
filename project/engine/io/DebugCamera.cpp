@@ -1,5 +1,5 @@
 #include "DebugCamera.h"
-#include "Input.h"
+#include "InputManager.h"
 #include "../../externals/imgui/imgui.h"
 
 void DebugCamera::Initialize()
@@ -9,7 +9,7 @@ void DebugCamera::Initialize()
 	projectionMatrix_ = MakeIdentity4x4();
 }
 
-void DebugCamera::Update(Input* input, Transform originCamera)
+void DebugCamera::Update(InputManager* input, Transform originCamera)
 {
 	input_ = input;
 

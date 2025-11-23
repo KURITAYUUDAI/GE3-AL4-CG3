@@ -52,7 +52,7 @@ using namespace DirectX;
 #pragma comment(lib, "xaudio2.lib")
 
 #include "DebugCamera.h"
-#include "Input.h"
+#include "InputManager.h"
 
 #include "StringUtility.h"
 #include "D3DResourceLeakChecker.h"
@@ -585,8 +585,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 	
 
-	Input* input = new Input;
-	input->Initialize(winAPI);
+	InputManager* inputManager = InputManager::GetInstance();
+	inputManager->Initialize(winAPI);
 
 	// サウンド再生エンジンをローカル変数で宣言
 	Microsoft::WRL::ComPtr<IXAudio2> xAudio2;
@@ -748,7 +748,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	// シーン初期化始め
 	Camera* camera = new Camera;
 	camera->Initialize();
-	camera->SetTranslate({0.0f, 0.0f, -10.0f});
+	camera->SetRotate({pi / 3.0f, pi, 0.0f});
+	camera->SetTranslate({0.0f, 9.0f, 5.0f});
 	object3dBase->SetDefaultCamera(camera);
 	particleBase->SetDefaultCamera(camera);
 
@@ -845,7 +846,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		}
 		else
 		{
-			input->Update();
+			inputManager->Update();
 
 			//ImGui_ImplDX12_NewFrame();
 			//ImGui_ImplWin32_NewFrame();
@@ -1142,8 +1143,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 			transformationMatrixDataSphere->World = worldMatrixSphere;
 			transformationMatrixDataSphere->WVP = wvpMatrixSphere;*/
 
-			mousePosition.x = static_cast<float>(input->MousePoint(winAPI->GetHwnd()).x);
-			mousePosition.y = static_cast<float>(input->MousePoint(winAPI->GetHwnd()).y);
+			mousePosition.x = static_cast<float>(inputManager->MousePoint(winAPI->GetHwnd()).x);
+			mousePosition.y = static_cast<float>(inputManager->MousePoint(winAPI->GetHwnd()).y);
 
 			camera->Update();
 			
@@ -1232,7 +1233,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 						
 			
 
-			if (input->TriggerKey(DIK_0))
+			if (inputManager->TriggerKey(DIK_0))
 			{
 				SoundPlayWave(xAudio2.Get(), soundData1);
 			}
@@ -1302,6 +1303,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	// SrvManager終了処理
 	SrvManager::GetInstance()->Finalize();
 
+	// InputManager終了処理
+	inputManager->Finalize();
+
 	// DirectXBase終了処理
 	dxBase->Finalize();
 
@@ -1312,8 +1316,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	dxBase = nullptr;
 	delete winAPI;
 	winAPI = nullptr;
-	delete input;
-	input = nullptr;
+	
+
 
 
 	return 0;
