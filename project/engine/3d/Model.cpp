@@ -19,19 +19,27 @@ void Model::Initialize(ModelBase* modelBase, const std::string& directoryPath, c
 
 	// .objの参照しているテクスチャファイル読み込み
 	TextureManager::GetInstance()->LoadTexture(modelData_.material.textureFilePath);
-	//// 読み込んだテクスチャの番号を取得
-	//modelData_.material.textureIndex =
-	//	TextureManager::GetInstance()->GetTextureIndexByFilePath(modelData_.material.textureFilePath);
+	// 読み込んだテクスチャの番号を取得
+	modelData_.material.textureIndex =
+		TextureManager::GetInstance()->GetTextureIndexByFilePath(modelData_.material.textureFilePath);
+	materialTextureIndex_ = modelData_.material.textureIndex;
 
 }
 
 void Model::Draw()
 {	
+	if (instanceCount_ <= 0)
+	{
+		return;
+	}
+
 	modelBase_->GetDxBase()->GetCommandList()->
 		IASetVertexBuffers(0, 1, &vertexBufferView_);	// VBVを設定
 	// マテリアルのCBufferの場所を設定
 	modelBase_->GetDxBase()->GetCommandList()->
 		SetGraphicsRootConstantBufferView(0, materialResource_->GetGPUVirtualAddress());
+
+	/*TextureManager::GetInstance()->GetSRVHandleGPU(modelData_.material.textureFilePath);*/
 
 	SrvManager::GetInstance()->SetGraphicsRootDescriptorTable(
 		2, modelData_.material.textureIndex);
@@ -222,7 +230,25 @@ void Model::LoadObjFile(const std::string& directoryPath, const std::string& fil
 	//	meshes.push_back(mesh);
 	//}
 
+	materialTextureFilePath_ = mesh.material.textureFilePath;
+
 	modelData_ = mesh;
+}
+
+void Model::SetTexture(const std::string& directoryPath, const std::string& filename)
+{
+	modelData_.material.textureFilePath = directoryPath + "/" + filename;
+	// .objの参照しているテクスチャファイル読み込み
+	TextureManager::GetInstance()->LoadTexture(modelData_.material.textureFilePath);
+	// 読み込んだテクスチャの番号を取得
+	modelData_.material.textureIndex =
+		TextureManager::GetInstance()->GetTextureIndexByFilePath(modelData_.material.textureFilePath);
+}
+
+void Model::ResetTexture()
+{
+	modelData_.material.textureFilePath = materialTextureFilePath_;
+	modelData_.material.textureIndex = materialTextureIndex_;
 }
 
 void Model::CreateVertexResource()

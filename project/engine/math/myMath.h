@@ -41,6 +41,8 @@ static const int kRowHeight = 20;
 
 static const float pi = std::numbers::pi_v<float>;
 
+static const float kDeltaTime = 1.0f / 60.0f;
+
 // 00_01
 // 加算
 Vector3 Add(const Vector3& v1, const Vector3& v2);
@@ -118,6 +120,93 @@ Matrix4x4 MakeViewportMatrix(float left, float top, float width, float height, f
 // 01_01
 // クロス積関数
 Vector3 Cross(const Vector3& a, const Vector3& b);
+
+inline Vector3 operator+(const Vector3& v1, const Vector3& v2) { return Add(v1, v2); }
+inline Vector3 operator-(const Vector3& v1, const Vector3& v2) { return Subtract(v1, v2); }
+inline Vector3 operator*(float s, const Vector3& v) { return Multiply(s, v); }
+inline Vector3 operator*(const Vector3& v, float s) { return s * v; }
+inline Vector3 operator/(float s, const Vector3& v) { return Multiply(1.0f / s, v); }
+inline Vector3 operator/(const Vector3& v, float s) { return s / v; }
+inline Vector3 operator*(const Vector3& v1, const Vector3& v2) { return { v1.x * v2.x, v1.y * v2.y, v1.z * v2.z }; }
+inline Vector3 operator/(const Vector3& v1, const Vector3& v2) { return { v1.x / v2.x, v1.y / v2.y, v1.z / v2.z }; }
+inline Vector3 operator-(const Vector3& v) { return { -v.x, -v.y, -v.z }; }
+inline Vector3 operator+(const Vector3& v) { return v; }
+
+inline Vector4 operator+(const Vector4& v1, const Vector4& v2)
+{
+	return { v1.x + v2.x, v1.y + v2.y, v1.z + v2.z, v1.w + v2.w };
+}
+
+inline Vector4 operator-(const Vector4& v1, const Vector4& v2)
+{
+	return { v1.x - v2.x, v1.y - v2.y, v1.z - v2.z, v1.w - v2.w };
+}
+
+inline Vector4 operator*(float s, const Vector4& v) { return { s * v.x, s * v.y, s * v.z, s * v.w }; }
+
+inline Vector4 operator*(const Vector4& v, float s) { return s * v; }
+
+inline Vector4 operator/(const Vector4& v, float s) { return { v.x / s, v.y / s, v.z / s, v.w / s }; }
+
+inline Vector3& operator+=(Vector3& lhs, Vector3 const& rhs)
+{
+	lhs.x += rhs.x;
+	lhs.y += rhs.y;
+	lhs.z += rhs.z;
+	return lhs;
+}
+
+inline Vector3& operator-=(Vector3& lhs, Vector3 const& rhs)
+{
+	lhs.x -= rhs.x;
+	lhs.y -= rhs.y;
+	lhs.z -= rhs.z;
+	return lhs;
+}
+
+inline Vector3& operator*=(Vector3& lhs, Vector3 const& rhs) {
+	lhs.x *= rhs.x;
+	lhs.y *= rhs.y;
+	lhs.z *= rhs.z;
+	return lhs;
+}
+
+inline Vector3& operator/=(Vector3& lhs, Vector3 const& rhs) {
+	lhs.x /= rhs.x;
+	lhs.y /= rhs.y;
+	lhs.z /= rhs.z;
+	return lhs;
+}
+
+inline Vector3& operator*=(Vector3& v, float s) {
+	v.x *= s;
+	v.y *= s;
+	v.z *= s;
+	return v;
+}
+
+inline Vector3& operator/=(Vector3& v, float s) {
+	v.x /= s;
+	v.y /= s;
+	v.z /= s;
+	return v;
+}
+
+inline Vector2& operator+=(Vector2& lhs, Vector2 const& rhs) {
+	lhs.x += rhs.x;
+	lhs.y += rhs.y;
+	return lhs;
+}
+
+inline Vector2 operator+(const Vector2& v1, const Vector2& v2) { return { v1.x + v2.x, v1.y + v2.y }; }
+inline Vector2 operator-(const Vector2& v1, const Vector2& v2) { return { v1.x - v2.x, v1.y - v2.y }; }
+inline Vector2 operator*(float s, const Vector2& v) { return { s * v.x, s * v.y }; }
+inline Vector2 operator*(const Vector2& v, float s) { return s * v; }
+inline Vector2 operator*(const Vector2& v1, const Vector2& v2) { return { v1.x * v2.x, v1.y * v2.y }; }
+inline Vector2 operator/(const Vector2& v, float s) { return { v.x / s, v.y / s }; }
+
+inline Vector2 operator-(const Vector2& v) { return { -v.x, -v.y }; }
+inline Vector2 operator+(const Vector2& v) { return v; }
 
 inline Matrix4x4 operator+(const Matrix4x4& m1, const Matrix4x4& m2) { return Add(m1, m2); }
 inline Matrix4x4 operator-(const Matrix4x4& m1, const Matrix4x4& m2) { return Subtract(m1, m2); }

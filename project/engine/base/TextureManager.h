@@ -33,10 +33,10 @@ public:	// 外部入出力
 	// ゲッター
 	D3D12_GPU_DESCRIPTOR_HANDLE GetSRVHandleGPU(const std::string& filePath);
 	const DirectX::TexMetadata& GetMetaData(const std::string& filePath);
+	const uint32_t GetTextureIndexByFilePath(const std::string& filePath);
 
 	// セッター
 	void SetDxBase(DirectXBase* dxBase){ dxBase_ = dxBase; }
-	void SetSrvManager(SrvManager* srvManager){ srvManager_ = srvManager; }
 
 public:	// 動的変数
 

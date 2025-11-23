@@ -4,12 +4,13 @@
 #include "ModelManager.h"
 #include "Camera.h"
 #include "SrvManager.h"
+#include "SeedManager.h"
 
 void Particle::Initialize(ParticleBase* particleBase, const uint32_t& instanceNum)
 {
 	particleBase_ = particleBase;
 
-	instanceNum_ = instanceNum;
+	maxInstanceNum_ = instanceNum;
 
 	camera_ = particleBase_->GetDefaultCamera();
 
@@ -20,10 +21,10 @@ void Particle::Initialize(ParticleBase* particleBase, const uint32_t& instanceNu
 	CreateInstancingResource();
 
 	// Transform変数を作る
-	transforms_.resize(instanceNum_);
-	for (size_t index = 0; index < instanceNum_; ++index)
+	particles_.resize(maxInstanceNum_);
+	for (size_t index = 0; index < maxInstanceNum_; ++index)
 	{
-		transforms_[index] =
+		particles_[index].transform =
 		{
 			{1.0f, 1.0f, 1.0f},
 			{0.0f, pi, 0.0f},
@@ -31,18 +32,53 @@ void Particle::Initialize(ParticleBase* particleBase, const uint32_t& instanceNu
 			  static_cast<float>(index * 0.1f), 
 			  static_cast<float>(index * 0.1f)  }
 		};
+
+		particles_[index].velocity =
+		{ 
+			SeedManager::GetInstance()->GenerateFloat(-1.0f, 1.0f),
+			SeedManager::GetInstance()->GenerateFloat(-1.0f, 1.0f),
+			SeedManager::GetInstance()->GenerateFloat(-1.0f, 1.0f),
+		};
+
+		particles_[index].color =
+		{
+			SeedManager::GetInstance()->GenerateFloat(0.0f, 1.0f),
+			SeedManager::GetInstance()->GenerateFloat(0.0f, 1.0f),
+			SeedManager::GetInstance()->GenerateFloat(0.0f, 1.0f),
+			1.0f
+		};
+
+		particles_[index].lifeTime = SeedManager::GetInstance()->GenerateFloat(1.0f, 3.0f);
+
+		particles_[index].currentTime = 0.0f;
 	}
 
 }
 
 void Particle::Update()
 {
-	for (uint32_t index = 0; index < instanceNum_; ++index)
+	instanceNum_ = 0;
+
+	for (uint32_t index = 0; index < maxInstanceNum_; ++index)
 	{
-		transforms_[index].rotate.y += (static_cast<float>(index + 1) / 180.0f) * pi;
+		if (particles_[index].lifeTime <= particles_[index].currentTime)
+		{
+			continue;
+		}
+
+		particles_[index].transform.translate += particles_[index].velocity * kDeltaTime;
+
+		/*transforms_[index].rotate.y += (static_cast<float>(index + 1) / 180.0f) * pi;*/
+
+		particles_[index].color.w =
+			1.0f - (particles_[index].currentTime / particles_[index].lifeTime);
+
+		particles_[index].currentTime += kDeltaTime;
 
 		Matrix4x4 worldMatrix = MakeAffineMatrix(
-			transforms_[index].scale, transforms_[index].rotate, transforms_[index].translate);
+			particles_[index].transform.scale, 
+			particles_[index].transform.rotate, 
+			particles_[index].transform.translate);
 		Matrix4x4 worldViewProjectionMatrix;
 		if (camera_)
 		{
@@ -55,12 +91,17 @@ void Particle::Update()
 
 		instancingData_[index].WVP = worldViewProjectionMatrix;
 		instancingData_[index].World = worldMatrix;
+		instancingData_[index].color = particles_[index].color;
+
+		++instanceNum_;
 	}
 
 }
 
 void Particle::Draw()
 {
+	model_->SetTexture("resources", "circle.png");
+	model_->SetInstanceCount(instanceNum_);
 
 	//// wvp用のCBufferの場所を設定
 	//particleBase_->GetDxBase()->GetCommandList()
@@ -90,7 +131,7 @@ void Particle::Finalize()
 void Particle::SetModel(const std::string& filePath)
 {
 	model_ = ModelManager::GetInstance()->FindModel(filePath);
-	model_->SetInstanceCount(instanceNum_);
+	model_->SetInstanceCount(maxInstanceNum_);
 }
 
 void Particle::CreateTransformationMatrixResource()
@@ -122,15 +163,16 @@ void Particle::CreateInstancingResource()
 {
 	// Instancing用のTransformationMatrixResourceを作成する。
 	instancingResource_
-		= particleBase_->GetDxBase()->CreateBufferResource(sizeof(TransformationMatrix) * instanceNum_);
+		= particleBase_->GetDxBase()->CreateBufferResource(sizeof(ParticleForGPU) * maxInstanceNum_);
 	// InstancingResourceにデータを書き込むためのアドレスを取得してInstancingDataに割り当てる
 	instancingResource_->Map(0, nullptr, reinterpret_cast<void**>(&instancingData_));
 
 	// インスタンスごとの座標変換行列データを書き込む
-	for (size_t i = 0; i < instanceNum_; ++i)
+	for (size_t i = 0; i < maxInstanceNum_; ++i)
 	{
 		instancingData_[i].World = MakeIdentity4x4();
 		instancingData_[i].WVP = MakeIdentity4x4();
+		instancingData_[i].color = Vector4{ 1.0f, 1.0f, 1.0f, 1.0f };
 	}
 
 	// SRVを作成
@@ -141,5 +183,5 @@ void Particle::CreateInstancingResource()
 	SrvManager::GetInstance()->CreateSRVforStructuredBuffer(
 		instancingSrvIndex_, 
 		instancingResource_.Get(),
-		instanceNum_, sizeof(TransformationMatrix));
+		maxInstanceNum_, sizeof(ParticleForGPU));
 }
