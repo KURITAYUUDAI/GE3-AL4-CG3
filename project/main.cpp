@@ -76,6 +76,8 @@ using namespace DirectX;
 #include "ParticleBase.h"
 #include "Particle.h"
 
+#include "SeedManager.h"
+
 //class ResourceObject
 //{
 //public:
@@ -366,9 +368,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 	TextureManager* textureManager = TextureManager::GetInstance();
 	textureManager->SetDxBase(dxBase);
-	textureManager->SetSrvManager(srvManager);
 
 	ModelManager::GetInstance()->Initialize(dxBase);
+
+	SeedManager::GetInstance()->Initialize();
 
 #ifdef _DEBUG
 	Microsoft::WRL::ComPtr<ID3D12InfoQueue> infoQueue = nullptr;
@@ -822,7 +825,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	directionLightDirection.y = directionalLightData->direction.y;
 	directionLightDirection.z = directionalLightData->direction.z;*/
 
-	bool isDrawSprite = true;
+	bool isDrawSprite = false;
 
 	bool isDrawObject3d = false;
 	
@@ -1287,14 +1290,17 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	delete spriteBase;
 	spriteBase = nullptr;
 
-	// SrvManager終了処理
-	SrvManager::GetInstance()->Finalize();
+	// SeedManager終了処理
+	SeedManager::GetInstance()->Finalize();
 
 	// ModelManager終了処理
 	ModelManager::GetInstance()->Finalize();
 
 	// TextureManager終了処理
 	textureManager->Finalize();
+
+	// SrvManager終了処理
+	SrvManager::GetInstance()->Finalize();
 
 	// DirectXBase終了処理
 	dxBase->Finalize();

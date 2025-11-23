@@ -54,6 +54,10 @@ public:
 
 	void LoadObjFile(const std::string& directoryPath, const std::string& filename);
 
+	void SetTexture(const std::string& directoryPath, const std::string& filename);
+
+	void ResetTexture();
+
 private:
 
 	// VertexResourceを作成
@@ -96,5 +100,7 @@ private:
 
 	UINT instanceCount_ = 1;
 
+	std::string materialTextureFilePath_;
+	uint32_t materialTextureIndex_ = 0;
 };
 

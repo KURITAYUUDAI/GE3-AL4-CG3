@@ -46,7 +46,7 @@ public:
 
 private: 	// シングルトンインスタンス
 
-	static SrvManager* instance;
+	static SrvManager* instance_;
 
 	SrvManager() = default;
 	~SrvManager() = default;

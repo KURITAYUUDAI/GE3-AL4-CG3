@@ -19,11 +19,27 @@ public:
 		Matrix4x4 World;
 	};
 
+	struct ParticleForGPU
+	{
+		Matrix4x4 WVP;
+		Matrix4x4 World;
+		Vector4 color;
+	};
+
 	struct DirectionalLight
 	{
 		Vector4 color;		//!< ライトの色
 		Vector3 direction;	//!< ライトの方向
 		float intensity;	//!< 輝度
+	};
+
+	struct Value
+	{
+		Transform transform;	// 変換情報
+		Vector3 velocity;		// 速度
+		Vector4 color;			// 色
+		float lifeTime;			// 生存時間
+		float currentTime;		// 経過時間
 	};
 
 public:	// メンバ関数
@@ -42,16 +58,16 @@ public:	// 外部入出力
 	void SetModel(const std::string& filePath);
 	void SetCamera(Camera* camera){ camera_ = camera; }
 
-	//void SetScale(const Vector3& scale){ transform_.scale = scale; }
-	//void SetRotate(const Vector3& rotate){ transform_.rotate = rotate; }
-	//void SetTranslate(const Vector3& translate){ transform_.translate = translate; }
+	void SetScale(const Vector3& scale){ transform_.scale = scale; }
+	void SetRotate(const Vector3& rotate){ transform_.rotate = rotate; }
+	void SetTranslate(const Vector3& translate){ transform_.translate = translate; }
 
 	// ゲッター
-	const UINT& GetInstanceCount() const { return instanceNum_; }
+	const UINT& GetInstanceCount() const { return maxInstanceNum_; }
 
-	//const Vector3& GetScale() const { return transform_.scale; }
-	//const Vector3& GetRotate() const { return transform_.rotate; }
-	//const Vector3& GetTranslate() const { return transform_.translate; }
+	const Vector3& GetScale() const { return transform_.scale; }
+	const Vector3& GetRotate() const { return transform_.rotate; }
+	const Vector3& GetTranslate() const { return transform_.translate; }
 
 
 
@@ -78,12 +94,12 @@ private:
 	Camera* camera_ = nullptr;
 
 	// インスタンス数
-	uint32_t instanceNum_;
+	uint32_t maxInstanceNum_;
 
 	// インスタンスデータ用バッファリソース
 	Microsoft::WRL::ComPtr<ID3D12Resource> instancingResource_ = nullptr;
 	// インスタンスデータ用バッファリソース内のデータを指すポインタ
-	TransformationMatrix* instancingData_ = nullptr;
+	ParticleForGPU* instancingData_ = nullptr;
 	// インスタンス用SRVのインデックス
 	uint32_t instancingSrvIndex_;
 	// インスタンス用SRVのCPUハンドル
@@ -101,8 +117,12 @@ private:
 	//// バッファリソース内のデータを指すポインタ
 	//DirectionalLight* directionalLightData = nullptr;
 
-	// トランスフォーム
-	std::vector<Transform> transforms_;
+	// 全体のトランスフォーム
+	Transform transform_;
 
+	uint32_t instanceNum_;
+
+	// 一個一個のトランスフォーム
+	std::vector<Value> particles_;
 };
 
