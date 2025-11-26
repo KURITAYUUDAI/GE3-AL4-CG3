@@ -80,19 +80,15 @@ void Particle::Update()
 
 		Matrix4x4 worldMatrix;
 
-		if (InputManager::GetInstance()->PushKey(DIK_1))
-		{
-			worldMatrix = camera_->GetBillboardWorldMatrix(
+		worldMatrix = camera_->GetBillboardWorldMatrix(
 				particles_[index].transform.scale,
 				particles_[index].transform.translate);
-		}
-		else
-		{
-			worldMatrix = MakeAffineMatrix(
+		
+		/*worldMatrix = MakeAffineMatrix(
 			particles_[index].transform.scale,
 			particles_[index].transform.rotate,
-			particles_[index].transform.translate);
-		}
+			particles_[index].transform.translate);*/
+		
 
 		Matrix4x4 worldViewProjectionMatrix;
 		if (camera_)
@@ -127,7 +123,7 @@ void Particle::Draw()
 	//particleBase_->GetDxBase()->GetCommandList()
 	//  ->SetGraphicsRootConstantBufferView(3, DirectionalLightResource_->GetGPUVirtualAddress());
 	
-  particleBase_->GetDxBase()->GetCommandList()
+	 particleBase_->GetDxBase()->GetCommandList()
 		->SetGraphicsRootDescriptorTable(1, instancingSrvHandleGPU_);
 
 	// 3Dモデルが割り当てられていれば描画する
@@ -140,7 +136,7 @@ void Particle::Draw()
 
 void Particle::Finalize()
 {
-
+	camera_ = nullptr;
 }
 
 void Particle::SetModel(const std::string& filePath)

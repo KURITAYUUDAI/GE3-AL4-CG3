@@ -1267,6 +1267,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	}
 	particles.clear();
 
+	// ポインタ解放
+	delete particleBase;
+	particleBase = nullptr;
 
 	for (auto it = object3ds.begin(); it != object3ds.end(); ++it)
 	{
@@ -1305,6 +1308,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 	// InputManager終了処理
 	inputManager->Finalize();
+
+	camera->Finalize();
+	delete camera;
+	camera = nullptr;
 
 	// DirectXBase終了処理
 	dxBase->Finalize();
