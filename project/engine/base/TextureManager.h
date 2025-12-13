@@ -77,7 +77,7 @@ private:
 
 private:	// シングルトン化
 
-	static TextureManager* instance;
+	static TextureManager* instance_;
 
 	TextureManager() = default;
 	~TextureManager() = default;

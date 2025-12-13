@@ -26,12 +26,14 @@ void Model::Initialize(ModelBase* modelBase, const std::string& directoryPath, c
 
 }
 
-void Model::Draw()
-{	
-	if (instanceCount_ <= 0)
+void Model::Draw(const UINT& instanceCount)
+{
+	if (instanceCount <= 0)
 	{
 		return;
 	}
+
+	instanceCount_ = instanceCount;
 
 	modelBase_->GetDxBase()->GetCommandList()->
 		IASetVertexBuffers(0, 1, &vertexBufferView_);	// VBVを設定
@@ -46,6 +48,7 @@ void Model::Draw()
 
 	// 描画！（DrawCall/ドローコール）。
 	modelBase_->GetDxBase()->GetCommandList()->DrawInstanced(UINT(modelData_.vertices.size()), instanceCount_, 0, 0);
+
 }
 
 Model::MaterialData Model::LoadMaterialTemplateFile(const std::string& directoryPath, const std::string& filename, const std::string& mtlname)
@@ -235,10 +238,10 @@ void Model::LoadObjFile(const std::string& directoryPath, const std::string& fil
 	modelData_ = mesh;
 }
 
-void Model::SetTexture(const std::string& directoryPath, const std::string& filename)
+void Model::SetTexture(const std::string& directoryFilePath)
 {
-	modelData_.material.textureFilePath = directoryPath + "/" + filename;
-	// .objの参照しているテクスチャファイル読み込み
+	modelData_.material.textureFilePath = directoryFilePath;
+	// テクスチャファイル読み込み
 	TextureManager::GetInstance()->LoadTexture(modelData_.material.textureFilePath);
 	// 読み込んだテクスチャの番号を取得
 	modelData_.material.textureIndex =

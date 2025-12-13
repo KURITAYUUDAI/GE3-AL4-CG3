@@ -46,7 +46,7 @@ public:
 
 	void Update();
 
-	void Draw();
+	void Draw(const UINT& instanceCount);
 
 	void Finalize();
 
@@ -54,7 +54,7 @@ public:
 
 	void LoadObjFile(const std::string& directoryPath, const std::string& filename);
 
-	void SetTexture(const std::string& directoryPath, const std::string& filename);
+	void SetTexture(const std::string& directoryFilePath);
 
 	void ResetTexture();
 

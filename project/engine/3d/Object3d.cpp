@@ -54,7 +54,7 @@ void Object3d::Draw()
 	// 3Dモデルが割り当てられていれば描画する
 	if (model_)
 	{
-		model_->Draw();
+		model_->Draw(1);
 	}
 
 }

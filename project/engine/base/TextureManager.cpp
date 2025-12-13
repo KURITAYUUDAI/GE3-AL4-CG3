@@ -3,7 +3,7 @@
 #include "StringUtility.h"
 #include "SrvManager.h"
 
-TextureManager* TextureManager::instance = nullptr;
+TextureManager* TextureManager::instance_ = nullptr;
 
 // ImGuiで0番を使用するため、1番から使用
 uint32_t TextureManager::kSRVIndexTop = 1;
@@ -18,17 +18,17 @@ void TextureManager::Initialize(DirectXBase* dxBase, SrvManager* srvManager)
 
 TextureManager* TextureManager::GetInstance()
 {
-	if (instance == nullptr)
+	if (instance_ == nullptr)
 	{
-		instance = new TextureManager;
+		instance_ = new TextureManager;
 	}
-	return instance;
+	return instance_;
 }
 
 void TextureManager::Finalize()
 {
-	delete instance;
-	instance = nullptr;
+	delete instance_;
+	instance_ = nullptr;
 }
 
 void TextureManager::LoadTexture(const std::string& filePath)

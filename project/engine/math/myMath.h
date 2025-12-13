@@ -1,8 +1,10 @@
 #pragma once
 #include <cmath>
+#include <algorithm>
 #include <stdlib.h>
 #include <assert.h>
 #include <numbers>
+#include <vector>
 
 struct Vector2
 {
@@ -87,6 +89,9 @@ Matrix4x4 MakeTranslateMatrix(const Vector3& translate);
 
 // 2. 拡大縮小行列
 Matrix4x4 MakeScaleMatrix(const Vector3& scale);
+
+// 3. 座標変換
+Vector3 TransformPosition(const Vector3& vector, const Matrix4x4& matrix);
 
 // 00_04
 // 1. X軸回転行列
@@ -211,3 +216,112 @@ inline Vector2 operator+(const Vector2& v) { return v; }
 inline Matrix4x4 operator+(const Matrix4x4& m1, const Matrix4x4& m2) { return Add(m1, m2); }
 inline Matrix4x4 operator-(const Matrix4x4& m1, const Matrix4x4& m2) { return Subtract(m1, m2); }
 inline Matrix4x4 operator*(const Matrix4x4& m1, const Matrix4x4& m2) { return Multiply(m1, m2); }
+
+// Sphere構造体
+struct Sphere
+{
+	Vector3 center; //!< 中心座標
+	float radius;   //!< 半径
+};
+
+// 直線
+struct Line
+{
+	Vector3 origin; //!< 始点
+	Vector3 diff;   //!< 終点への差分ベクトル
+};
+
+// 半直線
+struct Ray
+{
+	Vector3 origin; //!< 始点
+	Vector3 diff;   //!< 終点への差分ベクトル
+};
+
+// 線分
+struct Segment
+{
+	Vector3 origin; //!< 始点
+	Vector3 diff;   //!< 終点への差分ベクトル
+};
+
+struct Plane
+{
+	Vector3 normal; //!< 法線
+	float distance; //!< 距離
+};
+
+struct Triangle
+{
+	Vector3 vertices[3]; //!< 頂点
+};
+
+struct AABB
+{
+	Vector3 min; //!< 最小点
+	Vector3 max; //!< 最大点
+};
+
+struct OBB
+{
+	Vector3 center;          //!< 中心点
+	Vector3 orientations[3]; //!< 座標軸。正規化・直行必須
+	Vector3 size;            //!< 座標軸方向の長さの半分。中心点から面までの距離
+};
+
+
+/// <summary>
+/// 指定した座標を中心とする正三角形の頂点を計算する関数
+/// </summary>
+/// <param name="center">正三角形の中心座標</param>
+/// <param name="sideLength">正三角形の辺の長さ</param>
+/// <param name="vertices">正三角形の頂点を格納する配列</param>
+void MakeRegularTriangle(const Vector3& center, float sideLength, Vector3 vertices[3]);
+
+void RotateAngleCorrection(float& rotate);
+
+Vector3 Project(const Vector3& v1, const Vector3& v2);
+
+Vector3 ClosestPoint(const Vector3& point, const Segment& segment);
+
+// 球同士の当たり判定を求める関数
+bool IsCollision(const Sphere& sphere1, const Sphere& sphere2);
+
+// 球と平面の当たり判定を求める関数
+bool IsCollision(const Sphere& sphere, const Plane& plane);
+
+bool IsCollision(const Plane& plane, const Line& line);
+
+bool IsCollision(const Plane& plane, const Ray& ray);
+
+// 線分と平面の衝突判定を求める関数
+bool IsCollision(const Plane& plane, const Segment& segment);
+
+bool IsCollision(const Triangle& triangle, const Segment& segment);
+
+bool IsCollision(const AABB& aabb, const Vector3& point);
+
+bool IsCollision(const AABB& aabb1, const AABB& aabb2);
+
+bool IsCollision(const AABB& aabb, const Sphere& sphere);
+
+bool IsCollision(const AABB& aabb, const Segment& segment);
+
+bool IsCollision(const OBB& obb, const Sphere& sphere);
+
+bool IsCollision(const OBB& obb, const Segment& segment);
+
+bool IsCollision(const OBB (&obb)[2]);
+
+float Larp(const float& n1, const float& n2, const float& t);
+
+float EaseOut(const float& n1, const float& n2, const float& t);
+
+Matrix4x4 MakeLookRotation(const Vector3& forward, const Vector3& up);
+
+Vector3 GetEulerFromMatrix(const Matrix4x4& m);
+
+Matrix4x4 MakeLookRotationXAxis(const Vector3& xAxis, const Vector3& up);
+
+// ベクトル変換
+Vector3 TransformNormal(const Vector3& v, const Matrix4x4& m);

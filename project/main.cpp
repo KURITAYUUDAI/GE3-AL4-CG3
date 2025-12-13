@@ -73,8 +73,8 @@ using namespace DirectX;
 
 #include "SrvManager.h"
 
-#include "ParticleBase.h"
-#include "Particle.h"
+#include "ParticleManager.h"
+#include "ParticleEmitter.h"
 
 #include "SeedManager.h"
 
@@ -536,11 +536,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	object3dBase = new Object3dBase;
 	object3dBase->Initialize(dxBase);
 
-	// パーティクルの共通処理を初期化
-	ParticleBase* particleBase = nullptr;
-	// パーティクルの共通部を初期化
-	particleBase = new ParticleBase;
-	particleBase->Initialize(dxBase);
+	// パーティクルマネージャーを初期化
+	ParticleManager* particleManager = ParticleManager::GetInstance();
+	particleManager->Initialize(dxBase);
 
 
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC graphicsPipelineStateDesc{};
@@ -751,7 +749,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	camera->SetRotate({pi / 3.0f, pi, 0.0f});
 	camera->SetTranslate({0.0f, 9.0f, 5.0f});
 	object3dBase->SetDefaultCamera(camera);
-	particleBase->SetDefaultCamera(camera);
+	particleManager->SetDefaultCamera(camera);
 
 	std::vector<Sprite*> sprites;
 
@@ -782,14 +780,22 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 	object3ds[1]->SetModel("axis.obj");
   
-	std::vector<Particle*> particles;
+	particleManager->SetModel("plane.obj");
+	particleManager->CreateParticleGroup("circle", "resources/circle.png");
+
+
+	AABB  aabb;
+	aabb.max = { 1.0f, 1.0f, 1.0f };
+	aabb.min = { -1.0f, -1.0f, -1.0f };
+	particleManager->CreateAccelerationField({5.0f, 0.0f, 0.0f}, aabb);
+
+	std::list<ParticleEmitter*> emitters;
 	for (size_t i = 0; i < 1; i++)
 	{
-		Particle* particle = new Particle();
-		particle->Initialize(particleBase, 10);
-		particle->SetModel("plane.obj");
-		particles.push_back(particle);
-
+		ParticleEmitter* emitter = new ParticleEmitter();
+		Transform transform = { {1.0f, 1.0f, 1.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f} };
+		emitter->Initialize("circle", transform, 3, 0.2f);
+		emitters.push_back(emitter);
 	}
 
 
@@ -1160,12 +1166,15 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 				object3d->Update();
 			}
 
-			for (auto it = particles.begin(); it != particles.end(); ++it)
+			for (auto it = emitters.begin(); it != emitters.end();)
 			{
-				Particle* particle = *it;
-				particle->Update();
+				ParticleEmitter* emitter = *it;
+				emitter->Update();
+
+				++it;
 			}
 
+			particleManager->Update();
 
 			//// ImGuiの内部コマンドを生成する
 			//ImGui::Render();
@@ -1189,13 +1198,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 			}
 
 
-			particleBase->DrawingCommon();
-
-
-			for (size_t i = 0; i < particles.size(); i++)
-			{
-				particles[i]->Draw();
-			}
+			particleManager->Draw();
 
 			/*for (size_t i = 0; i < particle3ds.size(); i++)
 			{
@@ -1260,16 +1263,15 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	// 音声データ解放
 	SoundUnload(&soundData1);
 
-	for (auto it = particles.begin(); it != particles.end(); ++it)
+	for (auto it =emitters.begin(); it != emitters.end(); ++it)
 	{
-		Particle* particle = *it;
-		delete particle;
+		ParticleEmitter* emitter = *it;
+		delete emitter;
 	}
-	particles.clear();
+	emitters.clear();
 
-	// ポインタ解放
-	delete particleBase;
-	particleBase = nullptr;
+	// ParticleManager終了処理
+	particleManager->Finalize();
 
 	for (auto it = object3ds.begin(); it != object3ds.end(); ++it)
 	{

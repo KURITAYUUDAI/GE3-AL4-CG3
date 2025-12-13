@@ -42,6 +42,20 @@ public:
 		float currentTime;		// 経過時間
 	};
 
+	struct Emitter
+	{
+		Transform transform;
+		uint32_t count;
+		float frequency;
+		float frequencyTime;
+	};
+
+	struct AccelerationField
+	{
+		Vector3 acceleration;
+		AABB area;
+	};
+
 public:	// メンバ関数
 
 	void Initialize(ParticleBase* particleBase, const uint32_t& instanceNum);
@@ -52,22 +66,19 @@ public:	// メンバ関数
 
 	void Finalize();
 
+	Value MakeNewParticle(const Vector3& translate);
+
+	std::list<Value> Emit();
+
 public:	// 外部入出力
 
 	// セッター
 	void SetModel(const std::string& filePath);
 	void SetCamera(Camera* camera){ camera_ = camera; }
-
-	void SetScale(const Vector3& scale){ transform_.scale = scale; }
-	void SetRotate(const Vector3& rotate){ transform_.rotate = rotate; }
-	void SetTranslate(const Vector3& translate){ transform_.translate = translate; }
+	void SetEmitter(const Emitter& emitter){ emitter_ = emitter; }
 
 	// ゲッター
 	const UINT& GetInstanceCount() const { return maxInstanceNum_; }
-
-	const Vector3& GetScale() const { return transform_.scale; }
-	const Vector3& GetRotate() const { return transform_.rotate; }
-	const Vector3& GetTranslate() const { return transform_.translate; }
 
 
 
@@ -117,12 +128,14 @@ private:
 	//// バッファリソース内のデータを指すポインタ
 	//DirectionalLight* directionalLightData = nullptr;
 
-	// 全体のトランスフォーム
-	Transform transform_;
+	// このパーティクルのエミッター
+	Emitter emitter_;
+
+	AccelerationField accelerationField_;
 
 	uint32_t instanceNum_;
 
 	// 一個一個のトランスフォーム
-	std::vector<Value> particles_;
+	std::list<Value> particles_;
 };
 

@@ -21,68 +21,56 @@ void Particle::Initialize(ParticleBase* particleBase, const uint32_t& instanceNu
 
 	CreateInstancingResource();
 
-	// Transform変数を作る
-	particles_.resize(maxInstanceNum_);
-	for (size_t index = 0; index < maxInstanceNum_; ++index)
-	{
-		particles_[index].transform =
-		{
-			{1.0f, 1.0f, 1.0f},
-			{0.0f, 0.0f, 0.0f},
-			{ 
-				SeedManager::GetInstance()->GenerateFloat(-1.0f, 1.0f),
-				SeedManager::GetInstance()->GenerateFloat(-1.0f, 1.0f),
-				SeedManager::GetInstance()->GenerateFloat(-1.0f, 1.0f),  
-			}
-		};
+	emitter_.transform = {{1.0f, 1.0f, 1.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}};
+	emitter_.count = 3;
+	emitter_.frequency = 0.5f;
+	emitter_.frequencyTime = emitter_.frequency;
 
-		particles_[index].velocity =
-		{ 
-			SeedManager::GetInstance()->GenerateFloat(-1.0f, 1.0f),
-			SeedManager::GetInstance()->GenerateFloat(-1.0f, 1.0f),
-			SeedManager::GetInstance()->GenerateFloat(-1.0f, 1.0f),
-		};
-
-		particles_[index].color =
-		{
-			SeedManager::GetInstance()->GenerateFloat(0.0f, 1.0f),
-			SeedManager::GetInstance()->GenerateFloat(0.0f, 1.0f),
-			SeedManager::GetInstance()->GenerateFloat(0.0f, 1.0f),
-			1.0f
-		};
-
-		particles_[index].lifeTime = SeedManager::GetInstance()->GenerateFloat(1.0f, 3.0f);
-
-		particles_[index].currentTime = 0.0f;
-	}
-
+	accelerationField_.acceleration = {15.0f, 0.0f, 0.0f};
+	accelerationField_.area.min = {-1.0f, -1.0f, -1.0f};
+	accelerationField_.area.max = { 1.0f, 1.0f, 1.0f };
 }
 
 void Particle::Update()
 {
+	emitter_.frequencyTime += kDeltaTime;
+	if (emitter_.frequency <= emitter_.frequencyTime)
+	{
+		particles_.splice(particles_.end(), Emit());
+		emitter_.frequencyTime -= emitter_.frequency;
+	}
+
 	instanceNum_ = 0;
 
-	for (uint32_t index = 0; index < maxInstanceNum_; ++index)
+	for (auto it = particles_.begin(); it != particles_.end();)
 	{
-		if (particles_[index].lifeTime <= particles_[index].currentTime)
+		Value& particle = *it;
+
+		if (particle.lifeTime <= particle.currentTime)
 		{
+			it = particles_.erase(it);
 			continue;
 		}
 
-		/*particles_[index].transform.translate += particles_[index].velocity * kDeltaTime;*/
+		if (IsCollision(accelerationField_.area, particle.transform.translate))
+		{
+			particle.velocity += accelerationField_.acceleration * kDeltaTime;
+		}
+
+		particle.transform.translate += particle.velocity * kDeltaTime;
 
 		/*transforms_[index].rotate.y += (static_cast<float>(index + 1) / 180.0f) * pi;*/
 
-		particles_[index].color.w =
-			1.0f - (particles_[index].currentTime / particles_[index].lifeTime);
+		particle.color.w =
+			1.0f - (particle.currentTime / particle.lifeTime);
 
-		/*particles_[index].currentTime += kDeltaTime;*/
+		particle.currentTime += kDeltaTime;
 
 		Matrix4x4 worldMatrix;
 
 		worldMatrix = camera_->GetBillboardWorldMatrix(
-				particles_[index].transform.scale,
-				particles_[index].transform.translate);
+				particle.transform.scale,
+				particle.transform.translate);
 		
 		/*worldMatrix = MakeAffineMatrix(
 			particles_[index].transform.scale,
@@ -90,28 +78,35 @@ void Particle::Update()
 			particles_[index].transform.translate);*/
 		
 
-		Matrix4x4 worldViewProjectionMatrix;
-		if (camera_)
+		
+
+		if (instanceNum_ < maxInstanceNum_)
 		{
-			const Matrix4x4& viewProjectionMatrix = camera_->GetViewProjectionMatrix();
-			worldViewProjectionMatrix = Multiply(worldMatrix, viewProjectionMatrix);
-		} else
-		{
-			worldViewProjectionMatrix = worldMatrix;
+			Matrix4x4 worldViewProjectionMatrix;
+			if (camera_)
+			{
+				const Matrix4x4& viewProjectionMatrix = camera_->GetViewProjectionMatrix();
+				worldViewProjectionMatrix = Multiply(worldMatrix, viewProjectionMatrix);
+			} 
+			else
+			{
+				worldViewProjectionMatrix = worldMatrix;
+			}
+			instancingData_[instanceNum_].WVP = worldViewProjectionMatrix;
+			instancingData_[instanceNum_].World = worldMatrix;
+			instancingData_[instanceNum_].color = particle.color;
+
+			++instanceNum_;
 		}
 
-		instancingData_[index].WVP = worldViewProjectionMatrix;
-		instancingData_[index].World = worldMatrix;
-		instancingData_[index].color = particles_[index].color;
-
-		++instanceNum_;
+		
+		++it;
 	}
-
 }
 
 void Particle::Draw()
 {
-	model_->SetTexture("resources", "circle.png");
+	model_->SetTexture("resources/circle.png");
 	model_->SetInstanceCount(instanceNum_);
 
 	//// wvp用のCBufferの場所を設定
@@ -129,7 +124,7 @@ void Particle::Draw()
 	// 3Dモデルが割り当てられていれば描画する
 	if (model_)
 	{
-		model_->Draw();
+		model_->Draw(maxInstanceNum_);
 	}
 
 }
@@ -137,6 +132,56 @@ void Particle::Draw()
 void Particle::Finalize()
 {
 	camera_ = nullptr;
+}
+
+Particle::Value Particle::MakeNewParticle(const Vector3& translate)
+{
+	Value particle;
+
+	particle.transform =
+	{
+		{1.0f, 1.0f, 1.0f},
+		{0.0f, 0.0f, 0.0f},
+		translate + 
+		Vector3{
+			SeedManager::GetInstance()->GenerateFloat(-1.0f, 1.0f),
+			SeedManager::GetInstance()->GenerateFloat(-1.0f, 1.0f),
+			SeedManager::GetInstance()->GenerateFloat(-1.0f, 1.0f),
+		}
+	};
+
+	particle.velocity =
+	{
+		SeedManager::GetInstance()->GenerateFloat(-1.0f, 1.0f),
+		SeedManager::GetInstance()->GenerateFloat(-1.0f, 1.0f),
+		SeedManager::GetInstance()->GenerateFloat(-1.0f, 1.0f),
+	};
+
+	particle.color =
+	{
+		SeedManager::GetInstance()->GenerateFloat(0.0f, 1.0f),
+		SeedManager::GetInstance()->GenerateFloat(0.0f, 1.0f),
+		SeedManager::GetInstance()->GenerateFloat(0.0f, 1.0f),
+		1.0f
+	};
+
+	particle.lifeTime = SeedManager::GetInstance()->GenerateFloat(1.0f, 3.0f);
+
+	particle.currentTime = 0.0f;
+
+	return particle;
+}
+
+std::list<Particle::Value> Particle::Emit()
+{
+	std::list<Particle::Value> particles;
+
+	for (uint32_t index = 0; index < emitter_.count; ++index)
+	{
+		particles.push_back(MakeNewParticle(emitter_.transform.translate));
+	}
+
+	return particles;
 }
 
 void Particle::SetModel(const std::string& filePath)

@@ -20,7 +20,7 @@
     <ProjectGuid>{e6d58bee-441c-49c4-89ce-2a8df1c5020e}</ProjectGuid>
     <RootNamespace>_00_04</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
-    <ProjectName>CG2</ProjectName>
+    <ProjectName>CG3</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
@@ -149,6 +149,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="engine\3d\Camera.cpp" />
+    <ClCompile Include="engine\3d\ParticleManager.cpp" />
     <ClCompile Include="engine\base\D3DResourceLeakChecker.cpp" />
     <ClCompile Include="engine\base\DirectXBase.cpp" />
     <ClCompile Include="engine\base\FixFPS.cpp" />
@@ -178,9 +179,8 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="engine\3d\ModelBase.cpp" />
     <ClCompile Include="engine\3d\ModelManager.cpp" />
     <ClCompile Include="engine\base\SrvManager.cpp" />
-    <ClCompile Include="engine\3d\ParticleBase.cpp" />
-    <ClCompile Include="engine\3d\Particle.cpp" />
     <ClCompile Include="engine\random\SeedManager.cpp" />
+    <ClCompile Include="engine\3d\ParticleEmitter.cpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="resources\shaders\Object3d.PS.hlsl">
@@ -212,6 +212,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="engine\3d\Camera.h" />
+    <ClInclude Include="engine\3d\ParticleManager.h" />
     <ClInclude Include="engine\base\D3DResourceLeakChecker.h" />
     <ClInclude Include="engine\base\DirectXBase.h" />
     <ClInclude Include="engine\base\FixFPS.h" />
@@ -238,9 +239,8 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="engine\3d\ModelBase.h" />
     <ClInclude Include="engine\3d\ModelManager.h" />
     <ClInclude Include="engine\base\SrvManager.h" />
-    <ClInclude Include="engine\3d\ParticleBase.h" />
-    <ClInclude Include="engine\3d\Particle.h" />
     <ClInclude Include="engine\random\SeedManager.h" />
+    <ClInclude Include="engine\3d\ParticleEmitter.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="externals\imgui\LICENSE.txt" />
