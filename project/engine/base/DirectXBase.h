@@ -99,8 +99,8 @@ private:	// 各機能の初期化関数
 	// DXCコンパイラの生成
 	void CreateDXCCompiler();
 
-	// ImGuiの初期化
-	void InitializeImGui(WindowsAPI* winAPI);
+	//// ImGuiの初期化
+	//void InitializeImGui(WindowsAPI* winAPI);
 
 public: // ゲッター
 
@@ -114,7 +114,7 @@ public: // ゲッター
 	IDxcIncludeHandler* GetIncludeHandler() { return includeHandler_.Get(); }
 
 	ID3D12DescriptorHeap* GetRtvDescriptorHeap(){ return rtvDescriptorHeap_.Get(); }
-	ID3D12DescriptorHeap* GetSrvDescriptorHeap(){ return srvDescriptorHeap_.Get(); }
+	
 	ID3D12DescriptorHeap* GetDsvDescriptorHeap(){ return dsvDescriptorHeap_.Get(); }
 
 	HANDLE GetFenceEvent() { return fenceEvent_; }
@@ -129,9 +129,6 @@ public: // その他関数
 
 	D3D12_CPU_DESCRIPTOR_HANDLE GetRTVCPUDescriptorHandle(uint32_t index);
 	D3D12_GPU_DESCRIPTOR_HANDLE GetRTVGPUDescriptorHandle(uint32_t index);
-
-	D3D12_CPU_DESCRIPTOR_HANDLE GetSRVCPUDescriptorHandle(uint32_t index);
-	D3D12_GPU_DESCRIPTOR_HANDLE GetSRVGPUDescriptorHandle(uint32_t index);
 
 	D3D12_CPU_DESCRIPTOR_HANDLE GetDSVCPUDescriptorHandle(uint32_t index);
 	D3D12_GPU_DESCRIPTOR_HANDLE GetDSVGPUDescriptorHandle(uint32_t index);
@@ -149,8 +146,7 @@ private: // 静的関数
 
 public:	// 動的変数
 
-	// 最大SRV数（最大テクスチャ枚数）
-	static const uint32_t kMaxSRVCount;
+	
 	
 
 private:
@@ -186,9 +182,7 @@ private:
 	ComPtr<ID3D12DescriptorHeap> rtvDescriptorHeap_ = nullptr;
 	uint32_t rtvDescriptorSize_ = 0;
 
-	// SRV用のヒープでディスクリプタの数は128、SRVはShader内で触るものなので、ShaderVisibleはtrue
-	ComPtr<ID3D12DescriptorHeap> srvDescriptorHeap_ = nullptr;
-	uint32_t srvDescriptorSize_ = 0;
+	
 
 	// DSV用のヒープディスクリプタの数は1。DSVはShader内で飾るものではないので、ShaderVisibleはfalse
 	ComPtr<ID3D12DescriptorHeap> dsvDescriptorHeap_ = nullptr;

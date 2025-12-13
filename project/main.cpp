@@ -52,7 +52,7 @@ using namespace DirectX;
 #pragma comment(lib, "xaudio2.lib")
 
 #include "DebugCamera.h"
-#include "Input.h"
+#include "InputManager.h"
 
 #include "StringUtility.h"
 #include "D3DResourceLeakChecker.h"
@@ -69,45 +69,14 @@ using namespace DirectX;
 #include "ModelManager.h"
 #include "Model.h"
 
-struct VertexData
-{
-	Vector4 position;
-	Vector2 texcoord;
-	Vector3 normal;
-};
+#include "Camera.h"
 
-struct Material
-{
-	Vector4 color;
-	int32_t enableLighting;
-	float padding[3];
-	Matrix4x4 uvTransform;
-};
+#include "SrvManager.h"
 
-struct TransformationMatrix
-{
-	Matrix4x4 WVP;
-	Matrix4x4 World;
-};
+#include "ParticleManager.h"
+#include "ParticleEmitter.h"
 
-struct DirectionalLight
-{
-	Vector4 color;		//!< ライトの色
-	Vector3 direction;	//!< ライトの方向
-	float intensity;	//!< 輝度
-};
-
-struct MaterialData
-{
-	std::string textureFilePath;
-	Vector4 color;
-};
-
-struct ModelData
-{
-	std::vector<VertexData> vertices;	//!< 頂点データ
-	MaterialData material;
-};
+#include "SeedManager.h"
 
 //class ResourceObject
 //{
@@ -394,10 +363,15 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	DirectXBase* dxBase = new DirectXBase();
 	dxBase->Initialize(winAPI);
 
+	SrvManager* srvManager = SrvManager::GetInstance();
+	srvManager->Initialize(dxBase);
+
 	TextureManager* textureManager = TextureManager::GetInstance();
 	textureManager->SetDxBase(dxBase);
 
 	ModelManager::GetInstance()->Initialize(dxBase);
+
+	SeedManager::GetInstance()->Initialize();
 
 #ifdef _DEBUG
 	Microsoft::WRL::ComPtr<ID3D12InfoQueue> infoQueue = nullptr;
@@ -542,11 +516,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 	// Shaderをコンパイルする
 	Microsoft::WRL::ComPtr<IDxcBlob> vertexShaderBlob = dxBase->CompileShader(
-		L"resources/shaders/Object3D.Vs.hlsl", L"vs_6_0");
+		L"resources/shaders/Object3d.VS.hlsl", L"vs_6_0");
 	assert(vertexShaderBlob != nullptr);
 
 	Microsoft::WRL::ComPtr<IDxcBlob> pixelShaderBlob = dxBase->CompileShader(
-		L"resources/shaders/Object3D.PS.hlsl",L"ps_6_0");
+		L"resources/shaders/Object3d.PS.hlsl",L"ps_6_0");
 	assert(pixelShaderBlob != nullptr);
 
 	
@@ -561,6 +535,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	// 3Dオブジェクトの共通部を初期化
 	object3dBase = new Object3dBase;
 	object3dBase->Initialize(dxBase);
+
+	// パーティクルマネージャーを初期化
+	ParticleManager* particleManager = ParticleManager::GetInstance();
+	particleManager->Initialize(dxBase);
 
 
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC graphicsPipelineStateDesc{};
@@ -605,8 +583,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 	
 
-	Input* input = new Input;
-	input->Initialize(winAPI);
+	InputManager* inputManager = InputManager::GetInstance();
+	inputManager->Initialize(winAPI);
 
 	// サウンド再生エンジンをローカル変数で宣言
 	Microsoft::WRL::ComPtr<IXAudio2> xAudio2;
@@ -713,172 +691,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	//directionalLightData->direction = Vector3{ 0.0f, -1.0f, 0.0f };
 	//directionalLightData->intensity = 1.0f;
 
-	/// 球の作成
-
-	const int kSubdivision = 16;
-	int sphereSize = kSubdivision * kSubdivision * 4; // 1つの経度分割で4つの頂点が必要
-
-	
-	Microsoft::WRL::ComPtr<ID3D12Resource> vertexResourceSphere = dxBase->CreateBufferResource(sizeof(VertexData) * sphereSize);
-
-	// 頂点バッファビューを作成する
-	D3D12_VERTEX_BUFFER_VIEW vertexBufferViewSphere{};
-	// リソースの先頭のアドレスから使う
-	vertexBufferViewSphere.BufferLocation = vertexResourceSphere->GetGPUVirtualAddress();
-	// 使用するリソースのサイズ
-	vertexBufferViewSphere.SizeInBytes = sizeof(VertexData) * kSubdivision * kSubdivision * 4;
-	// 1頂点当たりのサイズ
-	vertexBufferViewSphere.StrideInBytes = sizeof(VertexData);
-
-	// 頂点リソースにデータを書き込む
-	VertexData* vertexDataSphere = nullptr;
-	// 書き込むためのアドレスを取得
-	vertexResourceSphere->Map(0, nullptr,
-		reinterpret_cast<void**>(&vertexDataSphere));
-
-	// 経度分割1つ分の角度 Φ
-	const float kLonEvery = pi * 2.0f / static_cast<float>(kSubdivision);
-	// 緯度分割1つ分の角度 Θ
-	const float kLatEvery = pi / static_cast<float>(kSubdivision);
-	// 緯度の方向に分割
-	for (int latIndex = 0; latIndex < kSubdivision; ++latIndex)
-	{
-		float lat = -pi / 2.0f + kLatEvery * latIndex;
-		// 経度の方向に分割しながら線を描く
-		for (int lonIndex = 0; lonIndex < kSubdivision; ++lonIndex)
-		{
-			uint32_t start = (latIndex * kSubdivision + lonIndex) * 4;
-			float lon = lonIndex * kLonEvery; // Φ
-			// 頂点にデータを入力する。基準点a
-			vertexDataSphere[start].position =
-			{
-				std::cos(lat) * std::cos(lon),
-				std::sin(lat),
-				std::cos(lat) * std::sin(lon),
-				1.0f,
-			};
-			vertexDataSphere[start].texcoord =
-			{
-				static_cast<float>(lonIndex) / static_cast<float>(kSubdivision),
-				1.0f - static_cast<float>(latIndex) / static_cast<float>(kSubdivision),
-			};
-			vertexDataSphere[start].normal.x = vertexDataSphere[start].position.x;
-			vertexDataSphere[start].normal.y = vertexDataSphere[start].position.y;
-			vertexDataSphere[start].normal.z = vertexDataSphere[start].position.z;
-
-			vertexDataSphere[start + 1].position =
-			{
-				std::cos(lat + kLatEvery) * std::cos(lon),
-				std::sin(lat + kLatEvery),
-				std::cos(lat + kLatEvery) * std::sin(lon),
-				1.0f,
-			};
-			vertexDataSphere[start + 1].texcoord =
-			{
-				static_cast<float>(lonIndex) / static_cast<float>(kSubdivision),
-				1.0f - static_cast<float>(latIndex + 1) / static_cast<float>(kSubdivision),
-			};
-			vertexDataSphere[start + 1].normal.x = vertexDataSphere[start + 1].position.x;
-			vertexDataSphere[start + 1].normal.y = vertexDataSphere[start + 1].position.y;
-			vertexDataSphere[start + 1].normal.z = vertexDataSphere[start + 1].position.z;
-
-			vertexDataSphere[start + 2].position =
-			{
-				std::cos(lat) * std::cos(lon + kLonEvery),
-				std::sin(lat),
-				std::cos(lat) * std::sin(lon + kLonEvery),
-				1.0f,
-			};
-			vertexDataSphere[start + 2].texcoord =
-			{
-				static_cast<float>(lonIndex + 1) / static_cast<float>(kSubdivision),
-				1.0f - static_cast<float>(latIndex) / static_cast<float>(kSubdivision),
-			};
-			vertexDataSphere[start + 2].normal.x = vertexDataSphere[start + 2].position.x;
-			vertexDataSphere[start + 2].normal.y = vertexDataSphere[start + 2].position.y;
-			vertexDataSphere[start + 2].normal.z = vertexDataSphere[start + 2].position.z;
-
-
-
-			vertexDataSphere[start + 3].position =
-			{
-				std::cos(lat + kLatEvery) * std::cos(lon + kLonEvery),
-				std::sin(lat + kLatEvery),
-				std::cos(lat + kLatEvery) * std::sin(lon + kLonEvery),
-				1.0f,
-			};
-			vertexDataSphere[start + 3].texcoord =
-			{
-				static_cast<float>(lonIndex + 1) / static_cast<float>(kSubdivision),
-				1.0f - static_cast<float>(latIndex + 1) / static_cast<float>(kSubdivision),
-			};
-			vertexDataSphere[start + 3].normal.x = vertexDataSphere[start + 3].position.x;
-			vertexDataSphere[start + 3].normal.y = vertexDataSphere[start + 3].position.y;
-			vertexDataSphere[start + 3].normal.z = vertexDataSphere[start + 3].position.z;
-		}
-	}
-
-	// Sphere用のindexResourceを作成する。
-	Microsoft::WRL::ComPtr<ID3D12Resource> indexResource = dxBase->CreateBufferResource(sizeof(uint32_t) * kSubdivision * kSubdivision * 6);
-	// IndexBufferViewを作成する
-	D3D12_INDEX_BUFFER_VIEW indexBufferViewSphere{};
-	// リソースの先頭のアドレスから使う
-	indexBufferViewSphere.BufferLocation = indexResource->GetGPUVirtualAddress();
-	// 使用するリソースのサイズ
-	indexBufferViewSphere.SizeInBytes = sizeof(uint32_t) * kSubdivision * kSubdivision * 6;
-	// 1つのIndexのサイズ
-	indexBufferViewSphere.Format = DXGI_FORMAT_R32_UINT;
-	// IndexResourceにデータを書き込む
-	uint32_t* indexData = nullptr;
-	// 書き込むためのアドレスを取得
-	indexResource->Map(0, nullptr, reinterpret_cast<void**>(&indexData));
-
-	// Indexは6つの三角形で1つの四角形を表すので、6つずつ書き込む
-	for (int latIndex = 0; latIndex < kSubdivision; ++latIndex)
-	{
-		for (int lonIndex = 0; lonIndex < kSubdivision; ++lonIndex)
-		{
-			// Vertexの読み込み開始位置
-			uint32_t vertexStart = (latIndex * kSubdivision + lonIndex) * 4;
-			// Indexの書き込み開始位置
-			uint32_t indexStart = (latIndex * kSubdivision + lonIndex) * 6;
-
-			indexData[indexStart + 0] = vertexStart + 0;
-			indexData[indexStart + 1] = vertexStart + 1;
-			indexData[indexStart + 2] = vertexStart + 2;
-			indexData[indexStart + 3] = vertexStart + 1;
-			indexData[indexStart + 4] = vertexStart + 3;
-			indexData[indexStart + 5] = vertexStart + 2;
-		}
-	}
-
-
-
-	// マテリアル用のリソースを作る。
-	Microsoft::WRL::ComPtr<ID3D12Resource> materialResourceSphere = 
-		dxBase->CreateBufferResource(sizeof(Material));
-	// マテリアルにデータを書き込む
-	Material* materialDataSphere = nullptr;
-	// 書き込むためのアドレスを取得
-	materialResourceSphere->Map(0, nullptr, reinterpret_cast<void**>(&materialDataSphere));
-	// 色の書き込み
-	materialDataSphere->color = Vector4{ 1.0f, 1.0f, 1.0f, 1.0f };
-	materialDataSphere->enableLighting = true;
-	materialDataSphere->uvTransform = MakeIdentity4x4();
-
-	// Transformation用のリソースを作る。Matrix4x4 1つ分のサイズを用意する
-	Microsoft::WRL::ComPtr<ID3D12Resource> transformationResourceSphere = 
-		dxBase->CreateBufferResource(sizeof(TransformationMatrix));
-	// データを書き込む
-	TransformationMatrix* transformationMatrixDataSphere = nullptr;
-	// 書き込むためのアドレスを取得
-	transformationResourceSphere->Map(0, nullptr, reinterpret_cast<void**>(&transformationMatrixDataSphere));
-	// 単位行列を書き込んでおく
-	transformationMatrixDataSphere->World = MakeIdentity4x4();
-	transformationMatrixDataSphere->WVP = MakeIdentity4x4();
-
-
-
 
 	//// SRVを作成するDescriptorHeapの場所を決める
 	//D3D12_CPU_DESCRIPTOR_HANDLE textureSrvHandleCPU = dxBase->GetSrvDescriptorHeap()->GetCPUDescriptorHandleForHeapStart();
@@ -932,6 +744,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	const char* textureOptions[] = { "Checker", "monsterBall" };
 
 	// シーン初期化始め
+	Camera* camera = new Camera;
+	camera->Initialize();
+	camera->SetRotate({pi / 3.0f, pi, 0.0f});
+	camera->SetTranslate({0.0f, 9.0f, 5.0f});
+	object3dBase->SetDefaultCamera(camera);
+	particleManager->SetDefaultCamera(camera);
 
 	std::vector<Sprite*> sprites;
 
@@ -942,6 +760,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		newSprite->SetAnchorPoint(Vector2{ 0.5f, 0.5f });
 		sprites.push_back(newSprite);
 	}
+
+	sprites[1]->SetTexture("resources/monsterBall.png");
+	sprites[1]->SetPosition(Vector2{ 720.0f, 360.0f });
+	sprites[1]->AdjustTextureSize();
 
 	std::vector<Object3d*> object3ds;
 
@@ -954,6 +776,26 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		newObject3d->Initialize(object3dBase);
 		newObject3d->SetModel("plane.obj");
 		object3ds.push_back(newObject3d);
+	}
+
+	object3ds[1]->SetModel("axis.obj");
+  
+	particleManager->SetModel("plane.obj");
+	particleManager->CreateParticleGroup("circle", "resources/circle.png");
+
+
+	AABB  aabb;
+	aabb.max = { 1.0f, 1.0f, 1.0f };
+	aabb.min = { -1.0f, -1.0f, -1.0f };
+	particleManager->CreateAccelerationField({5.0f, 0.0f, 0.0f}, aabb);
+
+	std::list<ParticleEmitter*> emitters;
+	for (size_t i = 0; i < 1; i++)
+	{
+		ParticleEmitter* emitter = new ParticleEmitter();
+		Transform transform = { {1.0f, 1.0f, 1.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f} };
+		emitter->Initialize("circle", transform, 3, 0.2f);
+		emitters.push_back(emitter);
 	}
 
 
@@ -992,7 +834,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 	bool isDrawSprite = false;
 
-	
+	bool isDrawObject3d = false;
 	
 
 	DebugCamera debugCamera;
@@ -1010,245 +852,245 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		}
 		else
 		{
-			input->Update();
+			inputManager->Update();
 
-			ImGui_ImplDX12_NewFrame();
-			ImGui_ImplWin32_NewFrame();
-			ImGui::NewFrame();
+			//ImGui_ImplDX12_NewFrame();
+			//ImGui_ImplWin32_NewFrame();
+			//ImGui::NewFrame();
 
-			// ゲームの処理
+			//// ゲームの処理
 
-			//// 開発用ImGuiの処理。実際に開発用のUIを出す場合はここをゲーム固有の処理に置き換えること。
-			//ImGui::ShowDemoWindow();
+			////// 開発用ImGuiの処理。実際に開発用のUIを出す場合はここをゲーム固有の処理に置き換えること。
+			////ImGui::ShowDemoWindow();
 
-			ImGui::Begin("SpriteSetting");
+			//ImGui::Begin("SpriteSetting");
 
-			ImGui::Checkbox("DrawSprite", &isDrawSprite);
+			//ImGui::Checkbox("DrawSprite", &isDrawSprite);
 
-			if (ImGui::BeginTable("ItemsTable", 7, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg))
-			{
-				ImGui::TableSetupScrollFreeze(1, 1);
-				ImGui::TableSetupColumn("position", ImGuiTableColumnFlags_WidthFixed, 80.0f);
-				ImGui::TableSetupColumn("rotation", ImGuiTableColumnFlags_WidthFixed, 80.0f);
-				ImGui::TableSetupColumn("size", ImGuiTableColumnFlags_WidthFixed, 80.0f);
-				ImGui::TableSetupColumn("color", ImGuiTableColumnFlags_WidthFixed, 180.0f);
-				ImGui::TableSetupColumn("uvTransform", ImGuiTableColumnFlags_WidthFixed, 160.0f);
-				ImGui::TableSetupColumn("texture", ImGuiTableColumnFlags_WidthFixed, 80.0f);
-				ImGui::TableSetupColumn("Ops", ImGuiTableColumnFlags_WidthFixed, 50.0f);
-				ImGui::TableHeadersRow();
+			//if (ImGui::BeginTable("ItemsTable", 7, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg))
+			//{
+			//	ImGui::TableSetupScrollFreeze(1, 1);
+			//	ImGui::TableSetupColumn("position", ImGuiTableColumnFlags_WidthFixed, 80.0f);
+			//	ImGui::TableSetupColumn("rotation", ImGuiTableColumnFlags_WidthFixed, 80.0f);
+			//	ImGui::TableSetupColumn("size", ImGuiTableColumnFlags_WidthFixed, 80.0f);
+			//	ImGui::TableSetupColumn("color", ImGuiTableColumnFlags_WidthFixed, 180.0f);
+			//	ImGui::TableSetupColumn("uvTransform", ImGuiTableColumnFlags_WidthFixed, 160.0f);
+			//	ImGui::TableSetupColumn("texture", ImGuiTableColumnFlags_WidthFixed, 80.0f);
+			//	ImGui::TableSetupColumn("Ops", ImGuiTableColumnFlags_WidthFixed, 50.0f);
+			//	ImGui::TableHeadersRow();
 
-				int to_delete = -1;
-				size_t i = 0;
+			//	int to_delete = -1;
+			//	size_t i = 0;
 
-				for (auto it = sprites.begin(); it != sprites.end(); ++it, ++i)
-				{
-					Sprite* sprite = *it;
-					if (!sprite) continue;
-				
-					ImGui::TableNextRow();
+			//	for (auto it = sprites.begin(); it != sprites.end(); ++it, ++i)
+			//	{
+			//		Sprite* sprite = *it;
+			//		if (!sprite) continue;
+			//	
+			//		ImGui::TableNextRow();
 
-					// 要素ごとにIDスタックを分ける
-					ImGui::PushID((void*)sprite);
-					
-					ImGui::TableSetColumnIndex(0);
-					Vector2 positionSprite = sprite->GetPosition();
-					if (ImGui::DragFloat2("##positionSprite", &positionSprite.x, 1.0f, 0.0f, 1280.0f))
-					{
-						sprite->SetPosition(positionSprite);
-					}
+			//		// 要素ごとにIDスタックを分ける
+			//		ImGui::PushID((void*)sprite);
+			//		
+			//		ImGui::TableSetColumnIndex(0);
+			//		Vector2 positionSprite = sprite->GetPosition();
+			//		if (ImGui::DragFloat2("##positionSprite", &positionSprite.x, 1.0f, 0.0f, 1280.0f))
+			//		{
+			//			sprite->SetPosition(positionSprite);
+			//		}
 
-					ImGui::TableSetColumnIndex(1);
-					float rotationSprite = sprite->GetRotation();
-					if (ImGui::SliderAngle("##rotationSprite", &rotationSprite))
-					{
-						sprite->SetRotation(rotationSprite);
-					}
+			//		ImGui::TableSetColumnIndex(1);
+			//		float rotationSprite = sprite->GetRotation();
+			//		if (ImGui::SliderAngle("##rotationSprite", &rotationSprite))
+			//		{
+			//			sprite->SetRotation(rotationSprite);
+			//		}
 
-					ImGui::TableSetColumnIndex(2);
-					Vector2 sizeSprite = sprite->GetSize();
-					if (ImGui::DragFloat2("##sizeSprite", &sizeSprite.x, 1.0f, 0.0f, 1280.0f))
-					{
-						sprite->SetSize(sizeSprite);
-					}
+			//		ImGui::TableSetColumnIndex(2);
+			//		Vector2 sizeSprite = sprite->GetSize();
+			//		if (ImGui::DragFloat2("##sizeSprite", &sizeSprite.x, 1.0f, 0.0f, 1280.0f))
+			//		{
+			//			sprite->SetSize(sizeSprite);
+			//		}
 
-					ImGui::TableSetColumnIndex(3);
-					Vector4 colorSprite = sprite->GetColor();
-					if (ImGui::ColorEdit4("##colorSprite", &colorSprite.x))
-					{
-						sprite->SetColor(colorSprite);
-					}
+			//		ImGui::TableSetColumnIndex(3);
+			//		Vector4 colorSprite = sprite->GetColor();
+			//		if (ImGui::ColorEdit4("##colorSprite", &colorSprite.x))
+			//		{
+			//			sprite->SetColor(colorSprite);
+			//		}
 
-					ImGui::TableSetColumnIndex(4);
-					Transform uvTransformSprite = sprite->GetUVTransform();
-					if (ImGui::DragFloat2("##UVScale", &uvTransformSprite.scale.x, 0.01f, -10.0f, 10.0f))
-					{
-						sprite->SetUVScale(uvTransformSprite.scale);
-					}
-					if (ImGui::DragFloat2("##UVTranslate", &uvTransformSprite.translate.x, 0.01f, -10.0f, 10.0f))
-					{
-						sprite->SetUVTranslate(uvTransformSprite.translate);
-					}
-					if (ImGui::SliderAngle("##UVRotate", &uvTransformSprite.rotate.z))
-					{
-						sprite->SetUVRotate(uvTransformSprite.rotate);
-					}
-					Vector2 textureLeftTopSprite = sprite->GetTextureLeftTop();
-					if(ImGui::DragFloat2("##LeftTop", &textureLeftTopSprite.x))
-					{
-						sprite->SetTextureLeftTop(textureLeftTopSprite);
-					}
-					Vector2 textureSizeSprite = sprite->GetTextureSize();
-					if (ImGui::DragFloat2("##Size", &textureSizeSprite.x))
-					{
-						sprite->SetTextureSize(textureSizeSprite);
-					}
+			//		ImGui::TableSetColumnIndex(4);
+			//		Transform uvTransformSprite = sprite->GetUVTransform();
+			//		if (ImGui::DragFloat2("##UVScale", &uvTransformSprite.scale.x, 0.01f, -10.0f, 10.0f))
+			//		{
+			//			sprite->SetUVScale(uvTransformSprite.scale);
+			//		}
+			//		if (ImGui::DragFloat2("##UVTranslate", &uvTransformSprite.translate.x, 0.01f, -10.0f, 10.0f))
+			//		{
+			//			sprite->SetUVTranslate(uvTransformSprite.translate);
+			//		}
+			//		if (ImGui::SliderAngle("##UVRotate", &uvTransformSprite.rotate.z))
+			//		{
+			//			sprite->SetUVRotate(uvTransformSprite.rotate);
+			//		}
+			//		Vector2 textureLeftTopSprite = sprite->GetTextureLeftTop();
+			//		if(ImGui::DragFloat2("##LeftTop", &textureLeftTopSprite.x))
+			//		{
+			//			sprite->SetTextureLeftTop(textureLeftTopSprite);
+			//		}
+			//		Vector2 textureSizeSprite = sprite->GetTextureSize();
+			//		if (ImGui::DragFloat2("##Size", &textureSizeSprite.x))
+			//		{
+			//			sprite->SetTextureSize(textureSizeSprite);
+			//		}
 
-					ImGui::TableSetColumnIndex(5);
-					if (ImGui::SmallButton("UV"))
-					{
-						sprite->SetTexture("resources/uvChecker.png");
-					}
-					if (ImGui::SmallButton("MB"))
-					{
-						sprite->SetTexture("resources/monsterBall.png");
-					}
-					bool isFlipXSprite = sprite->GetIsFlipX();
-					if (ImGui::Checkbox("FlipX", &isFlipXSprite))
-					{
-						sprite->SetFlipX(isFlipXSprite);
-					}
-					bool isFlipYSprite = sprite->GetIsFlipY();
-					if (ImGui::Checkbox("FlipY", &isFlipYSprite))
-					{
-						sprite->SetFlipY(isFlipYSprite);
-					}
-
-
-					ImGui::TableSetColumnIndex(6);
-					if (ImGui::SmallButton("Delete##del")) 
-					{
-						to_delete = int(i);
-					}
-
-					ImGui::PopID();
-				}
-
-				ImGui::EndTable();
-
-				if (to_delete >= 0 && to_delete < (int) sprites.size()) 
-				{
-					sprites.erase(sprites.begin() + to_delete);
-				}
-
-				if (ImGui::SmallButton("Add##del"))
-				{
-					Sprite* sprite = new Sprite();
-					sprite->Initialize(spriteBase, "resources/uvChecker.png");
-					sprites.push_back(sprite);
-				}
-			}
-
-			ImGui::End();
+			//		ImGui::TableSetColumnIndex(5);
+			//		if (ImGui::SmallButton("UV"))
+			//		{
+			//			sprite->SetTexture("resources/uvChecker.png");
+			//		}
+			//		if (ImGui::SmallButton("MB"))
+			//		{
+			//			sprite->SetTexture("resources/monsterBall.png");
+			//		}
+			//		bool isFlipXSprite = sprite->GetIsFlipX();
+			//		if (ImGui::Checkbox("FlipX", &isFlipXSprite))
+			//		{
+			//			sprite->SetFlipX(isFlipXSprite);
+			//		}
+			//		bool isFlipYSprite = sprite->GetIsFlipY();
+			//		if (ImGui::Checkbox("FlipY", &isFlipYSprite))
+			//		{
+			//			sprite->SetFlipY(isFlipYSprite);
+			//		}
 
 
-			ImGui::Begin("ModelSetting");
+			//		ImGui::TableSetColumnIndex(6);
+			//		if (ImGui::SmallButton("Delete##del")) 
+			//		{
+			//			to_delete = int(i);
+			//		}
 
-			if (ImGui::BeginTable("ItemsTable", 3, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg))
-			{
-				ImGui::TableSetupScrollFreeze(1, 1);
-				ImGui::TableSetupColumn("transform", ImGuiTableColumnFlags_WidthFixed, 180.0f);
-				/*ImGui::TableSetupColumn("color", ImGuiTableColumnFlags_WidthFixed, 180.0f);*/
-				ImGui::TableSetupColumn("model", ImGuiTableColumnFlags_WidthFixed, 80.0f);
-				ImGui::TableSetupColumn("Ops", ImGuiTableColumnFlags_WidthFixed, 50.0f);
-				ImGui::TableHeadersRow();
+			//		ImGui::PopID();
+			//	}
 
-				int to_delete = -1;
-				size_t i = 0;
+			//	ImGui::EndTable();
 
-				for (auto it = object3ds.begin(); it != object3ds.end(); ++it, ++i)
-				{
-					Object3d* object3d = *it;
-					if (!object3d) continue;
+			//	if (to_delete >= 0 && to_delete < (int) sprites.size()) 
+			//	{
+			//		delete sprites[to_delete];
+			//		sprites.erase(sprites.begin() + to_delete);
+			//	}
 
-					ImGui::TableNextRow();
+			//	if (ImGui::SmallButton("Add##del"))
+			//	{
+			//		Sprite* sprite = new Sprite();
+			//		sprite->Initialize(spriteBase, "resources/uvChecker.png");
+			//		sprites.push_back(sprite);
+			//	}
+			//}
 
-					// 要素ごとにIDスタックを分ける
-					ImGui::PushID((void*)object3d);
-
-					ImGui::TableSetColumnIndex(0);
-					Vector3 scaleModel = object3d->GetScale();
-					if (ImGui::DragFloat3("##scaleModel", &scaleModel.x, 0.01f, 0.0f, 10.0f))
-					{
-						object3d->SetScale(scaleModel);
-					}
-					Vector3 rotateModel = object3d->GetRotate();
-					if (ImGui::DragFloat3("##rotateModel", &rotateModel.x, (1.0f / 180.0f) * pi, -2.0f * pi, 2.0f * pi))
-					{
-						object3d->SetRotate(rotateModel);
-					}
-					Vector3 translateModel = object3d->GetTranslate();
-					if (ImGui::DragFloat3("##positionModel", &translateModel.x, 0.01f, 0.0f, 1280.0f))
-					{
-						object3d->SetTranslate(translateModel);
-					}
-
-					/*ImGui::TableSetColumnIndex(1);
-					Vector4 colorModel = object3d->GetColor();
-					if (ImGui::ColorEdit4("##colorModel", &colorModel.x))
-					{
-						sprite->SetColor(colorModel);
-					}*/
-
-					ImGui::TableSetColumnIndex(1);
-					if (ImGui::SmallButton("plane"))
-					{
-						object3d->SetModel("plane.obj");
-					}
-					if (ImGui::SmallButton("axis"))
-					{
-						object3d->SetModel("axis.obj");
-					}
+			//ImGui::End();
 
 
-					ImGui::TableSetColumnIndex(2);
-					if (ImGui::SmallButton("Delete##del"))
-					{
-						to_delete = int(i);
-					}
+			//ImGui::Begin("ModelSetting");
 
-					ImGui::PopID();
-				}
+			//if (ImGui::BeginTable("ItemsTable", 3, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg))
+			//{
+			//	ImGui::TableSetupScrollFreeze(1, 1);
+			//	ImGui::TableSetupColumn("transform", ImGuiTableColumnFlags_WidthFixed, 180.0f);
+			//	/*ImGui::TableSetupColumn("color", ImGuiTableColumnFlags_WidthFixed, 180.0f);*/
+			//	ImGui::TableSetupColumn("model", ImGuiTableColumnFlags_WidthFixed, 80.0f);
+			//	ImGui::TableSetupColumn("Ops", ImGuiTableColumnFlags_WidthFixed, 50.0f);
+			//	ImGui::TableHeadersRow();
 
-				ImGui::EndTable();
+			//	int to_delete = -1;
+			//	size_t i = 0;
 
-				if (to_delete >= 0 && to_delete < (int)object3ds.size())
-				{
-					object3ds.erase(object3ds.begin() + to_delete);
-				}
+			//	for (auto it = object3ds.begin(); it != object3ds.end(); ++it, ++i)
+			//	{
+			//		Object3d* object3d = *it;
+			//		if (!object3d) continue;
 
-				if (ImGui::SmallButton("Add##del"))
-				{
-					Object3d* newObject3d = new Object3d();
-					newObject3d->Initialize(object3dBase);
-					newObject3d->SetModel("plane.obj");
-					object3ds.push_back(newObject3d);
-				}
-			}
+			//		ImGui::TableNextRow();
 
-			ImGui::End();
+			//		// 要素ごとにIDスタックを分ける
+			//		ImGui::PushID((void*)object3d);
+
+			//		ImGui::TableSetColumnIndex(0);
+			//		Vector3 scaleModel = object3d->GetScale();
+			//		if (ImGui::DragFloat3("##scaleModel", &scaleModel.x, 0.01f, 0.0f, 10.0f))
+			//		{
+			//			object3d->SetScale(scaleModel);
+			//		}
+			//		Vector3 rotateModel = object3d->GetRotate();
+			//		if (ImGui::DragFloat3("##rotateModel", &rotateModel.x, (1.0f / 180.0f) * pi, -2.0f * pi, 2.0f * pi))
+			//		{
+			//			object3d->SetRotate(rotateModel);
+			//		}
+			//		Vector3 translateModel = object3d->GetTranslate();
+			//		if (ImGui::DragFloat3("##positionModel", &translateModel.x, 0.01f, 0.0f, 1280.0f))
+			//		{
+			//			object3d->SetTranslate(translateModel);
+			//		}
+
+			//		/*ImGui::TableSetColumnIndex(1);
+			//		Vector4 colorModel = object3d->GetColor();
+			//		if (ImGui::ColorEdit4("##colorModel", &colorModel.x))
+			//		{
+			//			sprite->SetColor(colorModel);
+			//		}*/
+
+			//		ImGui::TableSetColumnIndex(1);
+			//		if (ImGui::SmallButton("plane"))
+			//		{
+			//			object3d->SetModel("plane.obj");
+			//		}
+			//		if (ImGui::SmallButton("axis"))
+			//		{
+			//			object3d->SetModel("axis.obj");
+			//		}
+
+
+			//		ImGui::TableSetColumnIndex(2);
+			//		if (ImGui::SmallButton("Delete##del"))
+			//		{
+			//			to_delete = int(i);
+			//		}
+
+			//		ImGui::PopID();
+			//	}
+
+			//	ImGui::EndTable();
+
+			//	if (to_delete >= 0 && to_delete < (int)object3ds.size())
+			//	{
+			//		delete object3ds[to_delete];
+			//		object3ds.erase(object3ds.begin() + to_delete);
+			//	}
+
+			//	if (ImGui::SmallButton("Add##del"))
+			//	{
+			//		Object3d* newObject3d = new Object3d();
+			//		newObject3d->Initialize(object3dBase);
+			//		newObject3d->SetModel("plane.obj");
+			//		object3ds.push_back(newObject3d);
+			//	}
+			//}
+
+			//ImGui::End();
 
 
 
 
-			ImGui::Begin("Window");
+			//ImGui::Begin("Window");
 
-			ImGui::Checkbox("DebugCamera", &isDebugCamera);
+			//ImGui::Checkbox("DebugCamera", &isDebugCamera);
 
-			ImGui::Combo("Texture", &textureIndex, textureOptions, IM_ARRAYSIZE(textureOptions));
+			//ImGui::Combo("Texture", &textureIndex, textureOptions, IM_ARRAYSIZE(textureOptions));
 
-			/*ImGui::DragFloat3("Scale 1", &transform.scale.x, 0.01f);
-			ImGui::DragFloat3("Rotate 1", &transform.rotate.x, 1.0f / 180.0f * pi);
-			ImGui::DragFloat3("Translate 1", &transform.translate.x, 0.01f);*/
+
 
 			
 			//for (size_t i = 0; i < modelData.size(); ++i)
@@ -1262,11 +1104,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 			//	}
 			//}
 
-			//ImGui::DragFloat3("Scale 2", &transformSphere.scale.x, 0.01f);
-			//ImGui::DragFloat3("Rotate 2", &transformSphere.rotate.x, 1.0f / 180.0f * pi);
-			//ImGui::DragFloat3("Translate 2", &transformSphere.translate.x, 0.01f);
-
-
 			//ImGui::DragFloat3("DirectionalLightDirection", &directionLightDirection.x, 0.01f);
 
 
@@ -1279,15 +1116,26 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 			//	// （＝GPU 側で使われるマテリアル色を更新）
 			//}
 
-			/*ImGui::DragFloat3("CameraScale", &cameraTransform.scale.x, 0.01f);
-			ImGui::DragFloat3("CameraRotate", &cameraTransform.rotate.x, 1.0f / 180.0f * pi);
-			ImGui::DragFloat3("CameraTranslate", &cameraTransform.translate.x, 0.01f);*/
+			//Transform cameraTransform = 
+			//	Transform{ camera->GetScale(), camera->GetRotate(), camera->GetTranslate() };
+			//if (ImGui::DragFloat3("CameraScale", &cameraTransform.scale.x, 0.01f))
+			//{
+			//	camera->SetScale(cameraTransform.scale);
+			//}
+			//if (ImGui::DragFloat3("CameraRotate", &cameraTransform.rotate.x, 1.0f / 180.0f * pi))
+			//{
+			//	camera->SetRotate(cameraTransform.rotate);
+			//}
+			//if (ImGui::DragFloat3("CameraTranslate", &cameraTransform.translate.x, 0.01f))
+			//{
+			//	camera->SetTranslate(cameraTransform.translate);
+			//}
 
-			ImGui::Text("MouseX: %.2f, MouseY: %.2f", mousePosition.x, mousePosition.y);
+			//ImGui::Text("MouseX: %.2f, MouseY: %.2f", mousePosition.x, mousePosition.y);
 
-			ImGui::Text("Press 0 to play the sound");
+			//ImGui::Text("Press 0 to play the sound");
 
-			ImGui::End();
+			//ImGui::End();
 
 			/*
 			
@@ -1301,9 +1149,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 			transformationMatrixDataSphere->World = worldMatrixSphere;
 			transformationMatrixDataSphere->WVP = wvpMatrixSphere;*/
 
-			mousePosition.x = static_cast<float>(input->MousePoint(winAPI->GetHwnd()).x);
-			mousePosition.y = static_cast<float>(input->MousePoint(winAPI->GetHwnd()).y);
+			mousePosition.x = static_cast<float>(inputManager->MousePoint(winAPI->GetHwnd()).x);
+			mousePosition.y = static_cast<float>(inputManager->MousePoint(winAPI->GetHwnd()).y);
 
+			camera->Update();
+			
 			for (auto it = sprites.begin(); it != sprites.end(); ++it)
 			{ 
 				Sprite* sprite = *it;
@@ -1316,8 +1166,18 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 				object3d->Update();
 			}
 
-			// ImGuiの内部コマンドを生成する
-			ImGui::Render();
+			for (auto it = emitters.begin(); it != emitters.end();)
+			{
+				ParticleEmitter* emitter = *it;
+				emitter->Update();
+
+				++it;
+			}
+
+			particleManager->Update();
+
+			//// ImGuiの内部コマンドを生成する
+			//ImGui::Render();
 
 
 
@@ -1325,12 +1185,25 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 			// 描画の処理
 			dxBase->PreDraw();
 
-			object3dBase->DrawingCommon();
+			srvManager->PreDraw();
 
-			for (size_t i = 0; i < object3ds.size(); i++)
+			if (isDrawObject3d)
 			{
-				object3ds[i]->Draw();
+				object3dBase->DrawingCommon();
+
+				for (size_t i = 0; i < object3ds.size(); i++)
+				{
+					object3ds[i]->Draw();
+				}
 			}
+
+
+			particleManager->Draw();
+
+			/*for (size_t i = 0; i < particle3ds.size(); i++)
+			{
+				particle3ds[i]->Draw();
+			}*/
 
 			//// SphereのIndexBufferViewを設定
 			//commandList->IASetIndexBuffer(&indexBufferView);
@@ -1351,10 +1224,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 			//dxBase->GetCommandList()->DrawIndexedInstanced(kSubdivision * kSubdivision * 6, 1, 0, 0, 0);
 			
 
-			spriteBase->DrawingCommon();
-
 			if (isDrawSprite)
 			{
+				spriteBase->DrawingCommon();
+
 				for (size_t i = 0; i < sprites.size(); i++)
 				{
 					sprites[i]->Draw();
@@ -1363,14 +1236,14 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 						
 			
 
-			if (input->TriggerKey(DIK_0))
+			if (inputManager->TriggerKey(DIK_0))
 			{
 				SoundPlayWave(xAudio2.Get(), soundData1);
 			}
 
 
-			// 実際のcommandListのImGuiの描画コマンドを積む
-			ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), dxBase->GetCommandList());
+			//// 実際のcommandListのImGuiの描画コマンドを積む
+			//ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), dxBase->GetCommandList());
 
 			
 			dxBase->PostDraw();
@@ -1379,10 +1252,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		}
 	}
 
-	// ImGuiの終了処理
-	ImGui_ImplDX12_Shutdown();
-	ImGui_ImplWin32_Shutdown();
-	ImGui::DestroyContext();
+	//// ImGuiの終了処理
+	//ImGui_ImplDX12_Shutdown();
+	//ImGui_ImplWin32_Shutdown();
+	//ImGui::DestroyContext();
 
 	// XAudio2解放
 	xAudio2.Reset();
@@ -1390,20 +1263,15 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	// 音声データ解放
 	SoundUnload(&soundData1);
 
-	// オブジェクトの解放処理
-	CloseHandle(dxBase->GetFenceEvent());
+	for (auto it =emitters.begin(); it != emitters.end(); ++it)
+	{
+		ParticleEmitter* emitter = *it;
+		delete emitter;
+	}
+	emitters.clear();
 
-	// ModelManager終了処理
-	ModelManager::GetInstance()->Finalize();
-
-	// TextureManager終了処理
-	textureManager->Finalize();
-
-	// DirectXBase終了処理
-	dxBase->Finalize();
-
-	// WindowsAPI終了処理
-	winAPI->Finalize();
+	// ParticleManager終了処理
+	particleManager->Finalize();
 
 	for (auto it = object3ds.begin(); it != object3ds.end(); ++it)
 	{
@@ -1416,6 +1284,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	delete object3dBase;
 	object3dBase = nullptr;
 
+
 	for (auto it = sprites.begin(); it != sprites.end(); ++it)
 	{
 		Sprite* sprite = *it;
@@ -1427,12 +1296,37 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	delete spriteBase;
 	spriteBase = nullptr;
 
+	// SeedManager終了処理
+	SeedManager::GetInstance()->Finalize();
+
+	// ModelManager終了処理
+	ModelManager::GetInstance()->Finalize();
+
+	// TextureManager終了処理
+	textureManager->Finalize();
+
+	// SrvManager終了処理
+	SrvManager::GetInstance()->Finalize();
+
+	// InputManager終了処理
+	inputManager->Finalize();
+
+	camera->Finalize();
+	delete camera;
+	camera = nullptr;
+
+	// DirectXBase終了処理
+	dxBase->Finalize();
+
+	// WindowsAPI終了処理
+	winAPI->Finalize();
+
 	delete dxBase;
 	dxBase = nullptr;
 	delete winAPI;
 	winAPI = nullptr;
-	delete input;
-	input = nullptr;
+	
+
 
 
 	return 0;

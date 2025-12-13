@@ -4,6 +4,8 @@
 
 class Model;
 
+class Camera;
+
 class Object3dBase;
 
 class Object3d
@@ -38,6 +40,7 @@ public:	// 外部入出力
 
 	// セッター
 	void SetModel(const std::string& filePath);
+	void SetCamera(Camera* camera){ camera_ = camera; }
 
 	void SetScale(const Vector3& scale){ transform_.scale = scale; }
 	void SetRotate(const Vector3& rotate){ transform_.rotate = rotate; }
@@ -64,6 +67,9 @@ private:
 	// モデル
 	Model* model_ = nullptr;
 
+	// カメラ
+	Camera* camera_ = nullptr;
+
 	// 座標変換行列用バッファリソース
 	Microsoft::WRL::ComPtr<ID3D12Resource> transformationMatrixResource_ = nullptr;
 	// バッファリソース内のデータを指すポインタ
@@ -76,9 +82,5 @@ private:
 	
 	// トランスフォーム
 	Transform transform_;
-
-	// カメラ
-	Transform cameraTransform_;
-
 };
 

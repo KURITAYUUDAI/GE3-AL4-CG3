@@ -1,6 +1,23 @@
-#include "Input.h"
+#include "InputManager.h"
 
-void Input::Initialize(WindowsAPI* winAPI)
+InputManager* InputManager::instance_ = nullptr;
+
+InputManager* InputManager::GetInstance()
+{
+	if (instance_ == nullptr)
+	{
+		instance_ = new InputManager;
+	}
+	return instance_;
+}
+
+void InputManager::Finalize()
+{
+	delete instance_;
+	instance_ = nullptr;
+}
+
+void InputManager::Initialize(WindowsAPI* winAPI)
 {
 	HRESULT hr;
 
@@ -37,7 +54,7 @@ void Input::Initialize(WindowsAPI* winAPI)
 	assert(SUCCEEDED(hr));
 }
 
-void Input::Update()
+void InputManager::Update()
 {
 	HRESULT hr;
 
@@ -61,7 +78,7 @@ void Input::Update()
 
 }
 
-bool Input::PushKey(BYTE keyNum)
+bool InputManager::PushKey(BYTE keyNum)
 {
 	if (key_[keyNum])
 	{
@@ -71,7 +88,7 @@ bool Input::PushKey(BYTE keyNum)
 	return false;
 }
 
-bool Input::TriggerKey(BYTE keyNum)
+bool InputManager::TriggerKey(BYTE keyNum)
 {
 	if(!keyPre_[keyNum] && key_[keyNum])
 	{
@@ -81,7 +98,7 @@ bool Input::TriggerKey(BYTE keyNum)
 	return false;
 }
 
-bool Input::PushMouse(BYTE mouseButton)
+bool InputManager::PushMouse(BYTE mouseButton)
 {
 	if (mouseState_.rgbButtons[mouseButton] & 0x80)
 	{
@@ -90,7 +107,7 @@ bool Input::PushMouse(BYTE mouseButton)
 	return false;
 }
 
-bool Input::TriggerMouse(BYTE mouseButton)
+bool InputManager::TriggerMouse(BYTE mouseButton)
 {
 	if (!(mouseStatePre_.rgbButtons[mouseButton] & 0x80) 
 		 && (mouseState_.rgbButtons[mouseButton] & 0x80))
@@ -100,7 +117,7 @@ bool Input::TriggerMouse(BYTE mouseButton)
 	return false;
 }
 
-POINT Input::MousePoint(const HWND hwnd)
+POINT InputManager::MousePoint(const HWND hwnd)
 {
 	// マウスのスクリーン座標を取得する
 	POINT point;

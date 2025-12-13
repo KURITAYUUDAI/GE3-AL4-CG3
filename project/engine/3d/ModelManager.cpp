@@ -18,6 +18,8 @@ void ModelManager::Finalize()
 {
 	models_.clear();
 
+	delete modelBase_;
+
 	delete instance;
 	instance = nullptr;
 
@@ -51,6 +53,12 @@ Model* ModelManager::FindModel(const std::string& filePath)
 
 	// ファイル名一致無し
 	return nullptr;
+}
+
+void ModelManager::CreateSphere(const std::string& materialPath)
+{
+
+
 }
 
 void ModelManager::Initialize(DirectXBase* dxBase)

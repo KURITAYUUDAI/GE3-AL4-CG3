@@ -1,16 +1,17 @@
-#include "Object3d.hlsli"
+#include "Particle.hlsli"
 
 // ===== [テキストより独自で変換したポイント] =======
 // float32_t4 → float4
 //                                         by ChatGPT
 // ==================================================
 
-struct TransformationMatrix
+struct ParticleForGPU
 {
-    row_major float4x4 WVP; // World View Projection matrixの略
+    row_major float4x4 WVP; 
     row_major float4x4 World;
+    float4 color;
 };
-ConstantBuffer<TransformationMatrix> gTransformationMatrix : register(b0);
+StructuredBuffer<ParticleForGPU> gParticle : register(t0);
 
 struct VertexShaderInput
 {
@@ -19,11 +20,12 @@ struct VertexShaderInput
     float3 normal : NORMAL0;
 };
 
-VertexShaderOutput main(VertexShaderInput input)
+VertexShaderOutput main(VertexShaderInput input, uint instanceId : SV_InstanceID)
 {
     VertexShaderOutput output;
-    output.position = mul(input.position, gTransformationMatrix.WVP);
+    output.position = mul(input.position, gParticle[instanceId].WVP);
     output.texcoord = input.texcoord;
-    output.normal = normalize(mul(input.normal, (float3x3) gTransformationMatrix.World));
+    output.normal = normalize(mul(input.normal, (float3x3) gParticle[instanceId].World));
+    output.color = gParticle[instanceId].color;
     return output;
 }

@@ -39,6 +39,9 @@ public:
 
 	void Finalize();
 
+	// テクスチャサイズをイメージに合わせる
+	void AdjustTextureSize();
+
 public:		// 外部入出力
 
 	// セッター
@@ -88,9 +91,6 @@ private:	// 静的関数
 
 	// TransformationMatrixResourceを作成
 	void CreateTransformationMatrixResource();
-
-	// テクスチャサイズをイメージに合わせる
-	void AdjustTextureSize();
 
 private:	// 静的変数
 
@@ -154,7 +154,6 @@ private:	// 静的変数
 	Matrix4x4 uvTransformMatrix_ = {};
 
 	
-
-	// テクスチャ番号
-	uint32_t textureIndex_ = 0;
+	// テクスチャファイルパス
+	std::string textureFilePath_ = "";
 };

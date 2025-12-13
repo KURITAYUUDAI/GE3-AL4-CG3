@@ -2,7 +2,7 @@
 #include "../math/myMath.h"
 #include <Windows.h>
 
-class Input;
+class InputManager;
 
 /// <summary>
 ///  デバッグカメラ
@@ -11,7 +11,7 @@ class DebugCamera
 {
 public:
 
-	Input* input_;
+	InputManager* input_;
 
 	/// <summary>
 	///  初期化
@@ -21,7 +21,7 @@ public:
 	/// <summary>
 	///  更新
 	/// </summary>
-	void Update(Input* input, Transform camera);
+	void Update(InputManager* input, Transform camera);
 
 	Matrix4x4 GetViewMatrix() { return viewMatrix_;}
 

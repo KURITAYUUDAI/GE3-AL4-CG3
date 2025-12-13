@@ -46,13 +46,17 @@ public:
 
 	void Update();
 
-	void Draw();
+	void Draw(const UINT& instanceCount);
 
 	void Finalize();
 
 	static MaterialData LoadMaterialTemplateFile(const std::string& directoryPath, const std::string& filename, const std::string& mtlname);
 
 	void LoadObjFile(const std::string& directoryPath, const std::string& filename);
+
+	void SetTexture(const std::string& directoryFilePath);
+
+	void ResetTexture();
 
 private:
 
@@ -62,9 +66,16 @@ private:
 	// MaterialResourceを作成
 	void CreateMaterialResource();
 
+	// 球作成
+	void CreateSphere();
+
 public:	// 外部入出力
 
+	// セッター
+	void SetInstanceCount(const UINT& instanceCount) { instanceCount_ = instanceCount; }
 
+	// ゲッター
+	const UINT& GetInstanceCount() const { return instanceCount_; }
 
 private:
 
@@ -85,5 +96,11 @@ private:
 	// バッファリソース内のデータを指すポインタ
 	Material* materialData_ = nullptr;
 
+	bool isSphere_ = false;
+
+	UINT instanceCount_ = 1;
+
+	std::string materialTextureFilePath_;
+	uint32_t materialTextureIndex_ = 0;
 };
 

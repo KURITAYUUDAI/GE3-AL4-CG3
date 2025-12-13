@@ -1,6 +1,7 @@
 #include "Sprite.h"
 #include "SpriteBase.h"
 #include "TextureManager.h"
+#include "SrvManager.h"
 
 void Sprite::Initialize(SpriteBase* spriteBase, std::string textureFilePath)
 {
@@ -13,8 +14,8 @@ void Sprite::Initialize(SpriteBase* spriteBase, std::string textureFilePath)
 
 	CreateTransformationMatrixResource();
 
-	// テクスチャインデックスを受け取る
-	textureIndex_ = TextureManager::GetInstance()->GetTextureIndexByFilePath(textureFilePath);
+	// テクスチャファイルパスを受け取る
+	textureFilePath_ = textureFilePath;
 
 	AdjustTextureSize();
 }
@@ -62,7 +63,7 @@ void Sprite::Update()
 	transformationMatrixData_->WVP = worldViewProjectionMatrix_;
 
 	const DirectX::TexMetadata& metaData =
-		TextureManager::GetInstance()->GetMetaData(textureIndex_);
+		TextureManager::GetInstance()->GetMetaData(textureFilePath_);
 	float tex_left = textureLeftTop_.x / metaData.width;
 	float tex_right = (textureLeftTop_.x + textureSize_.x) / metaData.width;
 	float tex_top = textureLeftTop_.y / metaData.height;
@@ -96,7 +97,7 @@ void Sprite::Draw()
 	// TransformationMatrixCBufferの」場所を設定
 	spriteBase_->GetDxBase()->GetCommandList()->SetGraphicsRootConstantBufferView(1, transformationMatrixResource_->GetGPUVirtualAddress());
 	// SRV用のDescriptorTableの先頭を設定。2はrootParameter[2]である。
-	spriteBase_->GetDxBase()->GetCommandList()->SetGraphicsRootDescriptorTable(2, TextureManager::GetInstance()->GetSRVHandleGPU(textureIndex_));
+	spriteBase_->GetDxBase()->GetCommandList()->SetGraphicsRootDescriptorTable(2, TextureManager::GetInstance()->GetSRVHandleGPU(textureFilePath_));
 
 	// 描画！(DrawCall)
 	spriteBase_->GetDxBase()->GetCommandList()->DrawIndexedInstanced(6, 1, 0, 0, 0);
@@ -109,8 +110,8 @@ void Sprite::Finalize()
 
 void Sprite::SetTexture(std::string textureFilePath)
 {
-	// テクスチャインデックスを受け取る
-	textureIndex_ = TextureManager::GetInstance()->GetTextureIndexByFilePath(textureFilePath);
+	// テクスチャファイルパスを受け取る
+	textureFilePath_ = textureFilePath;
 }
 
 void Sprite::CreateVertexResource()
@@ -188,7 +189,7 @@ void Sprite::CreateTransformationMatrixResource()
 void Sprite::AdjustTextureSize()
 {
 	// テクスチャメタデータを取得
-	const DirectX::TexMetadata& metadata = TextureManager::GetInstance()->GetMetaData(textureIndex_);
+	const DirectX::TexMetadata& metadata = TextureManager::GetInstance()->GetMetaData(textureFilePath_);
 
 	textureSize_.x = static_cast<float>(metadata.width);
 	textureSize_.y = static_cast<float>(metadata.height);
