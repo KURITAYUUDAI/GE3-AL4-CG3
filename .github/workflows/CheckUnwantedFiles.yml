@@ -31,14 +31,14 @@ jobs:
       - name: 不要なファイルとディレクトリを検索（bash）
         run: |
           # ディレクトリ条件を構築（最初の不要な -o を後で削除）
-          DIR_CONDITIONS=()
+          DIR_CONDITIONS=(-false)
           for pattern in $UNWANTED_DIR_PATTERNS; do
             DIR_CONDITIONS+=(-o -iname "$pattern")
           done
           unset DIR_CONDITTIONS[0]
 
           # ファイル条件を構築（最初の不要な -o を後で削除）
-          NAME_CONDITIONS=()
+          NAME_CONDITIONS=(-false)
           for pattern in $UNWANTED_NAME_PATTERNS; do
             NAME_CONDITIONS+=(-o -iname "$pattern")
           done
@@ -49,8 +49,8 @@ jobs:
           # 2. 不要なディレクトリを検索(-type d)し、見つけたらパスを出力(-print)し、その中身を枝狩り(-prune)
           # 3. または（ -0 ）不要なファイルを検索(-type f)し、パスを出力(-print)
           UNWNATED_LIST=$(find . -path "./.git" -prune -o \
-            \( \( "${DIR_CONDITIONS[@]}" \) -a -type d -print -prune \) -o \
-            \( \( "${NAME_CONDITIONS[@]}" \) -a -type f -print \) \
+            \( -type d \( "${DIR_CONDITIONS[@]}" \) -print -prune \) -o \
+            \( -type f \( "${NAME_CONDITIONS[@]}" \) -print \) \
           )
           # 検出結果があればエラーとして出力し、失敗させる
           if [ -n "$UNWANTED_LIST" ]; then
