@@ -326,8 +326,6 @@ void SoundPlayWave(IXAudio2* xAudio2, const SoundData& soundData)
 // Windowsアプリでのエントリーポイント(main関数)
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 {
-	
-
 	// main関数の先頭でCOMの初期化を行う
 	CoInitializeEx(0, COINIT_MULTITHREADED);
 
@@ -841,6 +839,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	bool isDebugCamera = false;
 	
 	Vector2 mousePosition = { 0.0f, 0.0f };
+
+	// クラッシュ用
+	/*uint32_t* p = nullptr;
+	*p = 100;*/
 
 	// ウィンドウの×ボタンが押されるまでループ
 	while (true)
