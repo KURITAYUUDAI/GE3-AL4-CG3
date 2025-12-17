@@ -1,6 +1,6 @@
 #include "DebugCamera.h"
 #include "InputManager.h"
-#include "../../externals/imgui/imgui.h"
+#include "imgui.h"
 
 void DebugCamera::Initialize()
 {
