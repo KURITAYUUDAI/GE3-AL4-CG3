@@ -749,7 +749,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 	std::vector<Sprite*> sprites;
 
-	for (size_t i = 0; i < 2; i++)
+	for (size_t i = 0; i < 1; i++)
 	{
 		Sprite* newSprite = new Sprite();
 		newSprite->Initialize(spriteBase, "resources/uvChecker.png");
@@ -757,9 +757,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		sprites.push_back(newSprite);
 	}
 
-	sprites[1]->SetTexture("resources/monsterBall.png");
-	sprites[1]->SetPosition(Vector2{ 720.0f, 360.0f });
-	sprites[1]->AdjustTextureSize();
+	sprites[0]->SetTexture("resources/monsterBall.png");
+	sprites[0]->SetPosition(Vector2{ 100.0f, 100.0f });
+	sprites[0]->AdjustTextureSize();
 
 	std::vector<Object3d*> object3ds;
 
@@ -858,10 +858,17 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 #ifdef USE_IMGUI
 
-			ImGui::Begin("Window");
+			// デモウィンドウ表示
+			ImGui::ShowDemoWindow();
 
-			ImGui::Text("Hello ImGuiManager World!");
-
+			ImGui::Begin("Sprite Setting");
+			ImGui::SetWindowSize("Sprite Setting", {500.0f, 100.0f});
+			Vector2 spritePos = sprites[0]->GetPosition();
+			if (ImGui::DragFloat2("pos", &spritePos.x, 1.0f, 0.0f, 0.0f, "%05.1f"))
+			{
+				sprites[0]->SetPosition(spritePos);
+			}
+			ImGui::Checkbox("DrawSprite", &isDrawSprite);
 			ImGui::End();
 
 			//ImGui_ImplDX12_NewFrame();

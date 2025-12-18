@@ -72,8 +72,6 @@ void ImGuiManager::Begin()
 	ImGui_ImplDX12_NewFrame();
 	ImGui::NewFrame();
 
-	// デモウィンドウ表示
-	// ImGui::ShowDemoWindow();
 #endif
 }
 
