@@ -108,6 +108,8 @@ public: // ゲッター
 	ID3D12Device* GetDevice(){ return device_.Get(); }
 	// コマンドリスト
 	ID3D12GraphicsCommandList* GetCommandList(){ return commandList_.Get(); }
+	// コマンドキュー
+	ID3D12CommandQueue* GetCommandQueue(){return commandQueue_.Get(); }
 
 	IDxcUtils* GetDxcUtils(){ return dxcUtils_.Get(); }
 	IDxcCompiler3* GetDxcCompiler() { return dxcCompiler_.Get(); }
@@ -118,6 +120,8 @@ public: // ゲッター
 	ID3D12DescriptorHeap* GetDsvDescriptorHeap(){ return dsvDescriptorHeap_.Get(); }
 
 	HANDLE GetFenceEvent() { return fenceEvent_; }
+
+	size_t GetSwapChainResourceNum(){ return swapChainResources_.size(); }
 
 public: // その他関数
 

@@ -8,8 +8,6 @@
 #include "Logger.h"
 #include "StringUtility.h"
 
-
-
 using namespace Logger;
 using namespace StringUtility;
 
