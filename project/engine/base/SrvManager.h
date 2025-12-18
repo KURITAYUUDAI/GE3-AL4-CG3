@@ -39,6 +39,8 @@ public: // 外部入出力
 
 	D3D12_GPU_DESCRIPTOR_HANDLE GetGPUDescriptorHandle(const uint32_t index);
 
+	ID3D12DescriptorHeap* GetDescriptorHeap();
+
 public:
 
 	// 最大SRV数（最大テクスチャ枚数）

@@ -35,12 +35,6 @@ using namespace DirectX;
 #include <fstream>
 #include <sstream>
 
-// imGuiのinclude
-#include "imgui.h"
-#include "imgui_impl_dx12.h"
-#include "imgui_impl_win32.h"
-//extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);
-
 #include "externals/DirectXTex/DirectXTex.h"
 
 #include <vector>
@@ -77,6 +71,7 @@ using namespace DirectX;
 #include "ParticleEmitter.h"
 
 #include "SeedManager.h"
+#include "ImGuiManager.h"
 
 //class ResourceObject
 //{
@@ -363,6 +358,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 	SrvManager* srvManager = SrvManager::GetInstance();
 	srvManager->Initialize(dxBase);
+
+	ImGuiManager* imguiManager = ImGuiManager::GetInstance();
+	imguiManager->Initialize(winAPI, dxBase);
 
 	TextureManager* textureManager = TextureManager::GetInstance();
 	textureManager->SetDxBase(dxBase);
@@ -856,6 +854,16 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		{
 			inputManager->Update();
 
+			imguiManager->Begin();
+
+#ifdef USE_IMGUI
+
+			ImGui::Begin("Window");
+
+			ImGui::Text("Hello ImGuiManager World!");
+
+			ImGui::End();
+
 			//ImGui_ImplDX12_NewFrame();
 			//ImGui_ImplWin32_NewFrame();
 			//ImGui::NewFrame();
@@ -1139,6 +1147,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 			//ImGui::End();
 
+#endif
+
+			imguiManager->End();
+
 			/*
 			
 			directionalLightData->direction = Vector3{ directionLightDirection.x, directionLightDirection.y, directionLightDirection.z };
@@ -1243,10 +1255,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 				SoundPlayWave(xAudio2.Get(), soundData1);
 			}
 
-
-			//// 実際のcommandListのImGuiの描画コマンドを積む
-			//ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), dxBase->GetCommandList());
-
+			
+			imguiManager->Draw();
+			
 			
 			dxBase->PostDraw();
 
@@ -1306,6 +1317,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 	// TextureManager終了処理
 	textureManager->Finalize();
+
+	// ImGuiManager終了処理
+	imguiManager->Finalize();
 
 	// SrvManager終了処理
 	SrvManager::GetInstance()->Finalize();

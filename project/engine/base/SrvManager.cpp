@@ -102,6 +102,11 @@ D3D12_GPU_DESCRIPTOR_HANDLE SrvManager::GetGPUDescriptorHandle(const uint32_t in
 	return handleGPU;
 }
 
+ID3D12DescriptorHeap* SrvManager::GetDescriptorHeap()
+{
+	return descriptorHeap_.Get();
+}
+
 void SrvManager::SetGraphicsRootDescriptorTable(UINT RootParameterIndex, uint32_t srvIndex)
 {
 
