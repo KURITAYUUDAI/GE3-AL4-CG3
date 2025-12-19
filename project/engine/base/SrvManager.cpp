@@ -1,6 +1,6 @@
 #include "SrvManager.h"
 
-SrvManager* SrvManager::instance_ = nullptr;
+std::unique_ptr<SrvManager, SrvManager::Deleter> SrvManager::instance_ = nullptr;
 
 const uint32_t SrvManager::kMaxSRVCount = 512;
 
@@ -8,15 +8,14 @@ SrvManager* SrvManager::GetInstance()
 {
 	if (instance_ == nullptr)
 	{
-		instance_ = new SrvManager;
+		instance_.reset(new SrvManager);
 	}
-	return instance_;
+	return instance_.get();
 }
 
 void SrvManager::Finalize()
 {
-	delete instance_;
-	instance_ = nullptr;
+	instance_.reset();
 }
 
 

@@ -4,9 +4,10 @@
 #include <map>
 #include <string>
 
+#include "ModelBase.h"
+
 class DirectXBase;
 
-class ModelBase;
 class Model;
 
 // モデルマネージャー
@@ -39,11 +40,22 @@ public:
 
 public: // 外部入出力
 
-	ModelBase* GetModelBase(){ return modelBase_; }
+	ModelBase* GetModelBase(){ return modelBase_.get(); }
 
 private:	// シングルトン化
 
-	static ModelManager* instance;
+	// unique_ptr が delete するために使用する構造体
+	struct Deleter
+	{
+		void operator()(ModelManager* p) const
+		{
+			// クラス内部のスコープなので private なデストラクタを呼べる
+			delete p;
+		}
+	};
+
+	// unique_ptr の型定義に Deleter を入れることでdeleteが可能になる
+	static std::unique_ptr<ModelManager, Deleter> instance_;
 	
 	ModelManager() = default;
 	~ModelManager() = default;
@@ -56,7 +68,16 @@ private:	// 静的関数
 
 private:
 
-	ModelBase* modelBase_ = nullptr;
+	struct DeleterModelBase
+	{
+		void operator()(ModelBase* p) const
+		{
+			// クラス内部のスコープなので private なデストラクタを呼べる
+			delete p;
+		}
+	};
+
+	std::unique_ptr<ModelBase, DeleterModelBase> modelBase_ = nullptr;
 
 	// モデルデータ
 	std::map<std::string, std::unique_ptr<Model>> models_;

@@ -1,27 +1,25 @@
 #include "ModelManager.h"
 #include "DirectXBase.h"
-#include "ModelBase.h"
 #include "Model.h"
 
-ModelManager* ModelManager::instance = nullptr;
+std::unique_ptr<ModelManager, ModelManager::Deleter> ModelManager::instance_ = nullptr;
 
 ModelManager* ModelManager::GetInstance()
 {
-	if (instance == nullptr)
+	if (instance_ == nullptr)
 	{
-		instance = new ModelManager;
+		instance_.reset(new ModelManager);
 	}
-	return instance;
+	return instance_.get();
 }
 
 void ModelManager::Finalize()
 {
 	models_.clear();
 
-	delete modelBase_;
+	modelBase_.reset();
 
-	delete instance;
-	instance = nullptr;
+	instance_.reset();
 
 }
 
@@ -36,7 +34,7 @@ void ModelManager::LoadModel(const std::string& filePath)
 
 	// モデルの生成とファイル読み込み、初期化
 	std::unique_ptr<Model> model = std::make_unique<Model>();
-	model->Initialize(modelBase_, "resources", filePath);
+	model->Initialize(modelBase_.get(), "resources", filePath);
 
 	// モデルをmapコンテナに格納する
 	models_.insert(std::make_pair(filePath, std::move(model)));
@@ -63,6 +61,6 @@ void ModelManager::CreateSphere(const std::string& materialPath)
 
 void ModelManager::Initialize(DirectXBase* dxBase)
 {
-	modelBase_ = new ModelBase;
+	modelBase_.reset(new ModelBase());
 	modelBase_->Initialize(dxBase);
 }

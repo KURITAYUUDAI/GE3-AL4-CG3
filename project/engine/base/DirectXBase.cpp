@@ -69,7 +69,7 @@ void DirectXBase::Finalize()
 	// オブジェクトの解放処理
 	CloseHandle(fenceEvent_);
 
-	delete fixFPS_;
+	fixFPS_.reset();
 }
 
 void DirectXBase::PreDraw()

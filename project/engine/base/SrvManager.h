@@ -1,5 +1,6 @@
 #pragma once
 #include "DirectXBase.h"
+#include <memory>
 
 // SRV管理
 class SrvManager
@@ -48,7 +49,18 @@ public:
 
 private: 	// シングルトンインスタンス
 
-	static SrvManager* instance_;
+	// unique_ptr が delete するために使用する構造体
+	struct Deleter
+	{
+		void operator()(SrvManager* p) const
+		{
+			// クラス内部のスコープなので private なデストラクタを呼べる
+			delete p;
+		}
+	};
+
+	// unique_ptr の型定義に Deleter を入れることでdeleteが可能になる
+	static std::unique_ptr<SrvManager, Deleter> instance_;
 
 	SrvManager() = default;
 	~SrvManager() = default;

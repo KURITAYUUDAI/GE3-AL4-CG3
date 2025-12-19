@@ -1,16 +1,16 @@
 #include "ImGuiManager.h"
 #include "SrvManager.h"
 
-ImGuiManager* ImGuiManager::instance_ = nullptr;
+std::unique_ptr<ImGuiManager, ImGuiManager::Deleter> ImGuiManager::instance_ = nullptr;
 
 ImGuiManager* ImGuiManager::GetInstance()
 {
 	if (instance_ == nullptr)
 	{
-		instance_ = new ImGuiManager;
+		instance_.reset(new ImGuiManager());
 	}
 
-	return instance_;
+	return instance_.get();
 }
 
 void ImGuiManager::Finalize()
@@ -23,9 +23,7 @@ void ImGuiManager::Finalize()
 
 #endif
 
-	delete instance_;
-	instance_ = nullptr;
-
+	instance_.reset();
 
 
 }
