@@ -8,6 +8,8 @@
 #include <wrl.h>
 #include <unordered_map>
 
+#include <memory>
+
 class DirectXBase;
 
 class SrvManager;
@@ -77,7 +79,18 @@ private:
 
 private:	// シングルトン化
 
-	static TextureManager* instance_;
+	// unique_ptr が delete するために使用する構造体
+	struct Deleter
+	{
+		void operator()(TextureManager* p) const
+		{
+			// クラス内部のスコープなので private なデストラクタを呼べる
+			delete p;
+		}
+	};
+
+	// unique_ptr の型定義に Deleter を入れることでdeleteが可能になる
+	static std::unique_ptr<TextureManager, Deleter> instance_;
 
 	TextureManager() = default;
 	~TextureManager() = default;

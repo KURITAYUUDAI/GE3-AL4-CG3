@@ -11,6 +11,8 @@
 #pragma comment(lib, "dinput8.lib")
 #pragma comment(lib, "dxguid.lib")
 
+#include <memory>
+
 class InputManager
 {
 public:
@@ -37,8 +39,19 @@ public:
 	bool TriggerMouse(BYTE mouseButton);
 
 private: 	// シングルトンインスタンス
+	// unique_ptr が delete するために使用する構造体
+	struct Deleter
+	{
+		void operator()(InputManager* p) const
+		{
+			// クラス内部のスコープなので private なデストラクタを呼べる
+			delete p;
+		}
+	};
 
-	static InputManager* instance_;
+	// unique_ptr の型定義に Deleter を入れることでdeleteが可能になる
+	static std::unique_ptr<InputManager, Deleter> instance_;
+
 	InputManager() = default;
 	~InputManager() = default;
 	InputManager(InputManager&) = delete;

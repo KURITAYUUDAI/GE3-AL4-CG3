@@ -1,5 +1,6 @@
 #pragma once
 #include <random>
+#include <memory>
 
 class SeedManager
 {
@@ -24,7 +25,18 @@ public: // 外部入出力
 
 private:	// シングルトンインスタンス
 
-	static SeedManager* instance_;
+	// unique_ptr が delete するために使用する構造体
+	struct Deleter
+	{
+		void operator()(SeedManager* p) const
+		{
+			// クラス内部のスコープなので private なデストラクタを呼べる
+			delete p;
+		}
+	};
+
+	// unique_ptr の型定義に Deleter を入れることでdeleteが可能になる
+	static std::unique_ptr<SeedManager, Deleter> instance_;
 
 	SeedManager() = default;
 	~SeedManager() = default;

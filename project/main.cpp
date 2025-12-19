@@ -346,26 +346,25 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	HRESULT hr;
 
 	// WindowsAPIのポインタ
-	WindowsAPI* winAPI = nullptr;
-
-	// WindowsAPIの初期化
-	winAPI = new WindowsAPI();
+	std::unique_ptr<WindowsAPI> winAPI = nullptr;
+	winAPI = std::make_unique<WindowsAPI>();
 	winAPI->Initialize();
 
 	// DirectXBaseのポインタ
-	DirectXBase* dxBase = new DirectXBase();
-	dxBase->Initialize(winAPI);
+	std::unique_ptr<DirectXBase> dxBase = nullptr;
+	dxBase = std::make_unique<DirectXBase>();
+	dxBase->Initialize(winAPI.get());
 
 	SrvManager* srvManager = SrvManager::GetInstance();
-	srvManager->Initialize(dxBase);
+	srvManager->Initialize(dxBase.get());
 
 	ImGuiManager* imguiManager = ImGuiManager::GetInstance();
-	imguiManager->Initialize(winAPI, dxBase);
+	imguiManager->Initialize(winAPI.get(), dxBase.get());
 
 	TextureManager* textureManager = TextureManager::GetInstance();
-	textureManager->SetDxBase(dxBase);
+	textureManager->SetDxBase(dxBase.get());
 
-	ModelManager::GetInstance()->Initialize(dxBase);
+	ModelManager::GetInstance()->Initialize(dxBase.get());
 
 	SeedManager::GetInstance()->Initialize();
 
@@ -521,20 +520,20 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 	
 	// スプライトの共通処理を生成
-	SpriteBase* spriteBase = nullptr;
+	std::unique_ptr<SpriteBase> spriteBase = nullptr;
 	// スプライトの共通部を初期化
-	spriteBase = new SpriteBase;
-	spriteBase->Initialize(dxBase);
+	spriteBase = std::make_unique<SpriteBase>();
+	spriteBase->Initialize(dxBase.get());
 
 	// 3Dオブジェクトの共通処理を生成
-	Object3dBase* object3dBase = nullptr;
+	std::unique_ptr<Object3dBase> object3dBase = nullptr;
 	// 3Dオブジェクトの共通部を初期化
-	object3dBase = new Object3dBase;
-	object3dBase->Initialize(dxBase);
+	object3dBase = std::make_unique<Object3dBase>();
+	object3dBase->Initialize(dxBase.get());
 
 	// パーティクルマネージャーを初期化
 	ParticleManager* particleManager = ParticleManager::GetInstance();
-	particleManager->Initialize(dxBase);
+	particleManager->Initialize(dxBase.get());
 
 
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC graphicsPipelineStateDesc{};
@@ -580,7 +579,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	
 
 	InputManager* inputManager = InputManager::GetInstance();
-	inputManager->Initialize(winAPI);
+	inputManager->Initialize(winAPI.get());
 
 	// サウンド再生エンジンをローカル変数で宣言
 	Microsoft::WRL::ComPtr<IXAudio2> xAudio2;
@@ -740,38 +739,39 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	const char* textureOptions[] = { "Checker", "monsterBall" };
 
 	// シーン初期化始め
-	Camera* camera = new Camera;
+	std::unique_ptr<Camera> camera = nullptr;
+	camera = std::make_unique<Camera>();
 	camera->Initialize();
 	camera->SetRotate({pi / 3.0f, pi, 0.0f});
 	camera->SetTranslate({0.0f, 9.0f, 5.0f});
-	object3dBase->SetDefaultCamera(camera);
-	particleManager->SetDefaultCamera(camera);
+	object3dBase->SetDefaultCamera(camera.get());
+	particleManager->SetDefaultCamera(camera.get());
 
-	std::vector<Sprite*> sprites;
+	std::vector<std::unique_ptr<Sprite>> sprites;
 
 	for (size_t i = 0; i < 1; i++)
 	{
-		Sprite* newSprite = new Sprite();
-		newSprite->Initialize(spriteBase, "resources/uvChecker.png");
+		std::unique_ptr<Sprite> newSprite = std::make_unique<Sprite>();
+		newSprite->Initialize(spriteBase.get(), "resources/uvChecker.png");
 		newSprite->SetAnchorPoint(Vector2{ 0.5f, 0.5f });
-		sprites.push_back(newSprite);
+		sprites.push_back(std::move(newSprite));
 	}
 
 	sprites[0]->SetTexture("resources/monsterBall.png");
 	sprites[0]->SetPosition(Vector2{ 100.0f, 100.0f });
 	sprites[0]->AdjustTextureSize();
 
-	std::vector<Object3d*> object3ds;
+	std::vector<std::unique_ptr<Object3d>> object3ds;
 
 	ModelManager::GetInstance()->LoadModel("plane.obj");
 	ModelManager::GetInstance()->LoadModel("axis.obj");
 
 	for (size_t i = 0; i < 2; i++)
 	{
-		Object3d* newObject3d = new Object3d();
-		newObject3d->Initialize(object3dBase);
+		std::unique_ptr<Object3d> newObject3d = std::make_unique<Object3d>();
+		newObject3d->Initialize(object3dBase.get());
 		newObject3d->SetModel("plane.obj");
-		object3ds.push_back(newObject3d);
+		object3ds.push_back(std::move(newObject3d));
 	}
 
 	object3ds[1]->SetModel("axis.obj");
@@ -785,13 +785,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	aabb.min = { -1.0f, -1.0f, -1.0f };
 	particleManager->CreateAccelerationField({5.0f, 0.0f, 0.0f}, aabb);
 
-	std::list<ParticleEmitter*> emitters;
+	std::list<std::unique_ptr<ParticleEmitter>> emitters;
 	for (size_t i = 0; i < 1; i++)
 	{
-		ParticleEmitter* emitter = new ParticleEmitter();
+		std::unique_ptr<ParticleEmitter> emitter = std::make_unique<ParticleEmitter>();
 		Transform transform = { {1.0f, 1.0f, 1.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f} };
 		emitter->Initialize("circle", transform, 3, 0.2f);
-		emitters.push_back(emitter);
+		emitters.push_back(std::move(emitter));
 	}
 
 
@@ -1177,22 +1177,20 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 			
 			for (auto it = sprites.begin(); it != sprites.end(); ++it)
 			{ 
-				Sprite* sprite = *it;
+				Sprite* sprite = it->get();
 				sprite->Update();
 			}
 
 			for (auto it = object3ds.begin(); it != object3ds.end(); ++it)
 			{
-				Object3d* object3d = *it;
+				Object3d* object3d = it->get();
 				object3d->Update();
 			}
 
-			for (auto it = emitters.begin(); it != emitters.end();)
+			for (auto it = emitters.begin(); it != emitters.end(); ++it)
 			{
-				ParticleEmitter* emitter = *it;
+				ParticleEmitter* emitter = it->get();
 				emitter->Update();
-
-				++it;
 			}
 
 			particleManager->Update();
@@ -1285,8 +1283,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 	for (auto it =emitters.begin(); it != emitters.end(); ++it)
 	{
-		ParticleEmitter* emitter = *it;
-		delete emitter;
+		std::unique_ptr<ParticleEmitter> emitter = std::move(*it);
+		emitter.reset();
+		
 	}
 	emitters.clear();
 
@@ -1295,26 +1294,24 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 	for (auto it = object3ds.begin(); it != object3ds.end(); ++it)
 	{
-		Object3d* object3d = *it;
-		delete object3d;
+		std::unique_ptr<Object3d> object3d = std::move(*it);
+		object3d.reset();
 	}
 	object3ds.clear();
 
 	// ポインタ解放
-	delete object3dBase;
-	object3dBase = nullptr;
+	object3dBase.reset();
 
 
 	for (auto it = sprites.begin(); it != sprites.end(); ++it)
 	{
-		Sprite* sprite = *it;
-		delete sprite;
+		std::unique_ptr<Sprite> sprite = std::move(*it);
+		sprite.reset();
 	}
 	sprites.clear();
 
 	// ポインタ解放
-	delete spriteBase;
-	spriteBase = nullptr;
+	spriteBase.reset();
 
 	// SeedManager終了処理
 	SeedManager::GetInstance()->Finalize();
@@ -1335,19 +1332,15 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	inputManager->Finalize();
 
 	camera->Finalize();
-	delete camera;
-	camera = nullptr;
+	camera.reset();
 
 	// DirectXBase終了処理
 	dxBase->Finalize();
+	dxBase.reset();
 
 	// WindowsAPI終了処理
 	winAPI->Finalize();
-
-	delete dxBase;
-	dxBase = nullptr;
-	delete winAPI;
-	winAPI = nullptr;
+	winAPI.reset();
 	
 
 

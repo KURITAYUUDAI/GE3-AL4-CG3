@@ -1,20 +1,19 @@
 #include "InputManager.h"
 
-InputManager* InputManager::instance_ = nullptr;
+std::unique_ptr<InputManager, InputManager::Deleter> InputManager::instance_ = nullptr;
 
 InputManager* InputManager::GetInstance()
 {
 	if (instance_ == nullptr)
 	{
-		instance_ = new InputManager;
+		instance_.reset(new InputManager);
 	}
-	return instance_;
+	return instance_.get();
 }
 
 void InputManager::Finalize()
 {
-	delete instance_;
-	instance_ = nullptr;
+	instance_.reset();
 }
 
 void InputManager::Initialize(WindowsAPI* winAPI)

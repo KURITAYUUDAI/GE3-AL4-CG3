@@ -159,7 +159,7 @@ private:
 	WindowsAPI* winAPI_ = nullptr;
 
 	// FixFPS
-	FixFPS* fixFPS_ = new FixFPS;
+	std::unique_ptr<FixFPS> fixFPS_ = std::make_unique<FixFPS>();
 
 	// DXCIファクトリー
 	ComPtr<IDXGIFactory7> dxgiFactory_ = nullptr;

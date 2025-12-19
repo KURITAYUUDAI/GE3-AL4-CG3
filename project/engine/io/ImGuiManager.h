@@ -1,6 +1,7 @@
 #pragma once
 #include "WindowsAPI.h"
 #include "DirectXBase.h"
+#include <memory>
 
 #ifdef USE_IMGUI
 #include "imgui.h"
@@ -33,7 +34,18 @@ public:
 
 private:	// シングルトンインスタンス
 
-	static ImGuiManager* instance_;
+	// unique_ptr が delete するために使用する構造体
+	struct Deleter 
+	{
+		void operator()(ImGuiManager* p) const 
+		{
+			// クラス内部のスコープなので private なデストラクタを呼べる
+			delete p;
+		}
+	};
+
+	// unique_ptr の型定義に Deleter を入れることでdeleteが可能になる
+	static std::unique_ptr<ImGuiManager, Deleter> instance_;
 
 	ImGuiManager() = default;
 	~ImGuiManager() = default;

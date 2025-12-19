@@ -1,21 +1,20 @@
 #include "SeedManager.h"
 
-SeedManager* SeedManager::instance_ = nullptr;
+std::unique_ptr<SeedManager, SeedManager::Deleter> SeedManager::instance_ = nullptr;
 
 SeedManager* SeedManager::GetInstance()
 {
 	if (instance_ == nullptr)
 	{
-		instance_ = new SeedManager;
+		instance_.reset(new SeedManager());
 	}
 
-	return instance_;
+	return instance_.get();
 }
 
 void SeedManager::Finalize()
 {
-	delete instance_;
-	instance_ = nullptr;
+	instance_.reset();
 }
 
 void SeedManager::Initialize()
