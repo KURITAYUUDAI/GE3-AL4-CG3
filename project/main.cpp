@@ -42,8 +42,6 @@ using namespace DirectX;
 
 #include <wrl.h>
 
-#include <xaudio2.h>
-#pragma comment(lib, "xaudio2.lib")
 
 #include "DebugCamera.h"
 #include "InputManager.h"
@@ -72,6 +70,7 @@ using namespace DirectX;
 
 #include "SeedManager.h"
 #include "ImGuiManager.h"
+#include "SoundManager.h"
 
 //class ResourceObject
 //{
@@ -92,37 +91,7 @@ using namespace DirectX;
 //
 //};
 
-// チャンクヘッダ
-struct  ChunkHeader
-{
-	char id[4];	// チャンクごとのID
-	int32_t size;	// チャンクサイズ
-};
 
-// RIFFヘッダチャンク
-struct RiffHeader
-{
-	ChunkHeader chunk;	// "RIFF"
-	char type[4];	// "WAVE"
-};
-
-// FMTチャンク
-struct FormatChunk
-{
-	ChunkHeader chunk;	// "fmt "
-	WAVEFORMATEX fmt;	// 波形フォーマット
-};
-
-// 音声データ
-struct SoundData
-{
-	// 波形フォーマット
-	WAVEFORMATEX wfex;
-	// バッファの先頭アドレス
-	BYTE* pBuffer;
-	// バッファのサイズ
-	unsigned int bufferSize;
-};
 
 void Log(const std::string& message)
 {
@@ -201,105 +170,7 @@ CreateModelResource(const Microsoft::WRL::ComPtr<ID3D12Device>& device, const Di
 
 
 
-SoundData SoundLoadWave(const char* filename)
-{
-	/*HRESULT result;*/
 
-	// 1. ファイルを開く
-	// ファイル入力ストリームのインスタンス
-	std::ifstream file;
-	// ,wavファイルをバイナリモードで開く
-	file.open(filename, std::ios_base::binary);
-	// ファイルが開けなかったら止める
-	assert(file.is_open());
-	
-	// 2. .wavファイルのデータ読み込み
-	// RIFFヘッダーの読み込み
-	RiffHeader riff;
-	file.read((char*)&riff, sizeof(riff));
-	// ファイルがRIFFかチェック
-	if (strncmp(riff.chunk.id, "RIFF", 4) != 0)
-	{
-		assert(0);
-	}
-	// タイプがWAVEかチェック
-	if (strncmp(riff.type, "WAVE", 4) != 0)
-	{
-		assert(0);
-	}
-	// Formatチャンクの読み込み
-	FormatChunk format = {};
-	// チャンクヘッダーの確認
-	file.read((char*)&format, sizeof(ChunkHeader));
-	if (strncmp(format.chunk.id, "fmt ", 4) != 0)
-	{
-		assert(0);
-	}
-	// チャンク本体の読み込み
-	assert(format.chunk.size <= sizeof(format.fmt));
-	file.read((char*)&format.fmt, format.chunk.size);
-	// Dataチャンクの読み込み
-	ChunkHeader data;
-	file.read((char*)&data, sizeof(data));
-	// JUNKチャンクを検出した場合
-	if (strncmp(data.id, "JUNK", 4) == 0)
-	{
-		// 読み取り位置をJUNKチャンクの終わりまで進める
-		file.seekg(data.size, std::ios_base::cur);
-		// 再読み込み
-		file.read((char*)&data, sizeof(data));
-	}
-	if (strncmp(data.id, "data", 4) != 0)
-	{
-		assert(0);
-	}
-
-	// Dataチャンクのデータ部（波形データ）の読み込み
-	char* pBuffer = new char[data.size];
-	file.read(pBuffer, data.size);
-
-	// 3. ファイルを閉じる
-	file.close();
-
-	// 4. 読み込んだ音声データを構造体に格納して返す
-	SoundData soundData = {};
-
-	soundData.wfex = format.fmt;
-	soundData.pBuffer = reinterpret_cast<BYTE*>(pBuffer);
-	soundData.bufferSize = data.size;
-	
-	return soundData;
-}
-
-void SoundUnload(SoundData* soundData)
-{
-	// バッファのメモリを解放
-	delete[] soundData->pBuffer;
-
-	soundData->pBuffer = 0;
-	soundData->bufferSize = 0;
-	soundData->wfex = {};
-}
-
-void SoundPlayWave(IXAudio2* xAudio2, const SoundData& soundData)
-{
-	HRESULT result;
-
-	// 波形フォーマットを基にSourceVoiceの生成
-	IXAudio2SourceVoice* pSourceVoice = nullptr;
-	result = xAudio2->CreateSourceVoice(&pSourceVoice, &soundData.wfex);
-	assert(SUCCEEDED(result));
-
-	// 再生する波形データの設定
-	XAUDIO2_BUFFER buf{};
-	buf.pAudioData = soundData.pBuffer;
-	buf.AudioBytes = soundData.bufferSize;
-	buf.Flags = XAUDIO2_END_OF_STREAM;
-
-	// 波形データの再生
-	result = pSourceVoice->SubmitSourceBuffer(&buf);
-	result = pSourceVoice->Start();
-}
 
 //bool IsPress(uint8_t key)
 //{
@@ -367,6 +238,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	ModelManager::GetInstance()->Initialize(dxBase.get());
 
 	SeedManager::GetInstance()->Initialize();
+
+	SoundManager::GetInstance()->Initialize();
 
 #ifdef _DEBUG
 	Microsoft::WRL::ComPtr<ID3D12InfoQueue> infoQueue = nullptr;
@@ -581,17 +454,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	InputManager* inputManager = InputManager::GetInstance();
 	inputManager->Initialize(winAPI.get());
 
-	// サウンド再生エンジンをローカル変数で宣言
-	Microsoft::WRL::ComPtr<IXAudio2> xAudio2;
-	// インスタンスを生成
-	hr = XAudio2Create(&xAudio2, 0, XAUDIO2_DEFAULT_PROCESSOR);
-	assert(SUCCEEDED(hr));
-
-	// 全てのボイスが再生時に必ず通る「マスターボイス」を宣言
-	IXAudio2MasteringVoice* masterVoice;
-	// インスタンスを生成
-	hr = xAudio2->CreateMasteringVoice(&masterVoice);
-	assert(SUCCEEDED(hr));
+	
 
 
 	
@@ -799,7 +662,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 	// シーン初期化終わり
 
-	SoundData soundData1 = SoundLoadWave("Resources/Alarm01.wav");
+	SoundManager::GetInstance()->SoundLoadWave("Resources/Alarm01.wav");
 
 	
 	/*Transform transformSphere{ {1.0f, 1.0f, 1.0f}, {0.0f, 0.0f, 0.0f}, {-3.0f, 0.0f, 0.0f} };
@@ -1257,7 +1120,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 			if (inputManager->TriggerKey(DIK_0))
 			{
-				SoundPlayWave(xAudio2.Get(), soundData1);
+				SoundManager::GetInstance()->SoundPlayWave("Resources/Alarm01.wav");
 			}
 
 			
@@ -1274,12 +1137,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	//ImGui_ImplDX12_Shutdown();
 	//ImGui_ImplWin32_Shutdown();
 	//ImGui::DestroyContext();
-
-	// XAudio2解放
-	xAudio2.Reset();
-
-	// 音声データ解放
-	SoundUnload(&soundData1);
 
 	for (auto it =emitters.begin(); it != emitters.end(); ++it)
 	{
@@ -1312,6 +1169,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 	// ポインタ解放
 	spriteBase.reset();
+
+	// SoundManager終了処理
+	SoundManager::GetInstance()->Finalize();
 
 	// SeedManager終了処理
 	SeedManager::GetInstance()->Finalize();

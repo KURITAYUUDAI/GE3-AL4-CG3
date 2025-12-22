@@ -184,6 +184,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="engine\base\SrvManager.cpp" />
     <ClCompile Include="engine\random\SeedManager.cpp" />
     <ClCompile Include="engine\3d\ParticleEmitter.cpp" />
+    <ClCompile Include="engine\io\SoundManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="resources\shaders\Object3d.PS.hlsl">
@@ -237,6 +238,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="engine\random\SeedManager.h" />
     <ClInclude Include="engine\3d\ParticleEmitter.h" />
     <ClInclude Include="engine\io\ImGuiManager.h" />
+    <ClInclude Include="engine\io\SoundManager.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="externals\DirectXTex\DirectXTex_Desktop_2022_Win10.vcxproj">
