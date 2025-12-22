@@ -351,15 +351,15 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	winAPI->Initialize();
 
 	// DirectXBaseのポインタ
-	std::unique_ptr<DirectXBase> dxBase = nullptr;
+	std::shared_ptr<DirectXBase> dxBase = nullptr;
 	dxBase = std::make_unique<DirectXBase>();
 	dxBase->Initialize(winAPI.get());
 
 	SrvManager* srvManager = SrvManager::GetInstance();
-	srvManager->Initialize(dxBase.get());
+	srvManager->Initialize(dxBase);
 
 	ImGuiManager* imguiManager = ImGuiManager::GetInstance();
-	imguiManager->Initialize(winAPI.get(), dxBase.get());
+	imguiManager->Initialize(winAPI.get(), dxBase);
 
 	TextureManager* textureManager = TextureManager::GetInstance();
 	textureManager->SetDxBase(dxBase.get());

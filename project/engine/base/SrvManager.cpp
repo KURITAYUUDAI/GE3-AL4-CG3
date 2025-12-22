@@ -1,4 +1,5 @@
 #include "SrvManager.h"
+#include "assert.h"
 
 std::unique_ptr<SrvManager, SrvManager::Deleter> SrvManager::instance_ = nullptr;
 
@@ -19,14 +20,26 @@ void SrvManager::Finalize()
 }
 
 
-void SrvManager::Initialize(DirectXBase* dxBase)
+//void SrvManager::Initialize(DirectXBase* dxBase)
+//{
+//	dxBase_ = dxBase;
+//
+//	// デスクリプタヒープの生成
+//	descriptorHeap_ = dxBase_->CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, kMaxSRVCount, true);
+//
+//	descriptorSize_ = dxBase_->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+//
+//}
+
+void SrvManager::Initialize(std::shared_ptr<DirectXBase> dxBase)
 {
 	dxBase_ = dxBase;
 
 	// デスクリプタヒープの生成
-	descriptorHeap_ = dxBase_->CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, kMaxSRVCount, true);
+	descriptorHeap_ = GetDxBaseShared()->CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, kMaxSRVCount, true);
 
-	descriptorSize_ = dxBase_->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+	descriptorSize_ = GetDxBaseShared()->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+
 
 }
 
@@ -34,7 +47,7 @@ void SrvManager::PreDraw()
 {
 	// 描画用のDescriptorHeapの設定
 	ID3D12DescriptorHeap* descriptorHeaps[] = { descriptorHeap_.Get() };
-	dxBase_->GetCommandList()->SetDescriptorHeaps(1, descriptorHeaps);
+	GetDxBaseShared()->GetCommandList()->SetDescriptorHeaps(1, descriptorHeaps);
 
 }
 
@@ -58,7 +71,7 @@ void SrvManager::CreateSRVforTexture2D(uint32_t srvIndex, ID3D12Resource* pResou
 	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D; // 2Dテクスチャ
 	srvDesc.Texture2D.MipLevels = MipLevels;
 
-	dxBase_->GetDevice()->CreateShaderResourceView(pResource, &srvDesc, GetCPUDescriptorHandle(srvIndex));
+	GetDxBaseShared()->GetDevice()->CreateShaderResourceView(pResource, &srvDesc, GetCPUDescriptorHandle(srvIndex));
 }
 
 void SrvManager::CreateSRVforStructuredBuffer(uint32_t srvIndex, ID3D12Resource* pResource, UINT numElements, UINT structureByteStride)
@@ -81,7 +94,7 @@ void SrvManager::CreateSRVforStructuredBuffer(uint32_t srvIndex, ID3D12Resource*
 	srvDesc.Buffer.NumElements = numElements;					// 構造体の個数
 	srvDesc.Buffer.StructureByteStride = structureByteStride;	// 構造体1個のバイト数
 	
-	dxBase_->GetDevice()->CreateShaderResourceView(
+	GetDxBaseShared()->GetDevice()->CreateShaderResourceView(
 		pResource, &srvDesc, GetCPUDescriptorHandle(srvIndex));
 }
 
@@ -106,8 +119,21 @@ ID3D12DescriptorHeap* SrvManager::GetDescriptorHeap()
 	return descriptorHeap_.Get();
 }
 
+std::shared_ptr<DirectXBase> SrvManager::GetDxBaseShared()
+{
+	if (auto locked = dxBase_.lock())
+	{
+		return locked;
+	}
+	else
+	{
+		assert(0);
+		return 0;
+	}
+}
+
 void SrvManager::SetGraphicsRootDescriptorTable(UINT RootParameterIndex, uint32_t srvIndex)
 {
 
-	dxBase_->GetCommandList()->SetGraphicsRootDescriptorTable(RootParameterIndex, GetGPUDescriptorHandle(srvIndex));
+	GetDxBaseShared()->GetCommandList()->SetGraphicsRootDescriptorTable(RootParameterIndex, GetGPUDescriptorHandle(srvIndex));
 }

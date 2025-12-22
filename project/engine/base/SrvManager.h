@@ -20,7 +20,7 @@ public:
 
 
 	// 初期化
-	void Initialize(DirectXBase* dxBase);
+	void Initialize(std::shared_ptr<DirectXBase> dxBase);
 
 	void PreDraw();
 
@@ -67,11 +67,15 @@ private: 	// シングルトンインスタンス
 	SrvManager(SrvManager&) = delete;
 	SrvManager& operator=(SrvManager&) = delete;
 
+private:
+
+	std::shared_ptr<DirectXBase> GetDxBaseShared();
+
 
 private:
 	
 	// DirectXBase
-	DirectXBase* dxBase_ = nullptr; 
+	std::weak_ptr<DirectXBase> dxBase_; 
 
 	
 	// SRV用のヒープでディスクリプタの数は128、SRVはShader内で触るものなので、ShaderVisibleはtrue

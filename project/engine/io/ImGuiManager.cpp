@@ -28,7 +28,7 @@ void ImGuiManager::Finalize()
 
 }
 
-void ImGuiManager::Initialize([[maybe_unused]] WindowsAPI* winAPI, [[maybe_unused]] DirectXBase* dxBase)
+void ImGuiManager::Initialize([[maybe_unused]] WindowsAPI* winAPI, [[maybe_unused]] std::shared_ptr<DirectXBase> dxBase)
 {
 #ifdef USE_IMGUI
 
@@ -49,9 +49,9 @@ void ImGuiManager::Initialize([[maybe_unused]] WindowsAPI* winAPI, [[maybe_unuse
 	srvHandleGPU_ = SrvManager::GetInstance()->GetGPUDescriptorHandle(srvIndex_);
 
 	ImGui_ImplDX12_InitInfo init_info = {};
-	init_info.Device = dxBase_->GetDevice();
-	init_info.CommandQueue = dxBase_->GetCommandQueue();
-	init_info.NumFramesInFlight = static_cast<int>(dxBase_->GetSwapChainResourceNum());
+	init_info.Device = GetDxBaseShared()->GetDevice();
+	init_info.CommandQueue = GetDxBaseShared()->GetCommandQueue();
+	init_info.NumFramesInFlight = static_cast<int>(GetDxBaseShared()->GetSwapChainResourceNum());
 	init_info.RTVFormat = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
 	init_info.LegacySingleSrvCpuDescriptor = srvHandleCPU_;
 	init_info.LegacySingleSrvGpuDescriptor = srvHandleGPU_;
@@ -86,13 +86,25 @@ void ImGuiManager::Draw()
 {
 #ifdef USE_IMGUI
 
-	ID3D12GraphicsCommandList* commandList = dxBase_->GetCommandList();
+	ID3D12GraphicsCommandList* commandList = GetDxBaseShared()->GetCommandList();
 
 	// デスクリプタヒープの配列をセットするコマンド
 	ID3D12DescriptorHeap* ppHeaps[] = { srvHeap_ };
-	dxBase_->GetCommandList()->SetDescriptorHeaps(_countof(ppHeaps), ppHeaps);
+	GetDxBaseShared()->GetCommandList()->SetDescriptorHeaps(_countof(ppHeaps), ppHeaps);
 	// 描画コマンドを発光
 	ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), commandList);
 
 #endif
+}
+
+std::shared_ptr<DirectXBase> ImGuiManager::GetDxBaseShared()
+{
+	if (auto locked = dxBase_.lock())
+	{
+		return locked;
+	} else
+	{
+		assert(0);
+		return 0;
+	}
 }

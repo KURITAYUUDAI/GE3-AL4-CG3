@@ -21,7 +21,7 @@ public:
 public:
 
 	// 初期化
-	void Initialize(WindowsAPI* winAPI, DirectXBase* dxBase);
+	void Initialize(WindowsAPI* winAPI, std::shared_ptr<DirectXBase> dxBase);
 
 	// 前処理
 	void Begin();
@@ -54,11 +54,15 @@ private:	// シングルトンインスタンス
 
 private:
 
+	std::shared_ptr<DirectXBase> GetDxBaseShared();
+
+private:
+
 	// WindwosAPI
 	WindowsAPI* winAPI_ = nullptr;
 
 	// DirectXBase
-	DirectXBase* dxBase_ = nullptr;
+	std::weak_ptr<DirectXBase> dxBase_;
 
     ID3D12DescriptorHeap* srvHeap_ = nullptr;
 	uint32_t srvIndex_;
