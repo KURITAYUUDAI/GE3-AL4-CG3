@@ -239,6 +239,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 	SeedManager::GetInstance()->Initialize();
 
+	SoundManager::GetInstance()->InitializeMF();
 	SoundManager::GetInstance()->Initialize();
 
 #ifdef _DEBUG
@@ -662,7 +663,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 	// シーン初期化終わり
 
-	SoundManager::GetInstance()->SoundLoadWave("Resources/Alarm01.wav");
+	SoundManager::GetInstance()->SoundLoadFile("Resources/Alarm01.wav");
+	SoundManager::GetInstance()->SoundLoadFile("Resources/test.mp3");
 
 	
 	/*Transform transformSphere{ {1.0f, 1.0f, 1.0f}, {0.0f, 0.0f, 0.0f}, {-3.0f, 0.0f, 0.0f} };
@@ -1122,6 +1124,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 			{
 				SoundManager::GetInstance()->SoundPlayWave("Resources/Alarm01.wav");
 			}
+			if (inputManager->TriggerKey(DIK_1))
+			{
+				SoundManager::GetInstance()->SoundPlayWave("Resources/test.mp3");
+			}
 
 			
 			imguiManager->Draw();
@@ -1172,6 +1178,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 	// SoundManager終了処理
 	SoundManager::GetInstance()->Finalize();
+	SoundManager::GetInstance()->FinalizeMF();
 
 	// SeedManager終了処理
 	SeedManager::GetInstance()->Finalize();

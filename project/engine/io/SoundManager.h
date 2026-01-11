@@ -6,9 +6,18 @@
 #include <cassert>
 #include <memory>
 #include <unordered_map>
+#include <mfidl.h>  
+#include <mfapi.h>
+#pragma comment(lib, "mfplat.lib")
+#include <mfreadwrite.h>
+#pragma comment(lib, "Mfreadwrite.lib")
+#pragma comment(lib, "mfuuid.lib")
 
 class SoundManager
 {
+public:
+	// namespace省略
+	template <class T> using ComPtr = Microsoft::WRL::ComPtr<T>;
 public:
 
 	// チャンクヘッダ
@@ -37,10 +46,8 @@ public:
 	{
 		// 波形フォーマット
 		WAVEFORMATEX wfex;
-		// バッファの先頭アドレス
-		BYTE* pBuffer;
-		// バッファのサイズ
-		unsigned int bufferSize;
+		// バッファ
+		std::vector<BYTE> buffer;
 	};
 
 public:
@@ -52,12 +59,18 @@ public:
 
 public: 
 
+	// Media Foundation の初期化
+	void InitializeMF();
+
+	// Media Foundation の終了
+	void FinalizeMF();
+
 	// 初期化
 	void Initialize();
 
 public:
 
-	void SoundLoadWave(const char* filename);
+	void SoundLoadFile(const char* filename);
 
 	void SoundUnload(const char* filename);
 
