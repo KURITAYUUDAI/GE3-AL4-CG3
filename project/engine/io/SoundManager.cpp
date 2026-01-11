@@ -15,15 +15,20 @@ SoundManager* SoundManager::GetInstance()
 
 void SoundManager::Finalize()
 {
-	// XAudio2解放
-	xAudio2_.Reset();
 
 	// 音声データ解放
-	for(auto& pair : soundDatas_)
+	for(auto it = soundDatas_.begin(); it != soundDatas_.end(); )
 	{
-		const char* soundData1 = pair.first.c_str();
-		SoundUnload(soundData1);
+		delete[] it->second.pBuffer;
+		it->second.pBuffer = nullptr;
+
+		it = soundDatas_.erase(it);
 	}
+
+	masterVoice_->DestroyVoice();
+
+	// XAudio2解放
+	xAudio2_.Reset();
 
 	instance_.reset();
 }
@@ -120,6 +125,13 @@ void SoundManager::SoundLoadWave(const char* filename)
 
 void SoundManager::SoundUnload(const char* filename)
 {
+	auto it = soundDatas_.find(filename);
+	if (it == soundDatas_.end()) { return; }
+
+	delete[] it->second.pBuffer;
+	it->second.pBuffer = nullptr;
+
+
 	// バッファのメモリを解放
 	soundDatas_.erase(filename);
 }
