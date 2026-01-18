@@ -22,9 +22,6 @@ void Dict_Framework::Initialize()
 
 #endif // _DEBUG
 
-	HRESULT hr;
-
-
 	winAPI_ = std::make_unique<WindowsAPI>();
 	winAPI_->Initialize();
 
