@@ -140,7 +140,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <Optimization>Disabled</Optimization>
       <WholeProgramOptimization>false</WholeProgramOptimization>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)engine\2d;$(ProjectDir)engine\3d;$(ProjectDir)engine\audio;$(ProjectDir)engine\base;$(ProjectDir)engine\io;$(ProjectDir)engine\math;$(ProjectDir)engine\scene;$(ProjectDir)engine\random</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)Dict_Engine\2d;$(ProjectDir)Dict_Engine\3d;$(ProjectDir)Dict_Engine\audio;$(ProjectDir)Dict_Engine\base;$(ProjectDir)Dict_Engine\io;$(ProjectDir)Dict_Engine\math;$(ProjectDir)Dict_Engine\scene;$(ProjectDir)Dict_Engine\random;$(ProjectDir)application\game</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -157,34 +157,36 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="engine\3d\Camera.cpp" />
-    <ClCompile Include="engine\3d\ParticleManager.cpp" />
-    <ClCompile Include="engine\base\D3DResourceLeakChecker.cpp" />
-    <ClCompile Include="engine\base\DirectXBase.cpp" />
-    <ClCompile Include="engine\base\FixFPS.cpp" />
-    <ClCompile Include="engine\io\DebugCamera.cpp" />
-    <ClCompile Include="engine\io\InputManager.cpp" />
-    <ClCompile Include="engine\base\Logger.cpp" />
-    <ClCompile Include="engine\io\ImGuiManager.cpp" />
+    <ClCompile Include="Dict_Engine\3d\Camera.cpp" />
+    <ClCompile Include="Dict_Engine\3d\ParticleManager.cpp" />
+    <ClCompile Include="Dict_Engine\base\D3DResourceLeakChecker.cpp" />
+    <ClCompile Include="Dict_Engine\base\DirectXBase.cpp" />
+    <ClCompile Include="Dict_Engine\base\FixFPS.cpp" />
+    <ClCompile Include="Dict_Engine\io\DebugCamera.cpp" />
+    <ClCompile Include="Dict_Engine\io\InputManager.cpp" />
+    <ClCompile Include="Dict_Engine\base\Logger.cpp" />
+    <ClCompile Include="Dict_Engine\io\ImGuiManager.cpp" />
+    <ClCompile Include="application\game\Game.cpp" />
+    <ClCompile Include="Dict_Engine\base\Framework.cpp" />
     <ClCompile Include="main.cpp">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Development|x64'">MaxSpeed</Optimization>
       <WholeProgramOptimization Condition="'$(Configuration)|$(Platform)'=='Development|x64'">true</WholeProgramOptimization>
     </ClCompile>
-    <ClCompile Include="engine\math\myMath.cpp" />
-    <ClCompile Include="engine\base\WindowsAPI.cpp" />
-    <ClCompile Include="engine\base\StringUtility.cpp" />
-    <ClCompile Include="engine\2d\SpriteBase.cpp" />
-    <ClCompile Include="engine\2d\Sprite.cpp" />
-    <ClCompile Include="engine\base\TextureManager.cpp" />
-    <ClCompile Include="engine\3d\Object3dBase.cpp" />
-    <ClCompile Include="engine\3d\Object3d.cpp" />
-    <ClCompile Include="engine\3d\Model.cpp" />
-    <ClCompile Include="engine\3d\ModelBase.cpp" />
-    <ClCompile Include="engine\3d\ModelManager.cpp" />
-    <ClCompile Include="engine\base\SrvManager.cpp" />
-    <ClCompile Include="engine\random\SeedManager.cpp" />
-    <ClCompile Include="engine\3d\ParticleEmitter.cpp" />
-    <ClCompile Include="engine\io\SoundManager.cpp" />
+    <ClCompile Include="Dict_Engine\math\myMath.cpp" />
+    <ClCompile Include="Dict_Engine\base\WindowsAPI.cpp" />
+    <ClCompile Include="Dict_Engine\base\StringUtility.cpp" />
+    <ClCompile Include="Dict_Engine\2d\SpriteBase.cpp" />
+    <ClCompile Include="Dict_Engine\2d\Sprite.cpp" />
+    <ClCompile Include="Dict_Engine\base\TextureManager.cpp" />
+    <ClCompile Include="Dict_Engine\3d\Object3dBase.cpp" />
+    <ClCompile Include="Dict_Engine\3d\Object3d.cpp" />
+    <ClCompile Include="Dict_Engine\3d\Model.cpp" />
+    <ClCompile Include="Dict_Engine\3d\ModelBase.cpp" />
+    <ClCompile Include="Dict_Engine\3d\ModelManager.cpp" />
+    <ClCompile Include="Dict_Engine\base\SrvManager.cpp" />
+    <ClCompile Include="Dict_Engine\random\SeedManager.cpp" />
+    <ClCompile Include="Dict_Engine\3d\ParticleEmitter.cpp" />
+    <ClCompile Include="Dict_Engine\io\SoundManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="resources\shaders\Object3d.PS.hlsl">
@@ -215,30 +217,32 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="engine\3d\Camera.h" />
-    <ClInclude Include="engine\3d\ParticleManager.h" />
-    <ClInclude Include="engine\base\D3DResourceLeakChecker.h" />
-    <ClInclude Include="engine\base\DirectXBase.h" />
-    <ClInclude Include="engine\base\FixFPS.h" />
-    <ClInclude Include="engine\io\DebugCamera.h" />
-    <ClInclude Include="engine\io\InputManager.h" />
-    <ClInclude Include="engine\math\myMath.h" />
-    <ClInclude Include="engine\base\WindowsAPI.h" />
-    <ClInclude Include="engine\base\Logger.h" />
-    <ClInclude Include="engine\base\StringUtility.h" />
-    <ClInclude Include="engine\2d\SpriteBase.h" />
-    <ClInclude Include="engine\2d\Sprite.h" />
-    <ClInclude Include="engine\base\TextureManager.h" />
-    <ClInclude Include="engine\3d\Object3dBase.h" />
-    <ClInclude Include="engine\3d\Object3d.h" />
-    <ClInclude Include="engine\3d\Model.h" />
-    <ClInclude Include="engine\3d\ModelBase.h" />
-    <ClInclude Include="engine\3d\ModelManager.h" />
-    <ClInclude Include="engine\base\SrvManager.h" />
-    <ClInclude Include="engine\random\SeedManager.h" />
-    <ClInclude Include="engine\3d\ParticleEmitter.h" />
-    <ClInclude Include="engine\io\ImGuiManager.h" />
-    <ClInclude Include="engine\io\SoundManager.h" />
+    <ClInclude Include="Dict_Engine\3d\Camera.h" />
+    <ClInclude Include="Dict_Engine\3d\ParticleManager.h" />
+    <ClInclude Include="Dict_Engine\base\D3DResourceLeakChecker.h" />
+    <ClInclude Include="Dict_Engine\base\DirectXBase.h" />
+    <ClInclude Include="Dict_Engine\base\FixFPS.h" />
+    <ClInclude Include="Dict_Engine\io\DebugCamera.h" />
+    <ClInclude Include="Dict_Engine\io\InputManager.h" />
+    <ClInclude Include="Dict_Engine\math\myMath.h" />
+    <ClInclude Include="Dict_Engine\base\WindowsAPI.h" />
+    <ClInclude Include="Dict_Engine\base\Logger.h" />
+    <ClInclude Include="Dict_Engine\base\StringUtility.h" />
+    <ClInclude Include="Dict_Engine\2d\SpriteBase.h" />
+    <ClInclude Include="Dict_Engine\2d\Sprite.h" />
+    <ClInclude Include="Dict_Engine\base\TextureManager.h" />
+    <ClInclude Include="Dict_Engine\3d\Object3dBase.h" />
+    <ClInclude Include="Dict_Engine\3d\Object3d.h" />
+    <ClInclude Include="Dict_Engine\3d\Model.h" />
+    <ClInclude Include="Dict_Engine\3d\ModelBase.h" />
+    <ClInclude Include="Dict_Engine\3d\ModelManager.h" />
+    <ClInclude Include="Dict_Engine\base\SrvManager.h" />
+    <ClInclude Include="Dict_Engine\random\SeedManager.h" />
+    <ClInclude Include="Dict_Engine\3d\ParticleEmitter.h" />
+    <ClInclude Include="Dict_Engine\io\ImGuiManager.h" />
+    <ClInclude Include="Dict_Engine\io\SoundManager.h" />
+    <ClInclude Include="application\game\Game.h" />
+    <ClInclude Include="Dict_Engine\base\Framework.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="externals\DirectXTex\DirectXTex_Desktop_2022_Win10.vcxproj">
