@@ -11,6 +11,10 @@ public:	// メンバ関数
 
 	void Update();
 
+	void TransformView();
+
+	void Transformation();
+
 	void Finalize();
 
 public:	// 外部入出力
@@ -19,6 +23,9 @@ public:	// 外部入出力
 	/*void SetScale(const Vector3& scale){ transform_.scale = scale; }*/
 	void SetRotate(const Vector3& rotate){ transform_.rotate = rotate; }
 	void SetTranslate(const Vector3& translate){ transform_.translate = translate; }
+
+	void SetViewMatrix(const Matrix4x4& viewMatrix){ viewMatrix_ = viewMatrix; }
+
 	void SetFovY(const float& fovY){ fovY_ = fovY; }
 	void SetAspectRatio(const float& aspectRatio){ aspectRatio_ = aspectRatio; }
 	void SetNearClip(const float& nearClip){ nearClip_ = nearClip; }
@@ -33,6 +40,8 @@ public:	// 外部入出力
 	const float& GetAspectRatio() const { return aspectRatio_; }
 	const float& GetNearClip() const { return nearClip_; }
 	const float& GetFarClip() const { return farClip_; }
+
+	const Transform& GetTransform() const { return transform_; }
 
 	const Matrix4x4& GetViewProjectionMatrix() const { return viewProjectionMatrix_; }
 

@@ -26,20 +26,8 @@ void Object3d::Update()
 {
 	transform_.rotate.y += (5.0f / 180.0f) * pi;
 
-	Matrix4x4 worldMatrix = MakeAffineMatrix(transform_.scale, transform_.rotate, transform_.translate);
-	Matrix4x4 worldViewProjectionMatrix;
-	if (camera_)
-	{
-		const Matrix4x4& viewProjectionMatrix = camera_->GetViewProjectionMatrix();
-		worldViewProjectionMatrix = Multiply(worldMatrix, viewProjectionMatrix);
-	}
-	else
-	{
-		worldViewProjectionMatrix = worldMatrix;
-	}
 	
-	transformationMatrixData_->World = worldMatrix;
-	transformationMatrixData_->WVP = worldViewProjectionMatrix;
+	
 
 }
 
@@ -64,9 +52,42 @@ void Object3d::Finalize()
 
 }
 
+void Object3d::TransformWorldMatrix()
+{
+	worldMatrix_ = MakeAffineMatrix(transform_.scale, transform_.rotate, transform_.translate);
+}
+
+void Object3d::Transformation()
+{
+	Matrix4x4 worldViewProjectionMatrix;
+	if (camera_)
+	{
+		const Matrix4x4& viewProjectionMatrix = camera_->GetViewProjectionMatrix();
+		worldViewProjectionMatrix = Multiply(worldMatrix_, viewProjectionMatrix);
+	}
+	else
+	{
+		worldViewProjectionMatrix = worldMatrix_;
+	}
+
+	transformationMatrixData_->World = worldMatrix_;
+	transformationMatrixData_->WVP = worldViewProjectionMatrix;
+
+}
+
 void Object3d::SetModel(const std::string& filePath)
 {
 	model_ = ModelManager::GetInstance()->FindModel(filePath);
+}
+
+void Object3d::SetTexture(const std::string directoryFilePath)
+{
+	model_->SetTexture(directoryFilePath);
+}
+
+void Object3d::ResetTexture()
+{
+	model_->ResetTexture();
 }
 
 void Object3d::CreateTransformationMatrixResource()

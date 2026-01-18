@@ -35,8 +35,10 @@ public:
 	bool TriggerKey(BYTE keyNum);
 
 	POINT MousePoint(const HWND hwnd);
+	LONG MouseWheel();
 	bool PushMouse(BYTE mouseButton);
 	bool TriggerMouse(BYTE mouseButton);
+
 
 private: 	// シングルトンインスタンス
 	// unique_ptr が delete するために使用する構造体

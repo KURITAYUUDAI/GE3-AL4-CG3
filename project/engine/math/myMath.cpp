@@ -722,15 +722,18 @@ bool IsCollision(const OBB& obb, const Segment& segment)
 
 bool IsCollision(const OBB (&obb)[2])
 {
-	Vector3 axis[15]
+	std::vector<Vector3> axis;
+	axis.reserve(15);
+
+	for (int i = 0; i < 3; i++)
 	{
-		obb[0].orientations[0], // OBB1のX軸
-		obb[0].orientations[1], // OBB1のY軸
-		obb[0].orientations[2], // OBB1のZ軸
-		obb[1].orientations[0], // OBB2のX軸
-		obb[1].orientations[1], // OBB2のY軸
-		obb[1].orientations[2], // OBB2のZ軸
-	};
+		axis.push_back(obb[0].orientations[i]);
+	}
+
+	for (int i = 0; i < 3; i++)
+	{
+		axis.push_back(obb[1].orientations[i]);
+	}
 
 	// OBB1とOBB2の各軸の外積を求める
 	for (int32_t i = 0; i < 3; ++i)
@@ -742,7 +745,7 @@ bool IsCollision(const OBB (&obb)[2])
 			{
 				continue; // 長さが0に近い場合は無視
 			}
-			axis[6 + i * 3 + j] = Normalize(v);
+			axis.push_back(Normalize(v));
 		}
 	}
 
@@ -757,12 +760,12 @@ bool IsCollision(const OBB (&obb)[2])
 			obb[index].orientations[0].x, obb[index].orientations[1].x, obb[index].orientations[2].x, 0.0f,
 			obb[index].orientations[0].y, obb[index].orientations[1].y, obb[index].orientations[2].y, 0.0f,
 			obb[index].orientations[0].z, obb[index].orientations[1].z, obb[index].orientations[2].z, 0.0f,
-			obb[index].center.x,          obb[index].center.y,          obb[index].center.z,          1.0f
+			obb[index].center.x,		  obb[index].center.y,		    obb[index].center.z,		  1.0f
 		};
 
 		AABB aabbOBBLocal
 		{
-			.min = {-obb[index].size.x, -obb[index].size.y, -obb[index].size.z},
+			.min = { -obb[index].size.x, -obb[index].size.y, -obb[index].size.z },
 			.max = obb[index].size,
 		};
 
@@ -784,11 +787,11 @@ bool IsCollision(const OBB (&obb)[2])
 		}
 	}
 
-	for (int32_t axisNum = 0; axisNum < 15; ++axisNum)
+	for (int32_t axisNum = 0; axisNum < axis.size(); ++axisNum)
 	{
 		float L[2], min[2], max[2];
 
-		std::vector<float> projection(projSize); // 投影結果（最大最小を求めやすくするためstd::vector）
+		std::vector<float> projection(projSize);	// 投影結果（最大最小を求めやすくするためstd::vector）
 		// 各OBBの頂点を投影する
 		for (int32_t index = 0; index < 2; ++index)
 		{
@@ -805,8 +808,8 @@ bool IsCollision(const OBB (&obb)[2])
 			L[index] = max[index] - min[index];
 		}
 
-		float sumSpan = L[0] + L[1];                                              // 2つのOBBの投影の長さの和
-		float longSpan = (std::max)(max[0], max[1]) - (std::min)(min[0], min[1]); // 2つのOBBの投影の長さの差)
+		float sumSpan = L[0] + L[1];	// 2つのOBBの投影の長さの和
+		float longSpan = (std::max)(max[0], max[1]) - (std::min)(min[0], min[1]);	// 2つのOBBの投影の長さの差)
 		if (sumSpan <= longSpan)
 		{
 			// 投影の長さの和が投影の長さの差よりも大きい場合、衝突していない
@@ -814,8 +817,115 @@ bool IsCollision(const OBB (&obb)[2])
 		}
 	}
 
+
+
+
 	// すべての軸で衝突している場合、衝突している
 	return true;
+}
+
+
+
+bool IsCollisionB(const OBB (&obb)[2])
+{
+	std::vector<Vector3> axis;
+	axis.reserve(15);
+
+	for (size_t index = 0; index < 2; ++index)
+	{
+		for (size_t i = 0; i < 3; i++)
+		{
+			axis.push_back(obb[index].orientations[i]);
+		}
+	}
+
+	// OBB1とOBB2の各軸の外積を求める
+	for (int32_t i = 0; i < 3; ++i)
+	{
+		for (int32_t j = 0; j < 3; ++j)
+		{
+			auto cross = Cross(obb[0].orientations[i], obb[1].orientations[j]);
+			float lenSq = Dot(cross, cross);
+			if (lenSq < 1e-6f)
+			{
+				continue; // 長さが0に近い場合は無視
+			}
+			axis.push_back(Normalize(cross));
+		}
+	}
+
+	std::vector<std::vector<float>> projectionCenters;
+	projectionCenters.resize(2);
+	std::vector<std::vector<float>> projectionRadii;
+	projectionRadii.resize(2);
+
+	for (size_t axisNum = 0; axisNum < axis.size(); ++axisNum)
+	{
+		// OBBの中心を投影し半径を求める
+		for (size_t index = 0; index < 2; ++index)
+		{
+			projectionCenters[index].push_back(Dot(axis[axisNum], obb[index].center));
+			projectionRadii[index].push_back(
+				obb[index].size.x * std::abs(Dot(axis[axisNum], obb[index].orientations[0]))
+				+ obb[index].size.y * std::abs(Dot(axis[axisNum], obb[index].orientations[1]))
+				+ obb[index].size.z * std::abs(Dot(axis[axisNum], obb[index].orientations[2])));
+		}
+
+		if (std::abs(projectionCenters[1][axisNum] - projectionCenters[0][axisNum]) 
+			> projectionRadii[0][axisNum] + projectionRadii[1][axisNum])
+		{
+			return false;
+		}
+	}
+
+	std::vector<float> overLap;
+	for (size_t axisNum = 0; axisNum < axis.size(); ++axisNum)
+	{
+		overLap.push_back((projectionRadii[0][axisNum] + projectionRadii[1][axisNum]) 
+			- std::abs(projectionCenters[1][axisNum] - projectionCenters[0][axisNum]));
+	}
+
+	auto min = std::min_element(overLap.begin(), overLap.end());
+
+	size_t minIndex = std::distance(overLap.begin(), min);
+
+	float s = signbit(projectionCenters[1][minIndex] - projectionCenters[0][minIndex]);
+	Vector3 mtv = -s * *min * axis[minIndex];
+
+	// すべての軸で衝突している場合、衝突している
+	return true;
+}
+
+Matrix4x4 OBBWorldMatrix(const OBB& obb)
+{
+
+	Matrix4x4 scale = 
+	{
+		obb.size.x, 0.0f, 0.0f, 0.0f,
+		0.0f, obb.size.y, 0.0f, 0.0f,
+		0.0f, 0.0f, obb.size.z, 0.0f,
+		0.0f, 0.0f, 0.0f, 1.0f
+	};
+
+	Matrix4x4 rotate =
+	{
+		obb.orientations[0].x, obb.orientations[1].x, obb.orientations[2].x, 0.0f,
+		obb.orientations[0].y, obb.orientations[1].y, obb.orientations[2].y, 0.0f,
+		obb.orientations[0].z, obb.orientations[1].z, obb.orientations[2].z, 0.0f,
+		0.0f,		   0.0f,		  0.0f,			 1.0f
+	};
+
+	Matrix4x4 translate =
+	{
+		1.0f, 0.0f, 0.0f, 0.0f,
+		0.0f, 1.0f, 0.0f, 0.0f,
+		0.0f, 0.0f, 1.0f, 0.0f,
+		obb.center.x, obb.center.y, obb.center.z, 1.0f
+	};
+
+	Matrix4x4 world = Multiply(Multiply(rotate, scale), translate);
+	
+	return world;
 }
 
 float Larp(const float& n1, const float& n2, const float& t)
@@ -914,4 +1024,18 @@ Vector3 TransformNormal(const Vector3& v, const Matrix4x4& m)
 	};
 
 	return result;
+}
+
+Matrix4x4 MakeLookAtMatrix(const Vector3& eye, const Vector3& target, const Vector3& up)
+{
+	Vector3 zAxis = Normalize(Subtract(target, eye));   // 前方向
+	Vector3 xAxis = Normalize(Cross(up, zAxis));         // 右方向
+	Vector3 yAxis = Cross(zAxis, xAxis);                 // 上方向
+
+	Matrix4x4 view{};
+	view.m[0][0] = xAxis.x; view.m[0][1] = yAxis.x; view.m[0][2] = zAxis.x; view.m[0][3] = 0.0f;
+	view.m[1][0] = xAxis.y; view.m[1][1] = yAxis.y; view.m[1][2] = zAxis.y; view.m[1][3] = 0.0f;
+	view.m[2][0] = xAxis.z; view.m[2][1] = yAxis.z; view.m[2][2] = zAxis.z; view.m[2][3] = 0.0f;
+	view.m[3][0] = -Dot(xAxis, eye); view.m[3][1] = -Dot(yAxis, eye); view.m[3][2] = -Dot(zAxis, eye); view.m[3][3] = 1.0f;
+	return view;
 }

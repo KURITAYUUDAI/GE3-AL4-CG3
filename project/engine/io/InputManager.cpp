@@ -128,3 +128,11 @@ POINT InputManager::MousePoint(const HWND hwnd)
 	return point;
 }
 
+LONG InputManager::MouseWheel()
+{
+
+	LONG wheelData = mouseState_.lZ;
+
+	return wheelData;
+}
+

@@ -36,21 +36,30 @@ public:	// メンバ関数
 
 	void Finalize();
 
+	void TransformWorldMatrix();
+
+	void Transformation();
+
 public:	// 外部入出力
 
 	// セッター
 	void SetModel(const std::string& filePath);
+	void SetTexture(const std::string directoryFilePath);
+	void ResetTexture();
 	void SetCamera(Camera* camera){ camera_ = camera; }
 
 	void SetScale(const Vector3& scale){ transform_.scale = scale; }
 	void SetRotate(const Vector3& rotate){ transform_.rotate = rotate; }
 	void SetTranslate(const Vector3& translate){ transform_.translate = translate; }
 
+	void SetWorldMatrix(const Matrix4x4& worldMatrix){ worldMatrix_ = worldMatrix; }
+
 	// ゲッター
 	const Vector3& GetScale() const { return transform_.scale; }
 	const Vector3& GetRotate() const { return transform_.rotate; }
 	const Vector3& GetTranslate() const { return transform_.translate; }
 
+	
 private: // 静的関数
 
 	// TransformationMatrixResourceを作成
@@ -82,5 +91,6 @@ private:
 	
 	// トランスフォーム
 	Transform transform_;
+	Matrix4x4 worldMatrix_;
 };
 

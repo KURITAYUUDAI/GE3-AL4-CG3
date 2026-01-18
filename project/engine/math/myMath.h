@@ -313,6 +313,10 @@ bool IsCollision(const OBB& obb, const Segment& segment);
 
 bool IsCollision(const OBB (&obb)[2]);
 
+bool IsCollisionB(const OBB (&obb)[2]);
+
+Matrix4x4 OBBWorldMatrix(const OBB& obb);
+
 float Larp(const float& n1, const float& n2, const float& t);
 
 float EaseOut(const float& n1, const float& n2, const float& t);
@@ -325,3 +329,6 @@ Matrix4x4 MakeLookRotationXAxis(const Vector3& xAxis, const Vector3& up);
 
 // ベクトル変換
 Vector3 TransformNormal(const Vector3& v, const Matrix4x4& m);
+
+Matrix4x4 MakeLookAtMatrix(const Vector3& eye, const Vector3& target, const Vector3& up);
+

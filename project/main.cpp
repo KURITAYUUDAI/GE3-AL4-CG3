@@ -563,6 +563,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	// Textureを読んで転送する
 	textureManager->LoadTexture("resources/uvChecker.png");
 	textureManager->LoadTexture("resources/monsterBall.png");
+	textureManager->LoadTexture("resources/texture1.png");
 
 	//std::vector<DirectX::ScratchImage> mipImagesMtl(modelData.size());
 	//for (size_t i = 0; i < modelData.size(); ++i)
@@ -608,6 +609,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	camera->Initialize();
 	camera->SetRotate({pi / 3.0f, pi, 0.0f});
 	camera->SetTranslate({0.0f, 9.0f, 5.0f});
+	
+
 	object3dBase->SetDefaultCamera(camera.get());
 	particleManager->SetDefaultCamera(camera.get());
 
@@ -629,17 +632,17 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 	ModelManager::GetInstance()->LoadModel("plane.obj");
 	ModelManager::GetInstance()->LoadModel("axis.obj");
+	ModelManager::GetInstance()->LoadModel("block.obj");
 
 	for (size_t i = 0; i < 2; i++)
 	{
 		std::unique_ptr<Object3d> newObject3d = std::make_unique<Object3d>();
 		newObject3d->Initialize(object3dBase.get());
-		newObject3d->SetModel("plane.obj");
+		newObject3d->SetModel("block.obj");
 		object3ds.push_back(std::move(newObject3d));
 	}
 
-	object3ds[1]->SetModel("axis.obj");
-  
+
 	particleManager->SetModel("plane.obj");
 	particleManager->CreateParticleGroup("circle", "resources/circle.png");
 
@@ -659,6 +662,30 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	}
 
 
+
+	Vector3 rotateOBB0{ 0.0f, 0.0f, 0.0f };
+	OBB obb0{
+		.center {-1.0f, 0.0f, 0.0f},
+		.orientations =
+		{
+			{ 1.0f, 0.0f, 0.0f },	// X軸
+			{ 0.0f, 1.0f, 0.0f },	// Y軸
+			{ 0.0f, 0.0f, 1.0f }	// Z軸
+		},
+		.size { 0.83f, 0.26f, 0.24f }
+	};
+
+	Vector3 rotateOBB1{ -0.05f, -2.49f, 0.15f };
+	OBB obb1{
+		.center {0.9f, 0.66f, 0.78f},
+		.orientations =
+		{
+			{ 1.0f, 0.0f, 0.0f },	// X軸
+			{ 0.0f, 1.0f, 0.0f },	// Y軸
+			{ 0.0f, 0.0f, 1.0f }	// Z軸
+		},
+		.size { 0.5f, 0.37f, 0.5f }
+	};
 
 
 	// シーン初期化終わり
@@ -695,7 +722,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 	bool isDrawSprite = false;
 
-	bool isDrawObject3d = false;
+	bool isDrawObject3d = true;
 	
 
 	DebugCamera debugCamera;
@@ -724,16 +751,29 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 #ifdef USE_IMGUI
 
 			// デモウィンドウ表示
-			ImGui::ShowDemoWindow();
+			/*ImGui::ShowDemoWindow();*/
 
 			ImGui::Begin("Sprite Setting");
-			ImGui::SetWindowSize("Sprite Setting", {500.0f, 100.0f});
+			/*ImGui::SetWindowSize("Sprite Setting", {500.0f, 100.0f});*/
+			ImGui::Checkbox("DebugCamera", &isDebugCamera);
+
 			Vector2 spritePos = sprites[0]->GetPosition();
 			if (ImGui::DragFloat2("pos", &spritePos.x, 1.0f, 0.0f, 0.0f, "%05.1f"))
 			{
 				sprites[0]->SetPosition(spritePos);
 			}
 			ImGui::Checkbox("DrawSprite", &isDrawSprite);
+
+			Transform cameraTransform =
+				Transform{ {0.0f, 0.0f, 0.0f}, camera->GetRotate(), camera->GetTranslate() };
+			if (ImGui::DragFloat3("CameraRotate", &cameraTransform.rotate.x, 1.0f / 180.0f * pi))
+			{
+				camera->SetRotate(cameraTransform.rotate);
+			}
+			if (ImGui::DragFloat3("CameraTranslate", &cameraTransform.translate.x, 0.01f))
+			{
+				camera->SetTranslate(cameraTransform.translate);
+			}
 			ImGui::End();
 
 			//ImGui_ImplDX12_NewFrame();
@@ -968,8 +1008,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 			//ImGui::Begin("Window");
 
-			//ImGui::Checkbox("DebugCamera", &isDebugCamera);
-
 			//ImGui::Combo("Texture", &textureIndex, textureOptions, IM_ARRAYSIZE(textureOptions));
 
 
@@ -998,20 +1036,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 			//	// （＝GPU 側で使われるマテリアル色を更新）
 			//}
 
-			//Transform cameraTransform = 
-			//	Transform{ camera->GetScale(), camera->GetRotate(), camera->GetTranslate() };
-			//if (ImGui::DragFloat3("CameraScale", &cameraTransform.scale.x, 0.01f))
-			//{
-			//	camera->SetScale(cameraTransform.scale);
-			//}
-			//if (ImGui::DragFloat3("CameraRotate", &cameraTransform.rotate.x, 1.0f / 180.0f * pi))
-			//{
-			//	camera->SetRotate(cameraTransform.rotate);
-			//}
-			//if (ImGui::DragFloat3("CameraTranslate", &cameraTransform.translate.x, 0.01f))
-			//{
-			//	camera->SetTranslate(cameraTransform.translate);
-			//}
+
 
 			//ImGui::Text("MouseX: %.2f, MouseY: %.2f", mousePosition.x, mousePosition.y);
 
@@ -1019,9 +1044,47 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 			//ImGui::End();
 
+			
+			ImGui::Begin("Window");
+			ImGui::DragFloat3("obb1.center", &obb0.center.x, 0.01f);
+			ImGui::DragFloat3("obb1.size", &obb0.size.x, 0.01f);
+			ImGui::DragFloat("rotateOBB1.x", &rotateOBB0.x, 1.0f / 180.0f * pi);
+			ImGui::DragFloat("rotateOBB1.y", &rotateOBB0.y, 1.0f / 180.0f * pi);
+			ImGui::DragFloat("rotateOBB1.z", &rotateOBB0.z, 1.0f / 180.0f * pi);
+			ImGui::InputFloat3("obb1.orientations[0]", &obb0.orientations[0].x, "%.3f", ImGuiInputTextFlags_ReadOnly);
+			ImGui::InputFloat3("obb1.orientations[1]", &obb0.orientations[1].x, "%.3f", ImGuiInputTextFlags_ReadOnly);
+			ImGui::InputFloat3("obb1.orientations[2]", &obb0.orientations[2].x, "%.3f", ImGuiInputTextFlags_ReadOnly);
+			ImGui::DragFloat3("obb2.center", &obb1.center.x, 0.01f);
+			ImGui::DragFloat3("obb2.size", &obb1.size.x, 0.01f);
+			ImGui::DragFloat("rotateOBB2.x", &rotateOBB1.x, 1.0f / 180.0f * pi);
+			ImGui::DragFloat("rotateOBB2.y", &rotateOBB1.y, 1.0f / 180.0f * pi);
+			ImGui::DragFloat("rotateOBB2.z", &rotateOBB1.z, 1.0f / 180.0f * pi);
+			ImGui::InputFloat3("obb2.orientations[0]", &obb1.orientations[0].x, "%.3f", ImGuiInputTextFlags_ReadOnly);
+			ImGui::InputFloat3("obb2.orientations[1]", &obb1.orientations[1].x, "%.3f", ImGuiInputTextFlags_ReadOnly);
+			ImGui::InputFloat3("obb2.orientations[2]", &obb1.orientations[2].x, "%.3f", ImGuiInputTextFlags_ReadOnly);
+			ImGui::End();
+
+			ImGui::Begin("test Window");
+			ImGui::Text("OBB0 X len %f", Length(obb0.orientations[0]));
+			ImGui::Text("OBB0 Y len %f", Length(obb0.orientations[1]));
+			ImGui::Text("OBB0 Z len %f", Length(obb0.orientations[2]));
+			ImGui::Text("Dot0 XY %f", Dot(obb0.orientations[0], obb0.orientations[1]));
+			ImGui::Text("Dot0 YZ %f", Dot(obb0.orientations[1], obb0.orientations[2]));
+			ImGui::Text("Dot0 XZ %f", Dot(obb0.orientations[0], obb0.orientations[2]));
+	
+			ImGui::Text("OBB1 X len %f", Length(obb1.orientations[0]));
+			ImGui::Text("OBB1 Y len %f", Length(obb1.orientations[1]));
+			ImGui::Text("OBB1 Z len %f", Length(obb1.orientations[2]));
+			ImGui::Text("Dot1 XY %f", Dot(obb1.orientations[0], obb1.orientations[1]));
+			ImGui::Text("Dot1 YZ %f", Dot(obb1.orientations[1], obb1.orientations[2]));
+			ImGui::Text("Dot1 XZ %f", Dot(obb1.orientations[0], obb1.orientations[2]));
+
+			ImGui::End();
+
 #endif
 
-			imguiManager->End();
+			
+
 
 			/*
 			
@@ -1039,6 +1102,16 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 			mousePosition.y = static_cast<float>(inputManager->MousePoint(winAPI->GetHwnd()).y);
 
 			camera->Update();
+			if (isDebugCamera)
+			{	
+				debugCamera.Update(inputManager, camera->GetTransform());
+				camera->SetViewMatrix(debugCamera.GetViewMatrix());
+			}
+			else
+			{
+				camera->TransformView();
+			}
+			camera->Transformation();
 			
 			for (auto it = sprites.begin(); it != sprites.end(); ++it)
 			{ 
@@ -1064,6 +1137,51 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 			//ImGui::Render();
 
 
+			// 回転行列を生成
+			Matrix4x4 rotateMatrix1 = Multiply(MakeRotateXMatrix(rotateOBB0.x),
+				Multiply(MakeRotateYMatrix(rotateOBB0.y), MakeRotateZMatrix(rotateOBB0.z)));
+
+			// 回転行列を生成
+			Matrix4x4 rotateMatrix2 = Multiply(MakeRotateXMatrix(rotateOBB1.x),
+				Multiply(MakeRotateYMatrix(rotateOBB1.y), MakeRotateZMatrix(rotateOBB1.z)));
+
+			// 回転行列から軸を抽出
+			obb0.orientations[0].x = rotateMatrix1.m[0][0];
+			obb0.orientations[0].y = rotateMatrix1.m[0][1];
+			obb0.orientations[0].z = rotateMatrix1.m[0][2];
+
+			obb0.orientations[1].x = rotateMatrix1.m[1][0];
+			obb0.orientations[1].y = rotateMatrix1.m[1][1];
+			obb0.orientations[1].z = rotateMatrix1.m[1][2];
+
+			obb0.orientations[2].x = rotateMatrix1.m[2][0];
+			obb0.orientations[2].y = rotateMatrix1.m[2][1];
+			obb0.orientations[2].z = rotateMatrix1.m[2][2];
+
+			// 回転行列から軸を抽出
+			obb1.orientations[0].x = rotateMatrix2.m[0][0];
+			obb1.orientations[0].y = rotateMatrix2.m[0][1];
+			obb1.orientations[0].z = rotateMatrix2.m[0][2];
+
+			obb1.orientations[1].x = rotateMatrix2.m[1][0];
+			obb1.orientations[1].y = rotateMatrix2.m[1][1];
+			obb1.orientations[1].z = rotateMatrix2.m[1][2];
+
+			obb1.orientations[2].x = rotateMatrix2.m[2][0];
+			obb1.orientations[2].y = rotateMatrix2.m[2][1];
+			obb1.orientations[2].z = rotateMatrix2.m[2][2];
+
+
+			object3ds[0]->SetWorldMatrix(OBBWorldMatrix(obb0));
+			object3ds[1]->SetWorldMatrix(OBBWorldMatrix(obb1));
+
+			for (auto it = object3ds.begin(); it != object3ds.end(); ++it)
+			{
+				Object3d* object3d = it->get();
+				object3d->Transformation();
+			}
+
+			imguiManager->End();
 
 
 			// 描画の処理
@@ -1074,6 +1192,15 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 			if (isDrawObject3d)
 			{
 				object3dBase->DrawingCommon();
+
+				if (IsCollisionB({ obb0, obb1 }))
+				{
+					object3ds[0]->SetTexture("resources/texture1.png");
+				}
+				else
+				{
+					object3ds[0]->ResetTexture();
+				}
 
 				for (size_t i = 0; i < object3ds.size(); i++)
 				{
