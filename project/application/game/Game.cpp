@@ -42,7 +42,7 @@ void Game::Initialize()
 	ModelManager::GetInstance()->LoadModel("axis.obj");
 	ModelManager::GetInstance()->LoadModel("sphere.obj");
 
-	for (size_t i = 0; i < 2; i++)
+	for (size_t i = 0; i < 1; i++)
 	{
 		std::unique_ptr<Object3d> newObject3d = std::make_unique<Object3d>();
 		newObject3d->Initialize(object3dBase_.get());

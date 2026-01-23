@@ -46,19 +46,27 @@ PixelShaderOutput main(VertexShaderOutput input)
     
     if(gMaterial.enableLighting != 0)   // Lightningする場合
     {
-        float NdotL = dot(normalize(input.normal), -gDirectionalLight.direction);   // Normal dot LightDirection
+        float3 N = normalize(input.normal);
+        float3 L = normalize(-gDirectionalLight.direction); // 面→光
         
+        //// Lambert
         //float cos = saturate(dot(normalize(input.normal), -gDirectionalLight.direction));
-        float cos = pow(NdotL * 0.5f + 0.5f, 2.0f); 
+        
+        // Half-Lambert
+        //float NdotL = dot(normalize(input.normal), -gDirectionalLight.direction); // Normal dot LightDirection
+        
+        float NdotL = saturate(dot(N, L)); // Normal dot LightDirection
+        float cos = pow(NdotL * 0.5f + 0.5f, 2.0f);
         
         //output.color.rgb = gMaterial.color.rgb * textureColor.rgb * gDirectionalLight.color.rgb * cos * gDirectionalLight.intensity;
         //output.color.a = gMaterial.color.a * textureColor.a;
         
         
         float3 toEye = normalize(gCamera.worldPosition - input.worldPosition);
-        float3 reflectLight = reflect(gDirectionalLight.direction, normalize(input.normal));
+        float3 reflectLight = reflect(-L, N);
         float RdotE = dot(reflectLight, toEye);
         float specularPow = pow(saturate(RdotE), gMaterial.shiniess);
+        specularPow *= step(0.0001f, NdotL);
         
         // 拡散反射
         float3 diffuse =
