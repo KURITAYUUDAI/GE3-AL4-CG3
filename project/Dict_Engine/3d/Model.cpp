@@ -285,7 +285,7 @@ void Model::CreateMaterialResource()
 
 	// 色の書き込み
 	materialData_->color = modelData_.material.color;
-	materialData_->enableLighting = false;
+	materialData_->enableLighting = true;
 	materialData_->uvTransform = MakeIdentity4x4();
 }
 
