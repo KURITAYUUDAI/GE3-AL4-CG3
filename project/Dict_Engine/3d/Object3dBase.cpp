@@ -109,12 +109,10 @@ void Object3dBase::CreateGraphicsPipelineState()
 
 	/// 02_00
 
-	// バイナリをもとに生成
-	Microsoft::WRL::ComPtr<ID3D12RootSignature> rootSignature = nullptr;
-	hr = dxBase_->GetDevice()->CreateRootSignature(0,
+	/*hr = dxBase_->GetDevice()->CreateRootSignature(0,
 		signatureBlob->GetBufferPointer(), signatureBlob->GetBufferSize(),
-		IID_PPV_ARGS(&rootSignature));
-	assert(SUCCEEDED(hr));
+		IID_PPV_ARGS(&rootSignature_));
+	assert(SUCCEEDED(hr));*/
 
 	// InputLayout
 	/*D3D12_INPUT_ELEMENT_DESC inputElementDescs[1] = {};

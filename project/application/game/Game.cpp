@@ -496,7 +496,7 @@ void Game::Draw()
 	}
 
 
-	particleManager_->Draw();
+	/*particleManager_->Draw();*/
 
 	/*for (size_t i = 0; i < particle3ds.size(); i++)
 	{

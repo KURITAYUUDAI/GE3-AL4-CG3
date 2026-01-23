@@ -29,6 +29,7 @@ public:
 	struct CameraForGPU
 	{
 		Vector3 worldPosition;
+		float pad;
 	};
 
 public:	// メンバ関数

@@ -34,7 +34,7 @@ void SrvManager::PreDraw()
 {
 	// 描画用のDescriptorHeapの設定
 	ID3D12DescriptorHeap* descriptorHeaps[] = { descriptorHeap_.Get() };
-	dxBase_->GetCommandList()->SetDescriptorHeaps(1, descriptorHeaps);
+	dxBase_->GetCommandList()->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);
 
 }
 
