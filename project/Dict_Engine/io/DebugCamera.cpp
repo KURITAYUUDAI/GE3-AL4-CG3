@@ -11,6 +11,8 @@ void DebugCamera::Initialize()
 
 void DebugCamera::Update(InputManager* input, Transform originCamera)
 {
+#ifdef _DEBUG
+
 	input_ = input;
 
 	Vector3 move = { 0.0f, 0.0f, 0.0f };
@@ -134,4 +136,6 @@ void DebugCamera::Update(InputManager* input, Transform originCamera)
 	viewMatrix_ = MakeLookAtMatrix(camera.translate, { 0.0f, 0.0f, 0.0f }, { 0.0f, 1.0f, 0.0f });
 
 	ImGui::End();
+
+#endif
 }
