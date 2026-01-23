@@ -26,6 +26,11 @@ public:
 		float intensity;	//!< 輝度
 	};
 
+	struct CameraForGPU
+	{
+		Vector3 worldPosition;
+	};
+
 public:	// メンバ関数
 	
 	void Initialize(Object3dBase* object3dBase);
@@ -46,10 +51,24 @@ public:	// 外部入出力
 	void SetRotate(const Vector3& rotate){ transform_.rotate = rotate; }
 	void SetTranslate(const Vector3& translate){ transform_.translate = translate; }
 
+	void SetEnableLighting(const int32_t& enableLighting);
+
+	void SetLightColor(const Vector4& color){ directionalLightData->color = color; }
+	void SetLightDirection(const Vector3& direction){ directionalLightData->direction = direction; }
+	void SetLightIntensity(const float& intensity){ directionalLightData->intensity = intensity; }
+
 	// ゲッター
 	const Vector3& GetScale() const { return transform_.scale; }
 	const Vector3& GetRotate() const { return transform_.rotate; }
 	const Vector3& GetTranslate() const { return transform_.translate; }
+
+	const int32_t& GetEnableLighting() const { return enableLighting_; }
+
+	const Vector4& GetLightColor() const { return directionalLightData->color; }
+	const Vector3& GetLightDirection() const { return directionalLightData->direction; }
+	const float& GetLightIntensity() const { return directionalLightData->intensity; }
+
+	const Vector3& GetCameraWorldPosition() const { return cameraData_->worldPosition; }
 
 private: // 静的関数
 
@@ -58,6 +77,9 @@ private: // 静的関数
 
 	// DirectionalLightResourceを作成
 	void CreateDirectionalLightResource();
+
+	// カメラ用リソースを作成
+	void CreateCameraResource();
 
 private:
 
@@ -79,8 +101,16 @@ private:
 	Microsoft::WRL::ComPtr<ID3D12Resource> DirectionalLightResource_ = nullptr;
 	// バッファリソース内のデータを指すポインタ
 	DirectionalLight* directionalLightData = nullptr;
+
+	// カメラ用リソース
+	Microsoft::WRL::ComPtr<ID3D12Resource> cameraResource_ = nullptr;
+	// バッファリソース内のデータを指すポインタ
+	CameraForGPU* cameraData_ = nullptr;
 	
 	// トランスフォーム
 	Transform transform_;
+
+	// ライティング有効無効
+	int32_t enableLighting_ = true;
 };
 

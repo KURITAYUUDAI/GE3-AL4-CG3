@@ -37,6 +37,7 @@ public:
 		int32_t enableLighting;
 		float padding[3];
 		Matrix4x4 uvTransform;
+		float shininess;
 	};
 
 
@@ -73,9 +74,11 @@ public:	// 外部入出力
 
 	// セッター
 	void SetInstanceCount(const UINT& instanceCount) { instanceCount_ = instanceCount; }
+	void SetEnableLighting(const int32_t& enableLighting) { materialData_->enableLighting = enableLighting; }
 
 	// ゲッター
 	const UINT& GetInstanceCount() const { return instanceCount_; }
+	const int32_t GetEnableLighting() const { return materialData_->enableLighting; }
 
 private:
 

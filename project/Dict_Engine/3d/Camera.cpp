@@ -23,7 +23,16 @@ void Camera::Initialize()
 void Camera::Update()
 {
 	worldMatrix_ = MakeAffineMatrix(transform_.scale, transform_.rotate, transform_.translate);
+}
+
+void Camera::TransformView()
+{
 	viewMatrix_ = Inverse(worldMatrix_);
+}
+
+void Camera::Transformation()
+{
+
 	projectionMatrix_ = MakePerspectiveFovMatrix(fovY_, aspectRatio_, nearClip_, farClip_);
 
 	Matrix4x4 backToFrontMatrix = MakeRotateYMatrix(pi);
@@ -49,4 +58,18 @@ const Matrix4x4 Camera::GetBillboardWorldMatrix(const Vector3& scale, const Vect
 	Matrix4x4 worldMatrix = scaleMatrix * billboardMatrix_ * translateMatrix;
 
 	return worldMatrix;
+}
+
+const Vector3 Camera::GetCameraViewPosition() const
+{
+	Matrix4x4 invViewMatrix = Inverse(viewMatrix_);
+	
+	Vector3 cameraViewPosition = 
+	{
+		invViewMatrix.m[3][0],
+		invViewMatrix.m[3][1],
+		invViewMatrix.m[3][2]
+	};
+
+	return cameraViewPosition;
 }
