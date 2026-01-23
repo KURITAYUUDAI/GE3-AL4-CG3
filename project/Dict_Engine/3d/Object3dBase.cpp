@@ -107,6 +107,8 @@ void Object3dBase::CreateGraphicsPipelineState()
 		assert(false);
 	}
 
+	CreateRootSignature(signatureBlob.Get());
+
 	/// 02_00
 
 	/*hr = dxBase_->GetDevice()->CreateRootSignature(0,
@@ -164,7 +166,7 @@ void Object3dBase::CreateGraphicsPipelineState()
 	assert(pixelShaderBlob != nullptr);
 
 
-	CreateRootSignature(signatureBlob.Get());
+	
 
 
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC graphicsPipelineStateDesc{};

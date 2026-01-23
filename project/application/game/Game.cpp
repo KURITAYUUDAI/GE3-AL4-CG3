@@ -303,7 +303,7 @@ void Game::Update()
 	}
 	if (ImGui::DragFloat3("LightDirection", &directionLightDirection.x, 0.01f))
 	{
-		object3ds_[0]->SetLightDirection(directionLightDirection);
+		object3ds_[0]->SetLightDirection(Normalize(directionLightDirection));
 	}
 	if (ImGui::DragFloat("LightIntensity", &directionLightIntensity, 0.01f))
 	{
