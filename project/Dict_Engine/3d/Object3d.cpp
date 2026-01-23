@@ -32,7 +32,7 @@ void Object3d::Update()
 	{
 		const Matrix4x4& viewProjectionMatrix = camera_->GetViewProjectionMatrix();
 		worldViewProjectionMatrix = Multiply(worldMatrix, viewProjectionMatrix);
-		cameraData_->worldPosition = camera_->GetTranslate();
+		cameraData_->worldPosition = camera_->GetCameraViewPosition();
 	}
 	else
 	{

@@ -481,6 +481,12 @@ void Game::Update()
 		debugCamera_.Update(inputManager_, camera_->GetTransform());
 		camera_->SetViewMatrix(debugCamera_.GetViewMatrix());
 	}
+	else
+	{
+		camera_->TransformView();
+	}
+	camera_->Transformation();
+
 	
 
 

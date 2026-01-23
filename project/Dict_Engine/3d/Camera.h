@@ -11,6 +11,10 @@ public:	// メンバ関数
 
 	void Update();
 
+	void TransformView();
+
+	void Transformation();
+
 	void Finalize();
 
 public:	// 外部入出力
@@ -42,6 +46,8 @@ public:	// 外部入出力
 	const Matrix4x4& GetViewProjectionMatrix() const { return viewProjectionMatrix_; }
 
 	const Matrix4x4 GetBillboardWorldMatrix(const Vector3& scale, const Vector3& translate) const;
+
+	const Vector3 GetCameraViewPosition() const;
 
 private:	// メンバ変数
 
