@@ -287,6 +287,7 @@ void Model::CreateMaterialResource()
 	materialData_->color = modelData_.material.color;
 	materialData_->enableLighting = false;
 	materialData_->uvTransform = MakeIdentity4x4();
+	materialData_->shininess = 10.0f;
 }
 
 void Model::CreateSphere()

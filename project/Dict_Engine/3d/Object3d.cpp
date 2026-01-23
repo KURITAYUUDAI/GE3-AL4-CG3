@@ -15,7 +15,7 @@ void Object3d::Initialize(Object3dBase* object3dBase)
 
 	CreateDirectionalLightResource();
 
-	
+	CreateCameraResource();
 
 	// Transform変数を作る
 	transform_ = { {1.0f, 1.0f, 1.0f}, {0.0f, pi, 0.0f}, {0.0f, 0.0f, 0.0f} };
@@ -51,6 +51,9 @@ void Object3d::Draw()
 	// 平行光源用のCBufferをバインド（rootParameter[3] = b1）
 	object3dBase_->GetDxBase()->GetCommandList()->SetGraphicsRootConstantBufferView(3, DirectionalLightResource_->GetGPUVirtualAddress());	
 	
+	// カメラ用のCBufferをバインド（rootParameter[4] = b2）
+	object3dBase_->GetDxBase()->GetCommandList()->SetGraphicsRootConstantBufferView(4, cameraResource_->GetGPUVirtualAddress());
+
 	// 3Dモデルが割り当てられていれば描画する
 	if (model_)
 	{
@@ -67,6 +70,16 @@ void Object3d::Finalize()
 void Object3d::SetModel(const std::string& filePath)
 {
 	model_ = ModelManager::GetInstance()->FindModel(filePath);
+	enableLighting_ = model_->GetEnableLighting();
+}
+
+void Object3d::SetEnableLighting(const int32_t& enableLighting)
+{
+	enableLighting_ = enableLighting;
+	if (model_)
+	{
+		model_->SetEnableLighting(enableLighting_);
+	}
 }
 
 void Object3d::CreateTransformationMatrixResource()
@@ -94,4 +107,16 @@ void Object3d::CreateDirectionalLightResource()
 	directionalLightData->color = Vector4{ 1.0f, 1.0f, 1.0f, 1.0f };
 	directionalLightData->direction = Vector3{ 0.0f, -1.0f, 0.0f };
 	directionalLightData->intensity = 1.0f;
+}
+
+void Object3d::CreateCameraResource()
+{
+
+	// カメラ用リソースを作成する
+	cameraResource_ = object3dBase_->GetDxBase()->CreateBufferResource(sizeof(CameraForGPU));
+	// CameraResourceにデータを書き込むためのアドレスを取得してCameraDataに割り当てる
+	cameraResource_->Map(0, nullptr, reinterpret_cast<void**>(&cameraData_));
+
+	// カメラデータの初期値を書き込む
+	cameraData_->worldPosition = camera_->GetTranslate();
 }

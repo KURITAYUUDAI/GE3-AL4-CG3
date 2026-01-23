@@ -37,16 +37,15 @@ void Game::Initialize()
 
 	ModelManager::GetInstance()->LoadModel("plane.obj");
 	ModelManager::GetInstance()->LoadModel("axis.obj");
+	ModelManager::GetInstance()->LoadModel("sphere.obj");
 
-	for (size_t i = 0; i < 2; i++)
+	for (size_t i = 0; i < 1; i++)
 	{
 		std::unique_ptr<Object3d> newObject3d = std::make_unique<Object3d>();
 		newObject3d->Initialize(object3dBase_.get());
-		newObject3d->SetModel("plane.obj");
+		newObject3d->SetModel("sphere.obj");
 		object3ds_.push_back(std::move(newObject3d));
 	}
-
-	object3ds_[1]->SetModel("axis.obj");
 
 	particleManager_->SetModel("plane.obj");
 	particleManager_->CreateParticleGroup("circle", "resources/circle.png");
@@ -116,7 +115,7 @@ void Game::Update()
 	// デモウィンドウ表示
 	ImGui::ShowDemoWindow();
 
-	ImGui::Begin("Sprite Setting");
+	ImGui::Begin("Setting");
 	ImGui::SetWindowSize("Sprite Setting", { 500.0f, 100.0f });
 	Vector2 spritePos = sprites_[0]->GetPosition();
 	if (ImGui::DragFloat2("pos", &spritePos.x, 1.0f, 0.0f, 0.0f, "%05.1f"))
@@ -124,6 +123,7 @@ void Game::Update()
 		sprites_[0]->SetPosition(spritePos);
 	}
 	ImGui::Checkbox("DrawSprite", &isDrawSprite_);
+	ImGui::Checkbox("DrawObject3d", &isDrawObject3d_);
 	ImGui::End();
 
 	//ImGui_ImplDX12_NewFrame();
@@ -266,7 +266,29 @@ void Game::Update()
 	//ImGui::End();
 
 
-	//ImGui::Begin("ModelSetting");
+	ImGui::Begin("LightSetting");
+	
+	int32_t enableLighting = object3ds_[0]->GetEnableLighting();
+	Vector4 directionLightColor = object3ds_[0]->GetLightColor();
+	Vector3 directionLightDirection = object3ds_[0]->GetLightDirection();
+	float directionLightIntensity = object3ds_[0]->GetLightIntensity();
+	if(ImGui::Checkbox("EnableLighting", (bool*)&enableLighting))
+	{
+		object3ds_[0]->SetEnableLighting(enableLighting);
+	}
+	if (ImGui::ColorEdit4("LightColor", &directionLightColor.x))
+	{
+		object3ds_[0]->SetLightColor(directionLightColor);
+	}
+	if (ImGui::DragFloat3("LightDirection", &directionLightDirection.x, 0.01f))
+	{
+		object3ds_[0]->SetLightDirection(directionLightDirection);
+	}
+	if (ImGui::DragFloat("LightIntensity", &directionLightIntensity, 0.01f))
+	{
+		object3ds_[0]->SetLightIntensity(directionLightIntensity);
+	}
+	ImGui::End();
 
 	//if (ImGui::BeginTable("ItemsTable", 3, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg))
 	//{
