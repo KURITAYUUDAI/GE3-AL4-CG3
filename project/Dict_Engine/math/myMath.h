@@ -325,3 +325,5 @@ Matrix4x4 MakeLookRotationXAxis(const Vector3& xAxis, const Vector3& up);
 
 // ベクトル変換
 Vector3 TransformNormal(const Vector3& v, const Matrix4x4& m);
+
+Matrix4x4 MakeLookAtMatrix(const Vector3& eye, const Vector3& target, const Vector3& up);

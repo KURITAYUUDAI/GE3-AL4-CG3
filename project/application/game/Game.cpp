@@ -131,6 +131,7 @@ void Game::Update()
 	}
 	ImGui::Checkbox("DrawSprite", &isDrawSprite_);
 	ImGui::Checkbox("DrawObject3d", &isDrawObject3d_);
+	ImGui::Checkbox("DebugCamera", &isDebugCamera_);
 	ImGui::End();
 
 	//ImGui_ImplDX12_NewFrame();
@@ -474,7 +475,14 @@ void Game::Update()
 	mousePosition_.x = static_cast<float>(inputManager_->MousePoint(winAPI_->GetHwnd()).x);
 	mousePosition_.y = static_cast<float>(inputManager_->MousePoint(winAPI_->GetHwnd()).y);
 
+	
+	if (isDebugCamera_)
+	{
+		debugCamera_.Update(inputManager_, camera_->GetTransform());
+		camera_->SetViewMatrix(debugCamera_.GetViewMatrix());
+	}
 	camera_->Update();
+
 
 	for (auto it = sprites_.begin(); it != sprites_.end(); ++it)
 	{
