@@ -24,6 +24,9 @@ public:	// 外部入出力
 	void SetNearClip(const float& nearClip){ nearClip_ = nearClip; }
 	void SetFarClip(const float& farClip){ farClip_ = farClip; }
 
+	void SetViewMatrix(const Matrix4x4& viewMatrix){ viewMatrix_ = viewMatrix; }
+
+
 	// ゲッター
 	/*const Vector3& GetScale() const { return transform_.scale; }*/
 	const Vector3& GetRotate() const { return transform_.rotate; }
@@ -33,6 +36,8 @@ public:	// 外部入出力
 	const float& GetAspectRatio() const { return aspectRatio_; }
 	const float& GetNearClip() const { return nearClip_; }
 	const float& GetFarClip() const { return farClip_; }
+
+	const Transform& GetTransform() const { return transform_; }
 
 	const Matrix4x4& GetViewProjectionMatrix() const { return viewProjectionMatrix_; }
 

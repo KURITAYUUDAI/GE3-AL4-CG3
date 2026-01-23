@@ -458,7 +458,7 @@ void Game::Update()
 
 #endif
 
-	imguiManager_->End();
+	
 
 	/*
 
@@ -475,13 +475,13 @@ void Game::Update()
 	mousePosition_.x = static_cast<float>(inputManager_->MousePoint(winAPI_->GetHwnd()).x);
 	mousePosition_.y = static_cast<float>(inputManager_->MousePoint(winAPI_->GetHwnd()).y);
 
-	
+	camera_->Update();
 	if (isDebugCamera_)
 	{
 		debugCamera_.Update(inputManager_, camera_->GetTransform());
 		camera_->SetViewMatrix(debugCamera_.GetViewMatrix());
 	}
-	camera_->Update();
+	
 
 
 	for (auto it = sprites_.begin(); it != sprites_.end(); ++it)
@@ -507,7 +507,7 @@ void Game::Update()
 	//// ImGuiの内部コマンドを生成する
 	//ImGui::Render();
 
-
+	imguiManager_->End();
 }
 
 void Game::Draw()
