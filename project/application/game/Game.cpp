@@ -14,8 +14,11 @@ void Game::Initialize()
 	const char* textureOptions[] = { "Checker", "monsterBall" };
 
 	// シーン初期化始め
-	camera_->SetRotate({ pi / 3.0f, pi, 0.0f });
-	camera_->SetTranslate({ 0.0f, 9.0f, 5.0f });
+	/*camera_->SetRotate({ pi / 3.0f, pi, 0.0f });
+	camera_->SetTranslate({ 0.0f, 9.0f, 5.0f });*/
+
+	camera_->SetRotate({ 0.0f, pi, 0.0f });
+	camera_->SetTranslate({ 0.0f, 0.0f, 15.0f });
 	object3dBase_->SetDefaultCamera(camera_.get());
 	particleManager_->SetDefaultCamera(camera_.get());
 
@@ -39,13 +42,17 @@ void Game::Initialize()
 	ModelManager::GetInstance()->LoadModel("axis.obj");
 	ModelManager::GetInstance()->LoadModel("sphere.obj");
 
-	for (size_t i = 0; i < 1; i++)
+	for (size_t i = 0; i < 2; i++)
 	{
 		std::unique_ptr<Object3d> newObject3d = std::make_unique<Object3d>();
 		newObject3d->Initialize(object3dBase_.get());
-		newObject3d->SetModel("sphere.obj");
+		newObject3d->SetModel("plane.obj");
 		object3ds_.push_back(std::move(newObject3d));
 	}
+
+	object3ds_[0]
+		->SetModel("sphere.obj");
+
 
 	particleManager_->SetModel("plane.obj");
 	particleManager_->CreateParticleGroup("circle", "resources/circle.png");
@@ -265,6 +272,19 @@ void Game::Update()
 
 	//ImGui::End();
 
+	ImGui::Begin("CameraSetting");
+	Vector3 cameraRotate = camera_->GetRotate();
+	Vector3 cameraTranslate = camera_->GetTranslate();
+	if(ImGui::DragFloat3("CameraRotate", &cameraRotate.x, (1.0f / 180.0f) * pi))
+	{
+		camera_->SetRotate(cameraRotate);
+	}
+	if (ImGui::DragFloat3("CameraTranslate", &cameraTranslate.x, 0.1f))
+	{
+		camera_->SetTranslate(cameraTranslate);
+	}
+
+	ImGui::End();
 
 	ImGui::Begin("LightSetting");
 	
@@ -288,6 +308,10 @@ void Game::Update()
 	{
 		object3ds_[0]->SetLightIntensity(directionLightIntensity);
 	}
+
+	Vector3 cameraPos = object3ds_[0]->GetCameraWorldPosition();
+	ImGui::InputFloat3("CameraData", &cameraPos.x, "%.3f", ImGuiInputTextFlags_ReadOnly);
+
 	ImGui::End();
 
 	//if (ImGui::BeginTable("ItemsTable", 3, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg))

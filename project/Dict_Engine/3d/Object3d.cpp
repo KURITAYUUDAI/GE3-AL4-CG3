@@ -24,7 +24,7 @@ void Object3d::Initialize(Object3dBase* object3dBase)
 
 void Object3d::Update()
 {
-	transform_.rotate.y += (5.0f / 180.0f) * pi;
+	/*transform_.rotate.y += (5.0f / 180.0f) * pi;*/
 
 	Matrix4x4 worldMatrix = MakeAffineMatrix(transform_.scale, transform_.rotate, transform_.translate);
 	Matrix4x4 worldViewProjectionMatrix;
@@ -32,6 +32,7 @@ void Object3d::Update()
 	{
 		const Matrix4x4& viewProjectionMatrix = camera_->GetViewProjectionMatrix();
 		worldViewProjectionMatrix = Multiply(worldMatrix, viewProjectionMatrix);
+		cameraData_->worldPosition = camera_->GetTranslate();
 	}
 	else
 	{
@@ -41,6 +42,7 @@ void Object3d::Update()
 	transformationMatrixData_->World = worldMatrix;
 	transformationMatrixData_->WVP = worldViewProjectionMatrix;
 
+	
 }
 
 void Object3d::Draw()

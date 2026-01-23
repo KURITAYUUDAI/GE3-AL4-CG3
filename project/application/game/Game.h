@@ -30,7 +30,7 @@ private:
 
 	bool isDrawSprite_ = false;
 
-	bool isDrawObject3d_ = false;
+	bool isDrawObject3d_ = true;
 
 
 	DebugCamera debugCamera_;

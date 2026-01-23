@@ -29,7 +29,6 @@ public:
 	struct CameraForGPU
 	{
 		Vector3 worldPosition;
-		float pad;
 	};
 
 public:	// メンバ関数
@@ -69,6 +68,7 @@ public:	// 外部入出力
 	const Vector3& GetLightDirection() const { return directionalLightData->direction; }
 	const float& GetLightIntensity() const { return directionalLightData->intensity; }
 
+	const Vector3& GetCameraWorldPosition() const { return cameraData_->worldPosition; }
 
 private: // 静的関数
 
