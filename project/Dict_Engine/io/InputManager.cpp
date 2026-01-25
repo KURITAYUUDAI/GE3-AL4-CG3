@@ -22,7 +22,7 @@ void InputManager::Initialize(WindowsAPI* winAPI)
 
 	// ポインタで渡されたWinAPIのインスタンスを記録
 
-	this->winAPI_ = winAPI;
+	winAPI_ = winAPI;
 
 	// DirectInputのオブジェクトを生成
 	hr = DirectInput8Create(
@@ -116,14 +116,14 @@ bool InputManager::TriggerMouse(BYTE mouseButton)
 	return false;
 }
 
-POINT InputManager::MousePoint(const HWND hwnd)
+POINT InputManager::MousePoint()
 {
 	// マウスのスクリーン座標を取得する
 	POINT point;
 	GetCursorPos(&point);
 
 	// スクリーン座標をクライアント座標へ変換する
-	ScreenToClient(hwnd, &point);
+	ScreenToClient(winAPI_->GetHwnd(), &point);
 
 	return point;
 }

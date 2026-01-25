@@ -1,12 +1,11 @@
 #include "Sprite.h"
-#include "SpriteBase.h"
 #include "TextureManager.h"
 #include "SrvManager.h"
 
-void Sprite::Initialize(SpriteBase* spriteBase, std::string textureFilePath)
+void Sprite::Initialize(std::string textureFilePath)
 {
 	// スプライトの共通処理を受け取る
-	spriteBase_ = spriteBase;
+	spriteManager_ = SpriteManager::GetInstance();
 
 	CreateVertexResource();
 
@@ -85,22 +84,22 @@ void Sprite::Update()
 void Sprite::Draw()
 {
 	// Spriteの描画。変更が必要なものだけ変更する。
-	spriteBase_->GetDxBase()->GetCommandList()->SetPipelineState(spriteBase_->GetGraphicsPipeLineState());	// PS0を設定
+	spriteManager_->GetDxBase()->GetCommandList()->SetPipelineState(spriteManager_->GetGraphicsPipeLineState());	// PS0を設定
 
-	spriteBase_->GetDxBase()->GetCommandList()->IASetVertexBuffers(0, 1, &vertexBufferView_);
+	spriteManager_->GetDxBase()->GetCommandList()->IASetVertexBuffers(0, 1, &vertexBufferView_);
 
 	// SpriteのIndexBufferViewを設定
-	spriteBase_->GetDxBase()->GetCommandList()->IASetIndexBuffer(&indexBufferView_);
+	spriteManager_->GetDxBase()->GetCommandList()->IASetIndexBuffer(&indexBufferView_);
 
 	// SpriteのマテリアルのCBufferの場所を設定
-	spriteBase_->GetDxBase()->GetCommandList()->SetGraphicsRootConstantBufferView(0, materialResource_->GetGPUVirtualAddress());
+	spriteManager_->GetDxBase()->GetCommandList()->SetGraphicsRootConstantBufferView(0, materialResource_->GetGPUVirtualAddress());
 	// TransformationMatrixCBufferの」場所を設定
-	spriteBase_->GetDxBase()->GetCommandList()->SetGraphicsRootConstantBufferView(1, transformationMatrixResource_->GetGPUVirtualAddress());
+	spriteManager_->GetDxBase()->GetCommandList()->SetGraphicsRootConstantBufferView(1, transformationMatrixResource_->GetGPUVirtualAddress());
 	// SRV用のDescriptorTableの先頭を設定。2はrootParameter[2]である。
-	spriteBase_->GetDxBase()->GetCommandList()->SetGraphicsRootDescriptorTable(2, TextureManager::GetInstance()->GetSRVHandleGPU(textureFilePath_));
+	spriteManager_->GetDxBase()->GetCommandList()->SetGraphicsRootDescriptorTable(2, TextureManager::GetInstance()->GetSRVHandleGPU(textureFilePath_));
 
 	// 描画！(DrawCall)
-	spriteBase_->GetDxBase()->GetCommandList()->DrawIndexedInstanced(6, 1, 0, 0, 0);
+	spriteManager_->GetDxBase()->GetCommandList()->DrawIndexedInstanced(6, 1, 0, 0, 0);
 
 }
 
@@ -117,10 +116,10 @@ void Sprite::SetTexture(std::string textureFilePath)
 void Sprite::CreateVertexResource()
 {
 	// VertexResourceを作成する。indexResourceを使うので頂点数は4。
-	vertexResource_ = spriteBase_->GetDxBase()->CreateBufferResource(sizeof(VertexData) * 4);
+	vertexResource_ = spriteManager_->GetDxBase()->CreateBufferResource(sizeof(VertexData) * 4);
 
 	// IndexResourceを作成する。
-	indexResource_ = spriteBase_->GetDxBase()->CreateBufferResource(sizeof(uint32_t) * 6);
+	indexResource_ = spriteManager_->GetDxBase()->CreateBufferResource(sizeof(uint32_t) * 6);
 
 	// VertexBufferViewの設定
 	// リソースの先頭のアドレスから使う
@@ -163,7 +162,7 @@ void Sprite::CreateVertexResource()
 void Sprite::CreateMaterialResource()
 {
 	// マテリアルリソースを作成する。
-	materialResource_ = spriteBase_->GetDxBase()->CreateBufferResource(sizeof(Material));
+	materialResource_ = spriteManager_->GetDxBase()->CreateBufferResource(sizeof(Material));
 	// MaterialResourceにデータを書き込むためのアドレスを取得してMaterialDataに割り当てる
 	materialResource_->Map(0, nullptr, reinterpret_cast<void**>(&materialData_));
 	
@@ -176,7 +175,7 @@ void Sprite::CreateMaterialResource()
 void Sprite::CreateTransformationMatrixResource()
 {
 	// 座標変換行列リソースを作成する。Matrix4x41つ分のサイズを用意する。
-	transformationMatrixResource_ = spriteBase_->GetDxBase()->CreateBufferResource(sizeof(TransformationMatrix));
+	transformationMatrixResource_ = spriteManager_->GetDxBase()->CreateBufferResource(sizeof(TransformationMatrix));
 	// TransformationMatrixResourceにデータを書き込むためのアドレスを取得してTransformationMatrixDataに割り当てる
 	transformationMatrixResource_->Map(0, nullptr, reinterpret_cast<void**>(&transformationMatrixData_));
 

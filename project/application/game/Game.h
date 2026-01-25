@@ -1,5 +1,8 @@
 #pragma once
 #include "Framework.h"
+#include "BaseScene.h"
+#include "AbstractSceneFactory.h"
+#include "SceneManager.h"
 
 // ゲーム全体
 class Game : public Dict_Framework
@@ -20,22 +23,9 @@ public:
 
 private:
 
-	std::vector<std::unique_ptr<Sprite>> sprites_;
 
-	std::vector<std::unique_ptr<Object3d>> object3ds_;
+	// シーンファクトリー
+	AbstractSceneFactory* sceneFactory_ = nullptr;
 
-	std::list<std::unique_ptr<ParticleEmitter>> emitters_;
-
-private:
-
-	bool isDrawSprite_ = false;
-
-	bool isDrawObject3d_ = true;
-
-
-	DebugCamera debugCamera_;
-	bool isDebugCamera_ = false;
-
-	Vector2 mousePosition_ = { 0.0f, 0.0f };
 };
 

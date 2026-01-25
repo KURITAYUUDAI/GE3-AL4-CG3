@@ -1,12 +1,11 @@
 #pragma once
 #include "myMath.h"
 #include "DirectXBase.h"
+#include "Object3dManager.h"
 
 class Model;
 
 class Camera;
-
-class Object3dBase;
 
 class Object3d
 {
@@ -33,7 +32,7 @@ public:
 
 public:	// メンバ関数
 	
-	void Initialize(Object3dBase* object3dBase);
+	void Initialize();
 
 	void Update();
 
@@ -84,7 +83,7 @@ private: // 静的関数
 private:
 
 	// 3Dオブジェクト共通処理
-	Object3dBase* object3dBase_ = nullptr;
+	Object3dManager* object3dManager_ = nullptr;
 
 	// モデル
 	Model* model_ = nullptr;

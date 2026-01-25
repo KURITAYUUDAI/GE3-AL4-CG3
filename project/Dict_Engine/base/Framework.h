@@ -54,10 +54,10 @@ using namespace DirectX;
 #include "DirectXBase.h"
 #include "TextureManager.h"
 
-#include "SpriteBase.h"
+#include "SpriteManager.h"
 #include "Sprite.h"
 
-#include "Object3dBase.h"
+#include "Object3dManager.h"
 #include "Object3d.h"
 
 #include "ModelManager.h"
@@ -73,6 +73,9 @@ using namespace DirectX;
 #include "SeedManager.h"
 #include "ImGuiManager.h"
 #include "SoundManager.h"
+
+#include "SceneManager.h"
+#include "SceneFactory.h"
 
 // ゲーム全体
 class Dict_Framework
@@ -125,19 +128,16 @@ protected:
 	std::unique_ptr<DirectXBase> dxBase_ = nullptr;
 
 	// スプライトの共通処理を生成
-	std::unique_ptr<SpriteBase> spriteBase_ = nullptr;
+	SpriteManager* spriteManager_ = SpriteManager::GetInstance();
 
 	// 3Dオブジェクトの共通処理を生成
-	std::unique_ptr<Object3dBase> object3dBase_ = nullptr;
-
-	// カメラ
-	std::unique_ptr<Camera> camera_ = nullptr;
+	Object3dManager* object3dManager_ = Object3dManager::GetInstance();
 
 
 	// SRVマネージャー
 	SrvManager* srvManager_ = SrvManager::GetInstance();
 
-	// インプットマネージャー
+	// ImGuiマネージャー
 	ImGuiManager* imguiManager_ = ImGuiManager::GetInstance();
 
 	// テクスチャマネージャー
@@ -149,8 +149,14 @@ protected:
 	// インプットマネージャー
 	InputManager* inputManager_ = InputManager::GetInstance();
 
+	// シーンマネージャー
+	SceneManager* sceneManager_ = SceneManager::GetInstance();
+
 private:
 
 	D3DResourceLeakChecker LeakCheck_;
+
+	// シーンファクトリー
+	AbstractSceneFactory* sceneFactory_ = nullptr;
 };
 

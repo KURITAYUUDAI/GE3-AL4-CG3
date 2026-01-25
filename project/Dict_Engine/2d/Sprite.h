@@ -1,8 +1,7 @@
 #pragma once
 #include "myMath.h"
 #include "DirectXBase.h"
-
-class SpriteBase;
+#include "SpriteManager.h"
 
 class Sprite
 {
@@ -31,7 +30,7 @@ public:
 
 public:
 
-	void Initialize(SpriteBase* spriteBase, std::string textureFilePath);
+	void Initialize(std::string textureFilePath);
 
 	void Update();
 
@@ -94,7 +93,7 @@ private:	// 静的関数
 
 private:	// 静的変数
 
-	SpriteBase* spriteBase_ = nullptr;
+	SpriteManager* spriteManager_ = nullptr;
 
 	// バッファリソース
 	Microsoft::WRL::ComPtr<ID3D12Resource> vertexResource_ = nullptr;

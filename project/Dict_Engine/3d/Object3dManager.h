@@ -3,8 +3,13 @@
 
 class Camera;
 
-class Object3dBase
+class Object3dManager
 {
+public:
+	// シングルトンインスタンスの取得
+	static Object3dManager* GetInstance();
+	// 終了
+	void Finalize();
 
 public: // メンバ関数
 	
@@ -14,8 +19,6 @@ public: // メンバ関数
 	void Update();
 
 	void Draw();
-
-	void Finalize();
 
 	void DrawingCommon();
 
@@ -35,6 +38,25 @@ private:
 	void CreateRootSignature(ID3DBlob* signatureBlob);
 
 	void CreateGraphicsPipelineState();
+
+private: 	// シングルトンインスタンス
+	// unique_ptr が delete するために使用する構造体
+	struct Deleter
+	{
+		void operator()(Object3dManager* p) const
+		{
+			// クラス内部のスコープなので private なデストラクタを呼べる
+			delete p;
+		}
+	};
+
+	// unique_ptr の型定義に Deleter を入れることでdeleteが可能になる
+	static std::unique_ptr<Object3dManager, Deleter> instance_;
+
+	Object3dManager() = default;
+	~Object3dManager() = default;
+	Object3dManager(Object3dManager&) = delete;
+	Object3dManager& operator=(Object3dManager&) = delete;
 
 private:
 

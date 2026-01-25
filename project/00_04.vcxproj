@@ -84,7 +84,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <TreatWarningAsError>true</TreatWarningAsError>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)Dict_Engine\2d;$(ProjectDir)Dict_Engine\3d;$(ProjectDir)Dict_Engine\audio;$(ProjectDir)Dict_Engine\base;$(ProjectDir)Dict_Engine\io;$(ProjectDir)Dict_Engine\math;$(ProjectDir)Dict_Engine\scene;$(ProjectDir)Dict_Engine\random;$(ProjectDir)application\game</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)Dict_Engine\2d;$(ProjectDir)Dict_Engine\3d;$(ProjectDir)Dict_Engine\audio;$(ProjectDir)Dict_Engine\base;$(ProjectDir)Dict_Engine\io;$(ProjectDir)Dict_Engine\math;$(ProjectDir)Dict_Engine\scene;$(ProjectDir)Dict_Engine\random;$(ProjectDir)application\game;$(ProjectDir)application\scene</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -111,7 +111,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)Dict_Engine\2d;$(ProjectDir)Dict_Engine\3d;$(ProjectDir)Dict_Engine\audio;$(ProjectDir)Dict_Engine\base;$(ProjectDir)Dict_Engine\io;$(ProjectDir)Dict_Engine\math;$(ProjectDir)Dict_Engine\scene;$(ProjectDir)Dict_Engine\random;$(ProjectDir)application\game</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)Dict_Engine\2d;$(ProjectDir)Dict_Engine\3d;$(ProjectDir)Dict_Engine\audio;$(ProjectDir)Dict_Engine\base;$(ProjectDir)Dict_Engine\io;$(ProjectDir)Dict_Engine\math;$(ProjectDir)Dict_Engine\scene;$(ProjectDir)Dict_Engine\random;$(ProjectDir)application\game;$(ProjectDir)application\scene</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -140,7 +140,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <Optimization>Disabled</Optimization>
       <WholeProgramOptimization>false</WholeProgramOptimization>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)Dict_Engine\2d;$(ProjectDir)Dict_Engine\3d;$(ProjectDir)Dict_Engine\audio;$(ProjectDir)Dict_Engine\base;$(ProjectDir)Dict_Engine\io;$(ProjectDir)Dict_Engine\math;$(ProjectDir)Dict_Engine\scene;$(ProjectDir)Dict_Engine\random;$(ProjectDir)application\game</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)Dict_Engine\2d;$(ProjectDir)Dict_Engine\3d;$(ProjectDir)Dict_Engine\audio;$(ProjectDir)Dict_Engine\base;$(ProjectDir)Dict_Engine\io;$(ProjectDir)Dict_Engine\math;$(ProjectDir)Dict_Engine\scene;$(ProjectDir)Dict_Engine\random;$(ProjectDir)application\game;$(ProjectDir)application\scene</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -157,6 +157,8 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Dict_Engine\scene\BaseScene.cpp" />
+    <ClCompile Include="Dict_Engine\scene\AbstractSceneFactory.cpp" />
     <ClCompile Include="Dict_Engine\3d\Camera.cpp" />
     <ClCompile Include="Dict_Engine\3d\ParticleManager.cpp" />
     <ClCompile Include="Dict_Engine\base\D3DResourceLeakChecker.cpp" />
@@ -168,6 +170,8 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="Dict_Engine\io\ImGuiManager.cpp" />
     <ClCompile Include="application\game\Game.cpp" />
     <ClCompile Include="Dict_Engine\base\Framework.cpp" />
+    <ClCompile Include="application\scene\GamePlayScene.cpp" />
+    <ClCompile Include="application\scene\SceneManager.cpp" />
     <ClCompile Include="main.cpp">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Development|x64'">MaxSpeed</Optimization>
       <WholeProgramOptimization Condition="'$(Configuration)|$(Platform)'=='Development|x64'">true</WholeProgramOptimization>
@@ -175,10 +179,10 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="Dict_Engine\math\myMath.cpp" />
     <ClCompile Include="Dict_Engine\base\WindowsAPI.cpp" />
     <ClCompile Include="Dict_Engine\base\StringUtility.cpp" />
-    <ClCompile Include="Dict_Engine\2d\SpriteBase.cpp" />
+    <ClCompile Include="Dict_Engine\2d\SpriteManager.cpp" />
     <ClCompile Include="Dict_Engine\2d\Sprite.cpp" />
     <ClCompile Include="Dict_Engine\base\TextureManager.cpp" />
-    <ClCompile Include="Dict_Engine\3d\Object3dBase.cpp" />
+    <ClCompile Include="Dict_Engine\3d\Object3dManager.cpp" />
     <ClCompile Include="Dict_Engine\3d\Object3d.cpp" />
     <ClCompile Include="Dict_Engine\3d\Model.cpp" />
     <ClCompile Include="Dict_Engine\3d\ModelBase.cpp" />
@@ -187,6 +191,8 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="Dict_Engine\random\SeedManager.cpp" />
     <ClCompile Include="Dict_Engine\3d\ParticleEmitter.cpp" />
     <ClCompile Include="Dict_Engine\io\SoundManager.cpp" />
+    <ClCompile Include="application\scene\SceneFactory.cpp" />
+    <ClCompile Include="application\scene\TitleScene.cpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="resources\shaders\Object3d.PS.hlsl">
@@ -217,6 +223,8 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Dict_Engine\scene\BaseScene.h" />
+    <ClInclude Include="Dict_Engine\scene\AbstractSceneFactory.h" />
     <ClInclude Include="Dict_Engine\3d\Camera.h" />
     <ClInclude Include="Dict_Engine\3d\ParticleManager.h" />
     <ClInclude Include="Dict_Engine\base\D3DResourceLeakChecker.h" />
@@ -228,10 +236,10 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Dict_Engine\base\WindowsAPI.h" />
     <ClInclude Include="Dict_Engine\base\Logger.h" />
     <ClInclude Include="Dict_Engine\base\StringUtility.h" />
-    <ClInclude Include="Dict_Engine\2d\SpriteBase.h" />
+    <ClInclude Include="Dict_Engine\2d\SpriteManager.h" />
     <ClInclude Include="Dict_Engine\2d\Sprite.h" />
     <ClInclude Include="Dict_Engine\base\TextureManager.h" />
-    <ClInclude Include="Dict_Engine\3d\Object3dBase.h" />
+    <ClInclude Include="Dict_Engine\3d\Object3dManager.h" />
     <ClInclude Include="Dict_Engine\3d\Object3d.h" />
     <ClInclude Include="Dict_Engine\3d\Model.h" />
     <ClInclude Include="Dict_Engine\3d\ModelBase.h" />
@@ -243,6 +251,10 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Dict_Engine\io\SoundManager.h" />
     <ClInclude Include="application\game\Game.h" />
     <ClInclude Include="Dict_Engine\base\Framework.h" />
+    <ClInclude Include="application\scene\GamePlayScene.h" />
+    <ClInclude Include="application\scene\SceneManager.h" />
+    <ClInclude Include="application\scene\SceneFactory.h" />
+    <ClInclude Include="application\scene\TitleScene.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="externals\DirectXTex\DirectXTex_Desktop_2022_Win10.vcxproj">

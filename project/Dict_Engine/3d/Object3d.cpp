@@ -1,15 +1,15 @@
 #include "Object3d.h"
-#include "Object3dBase.h"
+#include "Object3dManager.h"
 #include "Model.h"
 #include "ModelManager.h"
 #include "Camera.h"
 
-void Object3d::Initialize(Object3dBase* object3dBase)
+void Object3d::Initialize()
 {
 
-	object3dBase_ = object3dBase;
+	object3dManager_ = Object3dManager::GetInstance();
 
-	camera_ = object3dBase_->GetDefaultCamera();
+	camera_ = object3dManager_->GetDefaultCamera();
 
 	CreateTransformationMatrixResource();
 
@@ -48,13 +48,13 @@ void Object3d::Update()
 void Object3d::Draw()
 {
 	// wvp用のCBufferの場所を設定
-	object3dBase_->GetDxBase()->GetCommandList()->SetGraphicsRootConstantBufferView(1, transformationMatrixResource_->GetGPUVirtualAddress());
+	object3dManager_->GetDxBase()->GetCommandList()->SetGraphicsRootConstantBufferView(1, transformationMatrixResource_->GetGPUVirtualAddress());
 
 	// 平行光源用のCBufferをバインド（rootParameter[3] = b1）
-	object3dBase_->GetDxBase()->GetCommandList()->SetGraphicsRootConstantBufferView(3, DirectionalLightResource_->GetGPUVirtualAddress());	
+	object3dManager_->GetDxBase()->GetCommandList()->SetGraphicsRootConstantBufferView(3, DirectionalLightResource_->GetGPUVirtualAddress());	
 	
 	// カメラ用のCBufferをバインド（rootParameter[4] = b2）
-	object3dBase_->GetDxBase()->GetCommandList()->SetGraphicsRootConstantBufferView(4, cameraResource_->GetGPUVirtualAddress());
+	object3dManager_->GetDxBase()->GetCommandList()->SetGraphicsRootConstantBufferView(4, cameraResource_->GetGPUVirtualAddress());
 
 	// 3Dモデルが割り当てられていれば描画する
 	if (model_)
@@ -88,7 +88,7 @@ void Object3d::CreateTransformationMatrixResource()
 {
 
 	// 座標変換行列リソースを作成する。Matrix4x4 1つ分のサイズを用意する
-	transformationMatrixResource_ = object3dBase_->GetDxBase()->CreateBufferResource(sizeof(TransformationMatrix));
+	transformationMatrixResource_ = object3dManager_->GetDxBase()->CreateBufferResource(sizeof(TransformationMatrix));
 	// TransformationMatrixResourceにデータを書き込むためのアドレスを取得してTransformationMatrixDataに割り当てる
 	transformationMatrixResource_->Map(0, nullptr, reinterpret_cast<void**>(&transformationMatrixData_));
 	
@@ -101,7 +101,7 @@ void Object3d::CreateTransformationMatrixResource()
 void Object3d::CreateDirectionalLightResource()
 {
 	// 平行光源リソースを作成する
-	DirectionalLightResource_ = object3dBase_->GetDxBase()->CreateBufferResource(sizeof(DirectionalLight));
+	DirectionalLightResource_ = object3dManager_->GetDxBase()->CreateBufferResource(sizeof(DirectionalLight));
 	// DirectionalLightResourceにデータを書き込むためのアドレスを取得してDirectionalLightDataに割り当てる
 	DirectionalLightResource_->Map(0, nullptr, reinterpret_cast<void**>(&directionalLightData));
 
@@ -115,7 +115,7 @@ void Object3d::CreateCameraResource()
 {
 
 	// カメラ用リソースを作成する
-	cameraResource_ = object3dBase_->GetDxBase()->CreateBufferResource(sizeof(CameraForGPU));
+	cameraResource_ = object3dManager_->GetDxBase()->CreateBufferResource(sizeof(CameraForGPU));
 	// CameraResourceにデータを書き込むためのアドレスを取得してCameraDataに割り当てる
 	cameraResource_->Map(0, nullptr, reinterpret_cast<void**>(&cameraData_));
 
