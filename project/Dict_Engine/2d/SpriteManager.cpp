@@ -1,8 +1,18 @@
-#include "Object3dBase.h"
+#include "SpriteManager.h"
 #include "Logger.h"
 
+std::unique_ptr<SpriteManager, SpriteManager::Deleter> SpriteManager::instance_ = nullptr;
 
-void Object3dBase::Initialize(DirectXBase* dxBase)
+SpriteManager* SpriteManager::GetInstance()
+{
+	if (instance_ == nullptr)
+	{
+		instance_.reset(new SpriteManager);
+	}
+	return instance_.get();
+}
+
+void SpriteManager::Initialize(DirectXBase* dxBase)
 {
 
 	dxBase_ = dxBase;
@@ -10,19 +20,22 @@ void Object3dBase::Initialize(DirectXBase* dxBase)
 	CreateGraphicsPipelineState();
 }
 
-void Object3dBase::Update()
+void SpriteManager::Update()
 {
+
 }
 
-void Object3dBase::Draw()
+void SpriteManager::Draw()
 {
+
 }
 
-void Object3dBase::Finalize()
+void SpriteManager::Finalize()
 {
+	instance_.reset();
 }
 
-void Object3dBase::DrawingCommon()
+void SpriteManager::DrawingCommon()
 {
 	// RootSignatureを設定。PSOに設定しているけど別途設定が必要
 	dxBase_->GetCommandList()->SetGraphicsRootSignature(rootSignature_.Get());
@@ -33,17 +46,19 @@ void Object3dBase::DrawingCommon()
 
 }
 
-void Object3dBase::CreateRootSignature(ID3DBlob* signatureBlob)
+void SpriteManager::CreateRootSignature(ID3DBlob* signatureBlob)
 {
 	HRESULT hr;
 	hr = dxBase_->GetDevice()->CreateRootSignature(0,
 		signatureBlob->GetBufferPointer(), signatureBlob->GetBufferSize(),
 		IID_PPV_ARGS(&rootSignature_));
 	assert(SUCCEEDED(hr));
+
 }
 
-void Object3dBase::CreateGraphicsPipelineState()
+void SpriteManager::CreateGraphicsPipelineState()
 {
+	
 	HRESULT hr;
 
 	D3D12_DESCRIPTOR_RANGE descriptorRange[1] = {};
@@ -107,14 +122,14 @@ void Object3dBase::CreateGraphicsPipelineState()
 		assert(false);
 	}
 
-	CreateRootSignature(signatureBlob.Get());
-
 	/// 02_00
 
-	/*hr = dxBase_->GetDevice()->CreateRootSignature(0,
+	// バイナリをもとに生成
+	Microsoft::WRL::ComPtr<ID3D12RootSignature> rootSignature = nullptr;
+	hr = dxBase_->GetDevice()->CreateRootSignature(0,
 		signatureBlob->GetBufferPointer(), signatureBlob->GetBufferSize(),
-		IID_PPV_ARGS(&rootSignature_));
-	assert(SUCCEEDED(hr));*/
+		IID_PPV_ARGS(&rootSignature));
+	assert(SUCCEEDED(hr));
 
 	// InputLayout
 	/*D3D12_INPUT_ELEMENT_DESC inputElementDescs[1] = {};
@@ -152,38 +167,36 @@ void Object3dBase::CreateGraphicsPipelineState()
 	// RasiterzerStateの設定
 	D3D12_RASTERIZER_DESC rasterizerDesc{};
 	// 裏面（時計回り）を表示しない
-	rasterizerDesc.CullMode = D3D12_CULL_MODE_BACK;
+	rasterizerDesc.CullMode = D3D12_CULL_MODE_NONE;
 	// 三角形の中を塗りつぶす
 	rasterizerDesc.FillMode = D3D12_FILL_MODE_SOLID;
 
 	// Shaderをコンパイルする
 	Microsoft::WRL::ComPtr<IDxcBlob> vertexShaderBlob = dxBase_->CompileShader(
-		L"resources/shaders/Object3d.Vs.hlsl", L"vs_6_0");
+		L"resources/shaders/Object3D.Vs.hlsl", L"vs_6_0");
 	assert(vertexShaderBlob != nullptr);
 
 	Microsoft::WRL::ComPtr<IDxcBlob> pixelShaderBlob = dxBase_->CompileShader(
-		L"resources/shaders/Object3d.PS.hlsl", L"ps_6_0");
+		L"resources/shaders/Object3D.PS.hlsl", L"ps_6_0");
 	assert(pixelShaderBlob != nullptr);
 
 
-	
-
+	CreateRootSignature(signatureBlob.Get());
 
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC graphicsPipelineStateDesc{};
 
 	// DepthStencilStateの設定
 	D3D12_DEPTH_STENCIL_DESC depthStencilDesc{};
-
+	
 	// Depthの機能を有効化する
-	depthStencilDesc.DepthEnable = true;
+	depthStencilDesc.DepthEnable = false;
+	
 	// 書き込みします
-	depthStencilDesc.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
-	// 比較関数はLessEqual。つまり、近ければ描画される
-	depthStencilDesc.DepthFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
+	depthStencilDesc.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO;
 
 	// DepthStencilの設定
 	graphicsPipelineStateDesc.DepthStencilState = depthStencilDesc;
-	graphicsPipelineStateDesc.DSVFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;
+	graphicsPipelineStateDesc.DSVFormat = DXGI_FORMAT_UNKNOWN;
 
 	graphicsPipelineStateDesc.pRootSignature = rootSignature_.Get();	// RootSignature
 	graphicsPipelineStateDesc.InputLayout = inputLayoutDesc;	// InputLayout
@@ -193,15 +206,15 @@ void Object3dBase::CreateGraphicsPipelineState()
 	pixelShaderBlob->GetBufferSize() };		// PixelShader
 	graphicsPipelineStateDesc.BlendState = blendDesc;	// BlendState
 	graphicsPipelineStateDesc.RasterizerState = rasterizerDesc;	// RasterizerState
-
+	
 	// 書き込むRTVの情報
 	graphicsPipelineStateDesc.NumRenderTargets = 1;
 	graphicsPipelineStateDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
-
+	
 	// 利用するトポロジ（形状）のタイプ。三角形
 	graphicsPipelineStateDesc.PrimitiveTopologyType =
 		D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-
+	
 	// どのように画面に色を打ち込むかの設定（気にしなくて良い）
 	graphicsPipelineStateDesc.SampleDesc.Count = 1;
 	graphicsPipelineStateDesc.SampleMask = D3D12_DEFAULT_SAMPLE_MASK;

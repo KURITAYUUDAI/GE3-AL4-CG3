@@ -34,7 +34,7 @@ public:
 	bool PushKey(BYTE keyNum);
 	bool TriggerKey(BYTE keyNum);
 
-	POINT MousePoint(const HWND hwnd);
+	POINT MousePoint();
 	bool PushMouse(BYTE mouseButton);
 	bool TriggerMouse(BYTE mouseButton);
 	LONG MouseWheel();

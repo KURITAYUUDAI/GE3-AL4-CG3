@@ -73,29 +73,25 @@ void Dict_Framework::Initialize()
 
 
 	// スプライトの共通部を初期化
-	spriteBase_ = std::make_unique<SpriteBase>();
-	spriteBase_->Initialize(dxBase_.get());
+	spriteManager_->Initialize(dxBase_.get());
 
 	// 3Dオブジェクトの共通部を初期化
-	object3dBase_ = std::make_unique<Object3dBase>();
-	object3dBase_->Initialize(dxBase_.get());
+	object3dManager_->Initialize(dxBase_.get());
 
 	// パーティクルマネージャーを初期化
 	particleManager_->Initialize(dxBase_.get());
 
 	// インプットマネージャーを初期化
 	inputManager_->Initialize(winAPI_.get());
-
-	camera_ = std::make_unique<Camera>();
-	camera_->Initialize();
+	
 }
 
 void Dict_Framework::Finalize()
 {
 	// ポインタ解放
-	object3dBase_.reset();
+	object3dManager_->Finalize();
 	// ポインタ解放
-	spriteBase_.reset();
+	spriteManager_->Finalize();
 
 	// SoundManager終了処理
 	SoundManager::GetInstance()->Finalize();
@@ -122,8 +118,7 @@ void Dict_Framework::Finalize()
 	// InputManager終了処理
 	inputManager_->Finalize();
 
-	camera_->Finalize();
-	camera_.reset();
+	delete sceneFactory_;
 
 	// DirectXBase終了処理
 	dxBase_->Finalize();
