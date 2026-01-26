@@ -28,7 +28,7 @@ public:	// 外部入出力
 
 	void SetSceneRequest(const std::string& sceneRequest){ sceneRequest_ = sceneRequest; }
 
-	void SetSceneFactory(AbstractSceneFactory* sceneFactory){ sceneFactory_ = sceneFactory; }
+	void SetSceneFactory(std::shared_ptr<AbstractSceneFactory> sceneFactory){ sceneFactory_ = sceneFactory; }
 
 private:	// シングルトンインスタンス
 
@@ -55,7 +55,7 @@ private:
 	std::string sceneRequest_;
 
 	// シーンファクトリー
-	AbstractSceneFactory* sceneFactory_ = nullptr;
+	std::shared_ptr<AbstractSceneFactory> sceneFactory_;
 
 	std::unique_ptr<BaseScene> currentScene_;
 

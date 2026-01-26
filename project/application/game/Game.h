@@ -3,6 +3,7 @@
 #include "BaseScene.h"
 #include "AbstractSceneFactory.h"
 #include "SceneManager.h"
+#include <memory>
 
 // ゲーム全体
 class Game : public Dict_Framework
@@ -25,7 +26,7 @@ private:
 
 
 	// シーンファクトリー
-	AbstractSceneFactory* sceneFactory_ = nullptr;
+	std::shared_ptr<AbstractSceneFactory> sceneFactory_ = nullptr;
 
 };
 
