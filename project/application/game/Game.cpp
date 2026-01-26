@@ -6,7 +6,7 @@ void Game::Initialize()
 	Dict_Framework::Initialize();
 
 
-	sceneFactory_ = new SceneFactory();
+	sceneFactory_ = std::make_shared<SceneFactory>();
 
 	sceneManager_->SetSceneFactory(sceneFactory_);
 
