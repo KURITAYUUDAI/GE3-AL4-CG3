@@ -44,7 +44,13 @@ PixelShaderOutput main(VertexShaderOutput input)
     
     PixelShaderOutput output;
     
-    if(gMaterial.enableLighting != 0)   // Lightningする場合
+    if (gMaterial.enableLighting == 0)
+    {
+        output.color = gMaterial.color * textureColor;
+        return output;
+    }
+    
+    if(gMaterial.enableLighting == 1)   // Lightningする場合
     {
         float3 N = normalize(input.normal);
         float3 L = normalize(-gDirectionalLight.direction); // 面→光
@@ -81,11 +87,9 @@ PixelShaderOutput main(VertexShaderOutput input)
         // アルファは今まで通り
         output.color.a = gMaterial.color.a * textureColor.a;
 
+        return output;
     }
-    else
-    {
-        output.color = gMaterial.color * textureColor;
-    }
+    
     
   
     
@@ -93,5 +97,5 @@ PixelShaderOutput main(VertexShaderOutput input)
     
     //output.color = float4(N * 0.5f + 0.5f, 1.0f);
 
-    return output;
+    //return output;
 }
