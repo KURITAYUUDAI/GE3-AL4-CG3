@@ -134,6 +134,7 @@ void DebugCamera::Update(InputManager* input, Transform originCamera)
 	/*worldMatrix_ = MakeAffineMatrix(originCamera.scale, camera.rotate, camera.translate);*/
 
 	viewMatrix_ = MakeLookAtMatrix(camera.translate, { 0.0f, 0.0f, 0.0f }, { 0.0f, 1.0f, 0.0f });
+	worldMatrix_ = Inverse(viewMatrix_);
 
 	ImGui::End();
 

@@ -25,12 +25,15 @@ public:
 
 	Matrix4x4 GetViewMatrix() { return viewMatrix_; }
 
+	Matrix4x4 GetWorldMatrix() { return worldMatrix_; }
+
 
 private:
 
 	// カメラ
 	Transform debugCamera_;
-
+	// ワールド行列
+	Matrix4x4 worldMatrix_ = MakeIdentity4x4();
 	// ビュー行列
 	Matrix4x4 viewMatrix_ = MakeIdentity4x4();
 	// 射影行列

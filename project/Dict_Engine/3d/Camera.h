@@ -28,6 +28,8 @@ public:	// 外部入出力
 	void SetNearClip(const float& nearClip){ nearClip_ = nearClip; }
 	void SetFarClip(const float& farClip){ farClip_ = farClip; }
 
+	void SetWorldMatrix(const Matrix4x4& worldMatrix){ worldMatrix_ = worldMatrix; }
+
 	void SetViewMatrix(const Matrix4x4& viewMatrix){ viewMatrix_ = viewMatrix; }
 
 

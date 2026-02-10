@@ -19,9 +19,9 @@ ConstantBuffer<Material> gMaterial : register(b0);
 
 struct DirectionalLight
 {
-    float4 color;     //!< ライトの色
+    float4 color; //!< ライトの色
     float3 direction; //!< ライトの方向
-    float intensity;  //!< 輝度
+    float intensity; //!< 輝度
 };
 ConstantBuffer<DirectionalLight> gDirectionalLight : register(b1);
 
@@ -44,7 +44,13 @@ PixelShaderOutput main(VertexShaderOutput input)
     
     PixelShaderOutput output;
     
-    if(gMaterial.enableLighting != 0)   // Lightningする場合
+    if (gMaterial.enableLighting == 0)
+    {
+        output.color = gMaterial.color * textureColor;
+        return output;
+    }
+    
+    if (gMaterial.enableLighting == 1)   // Lightningする場合
     {
         float3 N = normalize(input.normal);
         float3 L = normalize(-gDirectionalLight.direction); // 面→光
@@ -65,27 +71,43 @@ PixelShaderOutput main(VertexShaderOutput input)
         float3 toEye = normalize(gCamera.worldPosition - input.worldPosition);
         float3 reflectLight = reflect(-L, N);
         float RdotE = dot(reflectLight, toEye);
+        
+        float3 halfVector = normalize(-gDirectionalLight.direction + toEye);
+        float NDotH = dot(normalize(input.normal), halfVector);
+        
+        
         float specularPow = pow(saturate(RdotE), gMaterial.shiniess);
-        specularPow *= step(0.0001f, NdotL);
+        // float specularPow = pow(saturate(NDotH), gMaterial.shiniess);
+        // specularPow *= step(0.0001f, NdotL);
+        
+       
+        specularPow = pow(saturate(NDotH), gMaterial.shiniess);
         
         // 拡散反射
         float3 diffuse =
         gMaterial.color.rgb * textureColor.rgb * gDirectionalLight.color.rgb * cos * gDirectionalLight.intensity;
         
+        float3 rightTextureColor = textureColor.rgb + float3(0.2f, 0.2f, 0.2f);
+        rightTextureColor.r = clamp(rightTextureColor.r, 0.0f, 1.0f);
+        rightTextureColor.g = clamp(rightTextureColor.g, 0.0f, 1.0f);
+        rightTextureColor.b = clamp(rightTextureColor.b, 0.0f, 1.0f);
+        
+        
         // 鏡面反射
-        float3 specular =
-        gDirectionalLight.color.rgb * gDirectionalLight.intensity * specularPow * float3(1.0f, 1.0f, 1.0f);
+        // float3 specular =　gDirectionalLight.color.rgb * gDirectionalLight.intensity * specularPow * rightTextureColor;
+        
+        float3 specular = gDirectionalLight.color.rgb * gDirectionalLight.intensity * specularPow * float3(1.0f, 1.0f, 1.0f);
+        
+        
         
         // 拡散反射＋鏡面反射
         output.color.rgb = diffuse + specular;
         // アルファは今まで通り
         output.color.a = gMaterial.color.a * textureColor.a;
 
+        return output;
     }
-    else
-    {
-        output.color = gMaterial.color * textureColor;
-    }
+    
     
   
     

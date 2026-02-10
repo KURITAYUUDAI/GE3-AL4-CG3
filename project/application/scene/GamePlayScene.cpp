@@ -482,6 +482,7 @@ void GamePlayScene::Update()
 	if (isDebugCamera_)
 	{
 		debugCamera_.Update(inputManager_, camera_->GetTransform());
+		camera_->SetWorldMatrix(debugCamera_.GetWorldMatrix());
 		camera_->SetViewMatrix(debugCamera_.GetViewMatrix());
 	} else
 	{

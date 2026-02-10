@@ -173,11 +173,11 @@ void SpriteManager::CreateGraphicsPipelineState()
 
 	// Shaderをコンパイルする
 	Microsoft::WRL::ComPtr<IDxcBlob> vertexShaderBlob = dxBase_->CompileShader(
-		L"resources/shaders/Object3D.Vs.hlsl", L"vs_6_0");
+		L"resources/shaders/Object3d.VS.hlsl", L"vs_6_0");
 	assert(vertexShaderBlob != nullptr);
 
 	Microsoft::WRL::ComPtr<IDxcBlob> pixelShaderBlob = dxBase_->CompileShader(
-		L"resources/shaders/Object3D.PS.hlsl", L"ps_6_0");
+		L"resources/shaders/Object3d.PS.hlsl", L"ps_6_0");
 	assert(pixelShaderBlob != nullptr);
 
 
