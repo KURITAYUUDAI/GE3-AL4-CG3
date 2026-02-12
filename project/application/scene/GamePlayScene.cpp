@@ -123,7 +123,7 @@ void GamePlayScene::Update()
 #ifdef USE_IMGUI
 
 	// デモウィンドウ表示
-	ImGui::ShowDemoWindow();
+	// ImGui::ShowDemoWindow();
 
 	ImGui::Begin("Setting");
 	ImGui::SetWindowSize("Sprite Setting", { 500.0f, 100.0f });
@@ -318,90 +318,97 @@ void GamePlayScene::Update()
 
 	ImGui::End();
 
-	//if (ImGui::BeginTable("ItemsTable", 3, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg))
-	//{
-	//	ImGui::TableSetupScrollFreeze(1, 1);
-	//	ImGui::TableSetupColumn("transform", ImGuiTableColumnFlags_WidthFixed, 180.0f);
-	//	/*ImGui::TableSetupColumn("color", ImGuiTableColumnFlags_WidthFixed, 180.0f);*/
-	//	ImGui::TableSetupColumn("model", ImGuiTableColumnFlags_WidthFixed, 80.0f);
-	//	ImGui::TableSetupColumn("Ops", ImGuiTableColumnFlags_WidthFixed, 50.0f);
-	//	ImGui::TableHeadersRow();
+	ImGui::Begin("Model Window");
 
-	//	int to_delete = -1;
-	//	size_t i = 0;
+	if (ImGui::BeginTable("ItemsTable", 3, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg))
+	{
+		ImGui::TableSetupScrollFreeze(1, 1);
+		ImGui::TableSetupColumn("transform", ImGuiTableColumnFlags_WidthFixed, 180.0f);
+		/*ImGui::TableSetupColumn("color", ImGuiTableColumnFlags_WidthFixed, 180.0f);*/
+		ImGui::TableSetupColumn("model", ImGuiTableColumnFlags_WidthFixed, 80.0f);
+		ImGui::TableSetupColumn("Ops", ImGuiTableColumnFlags_WidthFixed, 50.0f);
+		ImGui::TableHeadersRow();
 
-	//	for (auto it = object3ds.begin(); it != object3ds.end(); ++it, ++i)
-	//	{
-	//		Object3d* object3d = *it;
-	//		if (!object3d) continue;
+		int to_delete = -1;
+		size_t i = 0;
 
-	//		ImGui::TableNextRow();
+		for (auto it = object3ds_.begin(); it != object3ds_.end(); ++it, ++i)
+		{
+			Object3d* object3d = it->get();
+			if (!object3d) continue;
 
-	//		// 要素ごとにIDスタックを分ける
-	//		ImGui::PushID((void*)object3d);
+			ImGui::TableNextRow();
 
-	//		ImGui::TableSetColumnIndex(0);
-	//		Vector3 scaleModel = object3d->GetScale();
-	//		if (ImGui::DragFloat3("##scaleModel", &scaleModel.x, 0.01f, 0.0f, 10.0f))
-	//		{
-	//			object3d->SetScale(scaleModel);
-	//		}
-	//		Vector3 rotateModel = object3d->GetRotate();
-	//		if (ImGui::DragFloat3("##rotateModel", &rotateModel.x, (1.0f / 180.0f) * pi, -2.0f * pi, 2.0f * pi))
-	//		{
-	//			object3d->SetRotate(rotateModel);
-	//		}
-	//		Vector3 translateModel = object3d->GetTranslate();
-	//		if (ImGui::DragFloat3("##positionModel", &translateModel.x, 0.01f, 0.0f, 1280.0f))
-	//		{
-	//			object3d->SetTranslate(translateModel);
-	//		}
+			// 要素ごとにIDスタックを分ける
+			ImGui::PushID((void*)object3d);
 
-	//		/*ImGui::TableSetColumnIndex(1);
-	//		Vector4 colorModel = object3d->GetColor();
-	//		if (ImGui::ColorEdit4("##colorModel", &colorModel.x))
-	//		{
-	//			sprite->SetColor(colorModel);
-	//		}*/
+			ImGui::TableSetColumnIndex(0);
+			Vector3 scaleModel = object3d->GetScale();
+			if (ImGui::DragFloat3("##scaleModel", &scaleModel.x, 0.01f, -10.0f, 10.0f))
+			{
+				object3d->SetScale(scaleModel);
+			}
+			Vector3 rotateModel = object3d->GetRotate();
+			if (ImGui::DragFloat3("##rotateModel", &rotateModel.x, (1.0f / 180.0f) * pi, -2.0f * pi, 2.0f * pi))
+			{
+				object3d->SetRotate(rotateModel);
+			}
+			Vector3 translateModel = object3d->GetTranslate();
+			if (ImGui::DragFloat3("##positionModel", &translateModel.x, 0.01f, -10.0f, 10.0f))
+			{
+				object3d->SetTranslate(translateModel);
+			}
 
-	//		ImGui::TableSetColumnIndex(1);
-	//		if (ImGui::SmallButton("plane"))
-	//		{
-	//			object3d->SetModel("plane.obj");
-	//		}
-	//		if (ImGui::SmallButton("axis"))
-	//		{
-	//			object3d->SetModel("axis.obj");
-	//		}
+			/*ImGui::TableSetColumnIndex(1);
+			Vector4 colorModel = object3d->GetColor();
+			if (ImGui::ColorEdit4("##colorModel", &colorModel.x))
+			{
+				sprite->SetColor(colorModel);
+			}*/
+
+			ImGui::TableSetColumnIndex(1);
+			if (ImGui::SmallButton("plane"))
+			{
+				object3d->SetModel("plane.obj");
+			}
+			if (ImGui::SmallButton("axis"))
+			{
+				object3d->SetModel("axis.obj");
+			}
+			if (ImGui::SmallButton("sphere"))
+			{
+				object3d->SetModel("sphere.obj");
+			}
 
 
-	//		ImGui::TableSetColumnIndex(2);
-	//		if (ImGui::SmallButton("Delete##del"))
-	//		{
-	//			to_delete = int(i);
-	//		}
+			ImGui::TableSetColumnIndex(2);
+			if (ImGui::SmallButton("Delete##del"))
+			{
+				to_delete = int(i);
+			}
 
-	//		ImGui::PopID();
-	//	}
 
-	//	ImGui::EndTable();
 
-	//	if (to_delete >= 0 && to_delete < (int)object3ds.size())
-	//	{
-	//		delete object3ds[to_delete];
-	//		object3ds.erase(object3ds.begin() + to_delete);
-	//	}
+			ImGui::PopID();
+		}
 
-	//	if (ImGui::SmallButton("Add##del"))
-	//	{
-	//		Object3d* newObject3d = new Object3d();
-	//		newObject3d->Initialize(object3dBase);
-	//		newObject3d->SetModel("plane.obj");
-	//		object3ds.push_back(newObject3d);
-	//	}
-	//}
+		ImGui::EndTable();
 
-	//ImGui::End();
+		if (to_delete >= 0 && to_delete < (int)object3ds_.size())
+		{
+			object3ds_.erase(object3ds_.begin() + to_delete);
+		}
+
+		if (ImGui::SmallButton("Add##del"))
+		{
+			std::unique_ptr<Object3d> newObject3d = std::make_unique<Object3d>();
+			newObject3d->Initialize();
+			newObject3d->SetModel("plane.obj");
+			object3ds_.push_back(std::move(newObject3d));
+		}
+	}
+
+	ImGui::End();
 
 
 

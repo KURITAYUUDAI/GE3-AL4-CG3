@@ -229,6 +229,11 @@ Microsoft::WRL::ComPtr<IDxcBlob> DirectXBase::CompileShader(const std::wstring& 
 Microsoft::WRL::ComPtr<ID3D12Resource> DirectXBase::CreateBufferResource(size_t sizeInBytes)
 {
 
+	// 定数バッファは256バイトアライメントが必須
+	size_t size = sizeInBytes;
+	size_t alignment = 256;
+	size_t alignedSize = (size + alignment - 1) & ~(alignment - 1);
+
 	// リソース用のヒープの設定
 	D3D12_HEAP_PROPERTIES uploadHeapProperties{};
 	uploadHeapProperties.Type = D3D12_HEAP_TYPE_UPLOAD;	// UploadHeapを使う
@@ -236,7 +241,13 @@ Microsoft::WRL::ComPtr<ID3D12Resource> DirectXBase::CreateBufferResource(size_t 
 	D3D12_RESOURCE_DESC resourceDesc{};
 	// バッファリソース。テクスチャの場合はまた別の設定をする
 	resourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
-	resourceDesc.Width = sizeInBytes;	// リソースのサイズ。引数より代入
+
+
+	// resourceDesc.Width = sizeInBytes;	// リソースのサイズ。引数より代入
+	
+	resourceDesc.Width = alignedSize;	// リソースのサイズ。引数より代入
+
+	
 	// バッファの場合はこれらは1にする決まり
 	resourceDesc.Height = 1;
 	resourceDesc.DepthOrArraySize = 1;

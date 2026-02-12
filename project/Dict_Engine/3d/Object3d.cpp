@@ -41,6 +41,7 @@ void Object3d::Update()
 	
 	transformationMatrixData_->World = worldMatrix;
 	transformationMatrixData_->WVP = worldViewProjectionMatrix;
+	transformationMatrixData_->WorldInverseTranspose = Inverse(Transpose(worldMatrix));
 
 	
 }
@@ -95,6 +96,7 @@ void Object3d::CreateTransformationMatrixResource()
 	// 座標変換行列データの初期値を書き込む
 	transformationMatrixData_->World = MakeIdentity4x4();
 	transformationMatrixData_->WVP = MakeIdentity4x4();
+	transformationMatrixData_->WorldInverseTranspose = MakeIdentity4x4();
 
 }
 
