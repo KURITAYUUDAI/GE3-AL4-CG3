@@ -28,8 +28,6 @@ public:	// 外部入出力
 
 	void SetSceneRequest(const std::string& sceneRequest){ sceneRequest_ = sceneRequest; }
 
-	void SetSceneFactory(std::shared_ptr<AbstractSceneFactory> sceneFactory){ sceneFactory_ = sceneFactory; }
-
 private:	// シングルトンインスタンス
 
 	struct Deleter
@@ -55,7 +53,7 @@ private:
 	std::string sceneRequest_;
 
 	// シーンファクトリー
-	std::shared_ptr<AbstractSceneFactory> sceneFactory_;
+	std::unique_ptr<AbstractSceneFactory> sceneFactory_;
 
 	std::unique_ptr<BaseScene> currentScene_;
 
