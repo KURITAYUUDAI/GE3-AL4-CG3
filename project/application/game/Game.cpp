@@ -5,11 +5,6 @@ void Game::Initialize()
 {
 	Dict_Framework::Initialize();
 
-
-	sceneFactory_ = std::make_shared<SceneFactory>();
-
-	sceneManager_->SetSceneFactory(sceneFactory_);
-
 	// シーンマネージャーに最初のシーンをセット
 	sceneManager_->Initialize("TITLE");
 

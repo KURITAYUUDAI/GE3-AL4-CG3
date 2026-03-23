@@ -7,7 +7,7 @@
 #include "Model.h"
 #include "Camera.h"
 
-ParticleManager* ParticleManager::instance_ = nullptr;
+std::unique_ptr<ParticleManager, ParticleManager::Deleter> ParticleManager::instance_ = nullptr;
 
 void ParticleManager::Initialize(DirectXBase* dxBase)
 {
@@ -26,17 +26,14 @@ ParticleManager* ParticleManager::GetInstance()
 {
 	if (instance_ == nullptr)
 	{
-		instance_ = new ParticleManager;
+		instance_.reset(new ParticleManager);
 	}
-	return instance_;
+	return instance_.get();
 }
 
 void ParticleManager::Finalize()
 {
-
-
-	delete instance_;
-	instance_ = nullptr;
+	instance_.reset();
 }
 
 void ParticleManager::Update()

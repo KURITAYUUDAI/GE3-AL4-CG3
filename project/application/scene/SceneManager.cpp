@@ -15,6 +15,8 @@ SceneManager* SceneManager::GetInstance()
 
 void SceneManager::Initialize(const std::string& sceneName)
 {
+	sceneFactory_ = std::make_unique<SceneFactory>();
+
 	scene_ = sceneName;
 	sceneRequest_ = sceneName;
 	ChangeScene(sceneName);

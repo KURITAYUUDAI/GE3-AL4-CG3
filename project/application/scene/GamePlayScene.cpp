@@ -85,26 +85,26 @@ void GamePlayScene::Initialize()
 
 void GamePlayScene::Finalize()
 {
-	for (auto it = emitters_.begin(); it != emitters_.end(); ++it)
+	/*for (auto it = emitters_.begin(); it != emitters_.end(); ++it)
 	{
 		std::unique_ptr<ParticleEmitter> emitter = std::move(*it);
 		emitter.reset();
 
-	}
+	}*/
 	emitters_.clear();
 
-	for (auto it = object3ds_.begin(); it != object3ds_.end(); ++it)
+	/*for (auto it = object3ds_.begin(); it != object3ds_.end(); ++it)
 	{
 		std::unique_ptr<Object3d> object3d = std::move(*it);
 		object3d.reset();
-	}
+	}*/
 	object3ds_.clear();
 
-	for (auto it = sprites_.begin(); it != sprites_.end(); ++it)
+	/*for (auto it = sprites_.begin(); it != sprites_.end(); ++it)
 	{
 		std::unique_ptr<Sprite> sprite = std::move(*it);
 		sprite.reset();
-	}
+	}*/
 	sprites_.clear();
 
 

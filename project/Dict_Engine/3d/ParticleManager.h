@@ -2,6 +2,8 @@
 #include "DirectXBase.h"
 #include "myMath.h"
 
+#include <memory>
+
 class Model;
 
 class Camera;
@@ -115,7 +117,18 @@ public: // 外部入出力
 
 private:
 
-	static ParticleManager* instance_;
+	// unique_ptr が delete するために使用する構造体
+	struct Deleter
+	{
+		void operator()(ParticleManager* p) const
+		{
+			// クラス内部のスコープなので private なデストラクタを呼べる
+			delete p;
+		}
+	};
+
+	// unique_ptr の型定義に Deleter を入れることでdeleteが可能になる
+	static std::unique_ptr<ParticleManager, Deleter> instance_;
 
 	ParticleManager() = default;
 	~ParticleManager() = default;
