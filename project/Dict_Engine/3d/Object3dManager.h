@@ -39,24 +39,27 @@ private:
 
 	void CreateGraphicsPipelineState();
 
-private: 	// シングルトンインスタンス
-	// unique_ptr が delete するために使用する構造体
-	struct Deleter
+public:
+	// コンストラクタに渡すための鍵
+	class ConstructorKey
 	{
-		void operator()(Object3dManager* p) const
-		{
-			// クラス内部のスコープなので private なデストラクタを呼べる
-			delete p;
-		}
+	private:
+		ConstructorKey() = default;
+		friend class Object3dManager;
 	};
 
-	// unique_ptr の型定義に Deleter を入れることでdeleteが可能になる
-	static std::unique_ptr<Object3dManager, Deleter> instance_;
+	// PassKeyを受け取るコンストラクタ
+	explicit Object3dManager(ConstructorKey){}
 
-	Object3dManager() = default;
+private: 	// シングルトンインスタンス
+	
+	static std::unique_ptr<Object3dManager> instance_;
+	
 	~Object3dManager() = default;
 	Object3dManager(Object3dManager&) = delete;
 	Object3dManager& operator=(Object3dManager&) = delete;
+
+	friend struct std::default_delete<Object3dManager>;
 
 private:
 

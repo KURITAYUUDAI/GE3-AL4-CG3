@@ -1,13 +1,13 @@
 #include "Object3dManager.h"
 #include "Logger.h"
 
-std::unique_ptr<Object3dManager, Object3dManager::Deleter> Object3dManager::instance_ = nullptr;
+std::unique_ptr<Object3dManager> Object3dManager::instance_ = nullptr;
 
 Object3dManager* Object3dManager::GetInstance()
 {
 	if (instance_ == nullptr)
 	{
-		instance_.reset(new Object3dManager);
+		instance_ = std::make_unique<Object3dManager>(ConstructorKey());
 	}
 	return instance_.get();
 }

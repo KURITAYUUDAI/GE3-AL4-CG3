@@ -25,8 +25,5 @@ public:
 private:
 
 
-	//// シーンファクトリー
-	//std::shared_ptr<AbstractSceneFactory> sceneFactory_ = nullptr;
-
 };
 

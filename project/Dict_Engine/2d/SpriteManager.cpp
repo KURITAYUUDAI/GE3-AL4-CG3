@@ -1,13 +1,13 @@
 #include "SpriteManager.h"
 #include "Logger.h"
 
-std::unique_ptr<SpriteManager, SpriteManager::Deleter> SpriteManager::instance_ = nullptr;
+std::unique_ptr<SpriteManager> SpriteManager::instance_ = nullptr;
 
 SpriteManager* SpriteManager::GetInstance()
 {
 	if (instance_ == nullptr)
 	{
-		instance_.reset(new SpriteManager);
+		instance_ = std::make_unique<SpriteManager>(ConstructorKey());
 	}
 	return instance_.get();
 }

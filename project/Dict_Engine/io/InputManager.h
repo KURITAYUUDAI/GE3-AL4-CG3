@@ -39,24 +39,27 @@ public:
 	bool TriggerMouse(BYTE mouseButton);
 	LONG MouseWheel();
 
-private: 	// シングルトンインスタンス
-	// unique_ptr が delete するために使用する構造体
-	struct Deleter
+public:
+	// コンストラクタに渡すための鍵
+	class ConstructorKey 
 	{
-		void operator()(InputManager* p) const
-		{
-			// クラス内部のスコープなので private なデストラクタを呼べる
-			delete p;
-		}
+	private:
+		ConstructorKey() = default;
+		friend class InputManager;
 	};
 
-	// unique_ptr の型定義に Deleter を入れることでdeleteが可能になる
-	static std::unique_ptr<InputManager, Deleter> instance_;
+	// PassKeyを受け取るコンストラクタ
+	explicit InputManager(ConstructorKey){}
 
-	InputManager() = default;
+private: 	// シングルトンインスタンス
+	
+	static std::unique_ptr<InputManager> instance_;
+
 	~InputManager() = default;
 	InputManager(InputManager&) = delete;
 	InputManager& operator=(InputManager&) = delete;
+
+	friend struct std::default_delete<InputManager>;
 
 private:
 

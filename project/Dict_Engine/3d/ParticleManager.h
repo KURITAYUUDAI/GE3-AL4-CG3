@@ -115,25 +115,28 @@ public: // 外部入出力
 
 	const std::list<std::string> GetParticleGroupName();
 
-private:
-
-	// unique_ptr が delete するために使用する構造体
-	struct Deleter
+public:
+	// コンストラクタに渡すための鍵
+	class ConstructorKey
 	{
-		void operator()(ParticleManager* p) const
-		{
-			// クラス内部のスコープなので private なデストラクタを呼べる
-			delete p;
-		}
+	private:
+		ConstructorKey() = default;
+		friend class ParticleManager;
 	};
 
-	// unique_ptr の型定義に Deleter を入れることでdeleteが可能になる
-	static std::unique_ptr<ParticleManager, Deleter> instance_;
+	// PassKeyを受け取るコンストラクタ
+	explicit ParticleManager(ConstructorKey){}
 
-	ParticleManager() = default;
+private:
+
+	// unique_ptr の型定義に Deleter を入れることでdeleteが可能になる
+	static std::unique_ptr<ParticleManager> instance_;
+
 	~ParticleManager() = default;
 	ParticleManager(ParticleManager&) = delete;
 	ParticleManager& operator=(ParticleManager&) = delete;
+
+	friend struct std::default_delete<ParticleManager>;
 
 private:
 

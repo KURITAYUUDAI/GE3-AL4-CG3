@@ -1,13 +1,13 @@
 #include "ImGuiManager.h"
 #include "SrvManager.h"
 
-std::unique_ptr<ImGuiManager, ImGuiManager::Deleter> ImGuiManager::instance_ = nullptr;
+std::unique_ptr<ImGuiManager> ImGuiManager::instance_ = nullptr;
 
 ImGuiManager* ImGuiManager::GetInstance()
 {
 	if (instance_ == nullptr)
 	{
-		instance_.reset(new ImGuiManager());
+		instance_ = std::make_unique<ImGuiManager>(ConstructorKey());
 	}
 
 	return instance_.get();
