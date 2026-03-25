@@ -1,12 +1,12 @@
 #include "InputManager.h"
 
-std::unique_ptr<InputManager, InputManager::Deleter> InputManager::instance_ = nullptr;
+std::unique_ptr<InputManager> InputManager::instance_ = nullptr;
 
 InputManager* InputManager::GetInstance()
 {
 	if (instance_ == nullptr)
 	{
-		instance_.reset(new InputManager);
+		instance_ = std::make_unique<InputManager>(ConstructorKey());
 	}
 	return instance_.get();
 }

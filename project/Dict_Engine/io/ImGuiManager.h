@@ -32,25 +32,27 @@ public:
 	// 描画
 	void Draw();
 
-private:	// シングルトンインスタンス
-
-	// unique_ptr が delete するために使用する構造体
-	struct Deleter 
+public:
+	// コンストラクタに渡すための鍵
+	class ConstructorKey
 	{
-		void operator()(ImGuiManager* p) const 
-		{
-			// クラス内部のスコープなので private なデストラクタを呼べる
-			delete p;
-		}
+	private:
+		ConstructorKey() = default;
+		friend class ImGuiManager;
 	};
 
-	// unique_ptr の型定義に Deleter を入れることでdeleteが可能になる
-	static std::unique_ptr<ImGuiManager, Deleter> instance_;
+	// PassKeyを受け取るコンストラクタ
+	explicit ImGuiManager(ConstructorKey){}
 
-	ImGuiManager() = default;
+private:	// シングルトンインスタンス
+
+	static std::unique_ptr<ImGuiManager> instance_;
+
 	~ImGuiManager() = default;
 	ImGuiManager(ImGuiManager&) = delete;
 	ImGuiManager& operator=(ImGuiManager&) = delete;
+
+	friend struct std::default_delete<ImGuiManager>;
 
 private:
 

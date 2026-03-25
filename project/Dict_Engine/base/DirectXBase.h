@@ -21,6 +21,9 @@ using namespace DirectX;
 #include "WindowsAPI.h"
 #include "FixFPS.h"
 
+#include "externals/DirectXTex/d3dx12.h"
+#include <vector>
+
 class DirectXBase
 {
 public:
@@ -58,10 +61,11 @@ public:
 	ComPtr<ID3D12Resource> CreateTextureResource(const DirectX::TexMetadata& metadata);
 
 	// テクスチャをアップロード
-	void UploadTextureData(ID3D12Resource* texture, const DirectX::ScratchImage& mipImages);
+	Microsoft::WRL::ComPtr<ID3D12Resource> UploadTextureData(ID3D12Resource* texture, const DirectX::ScratchImage& mipImages,
+		ID3D12Device* device, ID3D12GraphicsCommandList* commandList);
 
-	
-
+	// テクスチャ読み込み後処理
+	void PostUploadTexture();
 
 
 private:	// 各機能の初期化関数
@@ -119,6 +123,7 @@ public: // ゲッター
 	
 	ID3D12DescriptorHeap* GetDsvDescriptorHeap(){ return dsvDescriptorHeap_.Get(); }
 
+	ID3D12Fence* GetFence(){return fence_.Get(); }
 	HANDLE GetFenceEvent() { return fenceEvent_; }
 
 	size_t GetSwapChainResourceNum(){ return swapChainResources_.size(); }

@@ -1,8 +1,7 @@
 #pragma once
 #include "DirectXBase.h"
 #include "myMath.h"
-
-class ModelBase;
+#include "ModelManager.h"
 
 // 3Dモデル
 class Model
@@ -43,7 +42,7 @@ public:
 
 public:
 
-	void Initialize(ModelBase* modelBase, const std::string& directoryPath, const std::string& filename);
+	void Initialize(const std::string& directoryPath, const std::string& filename);
 
 	void Update();
 
@@ -82,7 +81,7 @@ public:	// 外部入出力
 
 private:
 
-	ModelBase* modelBase_;
+	ModelManager* modelManager_ = nullptr;
 
 	// Objファイルのデータ
 	ModelData modelData_;

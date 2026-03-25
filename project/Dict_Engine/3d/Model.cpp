@@ -1,5 +1,4 @@
 #include "Model.h"
-#include "ModelBase.h"
 //　ファイルやディレクトリに関する操作を行うライブラリ
 #include <filesystem>
 // ファイルに書いたり読んだりするライブラリ
@@ -7,9 +6,10 @@
 #include "TextureManager.h"
 #include "SrvManager.h"
 
-void Model::Initialize(ModelBase* modelBase, const std::string& directoryPath, const std::string& filename)
+void Model::Initialize(const std::string& directoryPath, const std::string& filename)
 {
-	modelBase_ = modelBase;
+	// スプライトの共通処理を受け取る
+	modelManager_ = ModelManager::GetInstance();
 
 	LoadObjFile(directoryPath, filename);
 
@@ -35,10 +35,10 @@ void Model::Draw(const UINT& instanceCount)
 
 	instanceCount_ = instanceCount;
 
-	modelBase_->GetDxBase()->GetCommandList()->
+	modelManager_->GetDxBase()->GetCommandList()->
 		IASetVertexBuffers(0, 1, &vertexBufferView_);	// VBVを設定
 	// マテリアルのCBufferの場所を設定
-	modelBase_->GetDxBase()->GetCommandList()->
+	modelManager_->GetDxBase()->GetCommandList()->
 		SetGraphicsRootConstantBufferView(0, materialResource_->GetGPUVirtualAddress());
 
 	/*TextureManager::GetInstance()->GetSRVHandleGPU(modelData_.material.textureFilePath);*/
@@ -47,7 +47,7 @@ void Model::Draw(const UINT& instanceCount)
 		2, modelData_.material.textureIndex);
 
 	// 描画！（DrawCall/ドローコール）。
-	modelBase_->GetDxBase()->GetCommandList()->DrawInstanced(UINT(modelData_.vertices.size()), instanceCount_, 0, 0);
+	modelManager_->GetDxBase()->GetCommandList()->DrawInstanced(UINT(modelData_.vertices.size()), instanceCount_, 0, 0);
 
 }
 
@@ -257,7 +257,7 @@ void Model::ResetTexture()
 void Model::CreateVertexResource()
 {
 	// VertexResourceを作成する。
-	vertexResource_ = modelBase_->GetDxBase()->
+	vertexResource_ = modelManager_->GetDxBase()->
 		CreateBufferResource(sizeof(VertexData) * modelData_.vertices.size());
 
 	assert(vertexResource_ && "CreateBufferResource failed");
@@ -279,7 +279,7 @@ void Model::CreateVertexResource()
 void Model::CreateMaterialResource()
 {
 	// マテリアルリソースを作成する。
-	materialResource_ = modelBase_->GetDxBase()->CreateBufferResource(sizeof(Material));
+	materialResource_ = modelManager_->GetDxBase()->CreateBufferResource(sizeof(Material));
 	// MaterialResourceにデータを書き込むためのアドレスを取得してMaterialDataに割り当てる
 	materialResource_->Map(0, nullptr, reinterpret_cast<void**>(&materialData_));
 

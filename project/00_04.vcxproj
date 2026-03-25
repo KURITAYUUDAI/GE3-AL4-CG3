@@ -185,7 +185,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="Dict_Engine\3d\Object3dManager.cpp" />
     <ClCompile Include="Dict_Engine\3d\Object3d.cpp" />
     <ClCompile Include="Dict_Engine\3d\Model.cpp" />
-    <ClCompile Include="Dict_Engine\3d\ModelBase.cpp" />
     <ClCompile Include="Dict_Engine\3d\ModelManager.cpp" />
     <ClCompile Include="Dict_Engine\base\SrvManager.cpp" />
     <ClCompile Include="Dict_Engine\random\SeedManager.cpp" />
@@ -242,7 +241,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Dict_Engine\3d\Object3dManager.h" />
     <ClInclude Include="Dict_Engine\3d\Object3d.h" />
     <ClInclude Include="Dict_Engine\3d\Model.h" />
-    <ClInclude Include="Dict_Engine\3d\ModelBase.h" />
     <ClInclude Include="Dict_Engine\3d\ModelManager.h" />
     <ClInclude Include="Dict_Engine\base\SrvManager.h" />
     <ClInclude Include="Dict_Engine\random\SeedManager.h" />

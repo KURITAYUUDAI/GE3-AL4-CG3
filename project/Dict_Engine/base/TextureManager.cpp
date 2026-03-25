@@ -64,7 +64,11 @@ void TextureManager::LoadTexture(const std::string& filePath)
 	textureData.srvHandleGPU = SrvManager::GetInstance()->GetGPUDescriptorHandle(textureData.srvIndex);
 
 
-	dxBase_->UploadTextureData(textureData.resource.Get(), mipImages);
+	Microsoft::WRL::ComPtr<ID3D12Resource> intermediateResource = dxBase_->UploadTextureData(textureData.resource.Get(), mipImages
+		,dxBase_->GetDevice(), dxBase_->GetCommandList());
+
+	dxBase_->PostUploadTexture();
+	intermediateResource->Release();
 
 	// SRV を生成
 	SrvManager::GetInstance()->CreateSRVforTexture2D(

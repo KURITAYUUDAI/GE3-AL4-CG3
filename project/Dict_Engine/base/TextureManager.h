@@ -108,6 +108,4 @@ private:	// 静的変数
 	std::unordered_map<std::string, TextureData> textureDatas_;
 
 	DirectXBase* dxBase_;
-
-
 };

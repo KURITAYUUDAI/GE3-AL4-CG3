@@ -123,9 +123,6 @@
     <ClCompile Include="Dict_Engine\3d\Model.cpp">
       <Filter>ソース ファイル\engine\3d</Filter>
     </ClCompile>
-    <ClCompile Include="Dict_Engine\3d\ModelBase.cpp">
-      <Filter>ソース ファイル\engine\3d</Filter>
-    </ClCompile>
     <ClCompile Include="Dict_Engine\3d\ModelManager.cpp">
       <Filter>ソース ファイル\engine\3d</Filter>
     </ClCompile>
@@ -229,9 +226,6 @@
       <Filter>ヘッダー ファイル\engine\3d</Filter>
     </ClInclude>
     <ClInclude Include="Dict_Engine\3d\Model.h">
-      <Filter>ヘッダー ファイル\engine\3d</Filter>
-    </ClInclude>
-    <ClInclude Include="Dict_Engine\3d\ModelBase.h">
       <Filter>ヘッダー ファイル\engine\3d</Filter>
     </ClInclude>
     <ClInclude Include="Dict_Engine\3d\ModelManager.h">
