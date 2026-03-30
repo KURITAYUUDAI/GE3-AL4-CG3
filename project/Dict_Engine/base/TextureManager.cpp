@@ -3,7 +3,7 @@
 #include "StringUtility.h"
 #include "SrvManager.h"
 
-std::unique_ptr<TextureManager, TextureManager::Deleter> TextureManager::instance_ = nullptr;
+std::unique_ptr<TextureManager> TextureManager::instance_ = nullptr;
 
 // ImGuiで0番を使用するため、1番から使用
 uint32_t TextureManager::kSRVIndexTop = 1;
@@ -20,8 +20,9 @@ TextureManager* TextureManager::GetInstance()
 {
 	if (instance_ == nullptr)
 	{
-		instance_.reset(new TextureManager);
+		instance_ = std::make_unique<TextureManager>(ConstructorKey());
 	}
+
 	return instance_.get();
 }
 
