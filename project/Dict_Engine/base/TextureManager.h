@@ -77,25 +77,28 @@ private:
 	//	std::vector<TextureData> dates;
 	//};
 
-private:	// シングルトン化
 
-	// unique_ptr が delete するために使用する構造体
-	struct Deleter
+public:
+	// コンストラクタに渡すための鍵
+	class ConstructorKey
 	{
-		void operator()(TextureManager* p) const
-		{
-			// クラス内部のスコープなので private なデストラクタを呼べる
-			delete p;
-		}
+	private:
+		ConstructorKey() = default;
+		friend class TextureManager;
 	};
 
-	// unique_ptr の型定義に Deleter を入れることでdeleteが可能になる
-	static std::unique_ptr<TextureManager, Deleter> instance_;
+	// PassKeyを受け取るコンストラクタ
+	explicit TextureManager(ConstructorKey){}
 
-	TextureManager() = default;
+private:	// シングルトン化
+
+	static std::unique_ptr<TextureManager> instance_;
+
 	~TextureManager() = default;
 	TextureManager(TextureManager&) = delete;
 	TextureManager& operator=(TextureManager&) = delete;
+
+	friend struct std::default_delete<TextureManager>;
 
 private:	// 静的関数
 
