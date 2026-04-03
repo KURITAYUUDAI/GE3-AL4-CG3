@@ -69,7 +69,7 @@ void TextureManager::LoadTexture(const std::string& filePath)
 		,dxBase_->GetDevice(), dxBase_->GetCommandList());
 
 	dxBase_->PostUploadTexture();
-	intermediateResource->Release();
+	intermediateResource.Reset();
 
 	// SRV を生成
 	SrvManager::GetInstance()->CreateSRVforTexture2D(
