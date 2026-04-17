@@ -11,6 +11,17 @@
 using namespace Logger;
 using namespace StringUtility;
 
+std::unique_ptr<DirectXBase> DirectXBase::instance_ = nullptr;
+
+DirectXBase* DirectXBase::GetInstance()
+{
+	if (instance_ == nullptr)
+	{
+		instance_ = std::make_unique<DirectXBase>(ConstructorKey());
+	}
+	return instance_.get();
+}
+
 void DirectXBase::Initialize(WindowsAPI* winAPI)
 {
 	// NULL検出
@@ -70,6 +81,8 @@ void DirectXBase::Finalize()
 	CloseHandle(fenceEvent_);
 
 	fixFPS_.reset();
+
+	instance_.reset();
 }
 
 void DirectXBase::PreDraw()

@@ -25,16 +25,15 @@ void Dict_Framework::Initialize()
 	winAPI_ = std::make_unique<WindowsAPI>();
 	winAPI_->Initialize();
 
-	dxBase_ = std::make_unique<DirectXBase>();
 	dxBase_->Initialize(winAPI_.get());
 
-	srvManager_->Initialize(dxBase_.get());
+	srvManager_->Initialize(dxBase_);
 
-	imguiManager_->Initialize(winAPI_.get(), dxBase_.get());
+	imguiManager_->Initialize(winAPI_.get(), dxBase_);
 
-	textureManager_->SetDxBase(dxBase_.get());
+	textureManager_->SetDxBase(dxBase_);
 
-	ModelManager::GetInstance()->Initialize(dxBase_.get());
+	ModelManager::GetInstance()->Initialize(dxBase_);
 	SeedManager::GetInstance()->Initialize();
 	SoundManager::GetInstance()->InitializeMF();
 	SoundManager::GetInstance()->Initialize();
@@ -73,13 +72,13 @@ void Dict_Framework::Initialize()
 
 
 	// スプライトの共通部を初期化
-	spriteManager_->Initialize(dxBase_.get());
+	spriteManager_->Initialize(dxBase_);
 
 	// 3Dオブジェクトの共通部を初期化
-	object3dManager_->Initialize(dxBase_.get());
+	object3dManager_->Initialize(dxBase_);
 
 	// パーティクルマネージャーを初期化
-	particleManager_->Initialize(dxBase_.get());
+	particleManager_->Initialize(dxBase_);
 
 	// インプットマネージャーを初期化
 	inputManager_->Initialize(winAPI_.get());
@@ -92,6 +91,9 @@ void Dict_Framework::Finalize()
 	object3dManager_->Finalize();
 	// ポインタ解放
 	spriteManager_->Finalize();
+
+	// PSOManager終了処理
+	PSOManager::GetInstance()->Finalize();
 
 	// SoundManager終了処理
 	SoundManager::GetInstance()->Finalize();
@@ -122,7 +124,6 @@ void Dict_Framework::Finalize()
 
 	// DirectXBase終了処理
 	dxBase_->Finalize();
-	dxBase_.reset();
 
 	// WindowsAPI終了処理
 	winAPI_->Finalize();

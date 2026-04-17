@@ -11,12 +11,7 @@
 
 class ImGuiManager
 {
-public:
 
-	// シングルトンインスタンスの取得
-	static ImGuiManager* GetInstance();
-	// 終了
-	void Finalize();
 
 public:
 
@@ -33,6 +28,12 @@ public:
 	void Draw();
 
 public:
+
+	// シングルトンインスタンスの取得
+	static ImGuiManager* GetInstance();
+	// 終了
+	void Finalize();
+
 	// コンストラクタに渡すための鍵
 	class ConstructorKey
 	{

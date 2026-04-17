@@ -46,12 +46,29 @@ void TextureManager::LoadTexture(const std::string& filePath)
 	DirectX::ScratchImage image{};
 	std::wstring filePathW = StringUtility::ConvertString(filePath);
 	// DirectX::WIC_FLAGS_FORCE_SRGB : sRGB空間で作られたモノとして読む。
-	HRESULT hr = DirectX::LoadFromWICFile(filePathW.c_str(), DirectX::WIC_FLAGS_FORCE_SRGB, nullptr, image);
+	HRESULT hr;
+	
+	if (filePathW.ends_with(L".dds"))	// .ddsで終わって居たらddsとみなす。より安全な方法はいくらでもあるので余裕があれば対応するといい
+	{
+		hr = DirectX::LoadFromDDSFile(filePathW.c_str(), DirectX::DDS_FLAGS_NONE, nullptr, image);
+	}
+	else
+	{
+		hr = DirectX::LoadFromWICFile(filePathW.c_str(), DirectX::WIC_FLAGS_FORCE_SRGB, nullptr, image);
+	}
 	assert(SUCCEEDED(hr));
 
 	// ミップマップの作成　（MipMap : 元画像より小さなテクスチャ群）
 	DirectX::ScratchImage mipImages{};
-	hr = DirectX::GenerateMipMaps(image.GetImages(), image.GetImageCount(), image.GetMetadata(), DirectX::TEX_FILTER_SRGB, 0, mipImages);
+	if (DirectX::IsCompressed(image.GetMetadata().format))	// 圧縮フォーマット化どうかを調べる
+	{
+		mipImages = std::move(image); // 圧縮フォーマットならそのまま使うのでmoveする
+	}
+	else
+	{
+		hr = DirectX::GenerateMipMaps(image.GetImages(), image.GetImageCount(), image.GetMetadata(), DirectX::TEX_FILTER_SRGB, 4, mipImages);
+	}
+
 	assert(SUCCEEDED(hr));
 	
 	// テクスチャデータを追加して書き込む
@@ -76,8 +93,7 @@ void TextureManager::LoadTexture(const std::string& filePath)
 
 		textureData.srvIndex,
 		textureData.resource.Get(),
-		textureData.metadata.format,
-		UINT(textureData.metadata.mipLevels)
+		textureData.metadata
 	);
 }
 

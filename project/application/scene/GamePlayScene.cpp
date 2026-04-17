@@ -12,7 +12,7 @@ void GamePlayScene::Initialize()
 	textureManager_->LoadTexture("resources/uvChecker.png");
 	textureManager_->LoadTexture("resources/monsterBall.png");
 
-
+	textureManager_->LoadTexture("resources/rostock_laage_airport_4k.dds");
 
 	int textureIndex = 0;
 	const char* textureOptions[] = { "Checker", "monsterBall" };

@@ -1,17 +1,27 @@
 #include "SceneManager.h"
 #include "GamePlayScene.h"
 
-std::unique_ptr<SceneManager, SceneManager::Deleter> SceneManager::instance_ = nullptr;
+std::unique_ptr<SceneManager> SceneManager::instance_ = nullptr;
 
 SceneManager* SceneManager::GetInstance()
 {
 	if (instance_ == nullptr)
 	{
-		instance_.reset(new SceneManager);
+		instance_ = std::make_unique<SceneManager>(ConstructorKey());
 	}
 	return instance_.get();
 }
 
+void SceneManager::Finalize()
+{
+	if (currentScene_)
+	{
+		currentScene_->Finalize();
+		currentScene_.reset();
+	}
+
+	instance_.reset();
+}
 
 void SceneManager::Initialize(const std::string& sceneName)
 {
@@ -42,17 +52,6 @@ void SceneManager::Draw()
 	{
 		currentScene_->Draw();
 	}
-}
-
-void SceneManager::Finalize()
-{
-	if (currentScene_)
-	{
-		currentScene_->Finalize();
-		currentScene_.reset();
-	}
-
-	instance_.reset();
 }
 
 void SceneManager::ChangeScene(const std::string& sceneName)

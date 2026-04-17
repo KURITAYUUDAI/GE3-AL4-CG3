@@ -10,13 +10,6 @@ public:
 	template <class T> using ComPtr = Microsoft::WRL::ComPtr<T>;
 
 public:
-  
-	// シングルトンインスタンスの取得
-	static SrvManager* GetInstance();
-	// 終了
-	void Finalize();
-
-public:
 
 
 	// 初期化
@@ -29,7 +22,7 @@ public:
 	uint32_t Allocate();
 
 	// SRV生成（テクスチャ用）
-	void CreateSRVforTexture2D(uint32_t srvIndex, ID3D12Resource* pResource, DXGI_FORMAT Format, UINT MipLevels);
+	void CreateSRVforTexture2D(uint32_t srvIndex, ID3D12Resource* pResource, DirectX::TexMetadata metadata);
 	// SRV生成（Structured Buffer用）
 	void CreateSRVforStructuredBuffer(uint32_t srvIndex, ID3D12Resource* pResource, 
 		UINT numElements, UINT structureByteStride);
@@ -47,25 +40,34 @@ public:
 	// 最大SRV数（最大テクスチャ枚数）
 	static const uint32_t kMaxSRVCount;
 
-private: 	// シングルトンインスタンス
+public:
 
-	// unique_ptr が delete するために使用する構造体
-	struct Deleter
+	// シングルトンインスタンスの取得
+	static SrvManager* GetInstance();
+	// 終了
+	void Finalize();
+
+	// コンストラクタに渡すための鍵
+	class ConstructorKey
 	{
-		void operator()(SrvManager* p) const
-		{
-			// クラス内部のスコープなので private なデストラクタを呼べる
-			delete p;
-		}
+	private:
+		ConstructorKey() = default;
+		friend class SrvManager;
 	};
 
-	// unique_ptr の型定義に Deleter を入れることでdeleteが可能になる
-	static std::unique_ptr<SrvManager, Deleter> instance_;
+	// PassKeyを受け取るコンストラクタ
+	explicit SrvManager(ConstructorKey){}
 
-	SrvManager() = default;
+private:
+
+	// unique_ptr の型定義に Deleter を入れることでdeleteが可能になる
+	static std::unique_ptr<SrvManager> instance_;
+
 	~SrvManager() = default;
 	SrvManager(SrvManager&) = delete;
 	SrvManager& operator=(SrvManager&) = delete;
+
+	friend struct std::default_delete<SrvManager>;
 
 
 private:

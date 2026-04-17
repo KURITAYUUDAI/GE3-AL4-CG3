@@ -17,6 +17,83 @@ void Object3dManager::Initialize(DirectXBase* dxBase)
 
 	dxBase_ = dxBase;
 
+	// PSOの設定
+	PSOManager::PSOConfig config{};
+	config.vertexShaderPath = L"Resources/Shaders/Object3dVS.hlsl";
+	config.pixelShaderPath = L"Resources/Shaders/Object3dPS.hlsl";
+
+	// RootSignatureの設定
+	config.rootSignatureGenerator = []()
+	{
+		std::vector<D3D12_ROOT_PARAMETER> rootParameters;
+		std::vector<D3D12_STATIC_SAMPLER_DESC> staticSamplerDescs;
+		D3D12_STATIC_SAMPLER_DESC sampler{};
+		sampler = PSOManager::GetInstance()->GetDefaultStaticSamplerDesc();
+
+		staticSamplerDescs.push_back(sampler);
+		D3D12_DESCRIPTOR_RANGE descriptorRange[1]{};
+		descriptorRange[0].BaseShaderRegister = 0; // t0
+		descriptorRange[0].NumDescriptors = 1;
+		descriptorRange[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+		descriptorRange[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+
+		rootParameters.resize(5);
+
+		// Enum定義 (可読性のため)
+		enum {
+			kMaterial, kTransform, kTexture, DirLight, PointLight, SpotLight, Count, kCamera
+		};
+
+		rootParameters[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;	// CBVを使う
+		rootParameters[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;	// PixelShaderで使う
+		rootParameters[0].Descriptor.ShaderRegister = 0;	// レジスタ番号0とバインド
+
+		rootParameters[1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;	// CBVを使う
+		rootParameters[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;	// VertexShaderで使う
+		rootParameters[1].Descriptor.ShaderRegister = 0;	// レジスタ番号0とバインド
+
+		rootParameters[2].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE; // DescriptorTableを使う
+		rootParameters[2].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL; // PixelShaderで使う
+		rootParameters[2].DescriptorTable.pDescriptorRanges = descriptorRange;	// Tableの中身の配列を指定
+		rootParameters[2].DescriptorTable.NumDescriptorRanges = _countof(descriptorRange);	// Tableで利用する数
+
+		rootParameters[3].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;	// CBVを使う
+		rootParameters[3].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;	// PixelShaderで使う
+		rootParameters[3].Descriptor.ShaderRegister = 1;	// レジスタ番号1を使う
+
+		rootParameters[4].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;	// CBVを使う
+		rootParameters[4].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;	// PixelShaderで使う
+		rootParameters[4].Descriptor.ShaderRegister = 2;	// レジスタ番号2を使う
+
+
+		// シリアライズ
+		D3D12_ROOT_SIGNATURE_DESC descriptionRootSignature{};
+		descriptionRootSignature.Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
+		descriptionRootSignature.pParameters = rootParameters.data();
+		descriptionRootSignature.NumParameters = (UINT)rootParameters.size();
+		descriptionRootSignature.pStaticSamplers = staticSamplerDescs.data();
+		descriptionRootSignature.NumStaticSamplers = (UINT)staticSamplerDescs.size();
+
+
+		Microsoft::WRL::ComPtr<ID3DBlob> signatureBlob;
+		Microsoft::WRL::ComPtr<ID3DBlob> errorBlob;
+
+		HRESULT hr = D3D12SerializeRootSignature(&descriptionRootSignature, D3D_ROOT_SIGNATURE_VERSION_1, &signatureBlob, &errorBlob);
+		if (FAILED(hr)) {
+			Logger::Log(reinterpret_cast<char*>(errorBlob->GetBufferPointer()));
+			assert(false);
+		}
+
+		Microsoft::WRL::ComPtr<ID3D12RootSignature> rootSignature;
+		hr = DirectXBase::GetInstance()->GetDevice()->CreateRootSignature(0, signatureBlob->GetBufferPointer(), signatureBlob->GetBufferSize(), IID_PPV_ARGS(&rootSignature));
+		assert(SUCCEEDED(hr));
+
+
+
+		return rootSignature;
+	};
+
+
 	CreateGraphicsPipelineState();
 }
 
@@ -30,6 +107,8 @@ void Object3dManager::Draw()
 
 void Object3dManager::Finalize()
 {
+
+
 	instance_.reset();
 }
 

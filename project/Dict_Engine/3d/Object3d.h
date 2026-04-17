@@ -2,6 +2,7 @@
 #include "myMath.h"
 #include "DirectXBase.h"
 #include "Object3dManager.h"
+#include "PSOManager.h"
 
 class Model;
 
@@ -43,6 +44,10 @@ public:	// メンバ関数
 public:	// 外部入出力
 
 	// セッター
+	void SetPsoName(const std::wstring& psoName){ psoName_ = psoName; }
+	void SetBlendMode(const PSOManager::BlendMode& blendMode){ blendMode_ = blendMode; }
+	void SetFillMode(const PSOManager::FillMode& fillMode){ fillMode_ = fillMode; }
+
 	void SetModel(const std::string& filePath);
 	void SetCamera(Camera* camera){ camera_ = camera; }
 
@@ -57,6 +62,10 @@ public:	// 外部入出力
 	void SetLightIntensity(const float& intensity){ directionalLightData->intensity = intensity; }
 
 	// ゲッター
+	const std::wstring& GetPsoName() const { return psoName_; }
+	const PSOManager::BlendMode& GetBlendMode() const { return blendMode_; }
+	const PSOManager::FillMode& GetFillMode() const { return fillMode_; }
+
 	const Vector3& GetScale() const { return transform_.scale; }
 	const Vector3& GetRotate() const { return transform_.rotate; }
 	const Vector3& GetTranslate() const { return transform_.translate; }
@@ -81,6 +90,10 @@ private: // 静的関数
 	void CreateCameraResource();
 
 private:
+
+	std::wstring psoName_;
+	PSOManager::BlendMode blendMode_ = PSOManager::BlendMode::Normal;
+	PSOManager::FillMode fillMode_ = PSOManager::FillMode::kSolid;
 
 	// 3Dオブジェクト共通処理
 	Object3dManager* object3dManager_ = nullptr;

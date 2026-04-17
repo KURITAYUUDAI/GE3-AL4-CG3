@@ -69,6 +69,9 @@ private:
 	// 球作成
 	void CreateSphere();
 
+	// 箱作成
+	void CreateSkyBox();
+
 public:	// 外部入出力
 
 	// セッター
