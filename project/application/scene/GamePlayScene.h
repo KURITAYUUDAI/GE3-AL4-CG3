@@ -1,6 +1,7 @@
 #pragma once
 #include "BaseScene.h"
 #include "Framework.h"
+#include "SkyBox.h"
 
 class GamePlayScene : public BaseScene
 {
@@ -56,5 +57,7 @@ private:
 	bool isDebugCamera_ = false;
 
 	Vector2 mousePosition_ = { 0.0f, 0.0f };
+
+	SkyBox* skyBox_ = nullptr;
 };
 

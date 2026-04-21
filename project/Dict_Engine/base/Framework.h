@@ -125,7 +125,7 @@ protected:
 	std::unique_ptr<WindowsAPI> winAPI_ = nullptr;
 
 	// DirectXBaseのポインタ
-	std::unique_ptr<DirectXBase> dxBase_ = nullptr;
+	DirectXBase* dxBase_ = DirectXBase::GetInstance();
 
 	// スプライトの共通処理を生成
 	SpriteManager* spriteManager_ = SpriteManager::GetInstance();

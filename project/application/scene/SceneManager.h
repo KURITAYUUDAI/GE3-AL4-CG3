@@ -7,12 +7,6 @@ class SceneManager
 {
 
 public:
-	// シングルトンインスタンスの取得
-	static SceneManager* GetInstance();
-	// 終了
-	void Finalize();
-
-public:
 
 	void Initialize(const std::string& sceneName);
 
@@ -28,23 +22,35 @@ public:	// 外部入出力
 
 	void SetSceneRequest(const std::string& sceneRequest){ sceneRequest_ = sceneRequest; }
 
-private:	// シングルトンインスタンス
+public:
 
-	struct Deleter
+	// シングルトンインスタンスの取得
+	static SceneManager* GetInstance();
+	// 終了
+	void Finalize();
+
+	// コンストラクタに渡すための鍵
+	class ConstructorKey
 	{
-		void operator()(SceneManager* p) const
-		{
-			// クラス内部のスコープなのでprivateなデストラクタを呼べる
-			delete p;
-		}
+	private:
+		ConstructorKey() = default;
+		friend class SceneManager;
 	};
 
-	static std::unique_ptr<SceneManager, Deleter> instance_;
+	// PassKeyを受け取るコンストラクタ
+	explicit SceneManager(ConstructorKey){}
 
-	SceneManager() = default;
+private:
+
+	// unique_ptr の型定義に Deleter を入れることでdeleteが可能になる
+	static std::unique_ptr<SceneManager> instance_;
+
 	~SceneManager() = default;
 	SceneManager(SceneManager&) = delete;
 	SceneManager& operator=(SceneManager&) = delete;
+
+	friend struct std::default_delete<SceneManager>;
+
 
 private:
 

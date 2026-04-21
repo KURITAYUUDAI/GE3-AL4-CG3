@@ -19,11 +19,7 @@ public:
 	// namespace省略
 	template <class T> using ComPtr = Microsoft::WRL::ComPtr<T>;
 
-public: 
-	// シングルトンインスタンスの取得
-	static InputManager* GetInstance();
-	// 終了
-	void Finalize();
+
 
 public:
 
@@ -40,6 +36,11 @@ public:
 	LONG MouseWheel();
 
 public:
+	// シングルトンインスタンスの取得
+	static InputManager* GetInstance();
+	// 終了
+	void Finalize();
+
 	// コンストラクタに渡すための鍵
 	class ConstructorKey 
 	{

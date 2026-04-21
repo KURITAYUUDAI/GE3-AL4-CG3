@@ -75,12 +75,7 @@ public:
 		uint32_t instancingSrvIndex;								// インスタンス用SRVのインデックス
 	};
 
-public:
 
-	// シングルトンインスタンスの取得
-	static ParticleManager* GetInstance();
-	// 終了
-	void Finalize();
 
 public:
 
@@ -116,6 +111,12 @@ public: // 外部入出力
 	const std::list<std::string> GetParticleGroupName();
 
 public:
+
+	// シングルトンインスタンスの取得
+	static ParticleManager* GetInstance();
+	// 終了
+	void Finalize();
+	
 	// コンストラクタに渡すための鍵
 	class ConstructorKey
 	{

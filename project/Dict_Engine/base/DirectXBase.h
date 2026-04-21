@@ -31,13 +31,39 @@ public:
 	template <class T> using ComPtr = Microsoft::WRL::ComPtr<T>;
 
 public:
+	// シングルトンインスタンスの取得
+	static DirectXBase* GetInstance();
+	// 終了
+	void Finalize();
+
+	// コンストラクタに渡すための鍵
+	class ConstructorKey
+	{
+	private:
+		ConstructorKey() = default;
+		friend class DirectXBase;
+	};
+
+	// PassKeyを受け取るコンストラクタ
+	explicit DirectXBase(ConstructorKey){}
+
+private: 	// シングルトンインスタンス
+
+	static std::unique_ptr<DirectXBase> instance_;
+
+	~DirectXBase() = default;
+	DirectXBase(DirectXBase&) = delete;
+	DirectXBase& operator=(DirectXBase&) = delete;
+
+	friend struct std::default_delete<DirectXBase>;
+
+
+public:
 
 	// 初期化
 	void Initialize(WindowsAPI* winAPI);
 	// 更新
 	void Update();
-	//終了
-	void Finalize();
 
 	// 描画前処理
 	void PreDraw();

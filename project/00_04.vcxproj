@@ -84,7 +84,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <TreatWarningAsError>true</TreatWarningAsError>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)Dict_Engine\2d;$(ProjectDir)Dict_Engine\3d;$(ProjectDir)Dict_Engine\audio;$(ProjectDir)Dict_Engine\base;$(ProjectDir)Dict_Engine\io;$(ProjectDir)Dict_Engine\math;$(ProjectDir)Dict_Engine\scene;$(ProjectDir)Dict_Engine\random;$(ProjectDir)application\game;$(ProjectDir)application\scene</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)Dict_Engine\2d;$(ProjectDir)Dict_Engine\3d;$(ProjectDir)Dict_Engine\audio;$(ProjectDir)Dict_Engine\base;$(ProjectDir)Dict_Engine\io;$(ProjectDir)Dict_Engine\math;$(ProjectDir)Dict_Engine\scene;$(ProjectDir)Dict_Engine\random;$(ProjectDir)application\game;$(ProjectDir)application\scene;$(ProjectDir)application\object</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -192,8 +192,16 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="Dict_Engine\io\SoundManager.cpp" />
     <ClCompile Include="application\scene\SceneFactory.cpp" />
     <ClCompile Include="application\scene\TitleScene.cpp" />
+    <ClCompile Include="Dict_Engine\base\PSOManager.cpp" />
+    <ClCompile Include="application\object\SkyBox.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <FxCompile Include="resources\shaders\SkyBox.PS.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="resources\shaders\SkyBox.VS.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </FxCompile>
     <FxCompile Include="resources\shaders\Object3d.PS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
@@ -253,6 +261,8 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="application\scene\SceneManager.h" />
     <ClInclude Include="application\scene\SceneFactory.h" />
     <ClInclude Include="application\scene\TitleScene.h" />
+    <ClInclude Include="Dict_Engine\base\PSOManager.h" />
+    <ClInclude Include="application\object\SkyBox.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="externals\DirectXTex\DirectXTex_Desktop_2022_Win10.vcxproj">
@@ -260,6 +270,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <None Include="resources\shaders\SkyBox.hlsli" />
     <None Include="resources\shaders\Object3d.hlsli" />
     <None Include="resources\shaders\Particle.hlsli" />
   </ItemGroup>

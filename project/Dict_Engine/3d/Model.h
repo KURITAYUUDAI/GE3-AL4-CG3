@@ -42,7 +42,9 @@ public:
 
 public:
 
-	void Initialize(const std::string& directoryPath, const std::string& filename);
+	void Initialize();
+
+	void CreateResources();
 
 	void Update();
 
@@ -51,6 +53,12 @@ public:
 	void Finalize();
 
 	static MaterialData LoadMaterialTemplateFile(const std::string& directoryPath, const std::string& filename, const std::string& mtlname);
+
+	// 球作成
+	void CreateSphere();
+
+	// 箱作成
+	void CreateBox();
 
 	void LoadObjFile(const std::string& directoryPath, const std::string& filename);
 
@@ -66,14 +74,13 @@ private:
 	// MaterialResourceを作成
 	void CreateMaterialResource();
 
-	// 球作成
-	void CreateSphere();
-
+	
 public:	// 外部入出力
 
 	// セッター
 	void SetInstanceCount(const UINT& instanceCount) { instanceCount_ = instanceCount; }
 	void SetEnableLighting(const int32_t& enableLighting) { materialData_->enableLighting = enableLighting; }
+	void SetModelData(const ModelData& modelData) { modelData_ = modelData; }
 
 	// ゲッター
 	const UINT& GetInstanceCount() const { return instanceCount_; }
@@ -83,7 +90,7 @@ private:
 
 	ModelManager* modelManager_ = nullptr;
 
-	// Objファイルのデータ
+	// モデルのデータ
 	ModelData modelData_;
 
 	// バッファリソース

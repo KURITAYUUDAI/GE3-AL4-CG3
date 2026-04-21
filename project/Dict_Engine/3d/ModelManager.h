@@ -15,13 +15,8 @@ class ModelManager
 {
 
 public:
-
-	// シングルトンインスタンスの取得
-	static ModelManager* GetInstance();
 	// 初期化
 	void Initialize(DirectXBase* dxBase);
-	// 終了
-	void Finalize();
 
 	/// <summary>
 	/// モデルファイルの読み込み
@@ -39,6 +34,11 @@ public:
 	void CreateSphere(const std::string& materialPath);
 
 public:
+	// シングルトンインスタンスの取得
+	static ModelManager* GetInstance();
+	// 終了
+	void Finalize();
+
 	// コンストラクタに渡すための鍵
 	class ConstructorKey
 	{

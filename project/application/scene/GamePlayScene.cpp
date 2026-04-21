@@ -12,7 +12,7 @@ void GamePlayScene::Initialize()
 	textureManager_->LoadTexture("resources/uvChecker.png");
 	textureManager_->LoadTexture("resources/monsterBall.png");
 
-
+	textureManager_->LoadTexture("resources/rostock_laage_airport_4k.dds");
 
 	int textureIndex = 0;
 	const char* textureOptions[] = { "Checker", "monsterBall" };
@@ -76,6 +76,10 @@ void GamePlayScene::Initialize()
 		emitters_.push_back(std::move(emitter));
 	}
 
+	skyBox_ = new SkyBox();
+	skyBox_->Initialize();
+	skyBox_->SetCamera(camera_.get());
+
 	// シーン初期化終わり
 
 	SoundManager::GetInstance()->SoundLoadFile("Resources/Alarm01.wav");
@@ -99,6 +103,9 @@ void GamePlayScene::Finalize()
 		object3d.reset();
 	}*/
 	object3ds_.clear();
+
+	skyBox_->Finalize();
+	delete skyBox_;
 
 	/*for (auto it = sprites_.begin(); it != sprites_.end(); ++it)
 	{
@@ -512,6 +519,8 @@ void GamePlayScene::Update()
 
 	particleManager_->Update();
 
+	skyBox_->Update();
+
 	//// ImGuiの内部コマンドを生成する
 	//ImGui::Render();
 
@@ -523,12 +532,12 @@ void GamePlayScene::Draw()
 
 	if (isDrawObject3d_)
 	{
-		object3dManager_->DrawingCommon();
-
 		for (size_t i = 0; i < object3ds_.size(); i++)
 		{
 			object3ds_[i]->Draw();
 		}
+
+		skyBox_->Draw();
 	}
 
 

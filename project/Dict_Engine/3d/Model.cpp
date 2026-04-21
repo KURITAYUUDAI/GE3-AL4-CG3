@@ -6,24 +6,17 @@
 #include "TextureManager.h"
 #include "SrvManager.h"
 
-void Model::Initialize(const std::string& directoryPath, const std::string& filename)
+void Model::Initialize()
 {
 	// スプライトの共通処理を受け取る
 	modelManager_ = ModelManager::GetInstance();
+}
 
-	LoadObjFile(directoryPath, filename);
-
+void Model::CreateResources()
+{
 	CreateVertexResource();
 
 	CreateMaterialResource();
-
-	// .objの参照しているテクスチャファイル読み込み
-	TextureManager::GetInstance()->LoadTexture(modelData_.material.textureFilePath);
-	// 読み込んだテクスチャの番号を取得
-	modelData_.material.textureIndex =
-		TextureManager::GetInstance()->GetTextureIndexByFilePath(modelData_.material.textureFilePath);
-	materialTextureIndex_ = modelData_.material.textureIndex;
-
 }
 
 void Model::Draw(const UINT& instanceCount)
@@ -35,10 +28,10 @@ void Model::Draw(const UINT& instanceCount)
 
 	instanceCount_ = instanceCount;
 
-	modelManager_->GetDxBase()->GetCommandList()->
+	DirectXBase::GetInstance()->GetCommandList()->
 		IASetVertexBuffers(0, 1, &vertexBufferView_);	// VBVを設定
 	// マテリアルのCBufferの場所を設定
-	modelManager_->GetDxBase()->GetCommandList()->
+	DirectXBase::GetInstance()->GetCommandList()->
 		SetGraphicsRootConstantBufferView(0, materialResource_->GetGPUVirtualAddress());
 
 	/*TextureManager::GetInstance()->GetSRVHandleGPU(modelData_.material.textureFilePath);*/
@@ -47,7 +40,7 @@ void Model::Draw(const UINT& instanceCount)
 		2, modelData_.material.textureIndex);
 
 	// 描画！（DrawCall/ドローコール）。
-	modelManager_->GetDxBase()->GetCommandList()->DrawInstanced(UINT(modelData_.vertices.size()), instanceCount_, 0, 0);
+	DirectXBase::GetInstance()->GetCommandList()->DrawInstanced(UINT(modelData_.vertices.size()), instanceCount_, 0, 0);
 
 }
 
@@ -236,6 +229,13 @@ void Model::LoadObjFile(const std::string& directoryPath, const std::string& fil
 	materialTextureFilePath_ = mesh.material.textureFilePath;
 
 	modelData_ = mesh;
+
+	// .objの参照しているテクスチャファイル読み込み
+	TextureManager::GetInstance()->LoadTexture(modelData_.material.textureFilePath);
+	// 読み込んだテクスチャの番号を取得
+	modelData_.material.textureIndex =
+		TextureManager::GetInstance()->GetTextureIndexByFilePath(modelData_.material.textureFilePath);
+	materialTextureIndex_ = modelData_.material.textureIndex;
 }
 
 void Model::SetTexture(const std::string& directoryFilePath)
@@ -447,3 +447,4 @@ void Model::CreateSphere()
 	//materialDataSphere->uvTransform = MakeIdentity4x4();
 
 }
+
