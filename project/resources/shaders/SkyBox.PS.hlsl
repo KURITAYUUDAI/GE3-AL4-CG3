@@ -17,20 +17,6 @@ struct Material
 };
 ConstantBuffer<Material> gMaterial : register(b0);
 
-struct DirectionalLight
-{
-    float4 color;     //!< ライトの色
-    float3 direction; //!< ライトの方向
-    float intensity;  //!< 輝度
-};
-ConstantBuffer<DirectionalLight> gDirectionalLight : register(b1);
-
-struct Camera
-{
-    float3 worldPosition;
-};
-ConstantBuffer<Camera> gCamera : register(b2);
-
 struct PixelShaderOutput
 {
     float4 color : SV_TARGET0;
