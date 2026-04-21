@@ -60,6 +60,7 @@ public:
 		D3D12_CULL_MODE cullMode = D3D12_CULL_MODE_BACK;
 		bool depthEnable = true;
 		D3D12_DEPTH_WRITE_MASK depthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
+		D3D12_COMPARISON_FUNC depthFunc = D3D12_COMPARISON_FUNC_LESS;
 	};
 
 	enum class BlendMode { None, Normal, Add, Subtract, Multiply, Screen };
@@ -73,7 +74,7 @@ public:
 
 public:
 
-	void Initialize(DirectXBase* dxBase);
+	void Initialize();
 
 
 public: // 外部入出力

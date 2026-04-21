@@ -23,9 +23,9 @@ void PSOManager::Finalize()
 
 }
 
-void PSOManager::Initialize(DirectXBase* dxBase)
+void PSOManager::Initialize()
 {
-	dxBase_ = dxBase;
+	dxBase_ = DirectXBase::GetInstance();
 
 	psoDatas_.clear();
 	rootSignatureDatas_.clear();
@@ -98,7 +98,7 @@ void PSOManager::CreatePipeLineState(const std::string& name, BlendMode blend, F
 	D3D12_DEPTH_STENCIL_DESC depthStencilDesc{};
 	depthStencilDesc.DepthEnable = psoConfig.depthEnable;
 	depthStencilDesc.DepthEnable = true;							// Depthの機能を有効化する
-	depthStencilDesc.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO;	// 書き込まない
+	depthStencilDesc.DepthWriteMask = psoConfig.depthWriteMask;	// 書き込まない
 	depthStencilDesc.DepthFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;	// 比較関数はLessEqual。近ければ描画される
 
 	// 7. PSOを構築
@@ -135,7 +135,7 @@ void PSOManager::CreatePipeLineState(const std::string& name, BlendMode blend, F
 	// 8. PSOを生成
 	PSOData psoData;
 	psoData.rootSignature = rootSignature;
-	HRESULT hr = dxBase_->GetDevice()->CreateGraphicsPipelineState(&graphicsPipelineStateDesc,
+	HRESULT hr = DirectXBase::GetInstance()->GetDevice()->CreateGraphicsPipelineState(&graphicsPipelineStateDesc,
 		IID_PPV_ARGS(&psoData.pipelineState));
 	assert(SUCCEEDED(hr) && "Failed to create graphics pipeline state");
 	
@@ -205,9 +205,9 @@ void PSOManager::CompileShader(const std::string& name, Microsoft::WRL::ComPtr<I
 	Microsoft::WRL::ComPtr<IDxcBlob> vertexShaderBlob;
 	Microsoft::WRL::ComPtr<IDxcBlob> pixelShaderBlob;
 
-	vertexShaderBlob = dxBase_->CompileShader(psoConfigs_[name].vertexShaderPath, L"vs_6_0");
-	pixelShaderBlob = dxBase_->CompileShader(psoConfigs_[name].pixelShaderPath, L"ps_6_0");
-
+	vertexShaderBlob = DirectXBase::GetInstance()->CompileShader(psoConfigs_[name].vertexShaderPath, L"vs_6_0");
+	pixelShaderBlob = DirectXBase::GetInstance()->CompileShader(psoConfigs_[name].pixelShaderPath, L"ps_6_0");
+	
 	assert(vertexShaderBlob && pixelShaderBlob);
 
 	shaderDatas_[name] = { vertexShaderBlob, pixelShaderBlob };

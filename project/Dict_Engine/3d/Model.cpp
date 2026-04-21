@@ -6,24 +6,17 @@
 #include "TextureManager.h"
 #include "SrvManager.h"
 
-void Model::Initialize(const std::string& directoryPath, const std::string& filename)
+void Model::Initialize()
 {
 	// スプライトの共通処理を受け取る
 	modelManager_ = ModelManager::GetInstance();
+}
 
-	LoadObjFile(directoryPath, filename);
-
+void Model::CreateResources()
+{
 	CreateVertexResource();
 
 	CreateMaterialResource();
-
-	// .objの参照しているテクスチャファイル読み込み
-	TextureManager::GetInstance()->LoadTexture(modelData_.material.textureFilePath);
-	// 読み込んだテクスチャの番号を取得
-	modelData_.material.textureIndex =
-		TextureManager::GetInstance()->GetTextureIndexByFilePath(modelData_.material.textureFilePath);
-	materialTextureIndex_ = modelData_.material.textureIndex;
-
 }
 
 void Model::Draw(const UINT& instanceCount)
@@ -35,10 +28,10 @@ void Model::Draw(const UINT& instanceCount)
 
 	instanceCount_ = instanceCount;
 
-	modelManager_->GetDxBase()->GetCommandList()->
+	DirectXBase::GetInstance()->GetCommandList()->
 		IASetVertexBuffers(0, 1, &vertexBufferView_);	// VBVを設定
 	// マテリアルのCBufferの場所を設定
-	modelManager_->GetDxBase()->GetCommandList()->
+	DirectXBase::GetInstance()->GetCommandList()->
 		SetGraphicsRootConstantBufferView(0, materialResource_->GetGPUVirtualAddress());
 
 	/*TextureManager::GetInstance()->GetSRVHandleGPU(modelData_.material.textureFilePath);*/
@@ -47,7 +40,7 @@ void Model::Draw(const UINT& instanceCount)
 		2, modelData_.material.textureIndex);
 
 	// 描画！（DrawCall/ドローコール）。
-	modelManager_->GetDxBase()->GetCommandList()->DrawInstanced(UINT(modelData_.vertices.size()), instanceCount_, 0, 0);
+	DirectXBase::GetInstance()->GetCommandList()->DrawInstanced(UINT(modelData_.vertices.size()), instanceCount_, 0, 0);
 
 }
 
@@ -236,6 +229,13 @@ void Model::LoadObjFile(const std::string& directoryPath, const std::string& fil
 	materialTextureFilePath_ = mesh.material.textureFilePath;
 
 	modelData_ = mesh;
+
+	// .objの参照しているテクスチャファイル読み込み
+	TextureManager::GetInstance()->LoadTexture(modelData_.material.textureFilePath);
+	// 読み込んだテクスチャの番号を取得
+	modelData_.material.textureIndex =
+		TextureManager::GetInstance()->GetTextureIndexByFilePath(modelData_.material.textureFilePath);
+	materialTextureIndex_ = modelData_.material.textureIndex;
 }
 
 void Model::SetTexture(const std::string& directoryFilePath)
@@ -448,77 +448,3 @@ void Model::CreateSphere()
 
 }
 
-void Model::CreateSkyBox()
-{
-	// 1. 中で必要となる変数の宣言
-	ModelData mesh; //メッシュデータ
-	std::vector<Vector4> positions; // 位置
-	std::vector<Vector3> normals; // 法線
-	std::vector<Vector2> texcoords; // テクスチャ座標
-
-	
-
-	std::vector<VertexData> vertexData;
-	vertexData.resize(24);
-
-	// CubeのVaretxを作っておく(xが横、yが縦、zが奥行)
-	std::vector<Vector4> cubeVeretx =
-	{
-		//　正面から見て右側、XZ平面
-		{  1.0f,  1.0f,  1.0f, 1.0f }, // 0
-		{  1.0f,  1.0f, -1.0f, 1.0f }, // 1
-		{  1.0f, -1.0f,  1.0f, 1.0f }, // 2
-		{  1.0f, -1.0f, -1.0f, 1.0f }, // 3
-
-		// 正面から見て左側、XZ平面
-		{ -1.0f,  1.0f, -1.0f, 1.0f }, // 4
-		{ -1.0f,  1.0f,  1.0f, 1.0f }, // 5
-		{ -1.0f, -1.0f, -1.0f, 1.0f }, // 6
-		{ -1.0f, -1.0f,  1.0f, 1.0f }, // 7
-	};
-
-	// 右面。描画インデックスは[0,1,2][2,1,3]で内側を向く
-	vertexData[0].position = { 1.0f,  1.0f,  1.0f, 1.0f };
-	vertexData[1].position = { 1.0f,  1.0f, -1.0f, 1.0f };
-	vertexData[2].position = { 1.0f, -1.0f,  1.0f, 1.0f };
-	vertexData[3].position = { 1.0f, -1.0f, -1.0f, 1.0f };
-
-	// 左面。描画インデックスは[4,5,6][6,5,7]
-	vertexData[4].position = { -1.0f,  1.0f, -1.0f, 1.0f };
-	vertexData[5].position = { -1.0f,  1.0f,  1.0f, 1.0f };
-	vertexData[6].position = { -1.0f, -1.0f, -1.0f, 1.0f };
-	vertexData[7].position = { -1.0f, -1.0f,  1.0f, 1.0f };
-
-	// 前面。描画インデックスは[8,9,10][10,9,11]
-	vertexData[8].position = { -1.0f,  1.0f, 1.0f, 1.0f };
-	vertexData[9].position = {  1.0f,  1.0f, 1.0f, 1.0f };
-	vertexData[10].position = { -1.0f, -1.0f, 1.0f, 1.0f };
-	vertexData[11].position = {  1.0f, -1.0f, 1.0f, 1.0f };
-
-	// 後面。描画インデックスは[12,13,14][14,13,15]
-	vertexData[12].position = {  1.0f,  1.0f, -1.0f, 1.0f };
-	vertexData[13].position = { -1.0f,  1.0f, -1.0f, 1.0f };
-	vertexData[14].position = {  1.0f, -1.0f, -1.0f, 1.0f };
-	vertexData[15].position = { -1.0f, -1.0f, -1.0f, 1.0f };
-
-	// 上面。描画インデックスは[16,17,18][18,17,19]
-	vertexData[16].position = { -1.0f, 1.0f, -1.0f, 1.0f };
-	vertexData[17].position = {  1.0f, 1.0f, -1.0f, 1.0f };
-	vertexData[18].position = { -1.0f, 1.0f, 1.0f, 1.0f };
-	vertexData[19].position = {  1.0f, 1.0f, 1.0f, 1.0f };
-
-	// 下面。描画インデックスは[20,21,22][22,21,23]
-	vertexData[20].position = { -1.0f, -1.0f, -1.0f, 1.0f };
-	vertexData[21].position = {  1.0f, -1.0f, -1.0f, 1.0f };
-	vertexData[22].position = { -1.0f, -1.0f,  1.0f, 1.0f };
-	vertexData[23].position = {  1.0f, -1.0f,  1.0f, 1.0f };
-
-	mesh.vertices = vertexData;
-
-	
-
-	materialTextureFilePath_ = mesh.material.textureFilePath;
-
-	modelData_ = mesh;
-
-}

@@ -19,13 +19,14 @@ void Object3d::Initialize()
 
 	// Transform変数を作る
 	transform_ = { {1.0f, 1.0f, 1.0f}, {0.0f, pi, 0.0f}, {0.0f, 0.0f, 0.0f} };
+
+	
+	psoName_ = Object3dManager::GetInstance()->GetDefaultPsoName();
 	
 }
 
 void Object3d::Update()
 {
-	/*transform_.rotate.y += (5.0f / 180.0f) * pi;*/
-
 	Matrix4x4 worldMatrix = MakeAffineMatrix(transform_.scale, transform_.rotate, transform_.translate);
 	Matrix4x4 worldViewProjectionMatrix;
 	if (camera_)
@@ -41,20 +42,28 @@ void Object3d::Update()
 	
 	transformationMatrixData_->World = worldMatrix;
 	transformationMatrixData_->WVP = worldViewProjectionMatrix;
-
-	
 }
 
 void Object3d::Draw()
 {
+	auto psoSet = PSOManager::GetInstance()->GetPSOData(psoName_, blendMode_, fillMode_);
+
+	// パイプラインステートとルートシグネチャをセット
+	DirectXBase::GetInstance()->GetCommandList()->SetPipelineState(psoSet.pipelineState.Get());
+	DirectXBase::GetInstance()->GetCommandList()->SetGraphicsRootSignature(psoSet.rootSignature.Get());
+
+	// 形状を設定。PS0に設定しているものとはまた別。同じものを設定すると考えておけば良い
+	DirectXBase::GetInstance()->GetCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+
 	// wvp用のCBufferの場所を設定
-	object3dManager_->GetDxBase()->GetCommandList()->SetGraphicsRootConstantBufferView(1, transformationMatrixResource_->GetGPUVirtualAddress());
+	DirectXBase::GetInstance()->GetCommandList()->SetGraphicsRootConstantBufferView(1, transformationMatrixResource_->GetGPUVirtualAddress());
 
 	// 平行光源用のCBufferをバインド（rootParameter[3] = b1）
-	object3dManager_->GetDxBase()->GetCommandList()->SetGraphicsRootConstantBufferView(3, DirectionalLightResource_->GetGPUVirtualAddress());	
+	DirectXBase::GetInstance()->GetCommandList()->SetGraphicsRootConstantBufferView(3, DirectionalLightResource_->GetGPUVirtualAddress());
 	
 	// カメラ用のCBufferをバインド（rootParameter[4] = b2）
-	object3dManager_->GetDxBase()->GetCommandList()->SetGraphicsRootConstantBufferView(4, cameraResource_->GetGPUVirtualAddress());
+	DirectXBase::GetInstance()->GetCommandList()->SetGraphicsRootConstantBufferView(4, cameraResource_->GetGPUVirtualAddress());
 
 	// 3Dモデルが割り当てられていれば描画する
 	if (model_)

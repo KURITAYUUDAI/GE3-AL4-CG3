@@ -7,6 +7,7 @@
 
 #include "Logger.h"
 #include "StringUtility.h"
+#include <filesystem>
 
 using namespace Logger;
 using namespace StringUtility;
@@ -188,6 +189,16 @@ Microsoft::WRL::ComPtr<IDxcBlob> DirectXBase::CompileShader(const std::wstring& 
 	HRESULT hr;
 	hr = dxcUtils_->LoadFile(filePath.c_str(), nullptr, &shaderSource);
 	// 読めなかったら止める
+	if (FAILED(hr)) {
+		// HRESULTのエラーコードをログに出す
+		Log(ConvertString(std::format(L"Failed to LoadFile. Path: {}, ErrorCode: {:x}\n", filePath, (uint32_t)hr)));
+
+		// ファイルが存在するかチェックする（デバッグ用）
+		if (!std::filesystem::exists(filePath)) {
+			Log("Error: Shader file does not exist at the specified path.\n");
+		}
+		assert(false);
+	}
 	assert(SUCCEEDED(hr));
 	// 読み込んだファイルの内容を設定する
 	DxcBuffer shaderSourceBuffer;

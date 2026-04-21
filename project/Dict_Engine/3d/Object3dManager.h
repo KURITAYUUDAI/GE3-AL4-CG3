@@ -50,6 +50,8 @@ public:	// 外部入出力
 	void SetDefaultCamera(Camera* camera){ defaultCamera_ = camera; }
 
 	// ゲッター
+	const std::string& GetDefaultPsoName() const { return psoName_; }
+
 	DirectXBase* GetDxBase() const { return dxBase_; }
 	ID3D12RootSignature* GetRootSignature() { return rootSignature_.Get(); }
 	ID3D12PipelineState* GetGraphicsPipeLineState(){ return graphicsPipeLineState_.Get(); }
@@ -63,7 +65,7 @@ private:
 
 private:
 
-	std::wstring psoName_ = L"Object3dDefault";
+	std::string psoName_ = "Object3dDefault";
 	PSOManager::BlendMode blendMode_ = PSOManager::BlendMode::Normal;
 	PSOManager::FillMode fillMode_ = PSOManager::FillMode::kSolid;
 

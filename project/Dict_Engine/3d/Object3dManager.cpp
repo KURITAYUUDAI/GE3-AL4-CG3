@@ -19,8 +19,8 @@ void Object3dManager::Initialize(DirectXBase* dxBase)
 
 	// PSOの設定
 	PSOManager::PSOConfig config{};
-	config.vertexShaderPath = L"Resources/Shaders/Object3dVS.hlsl";
-	config.pixelShaderPath = L"Resources/Shaders/Object3dPS.hlsl";
+	config.vertexShaderPath = L"resources/shaders/Object3d.VS.hlsl";
+	config.pixelShaderPath = L"resources/shaders/Object3d.PS.hlsl";
 
 	// RootSignatureの設定
 	config.rootSignatureGenerator = []()
@@ -66,8 +66,11 @@ void Object3dManager::Initialize(DirectXBase* dxBase)
 		rootParameters[4].Descriptor.ShaderRegister = 2;	// レジスタ番号2を使う
 
 
+
+
+
 		// シリアライズ
-		D3D12_ROOT_SIGNATURE_DESC descriptionRootSignature{};
+		static D3D12_ROOT_SIGNATURE_DESC descriptionRootSignature{};
 		descriptionRootSignature.Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
 		descriptionRootSignature.pParameters = rootParameters.data();
 		descriptionRootSignature.NumParameters = (UINT)rootParameters.size();
@@ -93,8 +96,26 @@ void Object3dManager::Initialize(DirectXBase* dxBase)
 		return rootSignature;
 	};
 
+	config.inputLayoutGenerator = []()
+	{
+		return std::vector<D3D12_INPUT_ELEMENT_DESC>
+		{
+			{ "POSITION", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+			{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+			{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+		};
+	};
 
-	CreateGraphicsPipelineState();
+	// 深度設定
+	config.depthEnable = true;
+	config.depthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
+
+	PSOManager::GetInstance()->RegisterPSOConfig(psoName_, config);
+
+	// rootSignature_ = PSOManager::GetInstance()->GetPSOData(psoName_, blendMode_, fillMode_).rootSignature;
+	// graphicsPipeLineState_ = PSOManager::GetInstance()->GetPSOData(psoName_, blendMode_, fillMode_).pipelineState;
+
+	/*CreateGraphicsPipelineState();*/
 }
 
 void Object3dManager::Update()
@@ -115,11 +136,11 @@ void Object3dManager::Finalize()
 void Object3dManager::DrawingCommon()
 {
 	// RootSignatureを設定。PSOに設定しているけど別途設定が必要
-	dxBase_->GetCommandList()->SetGraphicsRootSignature(rootSignature_.Get());
-	dxBase_->GetCommandList()->SetPipelineState(graphicsPipeLineState_.Get());	// PS0を設定
+	DirectXBase::GetInstance()->GetCommandList()->SetGraphicsRootSignature(rootSignature_.Get());
+	DirectXBase::GetInstance()->GetCommandList()->SetPipelineState(graphicsPipeLineState_.Get());	// PS0を設定
 
 	// 形状を設定。PS0に設定しているものとはまた別。同じものを設定すると考えておけば良い
-	dxBase_->GetCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	DirectXBase::GetInstance()->GetCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 }
 

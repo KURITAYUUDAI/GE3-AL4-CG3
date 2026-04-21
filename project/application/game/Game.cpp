@@ -37,7 +37,7 @@ void Game::Update()
 void Game::Draw()
 {
 	// 描画の処理
-	dxBase_->PreDraw();
+	DirectXBase::GetInstance()->PreDraw();
 
 	srvManager_->PreDraw();
 

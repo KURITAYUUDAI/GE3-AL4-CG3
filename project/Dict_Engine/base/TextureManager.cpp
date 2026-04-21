@@ -75,17 +75,17 @@ void TextureManager::LoadTexture(const std::string& filePath)
 	TextureData& textureData = textureDatas_[filePath];
 
 	textureData.metadata = mipImages.GetMetadata();
-	textureData.resource = dxBase_->CreateTextureResource(textureData.metadata);
+	textureData.resource = DirectXBase::GetInstance()->CreateTextureResource(textureData.metadata);
 
 	textureData.srvIndex = SrvManager::GetInstance()->Allocate();
 	textureData.srvHandleCPU = SrvManager::GetInstance()->GetCPUDescriptorHandle(textureData.srvIndex);
 	textureData.srvHandleGPU = SrvManager::GetInstance()->GetGPUDescriptorHandle(textureData.srvIndex);
 
 
-	Microsoft::WRL::ComPtr<ID3D12Resource> intermediateResource = dxBase_->UploadTextureData(textureData.resource.Get(), mipImages
-		,dxBase_->GetDevice(), dxBase_->GetCommandList());
+	Microsoft::WRL::ComPtr<ID3D12Resource> intermediateResource = DirectXBase::GetInstance()->UploadTextureData(textureData.resource.Get(), mipImages
+		, DirectXBase::GetInstance()->GetDevice(), DirectXBase::GetInstance()->GetCommandList());
 
-	dxBase_->PostUploadTexture();
+	DirectXBase::GetInstance()->PostUploadTexture();
 	intermediateResource.Reset();
 
 	// SRV を生成

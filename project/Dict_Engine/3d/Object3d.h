@@ -37,6 +37,8 @@ public:	// メンバ関数
 
 	void Update();
 
+	void DrawingCommon();
+
 	void Draw();
 
 	void Finalize();
@@ -44,16 +46,18 @@ public:	// メンバ関数
 public:	// 外部入出力
 
 	// セッター
-	void SetPsoName(const std::wstring& psoName){ psoName_ = psoName; }
+	void SetPsoName(const std::string& psoName){ psoName_ = psoName; }
 	void SetBlendMode(const PSOManager::BlendMode& blendMode){ blendMode_ = blendMode; }
 	void SetFillMode(const PSOManager::FillMode& fillMode){ fillMode_ = fillMode; }
 
 	void SetModel(const std::string& filePath);
+	void SetModel(Model* model){ model_ = model; }
 	void SetCamera(Camera* camera){ camera_ = camera; }
 
 	void SetScale(const Vector3& scale){ transform_.scale = scale; }
 	void SetRotate(const Vector3& rotate){ transform_.rotate = rotate; }
 	void SetTranslate(const Vector3& translate){ transform_.translate = translate; }
+	void SetTransform(const Transform& transform){ transform_ = transform; }
 
 	void SetEnableLighting(const int32_t& enableLighting);
 
@@ -62,13 +66,14 @@ public:	// 外部入出力
 	void SetLightIntensity(const float& intensity){ directionalLightData->intensity = intensity; }
 
 	// ゲッター
-	const std::wstring& GetPsoName() const { return psoName_; }
+	const std::string& GetPsoName() const { return psoName_; }
 	const PSOManager::BlendMode& GetBlendMode() const { return blendMode_; }
 	const PSOManager::FillMode& GetFillMode() const { return fillMode_; }
 
 	const Vector3& GetScale() const { return transform_.scale; }
 	const Vector3& GetRotate() const { return transform_.rotate; }
 	const Vector3& GetTranslate() const { return transform_.translate; }
+	const Transform& GetTransform() const { return transform_; }
 
 	const int32_t& GetEnableLighting() const { return enableLighting_; }
 
@@ -77,6 +82,7 @@ public:	// 外部入出力
 	const float& GetLightIntensity() const { return directionalLightData->intensity; }
 
 	const Vector3& GetCameraWorldPosition() const { return cameraData_->worldPosition; }
+	Model* GetModel() const { return model_; }
 
 private: // 静的関数
 
@@ -91,7 +97,7 @@ private: // 静的関数
 
 private:
 
-	std::wstring psoName_;
+	std::string psoName_;
 	PSOManager::BlendMode blendMode_ = PSOManager::BlendMode::Normal;
 	PSOManager::FillMode fillMode_ = PSOManager::FillMode::kSolid;
 
