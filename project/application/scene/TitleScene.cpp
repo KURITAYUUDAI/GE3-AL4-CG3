@@ -1,10 +1,9 @@
 #include "TitleScene.h"
 #include "SceneManager.h"
+#include "LightManager.h"
 
 void TitleScene::Initialize()
 {
-
-
 	camera_ = std::make_unique<Camera>();
 	camera_->Initialize();
 
@@ -27,6 +26,8 @@ void TitleScene::Initialize()
 	object3dManager_->SetDefaultCamera(camera_.get());
 	particleManager_->SetDefaultCamera(camera_.get());
 
+	LightManager::GetInstance()->Initialize(camera_.get());
+	LightManager::GetInstance()->SetCameraWorldPosition(camera_->GetTranslate());
 
 
 	for (size_t i = 0; i < 1; i++)
@@ -111,6 +112,8 @@ void TitleScene::Finalize()
 
 	camera_->Finalize();
 	camera_.reset();
+
+	LightManager::GetInstance()->Finalize();
 }
 
 void TitleScene::Update()
@@ -157,27 +160,27 @@ void TitleScene::Update()
 	ImGui::Begin("LightSetting");
 
 	int32_t enableLighting = object3ds_[0]->GetEnableLighting();
-	Vector4 directionLightColor = object3ds_[0]->GetLightColor();
-	Vector3 directionLightDirection = object3ds_[0]->GetLightDirection();
-	float directionLightIntensity = object3ds_[0]->GetLightIntensity();
+	Vector4 directionLightColor = LightManager::GetInstance()->GetDirectionalLightColor();
+	Vector3 directionLightDirection = LightManager::GetInstance()->GetDirectionalLightDirection();
+	float directionLightIntensity = LightManager::GetInstance()->GetDirectionalLightIntensity();
 	if (ImGui::Checkbox("EnableLighting", (bool*)&enableLighting))
 	{
 		object3ds_[0]->SetEnableLighting(enableLighting);
 	}
 	if (ImGui::ColorEdit4("LightColor", &directionLightColor.x))
 	{
-		object3ds_[0]->SetLightColor(directionLightColor);
+		LightManager::GetInstance()->SetDirectionalLightColor(directionLightColor);
 	}
 	if (ImGui::DragFloat3("LightDirection", &directionLightDirection.x, 0.01f))
 	{
-		object3ds_[0]->SetLightDirection(Normalize(directionLightDirection));
+		LightManager::GetInstance()->SetDirectionalLightDirection(Normalize(directionLightDirection));
 	}
 	if (ImGui::DragFloat("LightIntensity", &directionLightIntensity, 0.01f))
 	{
-		object3ds_[0]->SetLightIntensity(directionLightIntensity);
+		LightManager::GetInstance()->SetDirectionalLightIntensity(directionLightIntensity);
 	}
 
-	Vector3 cameraPos = object3ds_[0]->GetCameraWorldPosition();
+	Vector3 cameraPos = LightManager::GetInstance()->GetCameraWorldPosition();
 	ImGui::InputFloat3("CameraData", &cameraPos.x, "%.3f", ImGuiInputTextFlags_ReadOnly);
 
 	ImGui::End();

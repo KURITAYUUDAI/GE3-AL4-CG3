@@ -19,18 +19,6 @@ public:
 		Matrix4x4 World;
 	};
 
-	struct DirectionalLight
-	{
-		Vector4 color;		//!< ライトの色
-		Vector3 direction;	//!< ライトの方向
-		float intensity;	//!< 輝度
-	};
-
-	struct CameraForGPU
-	{
-		Vector3 worldPosition;
-	};
-
 public:	// メンバ関数
 	
 	void Initialize();
@@ -61,10 +49,6 @@ public:	// 外部入出力
 
 	void SetEnableLighting(const int32_t& enableLighting);
 
-	void SetLightColor(const Vector4& color){ directionalLightData->color = color; }
-	void SetLightDirection(const Vector3& direction){ directionalLightData->direction = direction; }
-	void SetLightIntensity(const float& intensity){ directionalLightData->intensity = intensity; }
-
 	// ゲッター
 	const std::string& GetPsoName() const { return psoName_; }
 	const PSOManager::BlendMode& GetBlendMode() const { return blendMode_; }
@@ -76,24 +60,13 @@ public:	// 外部入出力
 	const Transform& GetTransform() const { return transform_; }
 
 	const int32_t& GetEnableLighting() const { return enableLighting_; }
-
-	const Vector4& GetLightColor() const { return directionalLightData->color; }
-	const Vector3& GetLightDirection() const { return directionalLightData->direction; }
-	const float& GetLightIntensity() const { return directionalLightData->intensity; }
-
-	const Vector3& GetCameraWorldPosition() const { return cameraData_->worldPosition; }
+	
 	Model* GetModel() const { return model_; }
 
 private: // 静的関数
 
 	// TransformationMatrixResourceを作成
 	void CreateTransformationMatrixResource();
-
-	// DirectionalLightResourceを作成
-	void CreateDirectionalLightResource();
-
-	// カメラ用リソースを作成
-	void CreateCameraResource();
 
 private:
 
@@ -115,16 +88,6 @@ private:
 	// バッファリソース内のデータを指すポインタ
 	TransformationMatrix* transformationMatrixData_ = nullptr;
 
-	// 平行光源用のリソースを作成
-	Microsoft::WRL::ComPtr<ID3D12Resource> DirectionalLightResource_ = nullptr;
-	// バッファリソース内のデータを指すポインタ
-	DirectionalLight* directionalLightData = nullptr;
-
-	// カメラ用リソース
-	Microsoft::WRL::ComPtr<ID3D12Resource> cameraResource_ = nullptr;
-	// バッファリソース内のデータを指すポインタ
-	CameraForGPU* cameraData_ = nullptr;
-	
 	// トランスフォーム
 	Transform transform_;
 
