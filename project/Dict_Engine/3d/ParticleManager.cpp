@@ -5,6 +5,7 @@
 #include "SeedManager.h"
 #include "ModelManager.h"
 #include "Model.h"
+#include "CameraManager.h"
 #include "Camera.h"
 
 std::unique_ptr<ParticleManager> ParticleManager::instance_ = nullptr;
@@ -38,7 +39,7 @@ void ParticleManager::Finalize()
 
 void ParticleManager::Update()
 {
-	viewProjectionMatrix_ = defaultCamera_->GetViewProjectionMatrix();
+	viewProjectionMatrix_ = CameraManager::GetInstance()->GetActiveCamera()->GetViewProjectionMatrix();
 
 	for (auto& particleGroup : particleGroups_)
 	{
@@ -71,14 +72,14 @@ void ParticleManager::Update()
 
 			Matrix4x4 worldMatrix;
 
-			worldMatrix = defaultCamera_->GetBillboardWorldMatrix(
+			worldMatrix = CameraManager::GetInstance()->GetActiveCamera()->GetBillboardWorldMatrix(
 					particle.transform.scale,
 					particle.transform.translate);
 
 			if (particleGroup.second.instanceNum < particleGroup.second.maxInstanceNum)
 			{
 				Matrix4x4 worldViewProjectionMatrix;
-				if (defaultCamera_)
+				/*if (defaultCamera_)
 				{
 					const Matrix4x4& viewProjectionMatrix = defaultCamera_->GetViewProjectionMatrix();
 					worldViewProjectionMatrix = Multiply(worldMatrix, viewProjectionMatrix);
@@ -86,7 +87,10 @@ void ParticleManager::Update()
 				else
 				{
 					worldViewProjectionMatrix = worldMatrix;
-				}
+				}*/
+				const Matrix4x4& viewProjectionMatrix = CameraManager::GetInstance()->GetActiveCamera()->GetViewProjectionMatrix();
+				worldViewProjectionMatrix = Multiply(worldMatrix, viewProjectionMatrix);
+
 				particleGroup.second.instancingData[particleGroup.second.instanceNum].WVP = worldViewProjectionMatrix;
 				particleGroup.second.instancingData[particleGroup.second.instanceNum].World = worldMatrix;
 				particleGroup.second.instancingData[particleGroup.second.instanceNum].color = particle.color;

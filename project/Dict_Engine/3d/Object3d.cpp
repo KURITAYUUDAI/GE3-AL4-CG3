@@ -3,24 +3,23 @@
 #include "Model.h"
 #include "ModelManager.h"
 #include "Camera.h"
+#include "LightManager.h"
+#include "CameraManager.h"
 
 void Object3d::Initialize()
 {
 
 	object3dManager_ = Object3dManager::GetInstance();
 
-	camera_ = object3dManager_->GetDefaultCamera();
+	LightManager::GetInstance()->SetDirectionalLightColor({ 1.0f, 1.0f, 1.0f, 1.0f });
+	LightManager::GetInstance()->SetDirectionalLightDirection({ 0.0f, -1.0f, 0.0f });
+	LightManager::GetInstance()->SetDirectionalLightIntensity(1.0f);
 
 	CreateTransformationMatrixResource();
-
-	CreateDirectionalLightResource();
-
-	CreateCameraResource();
 
 	// Transform変数を作る
 	transform_ = { {1.0f, 1.0f, 1.0f}, {0.0f, pi, 0.0f}, {0.0f, 0.0f, 0.0f} };
 
-	
 	psoName_ = Object3dManager::GetInstance()->GetDefaultPsoName();
 	
 }
@@ -29,16 +28,10 @@ void Object3d::Update()
 {
 	Matrix4x4 worldMatrix = MakeAffineMatrix(transform_.scale, transform_.rotate, transform_.translate);
 	Matrix4x4 worldViewProjectionMatrix;
-	if (camera_)
-	{
-		const Matrix4x4& viewProjectionMatrix = camera_->GetViewProjectionMatrix();
-		worldViewProjectionMatrix = Multiply(worldMatrix, viewProjectionMatrix);
-		cameraData_->worldPosition = camera_->GetTranslate();
-	}
-	else
-	{
-		worldViewProjectionMatrix = worldMatrix;
-	}
+
+	const Matrix4x4& viewProjectionMatrix = CameraManager::GetInstance()->GetActiveCamera()->GetViewProjectionMatrix();
+	worldViewProjectionMatrix = Multiply(worldMatrix, viewProjectionMatrix);
+	CameraManager::GetInstance()->SetCameraWorldPosition(CameraManager::GetInstance()->GetActiveCamera()->GetTranslate());
 	
 	transformationMatrixData_->World = worldMatrix;
 	transformationMatrixData_->WVP = worldViewProjectionMatrix;
@@ -60,11 +53,11 @@ void Object3d::Draw()
 	DirectXBase::GetInstance()->GetCommandList()->SetGraphicsRootConstantBufferView(1, transformationMatrixResource_->GetGPUVirtualAddress());
 
 	// 平行光源用のCBufferをバインド（rootParameter[3] = b1）
-	DirectXBase::GetInstance()->GetCommandList()->SetGraphicsRootConstantBufferView(3, DirectionalLightResource_->GetGPUVirtualAddress());
-	
-	// カメラ用のCBufferをバインド（rootParameter[4] = b2）
-	DirectXBase::GetInstance()->GetCommandList()->SetGraphicsRootConstantBufferView(4, cameraResource_->GetGPUVirtualAddress());
+	LightManager::GetInstance()->SetCBufferLightsResource(3);
 
+	// カメラ用のCBufferをバインド（rootParameter[4] = b2）
+	CameraManager::GetInstance()->SetCbufferCameraResource(4);
+	
 	// 3Dモデルが割り当てられていれば描画する
 	if (model_)
 	{
@@ -105,29 +98,4 @@ void Object3d::CreateTransformationMatrixResource()
 	transformationMatrixData_->World = MakeIdentity4x4();
 	transformationMatrixData_->WVP = MakeIdentity4x4();
 
-}
-
-void Object3d::CreateDirectionalLightResource()
-{
-	// 平行光源リソースを作成する
-	DirectionalLightResource_ = object3dManager_->GetDxBase()->CreateBufferResource(sizeof(DirectionalLight));
-	// DirectionalLightResourceにデータを書き込むためのアドレスを取得してDirectionalLightDataに割り当てる
-	DirectionalLightResource_->Map(0, nullptr, reinterpret_cast<void**>(&directionalLightData));
-
-	// 平行光源データの初期値を書き込む
-	directionalLightData->color = Vector4{ 1.0f, 1.0f, 1.0f, 1.0f };
-	directionalLightData->direction = Vector3{ 0.0f, -1.0f, 0.0f };
-	directionalLightData->intensity = 1.0f;
-}
-
-void Object3d::CreateCameraResource()
-{
-
-	// カメラ用リソースを作成する
-	cameraResource_ = object3dManager_->GetDxBase()->CreateBufferResource(sizeof(CameraForGPU));
-	// CameraResourceにデータを書き込むためのアドレスを取得してCameraDataに割り当てる
-	cameraResource_->Map(0, nullptr, reinterpret_cast<void**>(&cameraData_));
-
-	// カメラデータの初期値を書き込む
-	cameraData_->worldPosition = camera_->GetTranslate();
 }

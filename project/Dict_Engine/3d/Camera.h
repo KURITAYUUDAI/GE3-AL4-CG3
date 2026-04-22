@@ -7,13 +7,15 @@ public:	// メンバ関数
 
 	Camera();
 
-	void Initialize();
+	virtual ~Camera() = default;
 
-	void Update();
+	virtual void Initialize();
 
-	void TransformView();
+	virtual void Update();
 
-	void Transformation();
+	/*void TransformView();
+
+	void Transformation();*/
 
 	void Finalize();
 
@@ -49,7 +51,7 @@ public:	// 外部入出力
 
 	const Vector3 GetCameraViewPosition() const;
 
-private:	// メンバ変数
+protected:	// メンバ変数
 
 	Transform transform_;
 	Matrix4x4 worldMatrix_;

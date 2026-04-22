@@ -1,5 +1,6 @@
 #include "Object3dManager.h"
 #include "Logger.h"
+#include "CameraManager.h"
 
 std::unique_ptr<Object3dManager> Object3dManager::instance_ = nullptr;
 
@@ -41,7 +42,7 @@ void Object3dManager::Initialize(DirectXBase* dxBase)
 
 		// Enum定義 (可読性のため)
 		enum {
-			kMaterial, kTransform, kTexture, DirLight, PointLight, SpotLight, Count, kCamera
+			kMaterial, kTransform, kTexture, Light, kCamera
 		};
 
 		rootParameters[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;	// CBVを使う

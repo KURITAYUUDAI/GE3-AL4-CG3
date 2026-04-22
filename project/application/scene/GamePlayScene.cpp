@@ -1,10 +1,10 @@
 #include "GamePlayScene.h"
 #include "SceneManager.h"
+#include "LightManager.h"
+#include "CameraManager.h"
 
 void GamePlayScene::Initialize()
 {
-	
-
 	camera_ = std::make_unique<Camera>();
 	camera_->Initialize();
 
@@ -23,10 +23,18 @@ void GamePlayScene::Initialize()
 
 	camera_->SetRotate({ 0.0f, pi, 0.0f });
 	camera_->SetTranslate({ 0.0f, 0.0f, 15.0f });
-	object3dManager_->SetDefaultCamera(camera_.get());
-	particleManager_->SetDefaultCamera(camera_.get());
 
+	debugCamera_ = std::make_unique<DebugCamera>();
+	debugCamera_->Initialize();
+	debugCamera_->SetRotate(camera_->GetRotate());
+	debugCamera_->SetTranslate(camera_->GetTranslate());
 
+	CameraManager::GetInstance()->Initialize();
+	CameraManager::GetInstance()->AddCamera("Default", camera_.get());
+	CameraManager::GetInstance()->AddCamera("Debug", debugCamera_.get());
+	CameraManager::GetInstance()->SetActiveCamera("Default");
+	
+	LightManager::GetInstance()->Initialize();
 
 	for (size_t i = 0; i < 1; i++)
 	{
@@ -117,6 +125,10 @@ void GamePlayScene::Finalize()
 
 	camera_->Finalize();
 	camera_.reset();
+
+	LightManager::GetInstance()->Finalize();
+
+	CameraManager::GetInstance()->Finalize();
 }
 
 void GamePlayScene::Update()
@@ -300,27 +312,27 @@ void GamePlayScene::Update()
 	ImGui::Begin("LightSetting");
 
 	int32_t enableLighting = object3ds_[0]->GetEnableLighting();
-	Vector4 directionLightColor = object3ds_[0]->GetLightColor();
-	Vector3 directionLightDirection = object3ds_[0]->GetLightDirection();
-	float directionLightIntensity = object3ds_[0]->GetLightIntensity();
+	Vector4 directionLightColor = LightManager::GetInstance()->GetDirectionalLightColor();
+	Vector3 directionLightDirection = LightManager::GetInstance()->GetDirectionalLightDirection();
+	float directionLightIntensity = LightManager::GetInstance()->GetDirectionalLightIntensity();
 	if (ImGui::Checkbox("EnableLighting", (bool*)&enableLighting))
 	{
 		object3ds_[0]->SetEnableLighting(enableLighting);
 	}
 	if (ImGui::ColorEdit4("LightColor", &directionLightColor.x))
 	{
-		object3ds_[0]->SetLightColor(directionLightColor);
+		LightManager::GetInstance()->SetDirectionalLightColor(directionLightColor);
 	}
 	if (ImGui::DragFloat3("LightDirection", &directionLightDirection.x, 0.01f))
 	{
-		object3ds_[0]->SetLightDirection(Normalize(directionLightDirection));
+		LightManager::GetInstance()->SetDirectionalLightDirection(Normalize(directionLightDirection));
 	}
 	if (ImGui::DragFloat("LightIntensity", &directionLightIntensity, 0.01f))
 	{
-		object3ds_[0]->SetLightIntensity(directionLightIntensity);
+		LightManager::GetInstance()->SetDirectionalLightIntensity(directionLightIntensity);
 	}
 
-	Vector3 cameraPos = object3ds_[0]->GetCameraWorldPosition();
+	Vector3 cameraPos = CameraManager::GetInstance()->GetCameraWorldPosition();
 	ImGui::InputFloat3("CameraData", &cameraPos.x, "%.3f", ImGuiInputTextFlags_ReadOnly);
 
 	ImGui::End();
@@ -485,16 +497,16 @@ void GamePlayScene::Update()
 	mousePosition_.x = static_cast<float>(inputManager_->MousePoint().x);
 	mousePosition_.y = static_cast<float>(inputManager_->MousePoint().y);
 
-	camera_->Update();
 	if (isDebugCamera_)
 	{
-		debugCamera_.Update(inputManager_, camera_->GetTransform());
-		camera_->SetViewMatrix(debugCamera_.GetViewMatrix());
-	} else
-	{
-		camera_->TransformView();
+		CameraManager::GetInstance()->SetActiveCamera("Debug");
 	}
-	camera_->Transformation();
+	else
+	{
+		CameraManager::GetInstance()->SetActiveCamera("Default");
+	}
+
+	CameraManager::GetInstance()->Update();
 
 
 

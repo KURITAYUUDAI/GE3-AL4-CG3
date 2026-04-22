@@ -4,6 +4,7 @@
 #include "Logger.h"
 #include "SrvManager.h"
 #include "Camera.h"
+#include "CameraManager.h"
 
 void SkyBox::Initialize()
 {
@@ -132,16 +133,9 @@ void SkyBox::Update()
 {
 	Matrix4x4 worldMatrix = MakeAffineMatrix(transform_.scale, transform_.rotate, transform_.translate);
 	Matrix4x4 worldViewProjectionMatrix;
-	if (camera_)
-	{
-		const Matrix4x4& viewProjectionMatrix = camera_->GetViewProjectionMatrix();
-		worldViewProjectionMatrix = Multiply(worldMatrix, viewProjectionMatrix);
-		
-	} 
-	else
-	{
-		worldViewProjectionMatrix = worldMatrix;
-	}
+
+	const Matrix4x4& viewProjectionMatrix = CameraManager::GetInstance()->GetActiveCamera()->GetViewProjectionMatrix();
+	worldViewProjectionMatrix = Multiply(worldMatrix, viewProjectionMatrix);
 
 	transformationMatrixData_->World = worldMatrix;
 	transformationMatrixData_->WVP = worldViewProjectionMatrix;
