@@ -14,6 +14,35 @@ class ParticleManager
 {
 public:
 
+	// シングルトンインスタンスの取得
+	static ParticleManager* GetInstance();
+	// 終了
+	void Finalize();
+
+	// コンストラクタに渡すための鍵
+	class ConstructorKey
+	{
+	private:
+		ConstructorKey() = default;
+		friend class ParticleManager;
+	};
+
+	// PassKeyを受け取るコンストラクタ
+	explicit ParticleManager(ConstructorKey){}
+
+private:
+
+	// unique_ptr の型定義に Deleter を入れることでdeleteが可能になる
+	static std::unique_ptr<ParticleManager> instance_;
+
+	~ParticleManager() = default;
+	ParticleManager(ParticleManager&) = delete;
+	ParticleManager& operator=(ParticleManager&) = delete;
+
+	friend struct std::default_delete<ParticleManager>;
+
+public:
+
 	struct MaterialData
 	{
 		std::string textureFilePath;
@@ -99,45 +128,16 @@ public:
 public: // 外部入出力
 
 	// セッター
-	void SetDefaultCamera(Camera* camera){ defaultCamera_ = camera; }
+	//void SetDefaultCamera(Camera* camera){ defaultCamera_ = camera; }
 	void SetModel(const std::string& filePath);
 
 	// ゲッター
 	DirectXBase* GetDxBase() const { return dxBase_; }
 	ID3D12RootSignature* GetRootSignature() { return rootSignature_.Get(); }
 	ID3D12PipelineState* GetGraphicsPipeLineState(){ return graphicsPipeLineState_.Get(); }
-	Camera* GetDefaultCamera() const { return defaultCamera_; }
+	//Camera* GetDefaultCamera() const { return defaultCamera_; }
 
 	const std::list<std::string> GetParticleGroupName();
-
-public:
-
-	// シングルトンインスタンスの取得
-	static ParticleManager* GetInstance();
-	// 終了
-	void Finalize();
-	
-	// コンストラクタに渡すための鍵
-	class ConstructorKey
-	{
-	private:
-		ConstructorKey() = default;
-		friend class ParticleManager;
-	};
-
-	// PassKeyを受け取るコンストラクタ
-	explicit ParticleManager(ConstructorKey){}
-
-private:
-
-	// unique_ptr の型定義に Deleter を入れることでdeleteが可能になる
-	static std::unique_ptr<ParticleManager> instance_;
-
-	~ParticleManager() = default;
-	ParticleManager(ParticleManager&) = delete;
-	ParticleManager& operator=(ParticleManager&) = delete;
-
-	friend struct std::default_delete<ParticleManager>;
 
 private:
 
@@ -153,7 +153,7 @@ private:
 
 	SrvManager* srvManager_ = nullptr;
 
-	Camera* defaultCamera_ = nullptr;
+	//Camera* defaultCamera_ = nullptr;
 
 	Model* model_ = nullptr;
 

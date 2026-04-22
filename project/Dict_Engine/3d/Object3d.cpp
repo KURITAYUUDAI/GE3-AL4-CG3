@@ -4,6 +4,7 @@
 #include "ModelManager.h"
 #include "Camera.h"
 #include "LightManager.h"
+#include "CameraManager.h"
 
 void Object3d::Initialize()
 {
@@ -13,8 +14,6 @@ void Object3d::Initialize()
 	LightManager::GetInstance()->SetDirectionalLightColor({ 1.0f, 1.0f, 1.0f, 1.0f });
 	LightManager::GetInstance()->SetDirectionalLightDirection({ 0.0f, -1.0f, 0.0f });
 	LightManager::GetInstance()->SetDirectionalLightIntensity(1.0f);
-
-	camera_ = object3dManager_->GetDefaultCamera();
 
 	CreateTransformationMatrixResource();
 
@@ -29,16 +28,10 @@ void Object3d::Update()
 {
 	Matrix4x4 worldMatrix = MakeAffineMatrix(transform_.scale, transform_.rotate, transform_.translate);
 	Matrix4x4 worldViewProjectionMatrix;
-	if (camera_)
-	{
-		const Matrix4x4& viewProjectionMatrix = camera_->GetViewProjectionMatrix();
-		worldViewProjectionMatrix = Multiply(worldMatrix, viewProjectionMatrix);
-		LightManager::GetInstance()->SetCameraWorldPosition(camera_->GetTranslate());
-	}
-	else
-	{
-		worldViewProjectionMatrix = worldMatrix;
-	}
+
+	const Matrix4x4& viewProjectionMatrix = CameraManager::GetInstance()->GetActiveCamera()->GetViewProjectionMatrix();
+	worldViewProjectionMatrix = Multiply(worldMatrix, viewProjectionMatrix);
+	CameraManager::GetInstance()->SetCameraWorldPosition(CameraManager::GetInstance()->GetActiveCamera()->GetTranslate());
 	
 	transformationMatrixData_->World = worldMatrix;
 	transformationMatrixData_->WVP = worldViewProjectionMatrix;
@@ -63,7 +56,7 @@ void Object3d::Draw()
 	LightManager::GetInstance()->SetCBufferLightsResource(3);
 
 	// カメラ用のCBufferをバインド（rootParameter[4] = b2）
-	LightManager::GetInstance()->SetCbufferCameraResource(4);
+	CameraManager::GetInstance()->SetCbufferCameraResource(4);
 	
 	// 3Dモデルが割り当てられていれば描画する
 	if (model_)

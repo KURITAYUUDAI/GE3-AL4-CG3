@@ -1,34 +1,41 @@
 #include "TitleScene.h"
 #include "SceneManager.h"
 #include "LightManager.h"
+#include "CameraManager.h"
 
 void TitleScene::Initialize()
 {
-	camera_ = std::make_unique<Camera>();
-	camera_->Initialize();
-
 	// Textureを読んで転送する
 	textureManager_->LoadTexture("resources/uvChecker.png");
 	textureManager_->LoadTexture("resources/monsterBall.png");
 	textureManager_->LoadTexture("resources/title.png");
 
-
-
 	int textureIndex = 0;
 	const char* textureOptions[] = { "Checker", "monsterBall" };
 
 	// シーン初期化始め
+	camera_ = std::make_unique<Camera>();
+	camera_->Initialize();
 	/*camera_->SetRotate({ pi / 3.0f, pi, 0.0f });
 	camera_->SetTranslate({ 0.0f, 9.0f, 5.0f });*/
-
 	camera_->SetRotate({ 0.0f, pi, 0.0f });
 	camera_->SetTranslate({ 0.0f, 0.0f, 15.0f });
-	object3dManager_->SetDefaultCamera(camera_.get());
-	particleManager_->SetDefaultCamera(camera_.get());
 
-	LightManager::GetInstance()->Initialize(camera_.get());
-	LightManager::GetInstance()->SetCameraWorldPosition(camera_->GetTranslate());
 
+	/*object3dManager_->SetDefaultCamera(camera_.get());
+	particleManager_->SetDefaultCamera(camera_.get());*/
+
+	debugCamera_ = std::make_unique<DebugCamera>();
+	debugCamera_->Initialize();
+	debugCamera_->SetRotate(camera_->GetRotate());
+	debugCamera_->SetTranslate(camera_->GetTranslate());
+
+	CameraManager::GetInstance()->Initialize();
+	CameraManager::GetInstance()->AddCamera("Default", camera_.get());
+	CameraManager::GetInstance()->AddCamera("Debug", debugCamera_.get());
+	CameraManager::GetInstance()->SetActiveCamera("Default");
+
+	LightManager::GetInstance()->Initialize();
 
 	for (size_t i = 0; i < 1; i++)
 	{
@@ -114,6 +121,7 @@ void TitleScene::Finalize()
 	camera_.reset();
 
 	LightManager::GetInstance()->Finalize();
+	CameraManager::GetInstance()->Finalize();
 }
 
 void TitleScene::Update()
@@ -180,7 +188,7 @@ void TitleScene::Update()
 		LightManager::GetInstance()->SetDirectionalLightIntensity(directionLightIntensity);
 	}
 
-	Vector3 cameraPos = LightManager::GetInstance()->GetCameraWorldPosition();
+	Vector3 cameraPos = CameraManager::GetInstance()->GetCameraWorldPosition();
 	ImGui::InputFloat3("CameraData", &cameraPos.x, "%.3f", ImGuiInputTextFlags_ReadOnly);
 
 	ImGui::End();
@@ -204,18 +212,16 @@ void TitleScene::Update()
 	mousePosition_.x = static_cast<float>(inputManager_->MousePoint().x);
 	mousePosition_.y = static_cast<float>(inputManager_->MousePoint().y);
 
-	camera_->Update();
 	if (isDebugCamera_)
 	{
-		debugCamera_.Update(inputManager_, camera_->GetTransform());
-		camera_->SetViewMatrix(debugCamera_.GetViewMatrix());
-	} else
-	{
-		camera_->TransformView();
+		CameraManager::GetInstance()->SetActiveCamera("Debug");
 	}
-	camera_->Transformation();
+	else
+	{
+		CameraManager::GetInstance()->SetActiveCamera("Default");
+	}
 
-
+	CameraManager::GetInstance()->Update();
 
 
 	for (auto it = sprites_.begin(); it != sprites_.end(); ++it)

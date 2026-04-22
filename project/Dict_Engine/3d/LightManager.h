@@ -44,11 +44,6 @@ public:
 		float intensity;	//!< 輝度
 	};
 
-	struct CameraForGPU
-	{
-		Vector3 worldPosition;
-	};
-
 	struct PointLight
 	{
 		Vector4 color;		//!< ライトの色
@@ -65,21 +60,16 @@ public:
 
 public:
 
-	void Initialize(Camera* camera);
+	void Initialize();
 
 	void Update();
 
 	void SetCBufferLightsResource(UINT RootParameterIndex);
 
-	void SetCbufferCameraResource(UINT RootParameterIndex);
-
 public: // 外部入出力
 	
 	// 光源リソースのGPUアドレス
 	D3D12_GPU_VIRTUAL_ADDRESS GetLightsResourceGPUAddress() const { return LightsResource_->GetGPUVirtualAddress(); }
-	// カメラリソースのGPUアドレス
-	D3D12_GPU_VIRTUAL_ADDRESS GetCameraResourceGPUAddress() const { return cameraResource_->GetGPUVirtualAddress(); }
-
 	
 	const Vector4& GetDirectionalLightColor() const { return lightsData->directionalLight.color; }
 	
@@ -93,8 +83,6 @@ public: // 外部入出力
 	
 	const float& GetPointLightIntensity(const uint32_t& index) const { return lightsData->pointLights[index].intensity; }
 
-	
-	const Vector3& GetCameraWorldPosition() const { return cameraData_->worldPosition; }
 
 
 
@@ -114,18 +102,11 @@ public: // 外部入出力
 	void SetNumPointLights(const uint32_t& numPointLights){ lightsData->numPointLights = numPointLights; }
 
 
-	void SetCamera(Camera* camera){ camera_ = camera; }
-
-	void SetCameraWorldPosition(const Vector3& worldPosition){ cameraData_->worldPosition = worldPosition; }
-
 private:
 
 	// 光源用Resourceを作成
 	void CreateLightResource();
-
-	// カメラ用リソースを作成
-	void CreateCameraResource();
-
+	
 private:
 
 	// カメラ
@@ -135,11 +116,5 @@ private:
 	Microsoft::WRL::ComPtr<ID3D12Resource> LightsResource_ = nullptr;
 	// バッファリソース内のデータを指すポインタ
 	ConstBufferLights* lightsData = nullptr;
-
-	// カメラ用リソース
-	Microsoft::WRL::ComPtr<ID3D12Resource> cameraResource_ = nullptr;
-	// バッファリソース内のデータを指すポインタ
-	CameraForGPU* cameraData_ = nullptr;
-
 	
 };

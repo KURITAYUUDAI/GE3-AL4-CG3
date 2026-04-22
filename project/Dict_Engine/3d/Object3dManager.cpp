@@ -1,5 +1,6 @@
 #include "Object3dManager.h"
 #include "Logger.h"
+#include "CameraManager.h"
 
 std::unique_ptr<Object3dManager> Object3dManager::instance_ = nullptr;
 

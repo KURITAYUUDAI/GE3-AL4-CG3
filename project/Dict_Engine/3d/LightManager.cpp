@@ -17,12 +17,9 @@ void LightManager::Finalize()
 	instance_.reset();
 }
 
-void LightManager::Initialize(Camera* camera)
+void LightManager::Initialize()
 {
-	camera_ = camera;
-
 	CreateLightResource();
-	CreateCameraResource();
 }
 
 void LightManager::Update()
@@ -33,13 +30,6 @@ void LightManager::Update()
 void LightManager::SetCBufferLightsResource(UINT RootParameterIndex)
 {
 	DirectXBase::GetInstance()->GetCommandList()->SetGraphicsRootConstantBufferView(RootParameterIndex, LightsResource_->GetGPUVirtualAddress());
-}
-
-void LightManager::SetCbufferCameraResource(UINT RootParameterIndex)
-{
-	// カメラ用のCBufferをバインド
-	DirectXBase::GetInstance()->GetCommandList()->SetGraphicsRootConstantBufferView(RootParameterIndex, cameraResource_->GetGPUVirtualAddress());
-
 }
 
 void LightManager::CreateLightResource()
@@ -64,15 +54,4 @@ void LightManager::CreateLightResource()
 
 	// 現在有効なポイントライト数の初期値を書き込む
 	lightsData->numPointLights = 0;
-}
-
-void LightManager::CreateCameraResource()
-{
-	// カメラ用リソースを作成する
-	cameraResource_ = DirectXBase::GetInstance()->CreateBufferResource(sizeof(CameraForGPU));
-	// CameraResourceにデータを書き込むためのアドレスを取得してCameraDataに割り当てる
-	cameraResource_->Map(0, nullptr, reinterpret_cast<void**>(&cameraData_));
-
-	// カメラデータの初期値を書き込む
-	cameraData_->worldPosition = camera_->GetTranslate();
 }

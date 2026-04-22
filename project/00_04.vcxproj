@@ -157,6 +157,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Dict_Engine\3d\CameraManager.cpp" />
     <ClCompile Include="Dict_Engine\scene\BaseScene.cpp" />
     <ClCompile Include="Dict_Engine\scene\AbstractSceneFactory.cpp" />
     <ClCompile Include="Dict_Engine\3d\Camera.cpp" />
@@ -235,6 +236,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Dict_Engine\3d\CameraManager.h" />
     <ClInclude Include="Dict_Engine\scene\BaseScene.h" />
     <ClInclude Include="Dict_Engine\scene\AbstractSceneFactory.h" />
     <ClInclude Include="Dict_Engine\3d\Camera.h" />

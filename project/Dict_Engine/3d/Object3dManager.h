@@ -47,7 +47,7 @@ public: // メンバ関数
 public:	// 外部入出力
 
 	// セッター
-	void SetDefaultCamera(Camera* camera){ defaultCamera_ = camera; }
+	//void SetDefaultCamera(Camera* camera){ defaultCamera_ = camera; }
 
 	// ゲッター
 	const std::string& GetDefaultPsoName() const { return psoName_; }
@@ -55,7 +55,7 @@ public:	// 外部入出力
 	DirectXBase* GetDxBase() const { return dxBase_; }
 	ID3D12RootSignature* GetRootSignature() { return rootSignature_.Get(); }
 	ID3D12PipelineState* GetGraphicsPipeLineState(){ return graphicsPipeLineState_.Get(); }
-	Camera* GetDefaultCamera() const { return defaultCamera_; }
+	//Camera* GetDefaultCamera() const { return defaultCamera_; }
 
 private:
 
@@ -71,7 +71,7 @@ private:
 
 	DirectXBase* dxBase_ = nullptr;
 
-	Camera* defaultCamera_ = nullptr;
+	//Camera* defaultCamera_ = nullptr;
 
 	Microsoft::WRL::ComPtr <ID3D12RootSignature> rootSignature_ = nullptr;
 

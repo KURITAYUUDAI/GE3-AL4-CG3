@@ -1,6 +1,7 @@
 #include "GamePlayScene.h"
 #include "SceneManager.h"
 #include "LightManager.h"
+#include "CameraManager.h"
 
 void GamePlayScene::Initialize()
 {
@@ -22,11 +23,18 @@ void GamePlayScene::Initialize()
 
 	camera_->SetRotate({ 0.0f, pi, 0.0f });
 	camera_->SetTranslate({ 0.0f, 0.0f, 15.0f });
-	object3dManager_->SetDefaultCamera(camera_.get());
-	particleManager_->SetDefaultCamera(camera_.get());
 
-	LightManager::GetInstance()->Initialize(camera_.get());
-	LightManager::GetInstance()->SetCameraWorldPosition(camera_->GetTranslate());
+	debugCamera_ = std::make_unique<DebugCamera>();
+	debugCamera_->Initialize();
+	debugCamera_->SetRotate(camera_->GetRotate());
+	debugCamera_->SetTranslate(camera_->GetTranslate());
+
+	CameraManager::GetInstance()->Initialize();
+	CameraManager::GetInstance()->AddCamera("Default", camera_.get());
+	CameraManager::GetInstance()->AddCamera("Debug", debugCamera_.get());
+	CameraManager::GetInstance()->SetActiveCamera("Default");
+	
+	LightManager::GetInstance()->Initialize();
 
 	for (size_t i = 0; i < 1; i++)
 	{
@@ -119,6 +127,8 @@ void GamePlayScene::Finalize()
 	camera_.reset();
 
 	LightManager::GetInstance()->Finalize();
+
+	CameraManager::GetInstance()->Finalize();
 }
 
 void GamePlayScene::Update()
@@ -322,7 +332,7 @@ void GamePlayScene::Update()
 		LightManager::GetInstance()->SetDirectionalLightIntensity(directionLightIntensity);
 	}
 
-	Vector3 cameraPos = LightManager::GetInstance()->GetCameraWorldPosition();
+	Vector3 cameraPos = CameraManager::GetInstance()->GetCameraWorldPosition();
 	ImGui::InputFloat3("CameraData", &cameraPos.x, "%.3f", ImGuiInputTextFlags_ReadOnly);
 
 	ImGui::End();
@@ -487,16 +497,16 @@ void GamePlayScene::Update()
 	mousePosition_.x = static_cast<float>(inputManager_->MousePoint().x);
 	mousePosition_.y = static_cast<float>(inputManager_->MousePoint().y);
 
-	camera_->Update();
 	if (isDebugCamera_)
 	{
-		debugCamera_.Update(inputManager_, camera_->GetTransform());
-		camera_->SetViewMatrix(debugCamera_.GetViewMatrix());
-	} else
-	{
-		camera_->TransformView();
+		CameraManager::GetInstance()->SetActiveCamera("Debug");
 	}
-	camera_->Transformation();
+	else
+	{
+		CameraManager::GetInstance()->SetActiveCamera("Default");
+	}
+
+	CameraManager::GetInstance()->Update();
 
 
 

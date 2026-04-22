@@ -53,7 +53,7 @@ private:
 	// カメラ
 	std::unique_ptr<Camera> camera_ = nullptr;
 
-	DebugCamera debugCamera_;
+	std::unique_ptr<DebugCamera> debugCamera_;
 	bool isDebugCamera_ = false;
 
 	Vector2 mousePosition_ = { 0.0f, 0.0f };
