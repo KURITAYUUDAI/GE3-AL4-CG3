@@ -71,8 +71,6 @@ private:
 
 	DirectXBase* dxBase_ = nullptr;
 
-	//Camera* defaultCamera_ = nullptr;
-
 	Microsoft::WRL::ComPtr <ID3D12RootSignature> rootSignature_ = nullptr;
 
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipeLineState_;

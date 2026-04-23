@@ -11,7 +11,6 @@ void GamePlayScene::Initialize()
 	// Textureを読んで転送する
 	textureManager_->LoadTexture("resources/uvChecker.png");
 	textureManager_->LoadTexture("resources/monsterBall.png");
-
 	textureManager_->LoadTexture("resources/rostock_laage_airport_4k.dds");
 
 	int textureIndex = 0;
@@ -29,12 +28,22 @@ void GamePlayScene::Initialize()
 	debugCamera_->SetRotate(camera_->GetRotate());
 	debugCamera_->SetTranslate(camera_->GetTranslate());
 
-	CameraManager::GetInstance()->Initialize();
-	CameraManager::GetInstance()->AddCamera("Default", camera_.get());
-	CameraManager::GetInstance()->AddCamera("Debug", debugCamera_.get());
-	CameraManager::GetInstance()->SetActiveCamera("Default");
-	
-	LightManager::GetInstance()->Initialize();
+	cameraManager_->Initialize();
+	cameraManager_->AddCamera("Default", camera_.get());
+	cameraManager_->AddCamera("Debug", debugCamera_.get());
+	cameraManager_->SetActiveCamera("Default");
+
+	lightManager_->Initialize();
+	lightManager_->SetDirectionalLightColor({ 1.0f, 1.0f, 1.0f, 1.0f });
+	lightManager_->SetDirectionalLightDirection({ 0.0f, -1.0f, 0.0f });
+	lightManager_->SetDirectionalLightIntensity(1.0f);
+
+	lightManager_->SetNumPointLights(1);
+	lightManager_->SetPointLightColor(0, { 1.0f, 0.0f, 0.0f, 1.0f });
+	lightManager_->SetPointLightPosition(0, { 0.0f, 1.0f, 0.0f });
+	lightManager_->SetPointLightIntensity(0, 1.0f);
+	lightManager_->SetPointLightRadius(0, 5.0f);
+	lightManager_->SetPointLightDecay(0, 1.0f);
 
 	for (size_t i = 0; i < 1; i++)
 	{
@@ -48,11 +57,9 @@ void GamePlayScene::Initialize()
 	sprites_[0]->SetPosition(Vector2{ 100.0f, 100.0f });
 	sprites_[0]->AdjustTextureSize();
 
-
-
-	ModelManager::GetInstance()->LoadModel("plane.obj");
-	ModelManager::GetInstance()->LoadModel("axis.obj");
-	ModelManager::GetInstance()->LoadModel("sphere.obj");
+	modelManager_->LoadModel("plane.obj");
+	modelManager_->LoadModel("axis.obj");
+	modelManager_->LoadModel("sphere.obj");
 
 	for (size_t i = 0; i < 1; i++)
 	{
@@ -62,9 +69,7 @@ void GamePlayScene::Initialize()
 		object3ds_.push_back(std::move(newObject3d));
 	}
 
-	object3ds_[0]
-		->SetModel("sphere.obj");
-
+	object3ds_[0]->SetModel("sphere.obj");
 
 	particleManager_->SetModel("plane.obj");
 	particleManager_->CreateParticleGroup("circle", "resources/circle.png");
@@ -88,10 +93,13 @@ void GamePlayScene::Initialize()
 	skyBox_->Initialize();
 	skyBox_->SetCamera(camera_.get());
 
+	terrain_ = std::make_unique<Terrain>();
+	terrain_->Initialize();
+
 	// シーン初期化終わり
 
-	SoundManager::GetInstance()->SoundLoadFile("Resources/Alarm01.wav");
-	SoundManager::GetInstance()->SoundLoadFile("Resources/test.mp3");
+	soundManager_->SoundLoadFile("Resources/Alarm01.wav");
+	soundManager_->SoundLoadFile("Resources/test.mp3");
 
 }
 
@@ -126,9 +134,8 @@ void GamePlayScene::Finalize()
 	camera_->Finalize();
 	camera_.reset();
 
-	LightManager::GetInstance()->Finalize();
-
-	CameraManager::GetInstance()->Finalize();
+	lightManager_->Finalize();
+	cameraManager_->Finalize();
 }
 
 void GamePlayScene::Update()
@@ -312,27 +319,12 @@ void GamePlayScene::Update()
 	ImGui::Begin("LightSetting");
 
 	int32_t enableLighting = object3ds_[0]->GetEnableLighting();
-	Vector4 directionLightColor = LightManager::GetInstance()->GetDirectionalLightColor();
-	Vector3 directionLightDirection = LightManager::GetInstance()->GetDirectionalLightDirection();
-	float directionLightIntensity = LightManager::GetInstance()->GetDirectionalLightIntensity();
 	if (ImGui::Checkbox("EnableLighting", (bool*)&enableLighting))
 	{
 		object3ds_[0]->SetEnableLighting(enableLighting);
 	}
-	if (ImGui::ColorEdit4("LightColor", &directionLightColor.x))
-	{
-		LightManager::GetInstance()->SetDirectionalLightColor(directionLightColor);
-	}
-	if (ImGui::DragFloat3("LightDirection", &directionLightDirection.x, 0.01f))
-	{
-		LightManager::GetInstance()->SetDirectionalLightDirection(Normalize(directionLightDirection));
-	}
-	if (ImGui::DragFloat("LightIntensity", &directionLightIntensity, 0.01f))
-	{
-		LightManager::GetInstance()->SetDirectionalLightIntensity(directionLightIntensity);
-	}
 
-	Vector3 cameraPos = CameraManager::GetInstance()->GetCameraWorldPosition();
+	Vector3 cameraPos = cameraManager_->GetCameraWorldPosition();
 	ImGui::InputFloat3("CameraData", &cameraPos.x, "%.3f", ImGuiInputTextFlags_ReadOnly);
 
 	ImGui::End();
@@ -494,19 +486,21 @@ void GamePlayScene::Update()
 	transformationMatrixDataSphere->World = worldMatrixSphere;
 	transformationMatrixDataSphere->WVP = wvpMatrixSphere;*/
 
+	lightManager_->Update();
+
 	mousePosition_.x = static_cast<float>(inputManager_->MousePoint().x);
 	mousePosition_.y = static_cast<float>(inputManager_->MousePoint().y);
 
 	if (isDebugCamera_)
 	{
-		CameraManager::GetInstance()->SetActiveCamera("Debug");
+		cameraManager_->SetActiveCamera("Debug");
 	}
 	else
 	{
-		CameraManager::GetInstance()->SetActiveCamera("Default");
+		cameraManager_->SetActiveCamera("Default");
 	}
 
-	CameraManager::GetInstance()->Update();
+	cameraManager_->Update();
 
 
 
@@ -533,6 +527,8 @@ void GamePlayScene::Update()
 
 	skyBox_->Update();
 
+	terrain_->Update();
+
 	//// ImGuiの内部コマンドを生成する
 	//ImGui::Render();
 
@@ -550,6 +546,7 @@ void GamePlayScene::Draw()
 		}
 
 		skyBox_->Draw();
+		terrain_->Draw();
 	}
 
 
@@ -593,11 +590,11 @@ void GamePlayScene::Draw()
 
 	if (inputManager_->TriggerKey(DIK_0))
 	{
-		SoundManager::GetInstance()->SoundPlayWave("Resources/Alarm01.wav");
+		soundManager_->SoundPlayWave("Resources/Alarm01.wav");
 	}
 	if (inputManager_->TriggerKey(DIK_1))
 	{
-		SoundManager::GetInstance()->SoundPlayWave("Resources/test.mp3");
+		soundManager_->SoundPlayWave("Resources/test.mp3");
 
 	}
 }

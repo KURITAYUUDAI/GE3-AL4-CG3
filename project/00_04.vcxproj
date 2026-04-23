@@ -196,6 +196,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="application\scene\TitleScene.cpp" />
     <ClCompile Include="Dict_Engine\base\PSOManager.cpp" />
     <ClCompile Include="application\object\SkyBox.cpp" />
+    <ClCompile Include="application\object\Terrain.cpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="resources\shaders\SkyBox.PS.hlsl">
@@ -271,6 +272,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Dict_Engine\base\PSOManager.h" />
     <ClInclude Include="application\object\SkyBox.h" />
     <ClInclude Include="Dict_Engine\3d\LightManager.h" />
+    <ClInclude Include="application\object\Terrain.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="externals\DirectXTex\DirectXTex_Desktop_2022_Win10.vcxproj">

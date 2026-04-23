@@ -153,8 +153,6 @@ private:
 
 	SrvManager* srvManager_ = nullptr;
 
-	//Camera* defaultCamera_ = nullptr;
-
 	Model* model_ = nullptr;
 
 	Microsoft::WRL::ComPtr <ID3D12RootSignature> rootSignature_ = nullptr;

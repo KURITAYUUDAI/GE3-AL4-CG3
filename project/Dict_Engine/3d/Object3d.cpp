@@ -11,10 +11,6 @@ void Object3d::Initialize()
 
 	object3dManager_ = Object3dManager::GetInstance();
 
-	LightManager::GetInstance()->SetDirectionalLightColor({ 1.0f, 1.0f, 1.0f, 1.0f });
-	LightManager::GetInstance()->SetDirectionalLightDirection({ 0.0f, -1.0f, 0.0f });
-	LightManager::GetInstance()->SetDirectionalLightIntensity(1.0f);
-
 	CreateTransformationMatrixResource();
 
 	// Transform変数を作る
