@@ -96,12 +96,17 @@ public: // 外部入出力
 	void SetDirectionalLightDirection(const Vector3& direction){ lightsData->directionalLight.direction = direction; }
 	// 平行光源の輝度を設定、0.0fで消灯
 	void SetDirectionalLightIntensity(const float& intensity){ lightsData->directionalLight.intensity = intensity; }
+	// 並行光源の輝度を0.0にして消灯する
+	void TurnOffDirectionalLight(){ lightsData->directionalLight.intensity = 0.0f; }
+	
 	// ポイントライトの色を設定
 	void SetPointLightColor(const uint32_t& index, const Vector4& color){ lightsData->pointLights[index].color = color; }
 	// ポイントライトの位置を設定
 	void SetPointLightPosition(const uint32_t& index, const Vector3& position){ lightsData->pointLights[index].position = position; }
 	// ポイントライトの輝度を設定、0.0fで消灯。
 	void SetPointLightIntensity(const uint32_t& index, const float& intensity){ lightsData->pointLights[index].intensity = intensity; }
+	// ポイントライトの輝度を0.0にして消灯する
+	void TurnOffPointLight(const uint32_t& index){ lightsData->pointLights[index].intensity = 0.0f; }
 	// ポイントライトの半径を設定
 	void SetPointLightRadius(const uint32_t& index, const float& radius){ lightsData->pointLights[index].radius = radius; }
 	// ポイントライトの減衰率を設定

@@ -70,6 +70,16 @@ void LightManager::Update()
 		SetPointLightDecay(0, pointLightDecay);
 	}
 
+	if (ImGui::Button ("turn off directional light"))
+	{
+		TurnOffDirectionalLight();
+	}
+
+	if (ImGui::Button("turn off point light"))
+	{
+		TurnOffPointLight(0);
+	}
+
 
 	ImGui::End();
 }
