@@ -101,11 +101,11 @@ void LightManager::Update()
 	{
 		SetSpotLightDecay(0, spotLightDecay);
 	}
-	if (ImGui::DragFloat("SpotLightCosAngle", &spotLightAngleDeg, 0.1f))
+	if (ImGui::DragFloat("SpotLightCosAngle", &spotLightAngleDeg, 0.5f, 0.0f, 89.0f))
 	{
 		SetSpotLightCosAngle(0, std::cos(DirectX::XMConvertToRadians(spotLightAngleDeg)));
 	}
-	if (ImGui::DragFloat("SpotLightCosFalloff", &spotLightFalloffDeg, 0.1f))
+	if (ImGui::DragFloat("SpotLightCosFalloff", &spotLightFalloffDeg, 0.5f, 0.0f, spotLightAngleDeg - 0.1f))
 	{
 		SetSpotLightCosFalloff(0, std::cos(DirectX::XMConvertToRadians(spotLightFalloffDeg)));
 	}
