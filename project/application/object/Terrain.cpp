@@ -20,6 +20,7 @@ void Terrain::Update()
 	object3d_->SetTransform(transform_);
 	object3d_->Update();
 
+#ifdef _DEBUG
 	ImGui::Begin("TerrainSetting");
 	bool isDraw = isDraw_;
 	if (ImGui::Checkbox("DrawTerrain", &isDraw))
@@ -27,6 +28,7 @@ void Terrain::Update()
 		isDraw_ = isDraw;
 	}
 	ImGui::End();
+#endif
 }
 
 void Terrain::Draw()

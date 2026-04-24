@@ -32,11 +32,27 @@ struct PointLight
     float decay;     //!< 減衰率
     float2 padding;  //!< パディング
 };
+struct SpotLight
+{
+    float4 color;     //!< ライトの色
+    float3 position;  //!< ライトの位置
+    float intensity;  //!< 輝度
+    float3 direction; //!< スポットライトの方向
+    float distance;   //!< ライトの届く最大距離
+    float decay;      //!< 減衰率
+    float cosAngle;   //!< スポットライトの角度
+    float cosFalloff; //!< スポットライトのFalloffが始まる角度
+    float padding;   //!< パディング
+};
 struct ConstBufferLights
 {
     DirectionalLight directionalLight;
     PointLight pointLights[16];
     int numPointLights; // 現在有効なポイントライト数
+    float3 padding;
+    SpotLight spotLights[16]; // 最大スポットライト数
+    int numSpotLights; // 現在有効なスポットライト数
+    float3 padding2;
 };
 ConstantBuffer<ConstBufferLights> gLights : register(b1);
 
@@ -67,14 +83,7 @@ PixelShaderOutput main(VertexShaderOutput input)
         float3 inputNormal = normalize(input.normal);
         // 平行光源の方向ベクトル
         float3 directionalLightDirection = normalize(-gLights.directionalLight.direction);
-        // 点光源の入射光ベクトル
-        float3 pointLightDirection[16];
-        for (int i = 0; i < gLights.numPointLights; i++)
-        {
-            pointLightDirection[i] = normalize(gLights.pointLights[i].position - input.worldPosition);
-        }
-        
-        
+      
         
         //// Lambert
         //float cos = saturate(dot(normalize(input.normal), -gLights.directionalLight.direction));
@@ -103,35 +112,66 @@ PixelShaderOutput main(VertexShaderOutput input)
         float3 specular = gLights.directionalLight.color.rgb * gLights.directionalLight.intensity 
             * specularPow * float3(1.0f, 1.0f, 1.0f);
         
+        float3 pointLightDirection[16];
         float3 pointDiffuse[16];
         float3 pointSpecular[16];
         
-        for (int j = 0; j < gLights.numPointLights; j++)
+        for (int i = 0; i < gLights.numPointLights; i++)
         {
-            //float distance = length(gLights.pointLights[j].position - input.worldPosition);
+             // 点光源の入射光ベクトル
+            pointLightDirection[i] = normalize(gLights.pointLights[i].position - input.worldPosition);
+            
+            //float distance = length(gLights.pointLights[i].position - input.worldPosition);
             //float factor = 1.0f / (distance * distance);
             
-            float distance = length(gLights.pointLights[j].position - input.worldPosition);
-            float factor = pow(saturate(-distance / gLights.pointLights[j].radius + 1.0), gLights.pointLights[j].decay);
+            float distance = length(gLights.pointLights[i].position - input.worldPosition);
+            float factor = pow(saturate(-distance / gLights.pointLights[i].radius + 1.0), gLights.pointLights[i].decay);
             
             // 点光源の拡散反射
-            pointDiffuse[j] = gMaterial.color.rgb * textureColor.rgb * gLights.pointLights[j].color.rgb 
-                * saturate(dot(inputNormal, pointLightDirection[j])) * gLights.pointLights[j].intensity * factor;
+            pointDiffuse[i] = gMaterial.color.rgb * textureColor.rgb * gLights.pointLights[i].color.rgb 
+                * saturate(dot(inputNormal, pointLightDirection[i])) * gLights.pointLights[i].intensity * factor;
 
             // 点光源の鏡面反射
-            float3 pointReflectLight = reflect(-pointLightDirection[j], inputNormal);
+            float3 pointReflectLight = reflect(-pointLightDirection[i], inputNormal);
             float RdotE_Point = dot(pointReflectLight, toEye);
             float specularPow_Point = pow(saturate(RdotE_Point), gMaterial.shiniess);
-            specularPow_Point *= step(0.0001f, saturate(dot(inputNormal, pointLightDirection[j])));
+            specularPow_Point *= step(0.0001f, saturate(dot(inputNormal, pointLightDirection[i])));
             
-            pointSpecular[j] = gLights.pointLights[j].color.rgb * gLights.pointLights[j].intensity * factor
+            pointSpecular[i] = gLights.pointLights[i].color.rgb * gLights.pointLights[i].intensity * factor
                 * specularPow_Point * float3(1.0f, 1.0f, 1.0f);
+            
+            diffuse += pointDiffuse[i];
+            specular += pointSpecular[i];
         }
         
-        for (int k = 0; k < gLights.numPointLights; k++)
+        float3 spotLightDirectionOnSurface[16];
+        float3 spotDiffuse[16];
+        float3 spotSpecular[16];
+        for (int j = 0; j < gLights.numSpotLights; j++)
         {
-            diffuse += pointDiffuse[k];
-            specular += pointSpecular[k];
+            spotLightDirectionOnSurface[j] = normalize(gLights.spotLights[j].position - input.worldPosition);
+            
+            float distance = length(gLights.spotLights[j].position - input.worldPosition);
+            float attenuationFactor = pow(saturate(-distance / gLights.spotLights[j].distance + 1.0), gLights.spotLights[j].decay);
+            
+            float cosAngle = dot(-spotLightDirectionOnSurface[j], normalize(gLights.spotLights[j].direction));
+            float falloffFactor = saturate((cosAngle - gLights.spotLights[j].cosAngle) / (gLights.spotLights[j].cosFalloff - gLights.spotLights[j].cosAngle));
+            
+            // スポットライトの拡散反射
+            spotDiffuse[j] = gMaterial.color.rgb * textureColor.rgb * gLights.spotLights[j].color.rgb 
+                * saturate(dot(inputNormal, spotLightDirectionOnSurface[j])) * gLights.spotLights[j].intensity * attenuationFactor * falloffFactor;
+
+            // スポットライトの鏡面反射
+            float3 spotReflectLight = reflect(-spotLightDirectionOnSurface[j], inputNormal);
+            float RdotE_Spot = dot(spotReflectLight, toEye);
+            float specularPow_Spot = pow(saturate(RdotE_Spot), gMaterial.shiniess);
+            specularPow_Spot *= step(0.0001f, saturate(dot(inputNormal, spotLightDirectionOnSurface[j])));
+            
+            spotSpecular[j] = gLights.spotLights[j].color.rgb * gLights.spotLights[j].intensity * attenuationFactor * falloffFactor
+                * specularPow_Spot * float3(1.0f, 1.0f, 1.0f);
+            
+            diffuse += spotDiffuse[j];
+            specular += spotSpecular[j];
         }
         
         // 拡散反射＋鏡面反射
