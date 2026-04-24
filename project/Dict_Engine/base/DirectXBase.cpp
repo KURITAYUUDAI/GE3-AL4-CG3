@@ -260,7 +260,7 @@ Microsoft::WRL::ComPtr<ID3D12Resource> DirectXBase::CreateBufferResource(size_t 
 	D3D12_RESOURCE_DESC resourceDesc{};
 	// バッファリソース。テクスチャの場合はまた別の設定をする
 	resourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
-	resourceDesc.Width = sizeInBytes;	// リソースのサイズ。引数より代入
+	resourceDesc.Width = sizeInBytes;	// リソースのサイズ。
 	// バッファの場合はこれらは1にする決まり
 	resourceDesc.Height = 1;
 	resourceDesc.DepthOrArraySize = 1;

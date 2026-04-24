@@ -13,10 +13,10 @@ void DebugCamera::Update()
 
 	ImGui::Begin("DebugCameraWindow");
 
-	if (InputManager::GetInstance()->PushMouse(2) && !ImGui::IsWindowHovered(ImGuiHoveredFlags_AnyWindow))
+	if (InputManager::GetInstance()->PushMouse(1) && !ImGui::IsWindowHovered(ImGuiHoveredFlags_AnyWindow))
 	{
 		// ウィンドウ上ではない領域でのドラッグ
-		ImVec2 delta = ImGui::GetMouseDragDelta(ImGuiMouseButton_Middle, 0.0f);
+		ImVec2 delta = ImGui::GetMouseDragDelta(ImGuiMouseButton_Right, 0.0f);
 
 		// カメラ角度に反映
 		phi += delta.x * rotationSpeed;
@@ -34,7 +34,7 @@ void DebugCamera::Update()
 		const float limit = 0.4999f * pi; // 約85°
 		theta = std::clamp(theta, -limit, limit);
 
-		ImGui::ResetMouseDragDelta(ImGuiMouseButton_Middle);
+		ImGui::ResetMouseDragDelta(ImGuiMouseButton_Right);
 
 		ImGui::Text("Delta x : %3.6f, y : %3.6f", delta.x, delta.y);
 

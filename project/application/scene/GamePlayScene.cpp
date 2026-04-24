@@ -45,6 +45,16 @@ void GamePlayScene::Initialize()
 	lightManager_->SetPointLightRadius(0, 5.0f);
 	lightManager_->SetPointLightDecay(0, 1.0f);
 
+	lightManager_->SetNumSpotLights(1);
+	lightManager_->SetSpotLightColor(0, { 0.0f, 1.0f, 0.0f, 1.0f });
+	lightManager_->SetSpotLightPosition(0, { 2.0f, 1.25f, 0.0f });
+	lightManager_->SetSpotLightIntensity(0, 4.0f);
+	lightManager_->SetSpotLightDirection(0, { -1.0f, -1.0f, 0.0f });
+	lightManager_->SetSpotLightDistance(0, 7.0f);
+	lightManager_->SetSpotLightDecay(0, 1.0f);
+	lightManager_->SetSpotLightCosAngle(0, std::cosf(pi / 3.0f));
+	lightManager_->SetSpotLightCosFalloff(0, std::cosf(pi / 4.0f));
+
 	for (size_t i = 0; i < 1; i++)
 	{
 		std::unique_ptr<Sprite> newSprite = std::make_unique<Sprite>();

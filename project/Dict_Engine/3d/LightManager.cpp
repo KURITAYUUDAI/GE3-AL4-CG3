@@ -25,7 +25,7 @@ void LightManager::Initialize()
 
 void LightManager::Update()
 {
-	
+#ifdef _DEBUG
 	ImGui::Begin("LightSetting");
 
 	Vector4 directionLightColor = GetDirectionalLightColor();
@@ -70,6 +70,46 @@ void LightManager::Update()
 		SetPointLightDecay(0, pointLightDecay);
 	}
 
+	Vector4 spotLightColor = GetSpotLightColor(0);
+	Vector3 spotLightPosition = GetSpotLightPosition(0);
+	float spotLightIntensity = GetSpotLightIntensity(0);
+	Vector3 spotLightDirection = GetSpotLightDirection(0);
+	float spotLightDistance = GetSpotLightDistance(0);
+	float spotLightDecay = GetSpotLightDecay(0);
+
+	// 角度(度)で保持するローカル変数を用意
+	float spotLightAngleDeg = DirectX::XMConvertToDegrees(std::acosf(GetSpotLightCosAngle(0)));
+	float spotLightFalloffDeg = DirectX::XMConvertToDegrees(std::acosf(GetSpotLightCosFalloff(0)));
+
+	if (ImGui::ColorEdit4("SpotLightColor", &spotLightColor.x))
+	{
+		SetSpotLightColor(0, spotLightColor);
+	}
+	if (ImGui::DragFloat3("SpotLightPosition", &spotLightPosition.x, 0.01f))
+	{
+		SetSpotLightPosition(0, spotLightPosition);
+	}
+	if (ImGui::DragFloat("SpotLightIntensity", &spotLightIntensity, 0.01f))
+	{
+		SetSpotLightIntensity(0, spotLightIntensity);
+	}
+	if (ImGui::DragFloat("SpotLightDistance", &spotLightDistance, 0.01f))
+	{
+		SetSpotLightDistance(0, spotLightDistance);
+	}
+	if (ImGui::DragFloat("SpotLightDecay", &spotLightDecay, 0.01f))
+	{
+		SetSpotLightDecay(0, spotLightDecay);
+	}
+	if (ImGui::DragFloat("SpotLightCosAngle", &spotLightAngleDeg, 0.1f))
+	{
+		SetSpotLightCosAngle(0, std::cos(DirectX::XMConvertToRadians(spotLightAngleDeg)));
+	}
+	if (ImGui::DragFloat("SpotLightCosFalloff", &spotLightFalloffDeg, 0.1f))
+	{
+		SetSpotLightCosFalloff(0, std::cos(DirectX::XMConvertToRadians(spotLightFalloffDeg)));
+	}
+
 	if (ImGui::Button ("turn off directional light"))
 	{
 		TurnOffDirectionalLight();
@@ -80,8 +120,14 @@ void LightManager::Update()
 		TurnOffPointLight(0);
 	}
 
+	if (ImGui::Button("turn off spot light"))
+	{
+		TurnOffSpotLight(0);
+	}
+
 
 	ImGui::End();
+#endif
 }
 
 void LightManager::SetCBufferLightsResource(UINT RootParameterIndex)
@@ -113,4 +159,21 @@ void LightManager::CreateLightResource()
 
 	// 現在有効なポイントライト数の初期値を書き込む
 	lightsData->numPointLights = 0;
+
+	// スポットライトの初期値を書き込む
+	for (uint32_t i = 0; i < kMaxSpotLights; ++i)
+	{
+		lightsData->spotLights[i].color = Vector4{ 1.0f, 1.0f, 1.0f, 1.0f };
+		lightsData->spotLights[i].position = Vector3{ 0.0f, 0.0f, 0.0f };
+		lightsData->spotLights[i].intensity = 0.0f;
+		lightsData->spotLights[i].direction = Vector3{ 0.0f, -1.0f, 0.0f };
+		lightsData->spotLights[i].distance = 1.0f;
+		lightsData->spotLights[i].decay = 1.0f;
+		lightsData->spotLights[i].cosAngle = std::cos(DirectX::XMConvertToRadians(30.0f));
+		// falloffが始まる角度をangleと一致させたら0除算が発生するので注意
+		lightsData->spotLights[i].cosFalloff = std::cos(DirectX::XMConvertToRadians(20.0f));
+	}
+
+	// 現在有効なスポットライト数の初期値を書き込む
+	lightsData->numSpotLights = 0;
 }
