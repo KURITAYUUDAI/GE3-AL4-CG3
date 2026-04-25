@@ -70,6 +70,7 @@ void GamePlayScene::Initialize()
 	modelManager_->LoadModel("plane.obj");
 	modelManager_->LoadModel("axis.obj");
 	modelManager_->LoadModel("sphere.obj");
+	modelManager_->LoadModel("multiMaterial.obj");
 
 	for (size_t i = 0; i < 1; i++)
 	{
@@ -79,7 +80,7 @@ void GamePlayScene::Initialize()
 		object3ds_.push_back(std::move(newObject3d));
 	}
 
-	object3ds_[0]->SetModel("sphere.obj");
+	object3ds_[0]->SetModel("multiMaterial.obj");
 
 	particleManager_->SetModel("plane.obj");
 	particleManager_->CreateParticleGroup("circle", "resources/circle.png");
