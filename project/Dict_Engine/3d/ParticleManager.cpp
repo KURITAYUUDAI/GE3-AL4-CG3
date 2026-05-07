@@ -118,7 +118,7 @@ void ParticleManager::Draw()
 		dxBase_->GetCommandList()->SetGraphicsRootDescriptorTable(1, 
 			srvManager_->GetGPUDescriptorHandle(particleGroup.second.instancingSrvIndex));
 
-		model_->SetTexture(particleGroup.second.materialData.textureFilePath);
+		model_->SetTexture(particleGroup.second.materialData.textureFilePath, 0);
 		
 
 		// 3Dモデルが割り当てられていれば描画する
