@@ -105,12 +105,12 @@ void SkyBox::Initialize()
 	modelData_ = CreateSkyBox();
 
 	TextureManager::GetInstance()->LoadTexture("resources/output_skybox.dds");
-	modelData_.material.textureFilePath = "resources/output_skybox.dds";
+	modelData_.meshes[0].material.textureFilePath = "resources/output_skybox.dds";
 	// テクスチャファイル読み込み
-	TextureManager::GetInstance()->LoadTexture(modelData_.material.textureFilePath);
+	TextureManager::GetInstance()->LoadTexture(modelData_.meshes[0].material.textureFilePath);
 	// 読み込んだテクスチャの番号を取得
-	modelData_.material.textureIndex =
-		TextureManager::GetInstance()->GetTextureIndexByFilePath(modelData_.material.textureFilePath);
+	modelData_.meshes[0].material.textureIndex =
+		TextureManager::GetInstance()->GetTextureIndexByFilePath(modelData_.meshes[0].material.textureFilePath);
 
 	
 
@@ -162,12 +162,12 @@ void SkyBox::Draw()
 	// マテリアルのCBufferの場所を設定
 	DirectXBase::GetInstance()->GetCommandList()->SetGraphicsRootConstantBufferView(0, materialResource_->GetGPUVirtualAddress());
 
-	/*TextureManager::GetInstance()->GetSRVHandleGPU(modelData_.material.textureFilePath);*/
+	/*TextureManager::GetInstance()->GetSRVHandleGPU(modelData_.meshes[0].material.textureFilePath);*/
 	
 	// テクスチャをセット
-	SrvManager::GetInstance()->SetGraphicsRootDescriptorTable(2, modelData_.material.textureIndex);
+	SrvManager::GetInstance()->SetGraphicsRootDescriptorTable(2, modelData_.meshes[0].material.textureIndex);
 
-	assert(modelData_.material.textureIndex != 0);
+	assert(modelData_.meshes[0].material.textureIndex != 0);
 
 	// 描画
 	DirectXBase::GetInstance()->GetCommandList()->DrawIndexedInstanced(36, 1, 0, 0, 0);
@@ -227,7 +227,7 @@ void SkyBox::CreateVertexResource()
 {
 	// VertexResourceを作成する。
 	vertexResource_ = DirectXBase::GetInstance()->
-		CreateBufferResource(sizeof(Model::VertexData) * modelData_.vertices.size());
+		CreateBufferResource(sizeof(Model::VertexData) * modelData_.meshes[0].vertices.size());
 
 	assert(vertexResource_ && "CreateBufferResource failed");
 
@@ -235,14 +235,14 @@ void SkyBox::CreateVertexResource()
 	// リソースの先頭のアドレスから使う
 	vertexBufferView_.BufferLocation = vertexResource_->GetGPUVirtualAddress();
 	// 使用するリソースのサイズは頂点のサイズ
-	vertexBufferView_.SizeInBytes = UINT(sizeof(Model::VertexData) * modelData_.vertices.size());
+	vertexBufferView_.SizeInBytes = UINT(sizeof(Model::VertexData) * modelData_.meshes[0].vertices.size());
 	// 1頂点当たりのサイズ
 	vertexBufferView_.StrideInBytes = sizeof(Model::VertexData);
 
 	// VertexResourceにデータを書き込むためのアドレスを取得してVertexDataに割り当てる
 	vertexResource_->Map(0, nullptr, reinterpret_cast<void**>(&vertexData_));
 	// 頂点データをコピーする
-	std::memcpy(vertexData_, modelData_.vertices.data(), sizeof(Model::VertexData) * modelData_.vertices.size());
+	std::memcpy(vertexData_, modelData_.meshes[0].vertices.data(), sizeof(Model::VertexData) * modelData_.meshes[0].vertices.size());
 }
 
 void SkyBox::CreateMaterialResource()
@@ -253,7 +253,7 @@ void SkyBox::CreateMaterialResource()
 	materialResource_->Map(0, nullptr, reinterpret_cast<void**>(&materialData_));
 
 	// 色の書き込み
-	materialData_->color = modelData_.material.color;
+	materialData_->color = modelData_.meshes[0].material.color;
 	materialData_->enableLighting = true;
 	materialData_->uvTransform = MakeIdentity4x4();
 	materialData_->shininess = 10.0f;
@@ -330,12 +330,15 @@ Model::ModelData SkyBox::CreateSkyBox()
 		vertexData[i].normal = { 0.0f, 0.0f, 0.0f };
 	}
 
-	mesh.vertices = vertexData;
+	Model::Mesh newMesh;
 
-	mesh.material.textureFilePath;
-	mesh.material.color = Vector4{ 1.0f, 1.0f, 1.0f, 1.0f };
-	mesh.material.textureIndex;
+	newMesh.vertices = vertexData;
 
-	
+	newMesh.material.textureFilePath = "";
+	newMesh.material.color = Vector4{ 1.0f, 1.0f, 1.0f, 1.0f };
+	newMesh.material.textureIndex = 0;
+
+	mesh.meshes.push_back(newMesh);
+
 	return mesh;
 }

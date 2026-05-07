@@ -70,7 +70,7 @@ void Object3d::Finalize()
 void Object3d::SetModel(const std::string& filePath)
 {
 	model_ = ModelManager::GetInstance()->FindModel(filePath);
-	enableLighting_ = model_->GetEnableLighting();
+	enableLighting_ = model_->GetEnableLighting(0);
 }
 
 void Object3d::SetEnableLighting(const int32_t& enableLighting)
@@ -78,7 +78,7 @@ void Object3d::SetEnableLighting(const int32_t& enableLighting)
 	enableLighting_ = enableLighting;
 	if (model_)
 	{
-		model_->SetEnableLighting(enableLighting_);
+		model_->SetEnableLighting(enableLighting_, 0);
 	}
 }
 

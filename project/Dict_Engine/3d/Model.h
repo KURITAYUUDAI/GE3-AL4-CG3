@@ -23,13 +23,6 @@ public:
 		Vector4 color;
 	};
 
-
-	struct ModelData
-	{
-		std::vector<VertexData> vertices;	//!< 頂点データ
-		MaterialData material;
-	};
-
 	struct Material
 	{
 		Vector4 color;
@@ -38,6 +31,31 @@ public:
 		Matrix4x4 uvTransform;
 		float shininess;
 	};
+
+	struct Mesh
+	{
+		std::vector<VertexData> vertices;	//!< 頂点データ
+		MaterialData material;
+
+		// バッファリソース
+		Microsoft::WRL::ComPtr<ID3D12Resource> vertexResource_ = nullptr;
+		// バッファリソース内のデータを指すポインタ
+		VertexData* vertexData_ = nullptr;
+		// バッファリソースの使い道を補足するバッファビュー
+		D3D12_VERTEX_BUFFER_VIEW vertexBufferView_{};
+
+		// マテリアル用バッファリソース
+		Microsoft::WRL::ComPtr<ID3D12Resource> materialResource_ = nullptr;
+		// バッファリソース内のデータを指すポインタ
+		Material* materialData_ = nullptr;
+	};
+
+	struct ModelData
+	{
+		std::vector<Mesh> meshes;
+	};
+
+	
 
 
 public:
@@ -62,9 +80,9 @@ public:
 
 	void LoadObjFile(const std::string& directoryPath, const std::string& filename);
 
-	void SetTexture(const std::string& directoryFilePath);
+	void SetTexture(const std::string& directoryFilePath, uint32_t meshIndex);
 
-	void ResetTexture();
+	void ResetTexture(uint32_t meshIndex);
 
 private:
 
@@ -79,12 +97,12 @@ public:	// 外部入出力
 
 	// セッター
 	void SetInstanceCount(const UINT& instanceCount) { instanceCount_ = instanceCount; }
-	void SetEnableLighting(const int32_t& enableLighting) { materialData_->enableLighting = enableLighting; }
+	void SetEnableLighting(const int32_t& enableLighting, uint32_t meshIndex) { modelData_.meshes[meshIndex].materialData_->enableLighting = enableLighting; }
 	void SetModelData(const ModelData& modelData) { modelData_ = modelData; }
 
 	// ゲッター
 	const UINT& GetInstanceCount() const { return instanceCount_; }
-	const int32_t GetEnableLighting() const { return materialData_->enableLighting; }
+	const int32_t GetEnableLighting(uint32_t meshIndex) const { return modelData_.meshes[meshIndex].materialData_->enableLighting; }
 
 private:
 
@@ -93,17 +111,17 @@ private:
 	// モデルのデータ
 	ModelData modelData_;
 
-	// バッファリソース
-	Microsoft::WRL::ComPtr<ID3D12Resource> vertexResource_ = nullptr;
-	// バッファリソース内のデータを指すポインタ
-	VertexData* vertexData_ = nullptr;
-	// バッファリソースの使い道を補足するバッファビュー
-	D3D12_VERTEX_BUFFER_VIEW vertexBufferView_{};
+	//// バッファリソース
+	//Microsoft::WRL::ComPtr<ID3D12Resource> vertexResource_ = nullptr;
+	//// バッファリソース内のデータを指すポインタ
+	//VertexData* vertexData_ = nullptr;
+	//// バッファリソースの使い道を補足するバッファビュー
+	//D3D12_VERTEX_BUFFER_VIEW vertexBufferView_{};
 
-	// マテリアル用バッファリソース
-	Microsoft::WRL::ComPtr<ID3D12Resource> materialResource_ = nullptr;
-	// バッファリソース内のデータを指すポインタ
-	Material* materialData_ = nullptr;
+	//// マテリアル用バッファリソース
+	//Microsoft::WRL::ComPtr<ID3D12Resource> materialResource_ = nullptr;
+	//// バッファリソース内のデータを指すポインタ
+	//Material* materialData_ = nullptr;
 
 	bool isSphere_ = false;
 
