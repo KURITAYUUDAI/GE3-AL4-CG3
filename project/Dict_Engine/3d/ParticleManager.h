@@ -4,6 +4,8 @@
 
 #include <memory>
 
+#include "PSOManager.h"
+
 class Model;
 
 class Camera;
@@ -102,6 +104,10 @@ public:
 		Microsoft::WRL::ComPtr<ID3D12Resource> instancingResource;	// インスタンスバッファリソース
 		ParticleForGPU* instancingData = nullptr;					// インスタンスデータを書き込むためのポインタ
 		uint32_t instancingSrvIndex;								// インスタンス用SRVのインデックス
+		bool isMoveAccelerationField = true;						// 加速場の影響を受けるかどうか
+		std::string psoName_;
+		PSOManager::BlendMode blendMode_;
+		PSOManager::FillMode fillMode_;
 	};
 
 
@@ -115,7 +121,8 @@ public:
 
 	void Draw();
 
-	
+	// PSO等を残したままParticleやAccelerationFieldをリセットする
+	void Reset();
 
 	void DrawingCommon();
 
@@ -125,11 +132,15 @@ public:
 
 	void CreateAccelerationField(const Vector3& acceleration, const AABB& area);
 
+	void EmitSlash(const std::string name, const Vector3& position, uint32_t count);
+
 public: // 外部入出力
 
 	// セッター
 	//void SetDefaultCamera(Camera* camera){ defaultCamera_ = camera; }
 	void SetModel(const std::string& filePath);
+
+	void SetIsMoveAccelerationField(const std::string& name, bool isMove);
 
 	// ゲッター
 	DirectXBase* GetDxBase() const { return dxBase_; }
@@ -141,13 +152,17 @@ public: // 外部入出力
 
 private:
 
-	void CreateRootSignature(ID3DBlob* signatureBlob);
+	/*void CreateRootSignature(ID3DBlob* signatureBlob);
 
-	void CreateGraphicsPipelineState();
+	void CreateGraphicsPipelineState();*/
 
-	Particle MakeNewParticle(const Vector3& translate);
+	
 
 private:
+
+	std::string psoName_ = "ParticleDefault";
+	PSOManager::BlendMode blendMode_ = PSOManager::BlendMode::Normal;
+	PSOManager::FillMode fillMode_ = PSOManager::FillMode::kSolid;
 
 	DirectXBase* dxBase_ = nullptr;
 

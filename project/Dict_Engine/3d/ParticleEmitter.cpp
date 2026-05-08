@@ -23,6 +23,16 @@ void ParticleEmitter::Update()
 
 void ParticleEmitter::Emit()
 {
-	ParticleManager::GetInstance()->Emit(name_, transform_.translate, count_);
+	frequencyTime_ += kDeltaTime;
+	if (frequency_ <= frequencyTime_)
+	{
+		ParticleManager::GetInstance()->Emit(name_, transform_.translate, count_);
+		frequencyTime_ -= frequency_;
+	}
+}
+
+void ParticleEmitter::EmitSlash()
+{
+	ParticleManager::GetInstance()->EmitSlash(name_, transform_.translate, count_);
 }
 

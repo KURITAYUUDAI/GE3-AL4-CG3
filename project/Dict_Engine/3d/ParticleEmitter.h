@@ -12,6 +12,8 @@ public:
 
 	void Emit();
 
+	void EmitSlash();
+
 public: // 外部入出力
 
 	void SetName(const std::string& name){ name_ = name; }
