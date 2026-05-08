@@ -34,7 +34,7 @@ void Object3dManager::Initialize(DirectXBase* dxBase)
 		staticSamplerDescs.push_back(sampler);
 		D3D12_DESCRIPTOR_RANGE descriptorRange[1]{};
 		descriptorRange[0].BaseShaderRegister = 0; // t0
-		descriptorRange[0].NumDescriptors = 1;
+		descriptorRange[0].NumDescriptors = 2;
 		descriptorRange[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
 		descriptorRange[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
@@ -42,7 +42,7 @@ void Object3dManager::Initialize(DirectXBase* dxBase)
 
 		// Enum定義 (可読性のため)
 		enum {
-			kMaterial, kTransform, kTexture, Light, kCamera
+			kMaterial, kTransform, kTexture, kLight, kCamera, kEnvironmentTexture
 		};
 
 		rootParameters[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;	// CBVを使う
@@ -65,8 +65,6 @@ void Object3dManager::Initialize(DirectXBase* dxBase)
 		rootParameters[4].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;	// CBVを使う
 		rootParameters[4].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;	// PixelShaderで使う
 		rootParameters[4].Descriptor.ShaderRegister = 2;	// レジスタ番号2を使う
-
-
 
 
 

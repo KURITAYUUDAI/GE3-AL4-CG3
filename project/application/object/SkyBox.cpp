@@ -161,6 +161,8 @@ void SkyBox::Draw()
 	DirectXBase::GetInstance()->GetCommandList()->IASetVertexBuffers(0, 1, &vertexBufferView_);	// VBVを設定
 	// マテリアルのCBufferの場所を設定
 	DirectXBase::GetInstance()->GetCommandList()->SetGraphicsRootConstantBufferView(0, materialResource_->GetGPUVirtualAddress());
+	
+	
 
 	/*TextureManager::GetInstance()->GetSRVHandleGPU(modelData_.meshes[0].material.textureFilePath);*/
 	
@@ -177,6 +179,11 @@ void SkyBox::Draw()
 void SkyBox::Finalize()
 {
 	
+}
+
+uint32_t SkyBox::GetEnvironmentTextureIndex() const
+{
+	return modelData_.meshes[0].material.textureIndex;
 }
 
 void SkyBox::CreateIndexResource()

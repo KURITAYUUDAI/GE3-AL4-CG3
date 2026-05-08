@@ -396,6 +396,7 @@ void Model::CreateMaterialResource()
 		mesh.materialData_->enableLighting = true;
 		mesh.materialData_->uvTransform = MakeIdentity4x4();
 		mesh.materialData_->shininess = 10.0f;
+		mesh.materialData_->environmentCoefficient = 1.0f;
 	}
 
 	

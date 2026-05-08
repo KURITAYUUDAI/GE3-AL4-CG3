@@ -21,7 +21,8 @@ public:
 
 public:
 	void SetCamera(Camera* camera){ camera_ = camera; }
-	
+
+	uint32_t GetEnvironmentTextureIndex() const;
 private:
 
 	// IndexResourceを作成
