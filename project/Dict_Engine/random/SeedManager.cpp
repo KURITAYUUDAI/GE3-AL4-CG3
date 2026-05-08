@@ -1,14 +1,13 @@
 #include "SeedManager.h"
 
-std::unique_ptr<SeedManager, SeedManager::Deleter> SeedManager::instance_ = nullptr;
+std::unique_ptr<SeedManager> SeedManager::instance_ = nullptr;
 
 SeedManager* SeedManager::GetInstance()
 {
 	if (instance_ == nullptr)
 	{
-		instance_.reset(new SeedManager());
+		instance_ = std::make_unique<SeedManager>(ConstructorKey());
 	}
-
 	return instance_.get();
 }
 

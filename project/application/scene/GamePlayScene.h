@@ -80,5 +80,7 @@ private:
 	std::unique_ptr<Terrain> terrain_ = nullptr;
 
 	std::unique_ptr<Player> player_ = nullptr;
+
+	std::unique_ptr<ParticleEmitter> slashEmitter = nullptr;
 };
 

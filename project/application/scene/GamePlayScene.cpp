@@ -83,7 +83,10 @@ void GamePlayScene::Initialize()
 	object3ds_[0]->SetModel("sphere.obj");
 
 	particleManager_->SetModel("plane.obj");
-	particleManager_->CreateParticleGroup("circle", "resources/circle.png");
+	/*particleManager_->CreateParticleGroup("circle", "resources/circle.png");
+	particleManager_->SetIsMoveAccelerationField("circle", true);*/
+	particleManager_->CreateParticleGroup("slash", "resources/circle2.png");
+	particleManager_->SetIsMoveAccelerationField("slash", false);
 
 
 	AABB  aabb;
@@ -92,13 +95,13 @@ void GamePlayScene::Initialize()
 	particleManager_->CreateAccelerationField({ 5.0f, 0.0f, 0.0f }, aabb);
 
 
-	for (size_t i = 0; i < 1; i++)
+	/*for (size_t i = 0; i < 1; i++)
 	{
 		std::unique_ptr<ParticleEmitter> emitter = std::make_unique<ParticleEmitter>();
 		Transform transform = { {1.0f, 1.0f, 1.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f} };
 		emitter->Initialize("circle", transform, 3, 0.2f);
 		emitters_.push_back(std::move(emitter));
-	}
+	}*/
 
 	skyBox_ = new SkyBox();
 	skyBox_->Initialize();
@@ -110,6 +113,10 @@ void GamePlayScene::Initialize()
 	player_ = std::make_unique<Player>();
 	player_->Initialize();
 	player_->SetEnvironmentTextureIndex(skyBox_->GetEnvironmentTextureIndex());
+
+	slashEmitter = std::make_unique<ParticleEmitter>();
+	Transform transform = { {1.0f, 1.0f, 1.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f} };
+	slashEmitter->Initialize("slash", transform, 3, 0.2f);
 
 	// シーン初期化終わり
 
@@ -127,6 +134,7 @@ void GamePlayScene::Finalize()
 
 	}*/
 	emitters_.clear();
+	particleManager_->Reset();
 
 	/*for (auto it = object3ds_.begin(); it != object3ds_.end(); ++it)
 	{
@@ -535,7 +543,7 @@ void GamePlayScene::Update()
 	for (auto it = emitters_.begin(); it != emitters_.end(); ++it)
 	{
 		ParticleEmitter* emitter = it->get();
-		emitter->Update();
+		//emitter->Update();
 	}
 
 	particleManager_->Update();
@@ -546,6 +554,11 @@ void GamePlayScene::Update()
 
 	player_->Update();
 
+	if (inputManager_->TriggerKey(DIK_0))
+	{
+		slashEmitter->EmitSlash();
+	}
+
 	//// ImGuiの内部コマンドを生成する
 	//ImGui::Render();
 
@@ -555,6 +568,8 @@ void GamePlayScene::Update()
 void GamePlayScene::Draw()
 {
 
+	skyBox_->Draw();
+
 	if (isDrawObject3d_)
 	{
 		/*for (size_t i = 0; i < object3ds_.size(); i++)
@@ -562,13 +577,15 @@ void GamePlayScene::Draw()
 			object3ds_[i]->Draw();
 		}*/
 
-		skyBox_->Draw();
 		terrain_->Draw();
 		player_->Draw();
 	}
 
+	
+	
 
-	/*particleManager_->Draw();*/
+
+	particleManager_->Draw();
 
 	/*for (size_t i = 0; i < particle3ds.size(); i++)
 	{

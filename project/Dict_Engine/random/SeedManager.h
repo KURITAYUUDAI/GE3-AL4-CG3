@@ -5,11 +5,31 @@
 class SeedManager
 {
 public:
-
 	// シングルトンインスタンスの取得
 	static SeedManager* GetInstance();
 	// 終了
 	void Finalize();
+
+	// コンストラクタに渡すための鍵
+	class ConstructorKey
+	{
+	private:
+		ConstructorKey() = default;
+		friend class SeedManager;
+	};
+
+	// PassKeyを受け取るコンストラクタ
+	explicit SeedManager(ConstructorKey){}
+
+private: 	// シングルトンインスタンス
+
+	static std::unique_ptr<SeedManager> instance_;
+
+	~SeedManager() = default;
+	SeedManager(SeedManager&) = delete;
+	SeedManager& operator=(SeedManager&) = delete;
+
+	friend struct std::default_delete<SeedManager>;
 
 public:
 
@@ -23,25 +43,7 @@ public: // 外部入出力
 	// floatで乱数生成
 	float GenerateFloat(float min, float max);
 
-private:	// シングルトンインスタンス
-
-	// unique_ptr が delete するために使用する構造体
-	struct Deleter
-	{
-		void operator()(SeedManager* p) const
-		{
-			// クラス内部のスコープなので private なデストラクタを呼べる
-			delete p;
-		}
-	};
-
-	// unique_ptr の型定義に Deleter を入れることでdeleteが可能になる
-	static std::unique_ptr<SeedManager, Deleter> instance_;
-
-	SeedManager() = default;
-	~SeedManager() = default;
-	SeedManager(SeedManager&) = delete;
-	SeedManager& operator=(SeedManager&) = delete;
+	std::mt19937& GetRandomEngine() { return randomEngine_; }
 
 private:
 

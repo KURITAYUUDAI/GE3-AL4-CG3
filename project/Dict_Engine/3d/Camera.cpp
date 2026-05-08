@@ -43,12 +43,13 @@ void Camera::Finalize()
 
 }
 
-const Matrix4x4 Camera::GetBillboardWorldMatrix(const Vector3& scale, const Vector3& translate) const
+const Matrix4x4 Camera::GetBillboardWorldMatrix(const Vector3& scale, const Vector3& rotate, const Vector3& translate) const
 {
 	Matrix4x4 scaleMatrix = MakeScaleMatrix(scale);
+	Matrix4x4 rotateMatrix = MakeRotateZMatrix(rotate.z);
 	Matrix4x4 translateMatrix = MakeTranslateMatrix(translate);
 
-	Matrix4x4 worldMatrix = scaleMatrix * billboardMatrix_ * translateMatrix;
+	Matrix4x4 worldMatrix = scaleMatrix * rotateMatrix * billboardMatrix_ * translateMatrix;
 
 	return worldMatrix;
 }

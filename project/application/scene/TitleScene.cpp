@@ -101,6 +101,7 @@ void TitleScene::Finalize()
 
 	}
 	emitters_.clear();
+	particleManager_->Reset();
 
 	for (auto it = object3ds_.begin(); it != object3ds_.end(); ++it)
 	{
