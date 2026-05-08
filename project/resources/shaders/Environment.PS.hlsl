@@ -1,4 +1,4 @@
-#include "Object3d.hlsli"
+#include "Environment.hlsli"
 
 Texture2D<float4> gTexture : register(t0);
 SamplerState gSampler : register(s0);
@@ -16,6 +16,7 @@ struct Material
     int enableLighting;
     row_major float4x4 uvTransform;
     float shiniess;
+    float environmentCoefficient;
 };
 ConstantBuffer<Material> gMaterial : register(b0);
 
@@ -78,6 +79,7 @@ PixelShaderOutput main(VertexShaderOutput input)
     
     
     PixelShaderOutput output;
+    
     
     if(gMaterial.enableLighting != 0)   // Lightningする場合
     {
@@ -180,7 +182,14 @@ PixelShaderOutput main(VertexShaderOutput input)
         output.color.rgb = diffuse + specular;
         // アルファは今まで通り
         output.color.a = gMaterial.color.a * textureColor.a;
+        
+        float3 cameraToPosition = normalize(input.worldPosition - gCamera.worldPosition);
+        float3 reflectedVector = reflect(cameraToPosition, normalize(inputNormal));
+        float4 environmentColor = gEnvironmentTexture.Sample(gSampler, reflectedVector);
+        
+        output.color.rgb += environmentColor.rgb * gMaterial.environmentCoefficient;
 
+      
     }
     else
     {

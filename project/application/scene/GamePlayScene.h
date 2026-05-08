@@ -3,6 +3,7 @@
 #include "Framework.h"
 #include "SkyBox.h"
 #include "Terrain.h"
+#include "Player.h"
 
 #include "LightManager.h"
 #include "CameraManager.h"
@@ -77,5 +78,7 @@ private:
 	SkyBox* skyBox_ = nullptr;
 
 	std::unique_ptr<Terrain> terrain_ = nullptr;
+
+	std::unique_ptr<Player> player_ = nullptr;
 };
 

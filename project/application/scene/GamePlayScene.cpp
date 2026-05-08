@@ -80,7 +80,7 @@ void GamePlayScene::Initialize()
 		object3ds_.push_back(std::move(newObject3d));
 	}
 
-	object3ds_[0]->SetModel("multiMaterial.obj");
+	object3ds_[0]->SetModel("sphere.obj");
 
 	particleManager_->SetModel("plane.obj");
 	particleManager_->CreateParticleGroup("circle", "resources/circle.png");
@@ -106,6 +106,10 @@ void GamePlayScene::Initialize()
 
 	terrain_ = std::make_unique<Terrain>();
 	terrain_->Initialize();
+
+	player_ = std::make_unique<Player>();
+	player_->Initialize();
+	player_->SetEnvironmentTextureIndex(skyBox_->GetEnvironmentTextureIndex());
 
 	// シーン初期化終わり
 
@@ -540,6 +544,8 @@ void GamePlayScene::Update()
 
 	terrain_->Update();
 
+	player_->Update();
+
 	//// ImGuiの内部コマンドを生成する
 	//ImGui::Render();
 
@@ -551,13 +557,14 @@ void GamePlayScene::Draw()
 
 	if (isDrawObject3d_)
 	{
-		for (size_t i = 0; i < object3ds_.size(); i++)
+		/*for (size_t i = 0; i < object3ds_.size(); i++)
 		{
 			object3ds_[i]->Draw();
-		}
+		}*/
 
 		skyBox_->Draw();
 		terrain_->Draw();
+		player_->Draw();
 	}
 
 

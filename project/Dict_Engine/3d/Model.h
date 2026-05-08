@@ -30,6 +30,7 @@ public:
 		float padding[3];
 		Matrix4x4 uvTransform;
 		float shininess;
+		float environmentCoefficient;
 	};
 
 	struct Mesh
@@ -98,11 +99,13 @@ public:	// 外部入出力
 	// セッター
 	void SetInstanceCount(const UINT& instanceCount) { instanceCount_ = instanceCount; }
 	void SetEnableLighting(const int32_t& enableLighting, uint32_t meshIndex) { modelData_.meshes[meshIndex].materialData_->enableLighting = enableLighting; }
+	void SetEnvironmentCoefficient(const float& environmentCoefficient, uint32_t meshIndex) { modelData_.meshes[meshIndex].materialData_->environmentCoefficient = environmentCoefficient; }
 	void SetModelData(const ModelData& modelData) { modelData_ = modelData; }
 
 	// ゲッター
 	const UINT& GetInstanceCount() const { return instanceCount_; }
 	const int32_t GetEnableLighting(uint32_t meshIndex) const { return modelData_.meshes[meshIndex].materialData_->enableLighting; }
+	const float GetEnvironmentCoefficient(uint32_t meshIndex) const { return modelData_.meshes[meshIndex].materialData_->environmentCoefficient; }
 
 private:
 
