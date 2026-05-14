@@ -103,12 +103,12 @@ void PrimitiveManager::CreateRing(const std::string& name, const RingConfig& con
 						 config.innerColor.w * alpha1 };
 
 		mesh.vertices.push_back(outerA);
-		mesh.vertices.push_back(innerA);
 		mesh.vertices.push_back(outerB);
+		mesh.vertices.push_back(innerA);
 
 		mesh.vertices.push_back(outerB);
-		mesh.vertices.push_back(innerA);
 		mesh.vertices.push_back(innerB);
+		mesh.vertices.push_back(innerA);
 	}
 
 	mesh.material.textureFilePath = "";
