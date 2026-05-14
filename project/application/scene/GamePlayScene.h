@@ -82,5 +82,8 @@ private:
 	std::unique_ptr<Player> player_ = nullptr;
 
 	std::unique_ptr<ParticleEmitter> slashEmitter = nullptr;
+
+	std::unique_ptr<ParticleEmitter> ringEmitter = nullptr;
+
 };
 

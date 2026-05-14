@@ -16,17 +16,22 @@ void ParticleEmitter::Update()
 	frequencyTime_ += kDeltaTime;
 	if (frequency_ <= frequencyTime_)
 	{
-		ParticleManager::GetInstance()->Emit(name_, transform_.translate, count_);
+		ParticleManager::GetInstance()->RandomEmit(name_, transform_.translate, count_);
 		frequencyTime_ -= frequency_;
 	}
 }
 
 void ParticleEmitter::Emit()
 {
+	ParticleManager::GetInstance()->Emit(name_, transform_.translate, count_);
+}
+
+void ParticleEmitter::RandomEmit()
+{
 	frequencyTime_ += kDeltaTime;
 	if (frequency_ <= frequencyTime_)
 	{
-		ParticleManager::GetInstance()->Emit(name_, transform_.translate, count_);
+		ParticleManager::GetInstance()->RandomEmit(name_, transform_.translate, count_);
 		frequencyTime_ -= frequency_;
 	}
 }

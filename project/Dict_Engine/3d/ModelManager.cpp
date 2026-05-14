@@ -53,6 +53,26 @@ Model* ModelManager::FindModel(const std::string& filePath)
 	return nullptr;
 }
 
+void ModelManager::InsertMesh(const std::string& name, Mesh newMesh)
+{
+	// 読み込み済みモデルを検索
+	if (models_.contains(name))
+	{
+		// 読み込み済みなら早期return
+		return;
+	}
+
+	// モデルの生成とファイル読み込み、初期化
+	std::unique_ptr<Model> model = std::make_unique<Model>();
+	model->Initialize();
+	model->InsertMesh(newMesh);
+	model->CreateResources();
+
+	// モデルをmapコンテナに格納する
+	models_.insert(std::make_pair(name, std::move(model)));
+
+}
+
 void ModelManager::CreateSphere(const std::string& materialPath)
 {
 

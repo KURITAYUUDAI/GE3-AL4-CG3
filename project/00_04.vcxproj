@@ -61,17 +61,17 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <OutDir>$(SolutionDir)..\generated\outputs\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)..\generated\obj\$(ProjectName)\$(Configuration)\</IntDir>
-    <IncludePath>$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)externals\nlohmann;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Development|x64'">
     <OutDir>$(SolutionDir)..\generated\outputs\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)..\generated\obj\$(ProjectName)\$(Configuration)\</IntDir>
-    <IncludePath>$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)externals\nlohmann;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>$(SolutionDir)..\generated\outputs\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)..\generated\obj\$(ProjectName)\$(Configuration)\</IntDir>
-    <IncludePath>$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)externals\nlohmann;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -157,6 +157,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Dict_Engine\3d\CameraManager.cpp" />
+    <ClCompile Include="Dict_Engine\io\JSONManager.cpp" />
     <ClCompile Include="Dict_Engine\scene\BaseScene.cpp" />
     <ClCompile Include="Dict_Engine\scene\AbstractSceneFactory.cpp" />
     <ClCompile Include="Dict_Engine\3d\Camera.cpp" />
@@ -197,6 +198,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="application\object\SkyBox.cpp" />
     <ClCompile Include="application\object\Terrain.cpp" />
     <ClCompile Include="application\object\Player.cpp" />
+    <ClCompile Include="Dict_Engine\3d\PrimitiveManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="resources\shaders\Environment.PS.hlsl">
@@ -248,6 +250,8 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Dict_Engine\3d\CameraManager.h" />
+    <ClInclude Include="Dict_Engine\3d\ModelUtility.h" />
+    <ClInclude Include="Dict_Engine\io\JSONManager.h" />
     <ClInclude Include="Dict_Engine\scene\BaseScene.h" />
     <ClInclude Include="Dict_Engine\scene\AbstractSceneFactory.h" />
     <ClInclude Include="Dict_Engine\3d\Camera.h" />
@@ -284,6 +288,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Dict_Engine\3d\LightManager.h" />
     <ClInclude Include="application\object\Terrain.h" />
     <ClInclude Include="application\object\Player.h" />
+    <ClInclude Include="Dict_Engine\3d\PrimitiveManager.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="externals\DirectXTex\DirectXTex_Desktop_2022_Win10.vcxproj">

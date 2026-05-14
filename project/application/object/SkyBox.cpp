@@ -234,7 +234,7 @@ void SkyBox::CreateVertexResource()
 {
 	// VertexResourceを作成する。
 	vertexResource_ = DirectXBase::GetInstance()->
-		CreateBufferResource(sizeof(Model::VertexData) * modelData_.meshes[0].vertices.size());
+		CreateBufferResource(sizeof(VertexData) * modelData_.meshes[0].vertices.size());
 
 	assert(vertexResource_ && "CreateBufferResource failed");
 
@@ -242,20 +242,20 @@ void SkyBox::CreateVertexResource()
 	// リソースの先頭のアドレスから使う
 	vertexBufferView_.BufferLocation = vertexResource_->GetGPUVirtualAddress();
 	// 使用するリソースのサイズは頂点のサイズ
-	vertexBufferView_.SizeInBytes = UINT(sizeof(Model::VertexData) * modelData_.meshes[0].vertices.size());
+	vertexBufferView_.SizeInBytes = UINT(sizeof(VertexData) * modelData_.meshes[0].vertices.size());
 	// 1頂点当たりのサイズ
-	vertexBufferView_.StrideInBytes = sizeof(Model::VertexData);
+	vertexBufferView_.StrideInBytes = sizeof(VertexData);
 
 	// VertexResourceにデータを書き込むためのアドレスを取得してVertexDataに割り当てる
 	vertexResource_->Map(0, nullptr, reinterpret_cast<void**>(&vertexData_));
 	// 頂点データをコピーする
-	std::memcpy(vertexData_, modelData_.meshes[0].vertices.data(), sizeof(Model::VertexData) * modelData_.meshes[0].vertices.size());
+	std::memcpy(vertexData_, modelData_.meshes[0].vertices.data(), sizeof(VertexData) * modelData_.meshes[0].vertices.size());
 }
 
 void SkyBox::CreateMaterialResource()
 {
 	// マテリアルリソースを作成する。
-	materialResource_ = DirectXBase::GetInstance()->CreateBufferResource(sizeof(Model::Material));
+	materialResource_ = DirectXBase::GetInstance()->CreateBufferResource(sizeof(Material));
 	// MaterialResourceにデータを書き込むためのアドレスを取得してMaterialDataに割り当てる
 	materialResource_->Map(0, nullptr, reinterpret_cast<void**>(&materialData_));
 
@@ -266,14 +266,14 @@ void SkyBox::CreateMaterialResource()
 	materialData_->shininess = 10.0f;
 }
 
-Model::ModelData SkyBox::CreateSkyBox()
+ModelData SkyBox::CreateSkyBox()
 {
 	// 1. 中で必要となる変数の宣言
-	Model::ModelData mesh; //メッシュデータ
+	ModelData mesh; //メッシュデータ
 
 
 
-	std::vector<Model::VertexData> vertexData;
+	std::vector<VertexData> vertexData;
 	vertexData.resize(24);
 
 	
@@ -337,7 +337,7 @@ Model::ModelData SkyBox::CreateSkyBox()
 		vertexData[i].normal = { 0.0f, 0.0f, 0.0f };
 	}
 
-	Model::Mesh newMesh;
+	Mesh newMesh;
 
 	newMesh.vertices = vertexData;
 

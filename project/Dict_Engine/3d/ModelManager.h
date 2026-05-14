@@ -6,13 +6,41 @@
 
 #include "DirectXBase.h"
 
-class DirectXBase;
+#include "ModelUtility.h"
 
 class Model;
+
+class DirectXBase;
 
 // モデルマネージャー
 class ModelManager
 {
+public:
+	// シングルトンインスタンスの取得
+	static ModelManager* GetInstance();
+	// 終了
+	void Finalize();
+
+	// コンストラクタに渡すための鍵
+	class ConstructorKey
+	{
+	private:
+		ConstructorKey() = default;
+		friend class ModelManager;
+	};
+
+	// PassKeyを受け取るコンストラクタ
+	explicit ModelManager(ConstructorKey){}
+
+private:	// シングルトン化
+
+	static std::unique_ptr<ModelManager> instance_;
+
+	~ModelManager() = default;
+	ModelManager(ModelManager&) = delete;
+	ModelManager& operator=(ModelManager&) = delete;
+
+	friend struct std::default_delete<ModelManager>;
 
 public:
 	// 初期化
@@ -31,39 +59,16 @@ public:
 	/// <returns>モデル</returns>
 	Model* FindModel(const std::string& filePath);
 
+	void InsertMesh(const std::string& name, Mesh newMesh);
+
 	void CreateSphere(const std::string& materialPath);
-
-public:
-	// シングルトンインスタンスの取得
-	static ModelManager* GetInstance();
-	// 終了
-	void Finalize();
-
-	// コンストラクタに渡すための鍵
-	class ConstructorKey
-	{
-	private:
-		ConstructorKey() = default;
-		friend class ModelManager;
-	};
-
-	// PassKeyを受け取るコンストラクタ
-	explicit ModelManager(ConstructorKey){}
 
 
 public: // 外部入出力
 
 	DirectXBase* GetDxBase() const { return dxBase_; }
 
-private:	// シングルトン化
 
-	static std::unique_ptr<ModelManager> instance_;
-	
-	~ModelManager() = default;
-	ModelManager(ModelManager&) = delete;
-	ModelManager& operator=(ModelManager&) = delete;
-
-	friend struct std::default_delete<ModelManager>;
 
 private:	// 静的関数
 

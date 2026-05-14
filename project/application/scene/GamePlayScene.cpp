@@ -2,6 +2,7 @@
 #include "SceneManager.h"
 #include "LightManager.h"
 #include "CameraManager.h"
+#include "PrimitiveManager.h"
 
 void GamePlayScene::Initialize()
 {
@@ -82,11 +83,38 @@ void GamePlayScene::Initialize()
 
 	object3ds_[0]->SetModel("sphere.obj");
 
-	particleManager_->SetModel("plane.obj");
 	/*particleManager_->CreateParticleGroup("circle", "resources/circle.png");
+	particleManager_->SetModel("circle", "plane.obj");
 	particleManager_->SetIsMoveAccelerationField("circle", true);*/
 	particleManager_->CreateParticleGroup("slash", "resources/circle2.png");
+	particleManager_->SetModel("slash", "plane.obj");
 	particleManager_->SetIsMoveAccelerationField("slash", false);
+
+	PrimitiveManager::GetInstance()->Initialize();
+	PrimitiveManager::RingConfig ringConfig;
+	ringConfig.segments = 32;
+	ringConfig.innerRadius = 0.0f;
+	ringConfig.outerRadius = 1.5f;
+	ringConfig.innerColor = {0.0f, 0.0f, 1.0f, 1.0f};
+	ringConfig.outerColor = {0.0f, 0.5f, 0.0f, 1.0f};
+	ringConfig.uvScaleU = 2.0f;
+	ringConfig.uvScaleV = 0.1f;
+	ringConfig.startAngle = 1.0f / 5.0f * pi;
+	ringConfig.endAngle = 9.0f / 5.0f * pi;
+	ringConfig.radiusPoints = 
+	{
+		{ 0.0f, 0.5f, 0.5f },   // 開始：inner=0.2, outer=1.0
+		{ 0.5f, 0.5f, 1.0f },   // 中間：inner=0.1, outer=0.6
+		{ 1.0f, 0.5f, 0.5f },   // 終了：inner=0.2, outer=0.2
+	};
+	ringConfig.startFadeRange = 0.15f;
+	ringConfig.endFadeRange = 0.15f;
+	PrimitiveManager::GetInstance()->CreateRing("ring_primitive", ringConfig);
+	
+	particleManager_->CreateParticleGroup("ring", "resources/gradationLine.png");
+	particleManager_->SetModel("ring", "ring_primitive");
+	particleManager_->SetIsMoveAccelerationField("ring", false);
+	particleManager_->SetIsBillboard("ring", false);
 
 
 	AABB  aabb;
@@ -115,8 +143,13 @@ void GamePlayScene::Initialize()
 	player_->SetEnvironmentTextureIndex(skyBox_->GetEnvironmentTextureIndex());
 
 	slashEmitter = std::make_unique<ParticleEmitter>();
-	Transform transform = { {1.0f, 1.0f, 1.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f} };
-	slashEmitter->Initialize("slash", transform, 3, 0.2f);
+	slashEmitter->Initialize("slash", 
+		{ {1.0f, 1.0f, 1.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f} }, 3, 0.2f);
+
+	ringEmitter = std::make_unique<ParticleEmitter>();
+	ringEmitter->Initialize("ring", 
+		{ {1.0f, 2.0f, 1.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f} }, 1, 0.2f);
+
 
 	// シーン初期化終わり
 
@@ -557,6 +590,11 @@ void GamePlayScene::Update()
 	if (inputManager_->TriggerKey(DIK_0))
 	{
 		slashEmitter->EmitSlash();
+	}
+
+	if (inputManager_->TriggerKey(DIK_1))
+	{
+		ringEmitter->Emit();
 	}
 
 	//// ImGuiの内部コマンドを生成する
