@@ -99,15 +99,21 @@ public:
 	{
 		MaterialData materialData;									// マテリアルデータ
 		std::list<Particle> particles;								// パーティクルリスト
+
+		Model* model;												// モデル
+
 		uint32_t instanceNum;
 		uint32_t maxInstanceNum;									// インスタンス数
 		Microsoft::WRL::ComPtr<ID3D12Resource> instancingResource;	// インスタンスバッファリソース
 		ParticleForGPU* instancingData = nullptr;					// インスタンスデータを書き込むためのポインタ
 		uint32_t instancingSrvIndex;								// インスタンス用SRVのインデックス
+
 		bool isMoveAccelerationField = true;						// 加速場の影響を受けるかどうか
-		std::string psoName_;
-		PSOManager::BlendMode blendMode_;
-		PSOManager::FillMode fillMode_;
+		bool isBillboard = true;
+
+		std::string psoName_;										// PSOの名前
+		PSOManager::BlendMode blendMode_;							// ブレンドモード
+		PSOManager::FillMode fillMode_;								// フィルモード
 	};
 
 
@@ -128,11 +134,13 @@ public:
 
 	void CreateParticleGroup(const std::string name, const std::string textureFilePath);
 
-	void Emit(const std::string name, const Vector3& position, uint32_t count);
+	void RandomEmit(const std::string name, const Vector3& position, uint32_t count);
 
 	void CreateAccelerationField(const Vector3& acceleration, const AABB& area);
 
 	void EmitSlash(const std::string name, const Vector3& position, uint32_t count);
+
+	void Emit(const std::string name, const Vector3& position, uint32_t count);
 
 public: // 外部入出力
 
@@ -140,7 +148,9 @@ public: // 外部入出力
 	//void SetDefaultCamera(Camera* camera){ defaultCamera_ = camera; }
 	void SetModel(const std::string& filePath);
 
+	void SetModel(const std::string& name, std::string filePath);
 	void SetIsMoveAccelerationField(const std::string& name, bool isMove);
+	void SetIsBillboard(const std::string& name, bool isBillboard);
 
 	// ゲッター
 	DirectXBase* GetDxBase() const { return dxBase_; }

@@ -1,6 +1,7 @@
 #include "Object3d.h"
 #include "Object3dManager.h"
 #include "Model.h"
+#include "ModelUtility.h"
 #include "ModelManager.h"
 #include "Camera.h"
 #include "LightManager.h"

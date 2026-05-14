@@ -51,7 +51,7 @@ void Model::Draw(const UINT& instanceCount)
 	}
 }
 
-Model::MaterialData Model::LoadMaterialTemplateFile(const std::string& directoryPath, const std::string& filename, const std::string& mtlname)
+MaterialData Model::LoadMaterialTemplateFile(const std::string& directoryPath, const std::string& filename, const std::string& mtlname)
 {
 	// 1. 中で必要となる変数の宣言
 	MaterialData materialData; // 構築するMaterialData
@@ -141,6 +141,7 @@ void Model::LoadObjFile(const std::string& directoryPath, const std::string& fil
 				vertex.position = { position.x, position.y, position.z, 1.0f };
 				vertex.normal = { normal.x, normal.y, normal.z };
 				vertex.texcoord = { texcoord.x, texcoord.y };
+				vertex.color = { 1.0f, 1.0f, 1.0f, 1.0f };
 				// aiProcess_MakeLeftHandedはz*=-1で、右手->左手に変換するので手動で対処
 				vertex.position.x *= -1.0f;
 				vertex.normal.x *= -1.0f;
@@ -333,6 +334,19 @@ void Model::LoadObjFile(const std::string& directoryPath, const std::string& fil
 	
 }
 
+void Model::InsertMesh(Mesh mesh)
+{
+	modelData_.meshes.clear();
+
+
+
+	modelData_.meshes.push_back(mesh);
+
+	CreateVertexResource();
+
+
+}
+
 void Model::SetTexture(const std::string& directoryFilePath, uint32_t meshIndex)
 {
 	modelData_.meshes[meshIndex].material.textureFilePath = directoryFilePath;
@@ -354,8 +368,6 @@ void Model::CreateVertexResource()
 	for (uint32_t meshIndex = 0; meshIndex < modelData_.meshes.size(); ++meshIndex)
 	{
 		Mesh& mesh = modelData_.meshes[meshIndex];
-
-
 
 		// VertexResourceを作成する。
 		mesh.vertexResource_ = modelManager_->GetDxBase()->
@@ -398,8 +410,6 @@ void Model::CreateMaterialResource()
 		mesh.materialData_->shininess = 10.0f;
 		mesh.materialData_->environmentCoefficient = 1.0f;
 	}
-
-	
 }
 
 void Model::CreateSphere()

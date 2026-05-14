@@ -12,6 +12,8 @@ public:
 
 	void Emit();
 
+	void RandomEmit();
+
 	void EmitSlash();
 
 public: // 外部入出力

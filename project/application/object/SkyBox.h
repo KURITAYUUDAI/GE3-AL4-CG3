@@ -3,6 +3,7 @@
 #include "object3d.h"
 #include "myMath.h"
 #include "Model.h"
+#include "ModelUtility.h"
 
 class SkyBox
 {
@@ -37,7 +38,7 @@ private:
 	// MaterialResourceを作成
 	void CreateMaterialResource();
 
-	Model::ModelData CreateSkyBox();
+	ModelData CreateSkyBox();
 
 private:
 	std::string psoName_ = "SkyBox";
@@ -45,7 +46,7 @@ private:
 	PSOManager::FillMode fillMode_ = PSOManager::FillMode::kSolid;
 
 	Camera* camera_;
-	Model::ModelData modelData_;
+	ModelData modelData_;
 
 	Transform transform_;
 
@@ -65,13 +66,13 @@ private:
 	// バッファリソース
 	Microsoft::WRL::ComPtr<ID3D12Resource> vertexResource_ = nullptr;
 	// バッファリソース内のデータを指すポインタ
-	Model::VertexData* vertexData_ = nullptr;
+	VertexData* vertexData_ = nullptr;
 	// バッファリソースの使い道を補足するバッファビュー
 	D3D12_VERTEX_BUFFER_VIEW vertexBufferView_{};
 
 	// マテリアル用バッファリソース
 	Microsoft::WRL::ComPtr<ID3D12Resource> materialResource_ = nullptr;
 	// バッファリソース内のデータを指すポインタ
-	Model::Material* materialData_ = nullptr;
+	Material* materialData_ = nullptr;
 
 };

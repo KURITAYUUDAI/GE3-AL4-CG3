@@ -28,7 +28,8 @@ void ParticleManager::Initialize(DirectXBase* dxBase)
 		std::vector<D3D12_STATIC_SAMPLER_DESC> staticSamplerDescs;
 		D3D12_STATIC_SAMPLER_DESC sampler{};
 		sampler = PSOManager::GetInstance()->GetDefaultStaticSamplerDesc();
-
+		sampler.AddressV = D3D12_TEXTURE_ADDRESS_MODE_CLAMP;
+	
 		staticSamplerDescs.push_back(sampler);
 		D3D12_DESCRIPTOR_RANGE descriptorRange[1]{};
 		descriptorRange[0].BaseShaderRegister = 0; // t0
@@ -96,6 +97,7 @@ void ParticleManager::Initialize(DirectXBase* dxBase)
 			{ "POSITION", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
 			{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
 			{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+			{ "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
 		};
 		};
 
@@ -163,10 +165,19 @@ void ParticleManager::Update()
 
 			Matrix4x4 worldMatrix;
 
-			worldMatrix = CameraManager::GetInstance()->GetActiveCamera()->GetBillboardWorldMatrix(
+			if (particleGroup.second.isBillboard)
+			{
+				worldMatrix = CameraManager::GetInstance()->GetActiveCamera()->GetBillboardWorldMatrix(
 					particle.transform.scale,
 					particle.transform.rotate,
 					particle.transform.translate);
+			}
+			else
+			{
+				worldMatrix = MakeAffineMatrixB(particle.transform.scale,
+					particle.transform.rotate, particle.transform.translate);
+			}
+			
 
 			if (particleGroup.second.instanceNum < particleGroup.second.maxInstanceNum)
 			{
@@ -212,13 +223,13 @@ void ParticleManager::Draw()
 		dxBase_->GetCommandList()->SetGraphicsRootDescriptorTable(1, 
 			srvManager_->GetGPUDescriptorHandle(particleGroup.second.instancingSrvIndex));
 
-		model_->SetTexture(particleGroup.second.materialData.textureFilePath, 0);
 		
+		particleGroup.second.model->SetTexture(particleGroup.second.materialData.textureFilePath, 0);
 
 		// 3Dモデルが割り当てられていれば描画する
-		if (model_)
+		if (particleGroup.second.model)
 		{
-			model_->Draw(particleGroup.second.instanceNum);
+			particleGroup.second.model->Draw(particleGroup.second.instanceNum);
 		}
 	}
 
@@ -291,7 +302,7 @@ void ParticleManager::CreateParticleGroup(const std::string name, const std::str
 	particleGroup.fillMode_ = PSOManager::FillMode::kSolid;
 }
 
-void ParticleManager::Emit(const std::string name, const Vector3& position, uint32_t count)
+void ParticleManager::RandomEmit(const std::string name, const Vector3& position, uint32_t count)
 {
 	if (!particleGroups_.contains(name))
 	{
@@ -361,6 +372,29 @@ void ParticleManager::EmitSlash(const std::string name, const Vector3& position,
 	}
 }
 
+void ParticleManager::Emit(const std::string name, const Vector3& position, uint32_t count)
+{
+	if (!particleGroups_.contains(name))
+	{
+		assert(false);
+		return;
+	}
+
+	for (uint32_t index = 0; index < count; ++index)
+	{
+		Particle particle;
+		particle.transform.scale = {1.0f, 1.0f, 1.0f};
+		particle.transform.rotate = { 0.0f, 0.0f, 0.0f };
+		particle.transform.translate = position;
+		particle.velocity = { 0.0f, 0.0f, 0.0f };
+		particle.color = { 1.0f, 1.0f, 1.0f, 1.0f };
+		particle.lifeTime = 1.0f;
+		particle.currentTime = 0.0f;
+
+		particleGroups_[name].particles.push_back(particle);
+	}
+}
+
 void ParticleManager::CreateAccelerationField(const Vector3& acceleration, const AABB& area)
 {
 	AccelerationField accelerationField;
@@ -375,6 +409,17 @@ void ParticleManager::SetModel(const std::string& filePath)
 	model_ = ModelManager::GetInstance()->FindModel(filePath);
 }
 
+void ParticleManager::SetModel(const std::string& name, std::string filePath)
+{
+	if (!particleGroups_.contains(name))
+	{
+		assert(false);
+		return;
+	}
+
+	particleGroups_[name].model = ModelManager::GetInstance()->FindModel(filePath);
+}
+
 void ParticleManager::SetIsMoveAccelerationField(const std::string& name, bool isMove)
 {
 	if (!particleGroups_.contains(name))
@@ -384,6 +429,17 @@ void ParticleManager::SetIsMoveAccelerationField(const std::string& name, bool i
 	}
 
 	particleGroups_[name].isMoveAccelerationField = isMove;
+}
+
+void ParticleManager::SetIsBillboard(const std::string& name, bool isBillboard)
+{
+	if (!particleGroups_.contains(name))
+	{
+		assert(false);
+		return;
+	}
+
+	particleGroups_[name].isBillboard = isBillboard;
 }
 
 const std::list<std::string> ParticleManager::GetParticleGroupName()

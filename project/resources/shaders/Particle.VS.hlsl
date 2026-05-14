@@ -18,6 +18,7 @@ struct VertexShaderInput
     float4 position : POSITION0;
     float2 texcoord : TEXCOORD0;
     float3 normal : NORMAL0;
+    float4 color : COLOR0;
 };
 
 VertexShaderOutput main(VertexShaderInput input, uint instanceId : SV_InstanceID)
@@ -26,6 +27,6 @@ VertexShaderOutput main(VertexShaderInput input, uint instanceId : SV_InstanceID
     output.position = mul(input.position, gParticle[instanceId].WVP);
     output.texcoord = input.texcoord;
     output.normal = normalize(mul(input.normal, (float3x3) gParticle[instanceId].World));
-    output.color = gParticle[instanceId].color;
+    output.color = gParticle[instanceId].color * input.color;
     return output;
 }
