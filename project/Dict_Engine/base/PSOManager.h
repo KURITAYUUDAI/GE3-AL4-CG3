@@ -45,6 +45,11 @@ public:
 		Microsoft::WRL::ComPtr<IDxcBlob> pixelShader;
 	};
 
+	struct InputElement
+	{
+		
+	};
+
 	struct PSOConfig
 	{
 		std::wstring vertexShaderPath;
@@ -124,8 +129,6 @@ private:
 
 
 private:
-
-	DirectXBase* dxBase_ = nullptr;
 
 	std::unordered_map<std::string, PSOConfig> psoConfigs_;
 	std::unordered_map<std::string, ShaderData> shaderDatas_;

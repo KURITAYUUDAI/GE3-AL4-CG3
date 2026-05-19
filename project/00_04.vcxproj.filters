@@ -209,6 +209,8 @@
     <FxCompile Include="resources\shaders\SkyBox.VS.hlsl" />
     <FxCompile Include="resources\shaders\Environment.PS.hlsl" />
     <FxCompile Include="resources\shaders\Environment.VS.hlsl" />
+    <FxCompile Include="resources\shaders\CopyImage.PS.hlsl" />
+    <FxCompile Include="resources\shaders\CopyImage.VS.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Dict_Engine\io\DebugCamera.h">
@@ -339,5 +341,6 @@
     <None Include="resources\shaders\Particle.hlsli" />
     <None Include="resources\shaders\SkyBox.hlsli" />
     <None Include="resources\shaders\Environment.hlsli" />
+    <None Include="resources\shaders\CopyImage.hlsli" />
   </ItemGroup>
 </Project>

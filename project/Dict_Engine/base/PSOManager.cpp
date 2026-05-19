@@ -25,8 +25,6 @@ void PSOManager::Finalize()
 
 void PSOManager::Initialize()
 {
-	dxBase_ = DirectXBase::GetInstance();
-
 	psoDatas_.clear();
 	rootSignatureDatas_.clear();
 	psoConfigs_.clear();
@@ -79,6 +77,8 @@ void PSOManager::CreatePipeLineState(const std::string& name, BlendMode blend, F
 	{
 		inputElementDescs = psoConfig.inputLayoutGenerator();
 	}
+
+
 
 	// 3. BlendStateの設定
 	D3D12_BLEND_DESC blendDesc = CreateBlendDesc(blend);
