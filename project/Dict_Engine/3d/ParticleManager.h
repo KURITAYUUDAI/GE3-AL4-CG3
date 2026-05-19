@@ -75,6 +75,8 @@ public:
 	struct Particle
 	{
 		Transform transform;	// 変換情報
+		Transform uvTransform = {{1.0f, 1.0f, 1.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}};	
+								// UV変換情報
 		Vector3 velocity;		// 速度
 		Vector4 color;			// 色
 		float lifeTime;			// 生存時間

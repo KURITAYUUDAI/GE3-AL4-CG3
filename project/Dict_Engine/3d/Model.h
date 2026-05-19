@@ -54,15 +54,26 @@ private:
 public:	// 外部入出力
 
 	// セッター
-	void SetInstanceCount(const UINT& instanceCount) { instanceCount_ = instanceCount; }
-	void SetEnableLighting(const int32_t& enableLighting, uint32_t meshIndex) { modelData_.meshes[meshIndex].materialData_->enableLighting = enableLighting; }
-	void SetEnvironmentCoefficient(const float& environmentCoefficient, uint32_t meshIndex) { modelData_.meshes[meshIndex].materialData_->environmentCoefficient = environmentCoefficient; }
 	void SetModelData(const ModelData& modelData) { modelData_ = modelData; }
+	void SetInstanceCount(const UINT& instanceCount) { instanceCount_ = instanceCount; }
+	
+	void SetColor(const Vector4& color, uint32_t meshIndex){ modelData_.meshes[meshIndex].materialData_->color = color; }
+	void SetEnableLighting(const int32_t& enableLighting, uint32_t meshIndex) { modelData_.meshes[meshIndex].materialData_->enableLighting = enableLighting; }
+	void SetUVTransform(const Transform& uvTransform, uint32_t meshIndex);
+	void SetEnvironmentCoefficient(const float& environmentCoefficient, uint32_t meshIndex) { modelData_.meshes[meshIndex].materialData_->environmentCoefficient = environmentCoefficient; }
+	void SetAlphaReference(const float alphaReference, uint32_t meshIndex){modelData_.meshes[meshIndex].materialData_->alphaReference = alphaReference; }
+	
+	
 
 	// ゲッター
 	const UINT& GetInstanceCount() const { return instanceCount_; }
-	const int32_t GetEnableLighting(uint32_t meshIndex) const { return modelData_.meshes[meshIndex].materialData_->enableLighting; }
-	const float GetEnvironmentCoefficient(uint32_t meshIndex) const { return modelData_.meshes[meshIndex].materialData_->environmentCoefficient; }
+	
+	const Vector4& GetColor(uint32_t meshIndex) const {return modelData_.meshes[meshIndex].materialData_->color; }
+	const int32_t& GetEnableLighting(uint32_t meshIndex) const { return modelData_.meshes[meshIndex].materialData_->enableLighting; }
+	const Matrix4x4& GetUVTransform(uint32_t meshIndex) const { return modelData_.meshes[meshIndex].materialData_->uvTransform; }
+	const float& GetShininess(uint32_t meshIndex) const { return modelData_.meshes[meshIndex].materialData_->shininess; }
+	const float& GetEnvironmentCoefficient(uint32_t meshIndex) const { return modelData_.meshes[meshIndex].materialData_->environmentCoefficient; }
+	const float& GetAlphaReference(uint32_t meshIndex) const { return modelData_.meshes[meshIndex].materialData_->alphaReference; }
 
 private:
 

@@ -107,8 +107,8 @@ void GamePlayScene::Initialize()
 		{ 0.5f, 0.5f, 1.0f },   // 中間：inner=0.1, outer=0.6
 		{ 1.0f, 0.5f, 0.5f },   // 終了：inner=0.2, outer=0.2
 	};
-	ringConfig.startFadeRange = 0.15f;
-	ringConfig.endFadeRange = 0.15f;
+	ringConfig.alphaFade.startFadeRange = 0.15f;
+	ringConfig.alphaFade.endFadeRange = 0.15f;
 	PrimitiveManager::GetInstance()->CreateRing("ring_primitive", ringConfig);
 	
 	particleManager_->CreateParticleGroup("ring", "resources/gradationLine.png");
@@ -116,6 +116,35 @@ void GamePlayScene::Initialize()
 	particleManager_->SetIsMoveAccelerationField("ring", false);
 	particleManager_->SetIsBillboard("ring", false);
 
+	PrimitiveManager::CylinderConfig cylinderConfig;
+	cylinderConfig.segments = 32;
+	cylinderConfig.stacks = 32;
+	cylinderConfig.height = 3.0f;
+	cylinderConfig.topRadiusX = 1.0f;
+	cylinderConfig.topRadiusZ = 1.0f;
+	cylinderConfig.bottomRadiusX = 1.0f;
+	cylinderConfig.bottomRadiusZ = 1.0f;
+	cylinderConfig.radiusPoints =
+	{
+		{ 0.0f, 1.0f, 1.0f, false },  // ここから折れ線
+		{ 0.3f, 2.0f, 2.0f, true  },  // ここからなめらか
+		{ 0.7f, 2.0f, 2.0f, false },  // ここから折れ線
+		{ 1.0f, 1.0f, 1.0f },
+	};
+	cylinderConfig.topColor = { 0.0f, 0.0f, 1.0f, 1.0f };
+	cylinderConfig.bottomColor = { 0.0f, 0.5f, 0.0f, 1.0f };
+	cylinderConfig.uvScaleU = 2.0f;
+	cylinderConfig.uvScaleV = 1.0f;
+	cylinderConfig.startAngle = 0.0f;
+	cylinderConfig.endAngle = 2.0f * pi;
+	cylinderConfig.alphaFade.startFadeRange = 0.15f;
+	cylinderConfig.alphaFade.endFadeRange = 0.15f;
+	PrimitiveManager::GetInstance()->CreateCylinder("cylinder_primitive", cylinderConfig);
+
+	particleManager_->CreateParticleGroup("cylinder", "resources/uvChecker.png");
+	particleManager_->SetModel("cylinder", "cylinder_primitive");
+	particleManager_->SetIsMoveAccelerationField("cylinder", false);
+	particleManager_->SetIsBillboard("cylinder", false);
 
 	AABB  aabb;
 	aabb.max = { 1.0f, 1.0f, 1.0f };
@@ -150,6 +179,11 @@ void GamePlayScene::Initialize()
 	ringEmitter->Initialize("ring", 
 		{ {1.0f, 2.0f, 1.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f} }, 1, 0.2f);
 
+	cylinderEmitter = std::make_unique<ParticleEmitter>();
+	cylinderEmitter->Initialize("cylinder",
+		{ {1.0f, 0.0f, 1.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f} }, 1, 0.2f);
+
+
 
 	// シーン初期化終わり
 
@@ -167,6 +201,7 @@ void GamePlayScene::Finalize()
 
 	}*/
 	emitters_.clear();
+
 	particleManager_->Reset();
 
 	/*for (auto it = object3ds_.begin(); it != object3ds_.end(); ++it)
@@ -595,6 +630,11 @@ void GamePlayScene::Update()
 	if (inputManager_->TriggerKey(DIK_1))
 	{
 		ringEmitter->Emit();
+	}
+
+	if (inputManager_->TriggerKey(DIK_2))
+	{
+		cylinderEmitter->Emit();
 	}
 
 	//// ImGuiの内部コマンドを生成する

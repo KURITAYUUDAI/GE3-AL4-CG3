@@ -101,6 +101,9 @@ void ParticleManager::Initialize(DirectXBase* dxBase)
 		};
 		};
 
+	// ラスタライザ設定
+	config.rasterizerDesc.CullMode = D3D12_CULL_MODE_NONE;
+
 	// 深度設定
 	config.depthEnable = true;
 	config.depthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO;
@@ -109,10 +112,6 @@ void ParticleManager::Initialize(DirectXBase* dxBase)
 	PSOManager::GetInstance()->RegisterPSOConfig(psoName_, config);
 
 	//CreateGraphicsPipelineState();
-
-
-
-	
 }
 
 ParticleManager* ParticleManager::GetInstance()

@@ -16,6 +16,8 @@ struct Material
     int enableLighting;
     row_major float4x4 uvTransform;
     float shiniess;
+    float environmentCoefficient;
+    float alphaReference;
 };
 ConstantBuffer<Material> gMaterial : register(b0);
 

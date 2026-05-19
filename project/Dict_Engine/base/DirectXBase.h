@@ -24,6 +24,8 @@ using namespace DirectX;
 #include "externals/DirectXTex/d3dx12.h"
 #include <vector>
 
+#include "myMath.h"
+
 class DirectXBase
 {
 public:
@@ -85,6 +87,9 @@ public:
 	
 	// テクスチャリソース生成
 	ComPtr<ID3D12Resource> CreateTextureResource(const DirectX::TexMetadata& metadata);
+
+	ComPtr<ID3D12Resource> CreateRenderTextureResource(uint32_t width, uint32_t height, 
+		DXGI_FORMAT formmat, const Vector4& clearColor);
 
 	// テクスチャをアップロード
 	Microsoft::WRL::ComPtr<ID3D12Resource> UploadTextureData(ID3D12Resource* texture, const DirectX::ScratchImage& mipImages,
@@ -233,7 +238,10 @@ private:
 	std::array<ComPtr<ID3D12Resource>, 2> swapChainResources_;
 
 	// RTVハンドル
-	D3D12_CPU_DESCRIPTOR_HANDLE rtvHandles_[2];
+	D3D12_CPU_DESCRIPTOR_HANDLE rtvHandles_[3];
+
+	// RenderTextureResource
+	ComPtr<ID3D12Resource> renderTextureResource_;
 
 	// フェンス
 	ComPtr<ID3D12Fence> fence_ = nullptr;

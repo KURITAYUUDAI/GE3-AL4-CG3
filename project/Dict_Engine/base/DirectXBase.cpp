@@ -316,6 +316,46 @@ Microsoft::WRL::ComPtr<ID3D12Resource> DirectXBase::CreateTextureResource(const 
 	return resource;
 }
 
+Microsoft::WRL::ComPtr<ID3D12Resource> DirectXBase::CreateRenderTextureResource(uint32_t width, uint32_t height, 
+	DXGI_FORMAT format, const Vector4& clearColor)
+{
+	// 1. metadataを基にResourceの設定
+	D3D12_RESOURCE_DESC resourceDesc{};
+	resourceDesc.Width = UINT(width); // Textureの幅
+	resourceDesc.Height = UINT(height); // Textureの高さ
+	resourceDesc.MipLevels = 1; // mipmapの数
+	resourceDesc.DepthOrArraySize = 1; // 奥行き　or　配列Textureの配列数
+	resourceDesc.Format = format; // サンプリングカウント。1固定。
+	resourceDesc.SampleDesc.Count = 1; // サンプリングカウント。1固定。
+	resourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D; // テクスチャの次元数。普段使っているのは2次元
+	resourceDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET;
+
+	// 2. 利用するHeapの設定
+	D3D12_HEAP_PROPERTIES heapProperties{};
+	heapProperties.Type = D3D12_HEAP_TYPE_DEFAULT;	// 細かい設定を行う
+
+	D3D12_CLEAR_VALUE clearValue;
+
+	clearValue.Format = format;
+	clearValue.Color[0] = clearColor.x;
+	clearValue.Color[1] = clearColor.y;
+	clearValue.Color[2] = clearColor.z;
+	clearValue.Color[3] = clearColor.w;
+
+	// 3. Resourceの生成
+	Microsoft::WRL::ComPtr<ID3D12Resource> resource = nullptr;
+	HRESULT hr;
+	hr = device_->CreateCommittedResource(
+		&heapProperties, // Heapの設定
+		D3D12_HEAP_FLAG_NONE, // Heapの特殊な設定。特になし。
+		&resourceDesc, // Resourceの設定
+		D3D12_RESOURCE_STATE_RENDER_TARGET, // データ転送される設定
+		&clearValue,
+		IID_PPV_ARGS(&resource)); // 作成するResourceポインタへのポインタ
+	assert(SUCCEEDED(hr));
+	return resource;
+}
+
 [[nodiscard]]
 Microsoft::WRL::ComPtr<ID3D12Resource> DirectXBase::UploadTextureData(ID3D12Resource* texture, const DirectX::ScratchImage& mipImages, ID3D12Device* device, ID3D12GraphicsCommandList* commandList)
 {
@@ -576,6 +616,9 @@ void DirectXBase::InitializeRenderTargetView()
 	rtvDesc.Format = kRtvFormat;	// 出力結果をSRGBに変換して書き込む
 	rtvDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;	// 2Dテクスチャとして書き込む
 	
+	const Vector4 kRenderTargetClearValue{1.0f, 0.0f, 0.0f, 1.0f};
+	renderTextureResource_ = CreateRenderTextureResource(winAPI_->kClientWidth, winAPI_->kClientHeight, 
+		DXGI_FORMAT_R8G8B8A8_UNORM_SRGB, kRenderTargetClearValue);
 	for (int32_t i = 0; i < 2; i++)
 	{
 		rtvHandles_[i] = GetCPUDescriptorHandle(
@@ -583,6 +626,20 @@ void DirectXBase::InitializeRenderTargetView()
 		device_->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV), i);
 		device_->CreateRenderTargetView(swapChainResources_[i].Get(), &rtvDesc, rtvHandles_[i]);
 	}
+
+	//rtvHandles_[2] = GetCPUDescriptorHandle(
+	//	rtvDescriptorHeap_,
+	//	device_->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV), 2);
+	//	device_->CreateRenderTargetView(renderTextureResource_.Get(), &rtvDesc, rtvHandles_[2]);
+
+	//// RenderTextureResourceのSRV設定用
+	//D3D12_SHADER_RESOURCE_VIEW_DESC renderTextureSrvDesc{};
+	//renderTextureSrvDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
+	//renderTextureSrvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+	//renderTextureSrvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+	//renderTextureSrvDesc.Texture2D.MipLevels = 1;
+
+	//device_->CreateShaderResourceView(renderTextureResource_.Get(), &renderTextureSrvDesc, rtvHandles_[2]);
 }
 
 D3D12_CPU_DESCRIPTOR_HANDLE DirectXBase::GetRTVCPUDescriptorHandle(uint32_t index)
