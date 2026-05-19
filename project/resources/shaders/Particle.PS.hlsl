@@ -13,6 +13,9 @@ struct Material
     float4 color;
     int enableLighting;
     row_major float4x4 uvTransform;
+    float shiniess;
+    float environmentCoefficient;
+    float alphaReference;
 };
 ConstantBuffer<Material> gMaterial : register(b0);
 
@@ -36,7 +39,7 @@ PixelShaderOutput main(VertexShaderOutput input)
     PixelShaderOutput output;
     
     output.color = gMaterial.color * textureColor * input.color;
-    if(output.color.a == 0.0f)
+    if(output.color.a <= gMaterial.alphaReference)
     {
         discard;
     }

@@ -409,7 +409,15 @@ void Model::CreateMaterialResource()
 		mesh.materialData_->uvTransform = MakeIdentity4x4();
 		mesh.materialData_->shininess = 10.0f;
 		mesh.materialData_->environmentCoefficient = 1.0f;
+		mesh.materialData_->alphaReference = modelData_.meshes[meshIndex].material.alphaReference;
 	}
+}
+
+void Model::SetUVTransform(const Transform& uvTransform, uint32_t meshIndex)
+{
+	Matrix4x4 uvTransformMatrix = MakeAffineMatrixB(uvTransform.scale, uvTransform.rotate, uvTransform.translate);
+
+	modelData_.meshes[meshIndex].materialData_->uvTransform = uvTransformMatrix;
 }
 
 void Model::CreateSphere()

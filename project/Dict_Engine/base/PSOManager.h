@@ -50,6 +50,8 @@ public:
 		std::wstring vertexShaderPath;
 		std::wstring pixelShaderPath;
 
+		D3D12_RASTERIZER_DESC rasterizerDesc = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
+
 		using RootSignatureGenerator = std::function<Microsoft::WRL::ComPtr<ID3D12RootSignature>()>;
 		RootSignatureGenerator rootSignatureGenerator;
 

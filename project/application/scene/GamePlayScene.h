@@ -85,5 +85,7 @@ private:
 
 	std::unique_ptr<ParticleEmitter> ringEmitter = nullptr;
 
+	std::unique_ptr<ParticleEmitter> cylinderEmitter = nullptr;
+
 };
 

@@ -87,11 +87,18 @@ void PSOManager::CreatePipeLineState(const std::string& name, BlendMode blend, F
 	Microsoft::WRL::ComPtr<IDxcBlob> vertexShaderBlob;
 	Microsoft::WRL::ComPtr<IDxcBlob> pixelShaderBlob;
 	CompileShader(name, vertexShaderBlob, pixelShaderBlob);
-
+	
 	// 5. RasterizerStateの設定
 	D3D12_RASTERIZER_DESC rasterizerDesc{};
-	rasterizerDesc.CullMode = D3D12_CULL_MODE_BACK;		// 裏面（時計回り）を表示しない
-	rasterizerDesc.FillMode = D3D12_FILL_MODE_SOLID;	// 三角形の中を塗りつぶす
+	rasterizerDesc.CullMode = psoConfig.rasterizerDesc.CullMode;		// 裏面（時計回り）を表示しない
+	if (fill == PSOManager::FillMode::kSolid)
+	{
+		rasterizerDesc.FillMode = D3D12_FILL_MODE_SOLID;	// 三角形の中を塗りつぶす
+	}
+	else
+	{
+		rasterizerDesc.FillMode = D3D12_FILL_MODE_WIREFRAME; // 三角形の中を塗りつぶさない
+	}
 	//rasterizerDesc.DepthClipEnable = true;			// 深度クリッピングを有効にする
 
 	// 6. DepthStencilStateの設定

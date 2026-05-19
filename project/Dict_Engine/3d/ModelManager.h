@@ -72,7 +72,7 @@ public: // 外部入出力
 
 private:	// 静的関数
 
-	
+	void CreateVoid(const std::string& name);
 
 private:
 

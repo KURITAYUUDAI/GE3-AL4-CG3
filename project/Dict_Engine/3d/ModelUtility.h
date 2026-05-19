@@ -15,7 +15,8 @@ struct MaterialData
 {
 	std::string textureFilePath;
 	uint32_t textureIndex = 0;
-	Vector4 color;
+	Vector4 color = {1.0f, 1.0f, 1.0f, 1.0f};
+	float alphaReference = 0.5f;
 };
 
 struct Material
@@ -26,6 +27,7 @@ struct Material
 	Matrix4x4 uvTransform;
 	float shininess;
 	float environmentCoefficient;
+	float alphaReference;
 };
 
 struct Mesh
