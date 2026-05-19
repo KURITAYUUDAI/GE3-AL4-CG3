@@ -1,4 +1,4 @@
-#include "CopyImage.hlsli"
+#include "Fullscreen.hlsli"
 
 // ===== [テキストより独自で変換したポイント] =======
 // float32_t4 → float4

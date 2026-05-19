@@ -284,7 +284,7 @@ private:
 	const Vector4 kRenderTargetClearValue_{ 1.0f, 0.0f, 0.0f, 1.0f };
 
 	// RenderTextureのpsoName
-	std::string psoNameRenderTexture_ = "CopyImage";
+	std::string psoNameRenderTexture_ = "Fullscreen";
 
 	// RenderTextureのsrvIndex
 	uint32_t renderTextureSRVIndex_;
