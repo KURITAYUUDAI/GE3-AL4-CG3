@@ -126,8 +126,6 @@ void DirectXBase::PreDraw()
 	commandList_->RSSetViewports(1, &viewport_); // Viewportを設定
 	commandList_->RSSetScissorRects(1, &scissorRect_);	// Scissorを設定
 
-
-
 }
 
 void DirectXBase::DrawSwapChain()
@@ -778,8 +776,8 @@ void DirectXBase::CreateRenderRootSignature()
 {
 	// PSOの設定
 	PSOManager::PSOConfig config{};
-	config.vertexShaderPath = L"resources/shaders/CopyImage.VS.hlsl";
-	config.pixelShaderPath = L"resources/shaders/CopyImage.PS.hlsl";
+	config.vertexShaderPath = L"resources/shaders/Fullscreen.VS.hlsl";
+	config.pixelShaderPath = L"resources/shaders/Grayscale.PS.hlsl";
 
 	// RootSignatureの設定
 	config.rootSignatureGenerator = [](){
