@@ -212,6 +212,7 @@
     <FxCompile Include="resources\shaders\Fullscreen.PS.hlsl" />
     <FxCompile Include="resources\shaders\Fullscreen.VS.hlsl" />
     <FxCompile Include="resources\shaders\Grayscale.PS.hlsl" />
+    <FxCompile Include="resources\shaders\Vignette.PS.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Dict_Engine\io\DebugCamera.h">
