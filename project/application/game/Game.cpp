@@ -40,13 +40,12 @@ void Game::Draw()
 	DirectXBase::GetInstance()->PreDraw();
 
 	srvManager_->PreDraw();
-
 	
 	sceneManager_->Draw();
 
+	DirectXBase::GetInstance()->DrawSwapChain();
 
 	imguiManager_->Draw();
-
 
 	dxBase_->PostDraw();
 }

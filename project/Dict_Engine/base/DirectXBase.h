@@ -70,6 +70,9 @@ public:
 	// 描画前処理
 	void PreDraw();
 
+	// SwapChainへの描画前処理
+	void DrawSwapChain();
+
 	// 描画後処理
 	void PostDraw();
 
@@ -137,6 +140,9 @@ private:	// 各機能の初期化関数
 	//// ImGuiの初期化
 	//void InitializeImGui(WindowsAPI* winAPI);
 
+	// RenderTextureのRootSignatureを作成
+	void CreateRenderRootSignature();
+
 public: // ゲッター
 
 	// デバイス
@@ -158,6 +164,13 @@ public: // ゲッター
 	HANDLE GetFenceEvent() { return fenceEvent_; }
 
 	size_t GetSwapChainResourceNum(){ return swapChainResources_.size(); }
+
+	ID3D12Resource* GetRenderTextureResource(){return renderTextureResource_.Get(); }
+
+
+	void SetRenderTextureSRVIndex(uint32_t renderTextureSRVIndex){ renderTextureSRVIndex_ = renderTextureSRVIndex; }
+
+	uint32_t GetRenderTextureSRVIndex(){ return renderTextureSRVIndex_; }
 
 public: // その他関数
 
@@ -266,6 +279,15 @@ private:
 
 	// FenceのSignalを待つためのイベントを作成する
 	HANDLE fenceEvent_ = 0;
+
+	// RenderTextureのClearColor
+	const Vector4 kRenderTargetClearValue_{ 1.0f, 0.0f, 0.0f, 1.0f };
+
+	// RenderTextureのpsoName
+	std::string psoNameRenderTexture_ = "Fullscreen";
+
+	// RenderTextureのsrvIndex
+	uint32_t renderTextureSRVIndex_;
 
 };
 

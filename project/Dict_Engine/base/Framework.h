@@ -77,6 +77,8 @@ using namespace DirectX;
 #include "SceneManager.h"
 #include "SceneFactory.h"
 
+#include "PSOManager.h"
+
 // ゲーム全体
 class Dict_Framework
 {

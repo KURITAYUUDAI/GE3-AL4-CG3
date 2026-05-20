@@ -9,6 +9,9 @@
 #include "StringUtility.h"
 #include <filesystem>
 
+#include "PSOManager.h"
+#include "SrvManager.h"
+
 using namespace Logger;
 using namespace StringUtility;
 
@@ -69,6 +72,9 @@ void DirectXBase::Initialize(WindowsAPI* winAPI)
 	//// ImGuiの初期化
 	//InitializeImGui(winAPI);
 
+	// RenderTextureのRootSignatureを作成
+	CreateRenderRootSignature();
+
 }
 
 void DirectXBase::Update()
@@ -88,13 +94,54 @@ void DirectXBase::Finalize()
 
 void DirectXBase::PreDraw()
 {
-	// これから書き込むバックバッファのインデックスを取得
-	UINT backBufferIndex = swapChain_->GetCurrentBackBufferIndex();
-
 	// 今回のバリアはTransition
 	barrier_.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
 	// Noneにしておく
 	barrier_.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+	// バリアを張る対象のリソース。現在のバックバッファに対して行う
+	barrier_.Transition.pResource = renderTextureResource_.Get();
+	// 遷移前（現在）のResourceState
+	barrier_.Transition.StateBefore = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
+	// 遷移後のResourceState
+	barrier_.Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;
+	// TransitionBarrierを張る
+	commandList_->ResourceBarrier(1, &barrier_);
+
+	// 描画先のRTVとDSVを設定する
+	D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle = dsvDescriptorHeap_->GetCPUDescriptorHandleForHeapStart();
+	commandList_->OMSetRenderTargets(1, &rtvHandles_[2], false, &dsvHandle);
+
+
+	// 指定した深度で画面全体をクリアする
+	commandList_->ClearDepthStencilView(dsvHandle, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
+
+
+
+	// 指定した色で画面全体をクリアする
+	//float clearColor[] = { 0.1f, 0.25f, 0.5f, 1.0f };	// 青っぽい色、RGBAの順
+	float clearColor[] = { kRenderTargetClearValue_.x, kRenderTargetClearValue_.y, kRenderTargetClearValue_.z, kRenderTargetClearValue_.w };
+	commandList_->ClearRenderTargetView(rtvHandles_[2], clearColor, 0, nullptr);
+
+	// 02_00
+	commandList_->RSSetViewports(1, &viewport_); // Viewportを設定
+	commandList_->RSSetScissorRects(1, &scissorRect_);	// Scissorを設定
+
+}
+
+void DirectXBase::DrawSwapChain()
+{
+	// バリアを張る対象のリソース。現在のバックバッファに対して行う
+	barrier_.Transition.pResource = renderTextureResource_.Get();
+	// 遷移前（現在）のResourceState
+	barrier_.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
+	// 遷移後のResourceState
+	barrier_.Transition.StateAfter = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
+	// TransitionBarrierを張る
+	commandList_->ResourceBarrier(1, &barrier_);
+
+	// これから書き込むバックバッファのインデックスを取得
+	UINT backBufferIndex = swapChain_->GetCurrentBackBufferIndex();
+
 	// バリアを張る対象のリソース。現在のバックバッファに対して行う
 	barrier_.Transition.pResource = swapChainResources_[backBufferIndex].Get();
 	// 遷移前（現在）のResourceState
@@ -104,40 +151,46 @@ void DirectXBase::PreDraw()
 	// TransitionBarrierを張る
 	commandList_->ResourceBarrier(1, &barrier_);
 
-
 	// 描画先のRTVとDSVを設定する
 	D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle = dsvDescriptorHeap_->GetCPUDescriptorHandleForHeapStart();
 	commandList_->OMSetRenderTargets(1, &rtvHandles_[backBufferIndex], false, &dsvHandle);
 
-
-	// 指定した深度で画面全体をクリアする
-	commandList_->ClearDepthStencilView(dsvHandle, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
-
-
+	//// 指定した深度で画面全体をクリアする
+	//commandList_->ClearDepthStencilView(dsvHandle, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
 
 	// 指定した色で画面全体をクリアする
 	float clearColor[] = { 0.1f, 0.25f, 0.5f, 1.0f };	// 青っぽい色、RGBAの順
 	commandList_->ClearRenderTargetView(rtvHandles_[backBufferIndex], clearColor, 0, nullptr);
 
 
-
-
-
-
 	// 02_00
 	commandList_->RSSetViewports(1, &viewport_); // Viewportを設定
 	commandList_->RSSetScissorRects(1, &scissorRect_);	// Scissorを設定
-
+	
+	// RenderTextureをSwapChainに転写
+	auto psoSet = PSOManager::GetInstance()->GetPSOData(psoNameRenderTexture_, 
+		PSOManager::BlendMode::None, PSOManager::FillMode::kSolid);
+	commandList_->SetGraphicsRootSignature(psoSet.rootSignature.Get());
+	commandList_->SetPipelineState(psoSet.pipelineState.Get());
+	SrvManager::GetInstance()->PreDraw();
+	commandList_->SetGraphicsRootDescriptorTable(0, SrvManager::GetInstance()->GetGPUDescriptorHandle(renderTextureSRVIndex_));
+	commandList_->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	commandList_->DrawInstanced(3, 1, 0, 0);
 }
 
 void DirectXBase::PostDraw()
 {
 	HRESULT hr;
-
+	
 	UINT backBufferIndex = swapChain_->GetCurrentBackBufferIndex();
 
 	// 画面に描く処理はすべて終わり、画面に映すので、状態を遷移
 	// 今回はRenderTargetからPresentにする
+	
+	// バリアを張る対象のリソース。現在のバックバッファに対して行う
+	barrier_.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+	barrier_.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+	barrier_.Transition.pResource = swapChainResources_[backBufferIndex].Get();
 	barrier_.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
 	barrier_.Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;
 	// TransitionBarrierを張る
@@ -349,7 +402,7 @@ Microsoft::WRL::ComPtr<ID3D12Resource> DirectXBase::CreateRenderTextureResource(
 		&heapProperties, // Heapの設定
 		D3D12_HEAP_FLAG_NONE, // Heapの特殊な設定。特になし。
 		&resourceDesc, // Resourceの設定
-		D3D12_RESOURCE_STATE_RENDER_TARGET, // データ転送される設定
+		D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, // データ転送される設定
 		&clearValue,
 		IID_PPV_ARGS(&resource)); // 作成するResourceポインタへのポインタ
 	assert(SUCCEEDED(hr));
@@ -575,8 +628,8 @@ DirectXBase::CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE heapType, UINT numD
 void DirectXBase::CreateDescriptorHeaps()
 {
 
-	// RTV用のヒープでディスクリプタの数は2、RTVはShader内で触るものではないので、ShaderVisibleはfalse
-	rtvDescriptorHeap_ = CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_RTV, 2, false);
+	// RTV用のヒープでディスクリプタの数は3、RTVはShader内で触るものではないので、ShaderVisibleはfalse
+	rtvDescriptorHeap_ = CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_RTV, 3, false);
 	// DSV用のヒープディスクリプタの数は1。DSVはShader内で飾るものではないので、ShaderVisibleはfalse
 	dsvDescriptorHeap_ = CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_DSV, 1, false);
 
@@ -616,9 +669,8 @@ void DirectXBase::InitializeRenderTargetView()
 	rtvDesc.Format = kRtvFormat;	// 出力結果をSRGBに変換して書き込む
 	rtvDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;	// 2Dテクスチャとして書き込む
 	
-	const Vector4 kRenderTargetClearValue{1.0f, 0.0f, 0.0f, 1.0f};
 	renderTextureResource_ = CreateRenderTextureResource(winAPI_->kClientWidth, winAPI_->kClientHeight, 
-		DXGI_FORMAT_R8G8B8A8_UNORM_SRGB, kRenderTargetClearValue);
+		DXGI_FORMAT_R8G8B8A8_UNORM_SRGB, kRenderTargetClearValue_);
 	for (int32_t i = 0; i < 2; i++)
 	{
 		rtvHandles_[i] = GetCPUDescriptorHandle(
@@ -627,19 +679,11 @@ void DirectXBase::InitializeRenderTargetView()
 		device_->CreateRenderTargetView(swapChainResources_[i].Get(), &rtvDesc, rtvHandles_[i]);
 	}
 
-	//rtvHandles_[2] = GetCPUDescriptorHandle(
-	//	rtvDescriptorHeap_,
-	//	device_->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV), 2);
-	//	device_->CreateRenderTargetView(renderTextureResource_.Get(), &rtvDesc, rtvHandles_[2]);
+	rtvHandles_[2] = GetCPUDescriptorHandle(
+		rtvDescriptorHeap_,
+		device_->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV), 2);
+		device_->CreateRenderTargetView(renderTextureResource_.Get(), &rtvDesc, rtvHandles_[2]);
 
-	//// RenderTextureResourceのSRV設定用
-	//D3D12_SHADER_RESOURCE_VIEW_DESC renderTextureSrvDesc{};
-	//renderTextureSrvDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
-	//renderTextureSrvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-	//renderTextureSrvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
-	//renderTextureSrvDesc.Texture2D.MipLevels = 1;
-
-	//device_->CreateShaderResourceView(renderTextureResource_.Get(), &renderTextureSrvDesc, rtvHandles_[2]);
 }
 
 D3D12_CPU_DESCRIPTOR_HANDLE DirectXBase::GetRTVCPUDescriptorHandle(uint32_t index)
@@ -726,6 +770,81 @@ void DirectXBase::CreateDXCCompiler()
 
 	hr = dxcUtils_->CreateDefaultIncludeHandler(&includeHandler_);
 	assert(SUCCEEDED(hr));
+}
+
+void DirectXBase::CreateRenderRootSignature()
+{
+	// PSOの設定
+	PSOManager::PSOConfig config{};
+	config.vertexShaderPath = L"resources/shaders/Fullscreen.VS.hlsl";
+	config.pixelShaderPath = L"resources/shaders/Grayscale.PS.hlsl";
+
+	// RootSignatureの設定
+	config.rootSignatureGenerator = [](){
+		std::vector<D3D12_ROOT_PARAMETER> rootParameters;
+		std::vector<D3D12_STATIC_SAMPLER_DESC> staticSamplerDescs;
+		D3D12_STATIC_SAMPLER_DESC sampler{};
+		sampler = PSOManager::GetInstance()->GetDefaultStaticSamplerDesc();
+
+		staticSamplerDescs.push_back(sampler);
+		D3D12_DESCRIPTOR_RANGE descriptorRange[1]{};
+		descriptorRange[0].BaseShaderRegister = 0; // t0
+		descriptorRange[0].NumDescriptors = 1;
+		descriptorRange[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+		descriptorRange[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+
+		D3D12_DESCRIPTOR_RANGE descriptorRangeE[1]{};
+		descriptorRangeE[0].BaseShaderRegister = 1; // t1
+		descriptorRangeE[0].NumDescriptors = 1;
+		descriptorRangeE[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+		descriptorRangeE[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+
+		rootParameters.resize(1);
+
+		// Enum定義 (可読性のため)
+		enum {
+			kTexture
+		};
+
+		rootParameters[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE; // DescriptorTableを使う
+		rootParameters[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL; // PixelShaderで使う
+		rootParameters[0].DescriptorTable.pDescriptorRanges = descriptorRange;	// Tableの中身の配列を指定
+		rootParameters[0].DescriptorTable.NumDescriptorRanges = _countof(descriptorRange);	// Tableで利用する数
+
+		// シリアライズ
+		static D3D12_ROOT_SIGNATURE_DESC descriptionRootSignature{};
+		descriptionRootSignature.Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
+		descriptionRootSignature.pParameters = rootParameters.data();
+		descriptionRootSignature.NumParameters = (UINT)rootParameters.size();
+		descriptionRootSignature.pStaticSamplers = staticSamplerDescs.data();
+		descriptionRootSignature.NumStaticSamplers = (UINT)staticSamplerDescs.size();
+
+
+		Microsoft::WRL::ComPtr<ID3DBlob> signatureBlob;
+		Microsoft::WRL::ComPtr<ID3DBlob> errorBlob;
+
+		HRESULT hr = D3D12SerializeRootSignature(&descriptionRootSignature, D3D_ROOT_SIGNATURE_VERSION_1, &signatureBlob, &errorBlob);
+		if (FAILED(hr)) {
+			Logger::Log(reinterpret_cast<char*>(errorBlob->GetBufferPointer()));
+			assert(false);
+		}
+
+		Microsoft::WRL::ComPtr<ID3D12RootSignature> rootSignature;
+		hr = DirectXBase::GetInstance()->GetDevice()->CreateRootSignature(0, signatureBlob->GetBufferPointer(), signatureBlob->GetBufferSize(), IID_PPV_ARGS(&rootSignature));
+		assert(SUCCEEDED(hr));
+
+		return rootSignature;
+		};
+
+	config.inputLayoutGenerator = [](){
+
+		return std::vector<D3D12_INPUT_ELEMENT_DESC> {};
+		};
+
+	// 深度設定
+	config.depthEnable = false;
+
+	PSOManager::GetInstance()->RegisterPSOConfig(psoNameRenderTexture_, config);
 }
 
 //void DirectXBase::InitializeImGui(WindowsAPI* winAPI)
