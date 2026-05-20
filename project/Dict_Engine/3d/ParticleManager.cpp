@@ -177,6 +177,15 @@ void ParticleManager::Update()
 					particle.transform.rotate, particle.transform.translate);
 			}
 			
+			particle.uvTransform.translate.x += 0.01f;
+			if (particle.uvTransform.translate.x > 1.0f)
+			{
+				particle.uvTransform.translate.x -= 1.0f;
+			}
+
+			Matrix4x4 uvTransformMatrix;
+			uvTransformMatrix = MakeAffineMatrixB(
+				particle.uvTransform.scale, particle.uvTransform.rotate, particle.uvTransform.translate);
 
 			if (particleGroup.second.instanceNum < particleGroup.second.maxInstanceNum)
 			{
@@ -196,6 +205,7 @@ void ParticleManager::Update()
 				particleGroup.second.instancingData[particleGroup.second.instanceNum].WVP = worldViewProjectionMatrix;
 				particleGroup.second.instancingData[particleGroup.second.instanceNum].World = worldMatrix;
 				particleGroup.second.instancingData[particleGroup.second.instanceNum].color = particle.color;
+				particleGroup.second.instancingData[particleGroup.second.instanceNum].uvTransform = uvTransformMatrix;
 
 				++particleGroup.second.instanceNum;
 			}
@@ -283,6 +293,7 @@ void ParticleManager::CreateParticleGroup(const std::string name, const std::str
 		particleGroup.instancingData[i].World = MakeIdentity4x4();
 		particleGroup.instancingData[i].WVP = MakeIdentity4x4();
 		particleGroup.instancingData[i].color = Vector4{ 1.0f, 1.0f, 1.0f, 1.0f };
+		particleGroup.instancingData[i].uvTransform = MakeIdentity4x4();
 	}
 
 	// SRVを作成

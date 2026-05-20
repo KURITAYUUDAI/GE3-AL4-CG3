@@ -777,7 +777,7 @@ void DirectXBase::CreateRenderRootSignature()
 	// PSOの設定
 	PSOManager::PSOConfig config{};
 	config.vertexShaderPath = L"resources/shaders/Fullscreen.VS.hlsl";
-	config.pixelShaderPath = L"resources/shaders/Grayscale.PS.hlsl";
+	config.pixelShaderPath = L"resources/shaders/Fullscreen.PS.hlsl";
 
 	// RootSignatureの設定
 	config.rootSignatureGenerator = [](){
