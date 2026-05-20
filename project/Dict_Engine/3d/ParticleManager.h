@@ -63,6 +63,7 @@ public:
 		Matrix4x4 WVP;
 		Matrix4x4 World;
 		Vector4 color;
+		Matrix4x4 uvTransform;
 	};
 
 	struct DirectionalLight
