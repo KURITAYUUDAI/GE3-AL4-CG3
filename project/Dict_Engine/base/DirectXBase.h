@@ -142,9 +142,6 @@ private:	// 各機能の初期化関数
 	//// ImGuiの初期化
 	//void InitializeImGui(WindowsAPI* winAPI);
 
-	// RenderTextureのRootSignatureを作成
-	/*void CreateRenderTextureResource();*/
-
 public: // ゲッター
 
 	// デバイス
@@ -166,14 +163,6 @@ public: // ゲッター
 	HANDLE GetFenceEvent() { return fenceEvent_; }
 
 	size_t GetSwapChainResourceNum(){ return swapChainResources_.size(); }
-
-	/*ID3D12Resource* GetRenderTextureResource(){return renderTextureResource_.Get(); }
-
-
-	void SetRenderTextureSRVIndex(uint32_t renderTextureSRVIndex){ renderTextureSRVIndex_ = renderTextureSRVIndex; }
-
-	uint32_t GetRenderTextureSRVIndex(){ return renderTextureSRVIndex_; }*/
-
 
 	D3D12_CPU_DESCRIPTOR_HANDLE GetBackBufferRTVHandle();
 
@@ -285,18 +274,6 @@ private:
 
 	// FenceのSignalを待つためのイベントを作成する
 	HANDLE fenceEvent_ = 0;
-
-	//// RenderTextureResource
-	//ComPtr<ID3D12Resource> renderTextureResource_;
-
-	//// RenderTextureのClearColor
-	//const Vector4 kRenderTargetClearValue_{ 1.0f, 0.0f, 0.0f, 1.0f };
-
-	//// RenderTextureのpsoName
-	//std::string psoNameRenderTexture_ = "Fullscreen";
-
-	//// RenderTextureのsrvIndex
-	//uint32_t renderTextureSRVIndex_;
 
 };
 
