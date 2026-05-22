@@ -78,6 +78,7 @@ using namespace DirectX;
 #include "SceneFactory.h"
 
 #include "PSOManager.h"
+#include "OffscreenRender.h"
 
 // ゲーム全体
 class Dict_Framework
@@ -135,9 +136,14 @@ protected:
 	// 3Dオブジェクトの共通処理を生成
 	Object3dManager* object3dManager_ = Object3dManager::GetInstance();
 
-
 	// SRVマネージャー
 	SrvManager* srvManager_ = SrvManager::GetInstance();
+
+	// PSOマネージャー
+	PSOManager* psoManager_ = PSOManager::GetInstance();
+
+	// オフスクリーンレンダー
+	OffscreenRender* offscreenRender_ = OffscreenRender::GetInstance();
 
 	// ImGuiマネージャー
 	ImGuiManager* imguiManager_ = ImGuiManager::GetInstance();

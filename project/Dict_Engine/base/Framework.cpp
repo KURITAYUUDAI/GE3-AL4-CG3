@@ -29,6 +29,10 @@ void Dict_Framework::Initialize()
 
 	srvManager_->Initialize(dxBase_);
 
+	psoManager_->Initialize();
+
+	offscreenRender_->Initialize();
+
 	imguiManager_->Initialize(winAPI_.get(), dxBase_);
 
 	textureManager_->SetDxBase(dxBase_);
@@ -121,6 +125,9 @@ void Dict_Framework::Finalize()
 	inputManager_->Finalize();
 
 	delete sceneFactory_;
+
+	// OffscreenRender終了処理
+	offscreenRender_->Finalize();
 
 	// DirectXBase終了処理
 	dxBase_->Finalize();

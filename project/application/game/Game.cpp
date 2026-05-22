@@ -45,6 +45,8 @@ void Game::Draw()
 
 	DirectXBase::GetInstance()->DrawSwapChain();
 
+	offscreenRender_->Draw();
+
 	imguiManager_->Draw();
 
 	dxBase_->PostDraw();

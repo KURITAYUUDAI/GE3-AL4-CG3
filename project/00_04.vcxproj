@@ -199,6 +199,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="application\object\Terrain.cpp" />
     <ClCompile Include="application\object\Player.cpp" />
     <ClCompile Include="Dict_Engine\3d\PrimitiveManager.cpp" />
+    <ClCompile Include="Dict_Engine\base\OffscreenRender.cpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="resources\shaders\Environment.PS.hlsl">
@@ -309,6 +310,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="application\object\Terrain.h" />
     <ClInclude Include="application\object\Player.h" />
     <ClInclude Include="Dict_Engine\3d\PrimitiveManager.h" />
+    <ClInclude Include="Dict_Engine\base\OffscreenRender.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="externals\DirectXTex\DirectXTex_Desktop_2022_Win10.vcxproj">

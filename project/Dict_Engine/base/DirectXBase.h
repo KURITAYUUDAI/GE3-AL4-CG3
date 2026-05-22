@@ -101,6 +101,8 @@ public:
 	// テクスチャ読み込み後処理
 	void PostUploadTexture();
 
+	uint32_t AllocateRTVIndex();
+
 
 private:	// 各機能の初期化関数
 
@@ -141,7 +143,7 @@ private:	// 各機能の初期化関数
 	//void InitializeImGui(WindowsAPI* winAPI);
 
 	// RenderTextureのRootSignatureを作成
-	void CreateRenderRootSignature();
+	/*void CreateRenderTextureResource();*/
 
 public: // ゲッター
 
@@ -165,12 +167,16 @@ public: // ゲッター
 
 	size_t GetSwapChainResourceNum(){ return swapChainResources_.size(); }
 
-	ID3D12Resource* GetRenderTextureResource(){return renderTextureResource_.Get(); }
+	/*ID3D12Resource* GetRenderTextureResource(){return renderTextureResource_.Get(); }
 
 
 	void SetRenderTextureSRVIndex(uint32_t renderTextureSRVIndex){ renderTextureSRVIndex_ = renderTextureSRVIndex; }
 
-	uint32_t GetRenderTextureSRVIndex(){ return renderTextureSRVIndex_; }
+	uint32_t GetRenderTextureSRVIndex(){ return renderTextureSRVIndex_; }*/
+
+
+	D3D12_CPU_DESCRIPTOR_HANDLE GetBackBufferRTVHandle();
+
 
 public: // その他関数
 
@@ -234,7 +240,8 @@ private:
 	// RTV用のヒープでディスクリプタの数は2、RTVはShader内で触るものではないので、ShaderVisibleはfalse
 	ComPtr<ID3D12DescriptorHeap> rtvDescriptorHeap_ = nullptr;
 	uint32_t rtvDescriptorSize_ = 0;
-
+	static const uint32_t kMaxRTVCount = 8;
+	uint32_t rtvUseIndex_ = 2;
 	
 
 	// DSV用のヒープディスクリプタの数は1。DSVはShader内で飾るものではないので、ShaderVisibleはfalse
@@ -251,10 +258,9 @@ private:
 	std::array<ComPtr<ID3D12Resource>, 2> swapChainResources_;
 
 	// RTVハンドル
-	D3D12_CPU_DESCRIPTOR_HANDLE rtvHandles_[3];
+	D3D12_CPU_DESCRIPTOR_HANDLE rtvHandles_[2];
 
-	// RenderTextureResource
-	ComPtr<ID3D12Resource> renderTextureResource_;
+	
 
 	// フェンス
 	ComPtr<ID3D12Fence> fence_ = nullptr;
@@ -280,14 +286,17 @@ private:
 	// FenceのSignalを待つためのイベントを作成する
 	HANDLE fenceEvent_ = 0;
 
-	// RenderTextureのClearColor
-	const Vector4 kRenderTargetClearValue_{ 1.0f, 0.0f, 0.0f, 1.0f };
+	//// RenderTextureResource
+	//ComPtr<ID3D12Resource> renderTextureResource_;
 
-	// RenderTextureのpsoName
-	std::string psoNameRenderTexture_ = "Fullscreen";
+	//// RenderTextureのClearColor
+	//const Vector4 kRenderTargetClearValue_{ 1.0f, 0.0f, 0.0f, 1.0f };
 
-	// RenderTextureのsrvIndex
-	uint32_t renderTextureSRVIndex_;
+	//// RenderTextureのpsoName
+	//std::string psoNameRenderTexture_ = "Fullscreen";
+
+	//// RenderTextureのsrvIndex
+	//uint32_t renderTextureSRVIndex_;
 
 };
 

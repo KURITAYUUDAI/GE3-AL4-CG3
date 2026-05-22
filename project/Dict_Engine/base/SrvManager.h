@@ -28,7 +28,7 @@ public:
 		UINT numElements, UINT structureByteStride);
 
 	// RenderTargetViewのSRV
-	void CreateRenderTextureSRV();
+	/*void CreateRenderTextureSRV();*/
 
 public: // 外部入出力
 
