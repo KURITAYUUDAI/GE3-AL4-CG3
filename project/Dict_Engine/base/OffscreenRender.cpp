@@ -63,7 +63,7 @@ void OffscreenRender::Initialize()
 	// PSOの設定
 	PSOManager::PSOConfig config{};
 	config.vertexShaderPath = L"resources/shaders/Fullscreen.VS.hlsl";
-	config.pixelShaderPath = L"resources/shaders/Vignette.PS.hlsl";
+	config.pixelShaderPath = L"resources/shaders/BoxFilter.PS.hlsl";
 
 	// RootSignatureの設定
 	config.rootSignatureGenerator = [](){

@@ -27,9 +27,6 @@ public:
 	void CreateSRVforStructuredBuffer(uint32_t srvIndex, ID3D12Resource* pResource, 
 		UINT numElements, UINT structureByteStride);
 
-	// RenderTargetViewのSRV
-	/*void CreateRenderTextureSRV();*/
-
 public: // 外部入出力
 
 	D3D12_CPU_DESCRIPTOR_HANDLE GetCPUDescriptorHandle(const uint32_t index);

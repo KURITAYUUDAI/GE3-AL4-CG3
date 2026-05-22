@@ -73,9 +73,7 @@ void DirectXBase::Initialize(WindowsAPI* winAPI)
 	//// ImGuiの初期化
 	//InitializeImGui(winAPI);
 
-	// RenderTextureのRootSignatureを作成
-	//CreateRenderTextureResource();
-
+	
 }
 
 void DirectXBase::Update()
@@ -765,22 +763,6 @@ void DirectXBase::CreateDXCCompiler()
 	hr = dxcUtils_->CreateDefaultIncludeHandler(&includeHandler_);
 	assert(SUCCEEDED(hr));
 }
-
-//void DirectXBase::CreateRenderTextureResource()
-//{
-//	renderTextureResource_ = CreateRenderTextureResource(winAPI_->kClientWidth, winAPI_->kClientHeight,
-//		DXGI_FORMAT_R8G8B8A8_UNORM_SRGB, kRenderTargetClearValue_);
-//
-//	// RTVの設定
-//	D3D12_RENDER_TARGET_VIEW_DESC rtvDesc{};
-//	rtvDesc.Format = kRtvFormat;	// 出力結果をSRGBに変換して書き込む
-//	rtvDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;	// 2Dテクスチャとして書き込む
-//
-//	rtvHandles_[2] = GetCPUDescriptorHandle(
-//		rtvDescriptorHeap_,
-//		device_->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV), 2);
-//	device_->CreateRenderTargetView(renderTextureResource_.Get(), &rtvDesc, rtvHandles_[2]);
-//}
 
 //void DirectXBase::InitializeImGui(WindowsAPI* winAPI)
 //{
