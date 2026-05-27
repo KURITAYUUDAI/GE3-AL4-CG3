@@ -14,3 +14,8 @@ void MoveHorizontalCommand::Execute(Player* player)
         player->MoveHorizontal(direction.x, direction.y); // 入力あり → 加速
     }
 }
+
+void ShotCommand::Execute(Player* player)
+{
+	player->Shot();
+}

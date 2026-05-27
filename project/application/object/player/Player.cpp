@@ -110,6 +110,9 @@ void Player::Initialize()
 
 	PSOManager::GetInstance()->RegisterPSOConfig(psoName_, config);
 
+	selector_.GetKeyboardHandler()->AssignKey("shot", DIK_Q);
+	selector_.GetGamepadHandler()->AssignKey("shot", XINPUT_GAMEPAD_A);
+
 	ModelManager::GetInstance()->LoadModel("sphere.obj");
 
 	object3d_ = std::make_unique<Object3d>();
@@ -120,7 +123,7 @@ void Player::Initialize()
 	transform_.rotate = { 0.0f, 0.0f, 0.0f };
 	transform_.translate = { 0.0f, 0.0f, 0.0f };
 
-	ChangeState(std::make_unique<PlayerMoveState>());
+	ChangeState(std::make_unique<PlayerIdleState>());
 }
 
 void Player::Update()
@@ -162,7 +165,9 @@ void Player::Update()
 		object3d_->GetModel()->SetEnvironmentCoefficient(environmentCoefficient, 0);
 	}
 
-	Vector2 leftStick =
+	ImGui::Text("PlayerState: %s", typeid(*state_).name());
+
+	/*Vector2 leftStick =
 	{
 		InputManager::GetInstance()->GetLeftStickX(),
 		InputManager::GetInstance()->GetLeftStickY()
@@ -173,7 +178,7 @@ void Player::Update()
 	ImGui::Text("A Button: %s", isAPressed ? "Pressed" : "Released");
 	
 	float triggerRight = InputManager::GetInstance()->GetRightTrigger();
-	ImGui::InputFloat("Right Trigger", &triggerRight, 0.1f, 0.1f, "%.3f", ImGuiInputTextFlags_ReadOnly);
+	ImGui::InputFloat("Right Trigger", &triggerRight, 0.1f, 0.1f, "%.3f", ImGuiInputTextFlags_ReadOnly);*/
 
 	ImGui::End();
 #endif
@@ -225,4 +230,9 @@ void Player::Decelerate()
 {
 	velocity_.x += (0.0f - velocity_.x) * lerpFactor_;
 	velocity_.z += (0.0f - velocity_.z) * lerpFactor_;
+}
+
+void Player::Shot()
+{
+	ChangeState(std::make_unique<PlayerShotState>());
 }

@@ -5,6 +5,7 @@
 #include "Model.h"
 #include <memory>
 
+#include "InputHandlerSelector.h"
 #include "PlayerState.h"
 
 class Player
@@ -23,15 +24,20 @@ public:	// Command
 	void MoveHorizontal(const float& directionX, const float& directionY);
 	void Decelerate();
 
+	void Shot();
+
 
 public:	//外部入出力
 
 	void SetEnvironmentTextureIndex(const uint32_t& srvIndex){ environmentTextureIndex_ = srvIndex; }
 
-	
+	InputHandlerSelector* GetInputHandlerSelector() { return &selector_; }
 	
 
 private:
+
+	// 入力ハンドル
+	InputHandlerSelector selector_;
 
 	// 現在の状態
 	std::unique_ptr<IPlayerState> state_;

@@ -20,6 +20,15 @@ public:
 	void Execute(Player* player) override;
 
 private:
+	IInputHandler* inputHandler_;
+};
 
+class ShotCommand : public ICommand
+{
+public:
+	ShotCommand(IInputHandler* inputHandler) : inputHandler_(inputHandler) {}
+	void Execute(Player* player) override;
+
+private:
 	IInputHandler* inputHandler_;
 };

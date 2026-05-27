@@ -1,5 +1,10 @@
 #include "InputHandler.h"
 
+void KeyboardInputHandler::AssignKey(const std::string& actionName, int keyCode)
+{
+    keyBindings_[actionName] = keyCode;
+}
+
 Vector2 KeyboardInputHandler::GetDirection()
 {
     float x = 0.0f, y = 0.0f;
@@ -20,9 +25,17 @@ Vector2 KeyboardInputHandler::GetDirection()
     return { x, y };
 }
 
+bool KeyboardInputHandler::IsActionPressed(const std::string& actionName)
+{
+    auto it = keyBindings_.find(actionName);
+    if (it == keyBindings_.end()) return false;
+    return InputManager::GetInstance()->TriggerKey(it->second);
+}
 
-
-
+void GamepadInputHandler::AssignKey(const std::string& actionName, int buttonCode)
+{
+    buttonBindings_[actionName] = buttonCode;
+}
 
 Vector2 GamepadInputHandler::GetDirection()
 {
@@ -35,5 +48,12 @@ Vector2 GamepadInputHandler::GetDirection()
 
     float scale = (magnitude - deadzone_) / (1.0f - deadzone_);
     return { (x / magnitude) * scale, (y / magnitude) * scale };
+}
+
+bool GamepadInputHandler::IsActionPressed(const std::string& actionName)
+{
+    auto it = buttonBindings_.find(actionName);
+    if (it == buttonBindings_.end()) return false;
+    return InputManager::GetInstance()->TriggerButton(it->second);
 }
 

@@ -22,18 +22,24 @@ public:
 	void Update(Player* player) override;
 	void Draw(Player* player) override;
 	void Finalize(Player* player) override;
+
+private:
+
+	std::unique_ptr<ICommand>      moveCommand_;
+	std::unique_ptr<ICommand>      shotCommand_;
 };
 
-class PlayerMoveState : public IPlayerState
+class PlayerShotState : public IPlayerState
 {
-	public:
+public:
 	void Initialize(Player* player) override;
 	void Update(Player* player) override;
 	void Draw(Player* player) override;
 	void Finalize(Player* player) override;
 
 private:
-	InputHandlerSelector selector_;
+	float timer_ = 0.0f;
+	float duration_ = 0.5f;
 
-	std::vector<std::unique_ptr<ICommand>>      commands_;
+	std::unique_ptr<ICommand>      moveCommand_;
 };
