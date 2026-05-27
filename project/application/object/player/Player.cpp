@@ -2,6 +2,7 @@
 #include "Logger.h"
 #include "TextureManager.h"
 #include "SrvManager.h"
+#include "InputManager.h"
 
 void Player::Initialize()
 {
@@ -109,6 +110,9 @@ void Player::Initialize()
 
 	PSOManager::GetInstance()->RegisterPSOConfig(psoName_, config);
 
+	selector_.GetKeyboardHandler()->AssignKey("shot", DIK_Q);
+	selector_.GetGamepadHandler()->AssignKey("shot", XINPUT_GAMEPAD_A);
+
 	ModelManager::GetInstance()->LoadModel("sphere.obj");
 
 	object3d_ = std::make_unique<Object3d>();
@@ -118,10 +122,16 @@ void Player::Initialize()
 	transform_.scale = { 1.0f, 1.0f, 1.0f };
 	transform_.rotate = { 0.0f, 0.0f, 0.0f };
 	transform_.translate = { 0.0f, 0.0f, 0.0f };
+
+	ChangeState(std::make_unique<PlayerIdleState>());
 }
 
 void Player::Update()
 {
+	state_->Update(this);
+
+	transform_.translate += velocity_;
+
 	object3d_->SetTransform(transform_);
 	object3d_->Update();
 
@@ -134,24 +144,41 @@ void Player::Update()
 	}
 
 	Transform transform = transform_;
-	if (ImGui::DragFloat3("PlayerScale", &transform.scale.x, 0.1f))
+	if (ImGui::DragFloat3("Scale", &transform.scale.x, 0.1f))
 	{
 		transform_ = transform;
 	}
-	if (ImGui::DragFloat3("PlayerRotate", &transform.rotate.x, 0.1f))
+	if (ImGui::DragFloat3("Rotate", &transform.rotate.x, 0.1f))
 	{
 		transform_ = transform;
 	}
-	if (ImGui::DragFloat3("PlayerTranslate", &transform.translate.x, 0.1f))
+	if (ImGui::DragFloat3("Translate", &transform.translate.x, 0.1f))
 	{
 		transform_ = transform;
 	}
+	ImGui::InputFloat3 ("Velocity", &velocity_.x, "%.3f", ImGuiInputTextFlags_ReadOnly);
+
 
 	float environmentCoefficient = object3d_->GetModel()->GetEnvironmentCoefficient(0);
-		if (ImGui::SliderFloat("Environment Coefficient", &environmentCoefficient, 0.0f, 1.0f))
+	if (ImGui::SliderFloat("Environment Coefficient", &environmentCoefficient, 0.0f, 1.0f))
 	{
 		object3d_->GetModel()->SetEnvironmentCoefficient(environmentCoefficient, 0);
 	}
+
+	ImGui::Text("PlayerState: %s", typeid(*state_).name());
+
+	/*Vector2 leftStick =
+	{
+		InputManager::GetInstance()->GetLeftStickX(),
+		InputManager::GetInstance()->GetLeftStickY()
+	};
+	ImGui::InputFloat2("Left Stick", &leftStick.x, "%.3f", ImGuiInputTextFlags_ReadOnly);
+
+	bool isAPressed = InputManager::GetInstance()->PushButton(XINPUT_GAMEPAD_A);
+	ImGui::Text("A Button: %s", isAPressed ? "Pressed" : "Released");
+	
+	float triggerRight = InputManager::GetInstance()->GetRightTrigger();
+	ImGui::InputFloat("Right Trigger", &triggerRight, 0.1f, 0.1f, "%.3f", ImGuiInputTextFlags_ReadOnly);*/
 
 	ImGui::End();
 #endif
@@ -180,4 +207,32 @@ void Player::Draw()
 void Player::Finalize()
 {
 
+}
+
+void Player::ChangeState(std::unique_ptr<IPlayerState> newState)
+{
+	state_ = std::move(newState);
+	state_->Initialize(this);
+}
+
+void Player::MoveHorizontal(const float& directionX, const float& directionZ)
+{
+	float targetVelocityX = maxSpeed_.x * directionX;
+	float targetVelocityZ = maxSpeed_.z * directionZ;
+
+	// 現在速度を目標速度へ線形補間
+	// → スティックの倒し具合に応じた速度に滑らかに追従する
+	velocity_.x += (targetVelocityX - velocity_.x) * lerpFactor_;
+	velocity_.z += (targetVelocityZ - velocity_.z) * lerpFactor_;
+}
+
+void Player::Decelerate()
+{
+	velocity_.x += (0.0f - velocity_.x) * lerpFactor_;
+	velocity_.z += (0.0f - velocity_.z) * lerpFactor_;
+}
+
+void Player::Shot()
+{
+	ChangeState(std::make_unique<PlayerShotState>());
 }

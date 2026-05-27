@@ -21,8 +21,8 @@ void GamePlayScene::Initialize()
 	/*camera_->SetRotate({ pi / 3.0f, pi, 0.0f });
 	camera_->SetTranslate({ 0.0f, 9.0f, 5.0f });*/
 
-	camera_->SetRotate({ 0.0f, pi, 0.0f });
-	camera_->SetTranslate({ 0.0f, 0.0f, 15.0f });
+	camera_->SetRotate({ 0.0f, 0.0f, 0.0f });
+	camera_->SetTranslate({ 0.0f, 0.0f, -15.0f });
 
 	debugCamera_ = std::make_unique<DebugCamera>();
 	debugCamera_->Initialize();
