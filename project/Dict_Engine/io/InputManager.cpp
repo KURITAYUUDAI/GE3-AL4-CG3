@@ -63,6 +63,9 @@ void InputManager::Update()
 	// 前回のマウス入力を保存
 	memcpy(&mouseStatePre_, &mouseState_, sizeof(mouseState_));
 
+	// 前回のコントローラー状態を保存
+	controllerStatePre_ = controllerState_;
+
 	// キーボード情報の取得開始
 	hr = keyboard_->Acquire();
 
@@ -74,6 +77,10 @@ void InputManager::Update()
 
 	// マウスカーソルとマウスボタンの入力状態を取得する
 	hr = mouse_->GetDeviceState(sizeof(mouseState_), &mouseState_);
+
+	// コントローラー状態を取得（第一引数はパッドの番号 0〜3）
+	DWORD result = XInputGetState(0, &controllerState_);
+	isControllerConnected_ = (result == ERROR_SUCCESS);
 
 }
 
@@ -134,6 +141,71 @@ LONG InputManager::MouseWheel()
 	LONG wheelData = mouseState_.lZ;
 
 	return wheelData;
+}
+
+bool InputManager::PushButton(WORD button)
+{
+	if (!isControllerConnected_) return false;
+	return (controllerState_.Gamepad.wButtons & button) != 0;
+}
+
+bool InputManager::TriggerButton(WORD button)
+{
+	if (!isControllerConnected_) return false;
+	if (!(controllerStatePre_.Gamepad.wButtons & button)
+		 && (controllerState_.Gamepad.wButtons & button))
+	{
+		return true;
+	}
+	return false;
+}
+
+float InputManager::GetLeftStickX()
+{
+	SHORT raw = controllerState_.Gamepad.sThumbLX;
+	if (abs(raw) < XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE) return 0.0f;
+	return raw / 32767.0f;
+}
+
+float InputManager::GetLeftStickY()
+{
+	if (!isControllerConnected_) return false;
+	SHORT raw = controllerState_.Gamepad.sThumbLY;
+	if (abs(raw) < XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE) return 0.0f;
+	return raw / 32767.0f;
+}
+
+float InputManager::GetRightStickX()
+{
+	if (!isControllerConnected_) return false;
+	SHORT raw = controllerState_.Gamepad.sThumbRX;
+	if (abs(raw) < XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE) return 0.0f;
+	return raw / 32767.0f;
+}
+
+float InputManager::GetRightStickY()
+{
+	if (!isControllerConnected_) return false;
+	SHORT raw = controllerState_.Gamepad.sThumbRY;
+	if (abs(raw) < XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE) return 0.0f;
+	return raw / 32767.0f;
+}
+
+float InputManager::GetLeftTrigger()
+{
+	if (!isControllerConnected_) return false;
+	BYTE raw = controllerState_.Gamepad.bLeftTrigger;
+	// こちらのデッドゾーン定数は XINPUT_GAMEPAD_TRIGGER_THRESHOLD（= 30）
+	if (raw < XINPUT_GAMEPAD_TRIGGER_THRESHOLD) return 0.0f;
+	return raw / 255.0f;
+}
+
+float InputManager::GetRightTrigger()
+{
+	if (!isControllerConnected_) return false;
+	BYTE raw = controllerState_.Gamepad.bRightTrigger;
+	if (raw < XINPUT_GAMEPAD_TRIGGER_THRESHOLD) return 0.0f;
+	return raw / 255.0f;
 }
 
 

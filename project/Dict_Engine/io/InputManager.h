@@ -11,6 +11,9 @@
 #pragma comment(lib, "dinput8.lib")
 #pragma comment(lib, "dxguid.lib")
 
+#include <Xinput.h>
+#pragma comment(lib, "xinput.lib")
+
 #include <memory>
 
 class InputManager
@@ -19,7 +22,32 @@ public:
 	// namespace省略
 	template <class T> using ComPtr = Microsoft::WRL::ComPtr<T>;
 
+public:
+	// シングルトンインスタンスの取得
+	static InputManager* GetInstance();
+	// 終了
+	void Finalize();
 
+	// コンストラクタに渡すための鍵
+	class ConstructorKey
+	{
+	private:
+		ConstructorKey() = default;
+		friend class InputManager;
+	};
+
+	// PassKeyを受け取るコンストラクタ
+	explicit InputManager(ConstructorKey){}
+
+private: 	// シングルトンインスタンス
+
+	static std::unique_ptr<InputManager> instance_;
+
+	~InputManager() = default;
+	InputManager(InputManager&) = delete;
+	InputManager& operator=(InputManager&) = delete;
+
+	friend struct std::default_delete<InputManager>;
 
 public:
 
@@ -35,32 +63,16 @@ public:
 	bool TriggerMouse(BYTE mouseButton);
 	LONG MouseWheel();
 
-public:
-	// シングルトンインスタンスの取得
-	static InputManager* GetInstance();
-	// 終了
-	void Finalize();
-
-	// コンストラクタに渡すための鍵
-	class ConstructorKey 
-	{
-	private:
-		ConstructorKey() = default;
-		friend class InputManager;
-	};
-
-	// PassKeyを受け取るコンストラクタ
-	explicit InputManager(ConstructorKey){}
-
-private: 	// シングルトンインスタンス
-	
-	static std::unique_ptr<InputManager> instance_;
-
-	~InputManager() = default;
-	InputManager(InputManager&) = delete;
-	InputManager& operator=(InputManager&) = delete;
-
-	friend struct std::default_delete<InputManager>;
+	// コントローラー
+	bool IsControllerConnected(){ return isControllerConnected_; }
+	bool PushButton(WORD button);    // 例: XINPUT_GAMEPAD_A
+	bool TriggerButton(WORD button);
+	float GetLeftStickX();
+	float GetLeftStickY();
+	float GetRightStickX();
+	float GetRightStickY();
+	float GetLeftTrigger();
+	float GetRightTrigger();
 
 private:
 
@@ -77,6 +89,11 @@ private:
 	ComPtr<IDirectInputDevice8> mouse_ = nullptr;
 	DIMOUSESTATE mouseState_ = { 0 };
 	DIMOUSESTATE mouseStatePre_ = { 0 };
+
+	// コントローラー
+	XINPUT_STATE controllerState_ = { 0 };
+	XINPUT_STATE controllerStatePre_ = { 0 };
+	bool isControllerConnected_ = false;
 
 };
 
