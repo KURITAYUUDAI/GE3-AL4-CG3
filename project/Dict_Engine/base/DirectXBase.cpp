@@ -156,8 +156,8 @@ void DirectXBase::DrawSwapChain()
 	commandList_->ResourceBarrier(1, &barrier_);
 
 	// 描画先のRTVとDSVを設定する
-	D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle = dsvDescriptorHeap_->GetCPUDescriptorHandleForHeapStart();
-	commandList_->OMSetRenderTargets(1, &rtvHandles_[backBufferIndex], false, &dsvHandle);
+	//D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle = dsvDescriptorHeap_->GetCPUDescriptorHandleForHeapStart();
+	commandList_->OMSetRenderTargets(1, &rtvHandles_[backBufferIndex], false, nullptr);
 
 	//// 指定した深度で画面全体をクリアする
 	//commandList_->ClearDepthStencilView(dsvHandle, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);

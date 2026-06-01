@@ -80,6 +80,8 @@ using namespace DirectX;
 #include "PSOManager.h"
 #include "OffscreenRender.h"
 
+#include "PostEffectManager.h"
+
 // ゲーム全体
 class Dict_Framework
 {
@@ -144,6 +146,9 @@ protected:
 
 	// オフスクリーンレンダー
 	OffscreenRender* offscreenRender_ = OffscreenRender::GetInstance();
+
+	// ポストエフェクトマネージャー
+	PostEffectManager* postEffectManager_ = PostEffectManager::GetInstance();
 
 	// ImGuiマネージャー
 	ImGuiManager* imguiManager_ = ImGuiManager::GetInstance();

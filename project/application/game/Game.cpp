@@ -1,12 +1,23 @@
 #include "Game.h"
 #include "SceneFactory.h"
+#include "PostEffectManager.h"
+#include "GaussianBlur.h"
 
 void Game::Initialize()
 {
 	Dict_Framework::Initialize();
 
+	// 使えるエフェクトの種類を登録
+	postEffectManager_->RegisterFactory("GaussianBlur",
+		[]{ return std::make_unique<GaussianBlur>(); });
+	/*postEffectManager_->RegisterFactory("Monochrome",
+		[]{ return std::make_unique<Monochrome>(); });*/
+
+
 	// シーンマネージャーに最初のシーンをセット
 	sceneManager_->Initialize("TITLE");
+
+	
 
 	/*sceneManager_->ChangeScene("GAMEPLAY");*/
 
@@ -18,6 +29,8 @@ void Game::Initialize()
 void Game::Finalize()
 {
 	sceneManager_->Finalize();
+
+	postEffectManager_->Finalize();
 
 	Dict_Framework::Finalize();
 }
@@ -45,7 +58,9 @@ void Game::Draw()
 
 	DirectXBase::GetInstance()->DrawSwapChain();
 
-	offscreenRender_->Draw();
+	postEffectManager_->Draw(
+		offscreenRender_->GetRenderTextureResource(),
+		offscreenRender_->GetSRVIndex());
 
 	imguiManager_->Draw();
 

@@ -50,7 +50,7 @@ public:
 	D3D12_CPU_DESCRIPTOR_HANDLE GetRTVHandle() { return rtvHandle_; }
 	bool IsReady(){ return isReady_; }
 	Vector4 GetClearColor() { return kRenderTargetClearValue_; }
-
+	uint32_t GetSRVIndex() const { return renderTextureSRVIndex_; }
 
 private:
 
