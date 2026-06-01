@@ -39,18 +39,6 @@ void SrvManager::PreDraw()
 
 }
 
-uint32_t SrvManager::Allocate()
-{
-	assert(useIndex_ < kMaxSRVCount);
-
-	// returnする番号を一旦記録しておく
-	int index = useIndex_;
-	// 次回のために番号を1進める
-	useIndex_++;
-	// 上で記録した番号をreturn
-	return index;
-}
-
 void SrvManager::CreateSRVforTexture2D(uint32_t srvIndex, ID3D12Resource* pResource, DirectX::TexMetadata metadata)
 {
 	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc{};

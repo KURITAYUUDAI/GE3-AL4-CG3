@@ -452,8 +452,15 @@ void DirectXBase::PostUploadTexture()
 
 uint32_t DirectXBase::AllocateRTVIndex()
 {
+	if (!freeRTVIndices_.empty())
+	{
+		uint32_t index = freeRTVIndices_.front();
+		freeRTVIndices_.pop();
+		return index; // 空きがあれば再利用
+	}
+
 	assert(rtvUseIndex_ < kMaxRTVCount);
-	return rtvUseIndex_++;
+	return currentRTVCount_++; // なければ新規発番
 }
 
 

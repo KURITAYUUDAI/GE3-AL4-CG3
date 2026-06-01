@@ -54,6 +54,10 @@ void PostEffectManager::RegisterFactory(const std::string& name, FactoryFunc fac
 // ---------------------------------------------------------------
 void PostEffectManager::Clear()
 {
+	for (auto& chainEffect : chain_)
+	{
+		chainEffect->Finalize();
+	}
     chain_.clear();
 }
 

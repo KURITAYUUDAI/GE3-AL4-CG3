@@ -1,6 +1,7 @@
 #pragma once
 #include "DirectXBase.h"
 #include <memory>
+#include <queue>
 
 // SRV管理
 class SrvManager
@@ -19,7 +20,19 @@ public:
 
 	void SetGraphicsRootDescriptorTable(UINT RootParameterIndex, uint32_t srvIndex);
 
-	uint32_t Allocate();
+	uint32_t AllocateSRVIndex() 
+	{
+		if (!freeSRVIndices_.empty()) {
+			uint32_t index = freeSRVIndices_.front();
+			freeSRVIndices_.pop();
+			return index; // 空きがあれば再利用
+		}
+		return currentSRVCount_++; // なければ新規発番
+	}
+
+	void FreeSRVIndex(uint32_t index) {
+		freeSRVIndices_.push(index); // 使い終わったらプールに戻す
+	}
 
 	// SRV生成（テクスチャ用）
 	void CreateSRVforTexture2D(uint32_t srvIndex, ID3D12Resource* pResource, DirectX::TexMetadata metadata);
@@ -80,10 +93,8 @@ private:
 	ComPtr<ID3D12DescriptorHeap> descriptorHeap_ = nullptr;
 	uint32_t descriptorSize_ = 0;
 
-	// 次に使用するSRVインデックス
-	uint32_t useIndex_ = 0;
-
-	
+	std::queue<uint32_t> freeSRVIndices_; // 空いている（再利用可能な）インデックスのプール
+	uint32_t currentSRVCount_ = 0;        // 新規に発番するときのカウンタ
 
 
 };

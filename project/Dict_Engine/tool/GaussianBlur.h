@@ -19,6 +19,8 @@ public:
     void Draw(ID3D12Resource* srcResource, uint32_t srcSRVIndex,
                D3D12_CPU_DESCRIPTOR_HANDLE destRTV) override;
 
+	void Finalize() override;
+
 
 public: // 外部入出力
 

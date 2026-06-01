@@ -77,7 +77,7 @@ void TextureManager::LoadTexture(const std::string& filePath)
 	textureData.metadata = mipImages.GetMetadata();
 	textureData.resource = DirectXBase::GetInstance()->CreateTextureResource(textureData.metadata);
 
-	textureData.srvIndex = SrvManager::GetInstance()->Allocate();
+	textureData.srvIndex = SrvManager::GetInstance()->AllocateSRVIndex();
 	textureData.srvHandleCPU = SrvManager::GetInstance()->GetCPUDescriptorHandle(textureData.srvIndex);
 	textureData.srvHandleGPU = SrvManager::GetInstance()->GetGPUDescriptorHandle(textureData.srvIndex);
 

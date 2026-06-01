@@ -26,6 +26,8 @@ using namespace DirectX;
 
 #include "myMath.h"
 
+#include "queue"
+
 class DirectXBase
 {
 public:
@@ -100,8 +102,6 @@ public:
 
 	// テクスチャ読み込み後処理
 	void PostUploadTexture();
-
-	uint32_t AllocateRTVIndex();
 
 
 private:	// 各機能の初期化関数
@@ -181,7 +181,11 @@ public: // その他関数
 	D3D12_CPU_DESCRIPTOR_HANDLE GetDSVCPUDescriptorHandle(uint32_t index);
 	D3D12_GPU_DESCRIPTOR_HANDLE GetDSVGPUDescriptorHandle(uint32_t index);
 
-	
+	uint32_t AllocateRTVIndex();
+
+	void FreeRTVIndex(uint32_t index) {
+		freeRTVIndices_.push(index); // 使い終わったらプールに戻す
+	}
 
 private: // 静的関数
 
@@ -192,7 +196,7 @@ private: // 静的関数
 		const ComPtr<ID3D12DescriptorHeap>& descriptorHeap, uint32_t descriptorSize, uint32_t index);
 
 
-public:	// 動的変数
+public:	
 
 	
 	
@@ -230,7 +234,9 @@ private:
 	ComPtr<ID3D12DescriptorHeap> rtvDescriptorHeap_ = nullptr;
 	uint32_t rtvDescriptorSize_ = 0;
 	static const uint32_t kMaxRTVCount = 8;
-	uint32_t rtvUseIndex_ = 2;
+
+	std::queue<uint32_t> freeRTVIndices_; // 空いている（再利用可能な）インデックスのプール
+	uint32_t currentRTVCount_ = 2;        // 新規に発番するときのカウンタ
 	
 
 	// DSV用のヒープディスクリプタの数は1。DSVはShader内で飾るものではないので、ShaderVisibleはfalse

@@ -198,6 +198,8 @@ void GamePlayScene::Initialize()
 
 void GamePlayScene::Finalize()
 {
+	PostEffectManager::GetInstance()->Clear();
+
 	/*for (auto it = emitters_.begin(); it != emitters_.end(); ++it)
 	{
 		std::unique_ptr<ParticleEmitter> emitter = std::move(*it);

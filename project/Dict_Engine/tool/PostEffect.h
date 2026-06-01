@@ -45,6 +45,8 @@ public:
     virtual void Draw(ID3D12Resource* srcResource, uint32_t srcSRVIndex,
                      D3D12_CPU_DESCRIPTOR_HANDLE destRTV) = 0;
 
+    virtual void Finalize() = 0;
+
     // -------------------------------------------------------
     //  エフェクト名（PostEffectManagerがAdd時に付与する）
     // -------------------------------------------------------

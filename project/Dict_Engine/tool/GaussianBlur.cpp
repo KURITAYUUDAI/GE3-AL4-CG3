@@ -70,6 +70,12 @@ void GaussianBlur::Draw(ID3D12Resource* srcResource, uint32_t srcSRVIndex,
     commandList->DrawInstanced(3, 1, 0, 0);
 }
 
+void GaussianBlur::Finalize()
+{
+    DirectXBase::GetInstance()->FreeRTVIndex(intermediateRTVIndex_);
+    SrvManager::GetInstance()->FreeSRVIndex(intermediateSRVIndex_);
+}
+
 void GaussianBlur::CreateIntermediateBuffer(uint32_t width, uint32_t height)
 {
     auto* dxBase = DirectXBase::GetInstance();
@@ -87,7 +93,7 @@ void GaussianBlur::CreateIntermediateBuffer(uint32_t width, uint32_t height)
     dxBase->GetDevice()->CreateRenderTargetView(
         intermediateResource_.Get(), &rtvDesc, intermediateRTV_);
 
-    intermediateSRVIndex_ = SrvManager::GetInstance()->Allocate();
+    intermediateSRVIndex_ = SrvManager::GetInstance()->AllocateSRVIndex();
 
     D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc{};
     srvDesc.Format = kFormat_;

@@ -297,7 +297,7 @@ void ParticleManager::CreateParticleGroup(const std::string name, const std::str
 	}
 
 	// SRVを作成
-	particleGroup.instancingSrvIndex = SrvManager::GetInstance()->Allocate();
+	particleGroup.instancingSrvIndex = SrvManager::GetInstance()->AllocateSRVIndex();
 	SrvManager::GetInstance()->CreateSRVforStructuredBuffer(
 		particleGroup.instancingSrvIndex,
 		particleGroup.instancingResource.Get(),
