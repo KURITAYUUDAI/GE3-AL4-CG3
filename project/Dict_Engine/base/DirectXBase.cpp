@@ -459,7 +459,7 @@ uint32_t DirectXBase::AllocateRTVIndex()
 		return index; // 空きがあれば再利用
 	}
 
-	assert(rtvUseIndex_ < kMaxRTVCount);
+	assert(currentRTVCount_ < kMaxRTVCount);
 	return currentRTVCount_++; // なければ新規発番
 }
 
