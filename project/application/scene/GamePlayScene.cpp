@@ -3,6 +3,8 @@
 #include "LightManager.h"
 #include "CameraManager.h"
 #include "PrimitiveManager.h"
+#include "PostEffectManager.h"
+#include "GaussianBlur.h"
 
 void GamePlayScene::Initialize()
 {
@@ -183,6 +185,8 @@ void GamePlayScene::Initialize()
 	cylinderEmitter->Initialize("cylinder",
 		{ {1.0f, 0.0f, 1.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f} }, 1, 0.2f);
 
+	PostEffectManager::GetInstance()->Clear();
+	PostEffectManager::GetInstance()->Add("GaussianBlur");
 
 
 	// シーン初期化終わり
@@ -252,6 +256,22 @@ void GamePlayScene::Update()
 	ImGui::Checkbox("DrawSprite", &isDrawSprite_);
 	ImGui::Checkbox("DrawObject3d", &isDrawObject3d_);
 	ImGui::Checkbox("DebugCamera", &isDebugCamera_);
+	ImGui::End();
+
+
+	ImGui::Begin("GaussianBlur");
+	auto* blur = PostEffectManager::GetInstance()->Get<GaussianBlur>("GaussianBlur");
+	float sigma = blur->GetSigma();
+	int kernelRadius = blur->GetKernelRadius();
+	if (ImGui::SliderFloat("Sigma", &sigma, 0.1f, 20.0f))
+	{
+		blur->SetSigma(sigma);
+	}
+	if (ImGui::SliderInt("KernelRadius", &kernelRadius, 1, 64))
+	{
+		blur->SetKernelRadius(kernelRadius);
+	}
+
 	ImGui::End();
 
 	//ImGui_ImplDX12_NewFrame();

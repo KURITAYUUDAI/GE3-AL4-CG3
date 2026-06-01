@@ -103,8 +103,7 @@ void PSOManager::CreatePipeLineState(const std::string& name, BlendMode blend, F
 
 	// 6. DepthStencilStateの設定
 	D3D12_DEPTH_STENCIL_DESC depthStencilDesc{};
-	depthStencilDesc.DepthEnable = psoConfig.depthEnable;
-	depthStencilDesc.DepthEnable = true;							// Depthの機能を有効化する
+	depthStencilDesc.DepthEnable = psoConfig.depthEnable; // Depthの機能を有効化する
 	depthStencilDesc.DepthWriteMask = psoConfig.depthWriteMask;	// 書き込まない
 	depthStencilDesc.DepthFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;	// 比較関数はLessEqual。近ければ描画される
 
@@ -129,7 +128,9 @@ void PSOManager::CreatePipeLineState(const std::string& name, BlendMode blend, F
 
 		// DepthStencilを代入
 		graphicsPipelineStateDesc.DepthStencilState = depthStencilDesc;
-		graphicsPipelineStateDesc.DSVFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;
+		graphicsPipelineStateDesc.DSVFormat = psoConfig.depthEnable
+			? DXGI_FORMAT_D24_UNORM_S8_UINT
+			: DXGI_FORMAT_UNKNOWN;;
 
 		// その他の設定
 		graphicsPipelineStateDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;

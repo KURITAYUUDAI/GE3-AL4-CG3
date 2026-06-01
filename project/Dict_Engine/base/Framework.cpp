@@ -33,6 +33,8 @@ void Dict_Framework::Initialize()
 
 	offscreenRender_->Initialize();
 
+	postEffectManager_->Initialize(winAPI_->kClientWidth, winAPI_->kClientHeight);
+
 	imguiManager_->Initialize(winAPI_.get(), dxBase_);
 
 	textureManager_->SetDxBase(dxBase_);
@@ -41,6 +43,8 @@ void Dict_Framework::Initialize()
 	SeedManager::GetInstance()->Initialize();
 	SoundManager::GetInstance()->InitializeMF();
 	SoundManager::GetInstance()->Initialize();
+
+	
 
 #ifdef _DEBUG
 
