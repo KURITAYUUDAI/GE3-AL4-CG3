@@ -210,13 +210,16 @@
     <ClCompile Include="application\command\InputHandlerSelector.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Dict_Engine\tool\PostEffectManager.cpp">
+    <ClCompile Include="Dict_Engine\postEffect\PostEffectManager.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Dict_Engine\tool\PostEffect.cpp">
+    <ClCompile Include="Dict_Engine\postEffect\PostEffect.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Dict_Engine\tool\GaussianBlur.cpp">
+    <ClCompile Include="Dict_Engine\postEffect\GaussianBlur.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Dict_Engine\postEffect\Outline.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
   </ItemGroup>
@@ -378,13 +381,16 @@
     <ClInclude Include="application\command\InputHandlerSelector.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Dict_Engine\tool\PostEffectManager.h">
+    <ClInclude Include="Dict_Engine\postEffect\PostEffectManager.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Dict_Engine\tool\PostEffect.h">
+    <ClInclude Include="Dict_Engine\postEffect\PostEffect.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Dict_Engine\tool\GaussianBlur.h">
+    <ClInclude Include="Dict_Engine\postEffect\GaussianBlur.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Dict_Engine\postEffect\Outline.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
   </ItemGroup>
