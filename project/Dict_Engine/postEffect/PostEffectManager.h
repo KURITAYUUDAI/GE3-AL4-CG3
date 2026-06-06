@@ -41,7 +41,7 @@ public:
     template<typename T>
     T* Get(const std::string& name)
     {
-        for (auto& effect : chain_)
+        for (auto& effect : effectChain_)
         {
             if (effect->GetName() == name)
             {
@@ -63,6 +63,14 @@ public:
         friend class PostEffectManager;
     };
     explicit PostEffectManager(ConstructorKey){}
+
+public:
+
+    struct PassEntry
+    {
+        PostEffect::PassFunc                    pass;
+        std::vector<PostEffect::PassBarrier>    barriers; // このパス専用のバリア
+    };
 
 private:
     static std::unique_ptr<PostEffectManager> instance_;
@@ -140,7 +148,7 @@ public:
     // -------------------------------------------------------
 
     /// <summary>現在のチェーンに含まれるエフェクト数</summary>
-    uint32_t GetEffectCount() const { return static_cast<uint32_t>(chain_.size()); }
+    uint32_t GetEffectCount() const { return static_cast<uint32_t>(effectChain_.size()); }
 
     /// <summary>指定インデックスのエフェクト名を返す</summary>
     const std::string& GetEffectName(uint32_t index) const;
@@ -163,8 +171,8 @@ public: // 外部入出力
 
 	const PostEffect* GetEffect(uint32_t index) const
 	{
-		assert(index < chain_.size() && "PostEffectManager: GetEffect インデックスが範囲外です");
-		return chain_[index].get();
+		assert(index < effectChain_.size() && "PostEffectManager: GetEffect インデックスが範囲外です");
+		return effectChain_[index].get();
 	}
 
 private:
@@ -172,7 +180,7 @@ private:
     std::unordered_map<std::string, FactoryFunc> factories_;
 
     // 現在のエフェクトチェーン（適用順）
-    std::vector<std::unique_ptr<PostEffect>> chain_;
+    std::vector<std::unique_ptr<PostEffect>> effectChain_;
 
     // ピンポンバッファ（2本固定）
     ComPtr<ID3D12Resource>      pingPongRT_[2];

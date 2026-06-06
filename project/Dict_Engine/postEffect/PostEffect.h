@@ -3,6 +3,8 @@
 #include <wrl.h>
 #include <cstdint>
 #include <string>
+#include <vector>
+#include <functional>
 #include "myMath.h"
 
 /// <summary>
@@ -17,6 +19,16 @@ class PostEffect
 {
 public:
     template<class T> using ComPtr = Microsoft::WRL::ComPtr<T>;
+
+    using PassFunc = std::function<void(D3D12_CPU_DESCRIPTOR_HANDLE destRTV)>;
+
+    struct PassBarrier
+    {
+        ID3D12Resource* resource = nullptr;
+        D3D12_RESOURCE_STATES before = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
+        D3D12_RESOURCE_STATES after = D3D12_RESOURCE_STATE_RENDER_TARGET;
+    };
+
 
 public:
     PostEffect() = default;
@@ -36,16 +48,27 @@ public:
     /// </summary>
     virtual void Initialize(uint32_t width, uint32_t height) = 0;
 
+    virtual void Update(){};
+
     /// <summary>
     /// エフェクトを適用して自前の出力RTに書き込む。
     /// 最終エフェクト以外はこちらを使う。
     /// </summary>
     /// <param name="srcResource">入力リソース</param>
     /// <param name="srcSRVIndex">入力リソースのSRVインデックス</param>
+    /*
     virtual void Draw(ID3D12Resource* srcResource, uint32_t srcSRVIndex,
-                     D3D12_CPU_DESCRIPTOR_HANDLE destRTV) = 0;
+                     D3D12_CPU_DESCRIPTOR_HANDLE destRTV) = 0;*/
 
     virtual void Finalize() = 0;
+
+    // 各パスの描画関数リストを返す
+    // PostEffectManagerがこれを使ってピンポンバッファで順番に実行する
+    virtual std::vector<PassFunc> GetPasses(uint32_t srcSRVIndex) = 0;
+
+    // GetPasses() と対になるバリア情報を返す
+    // 戻り値: パスごとのバリアリスト（書き込み前に張るもの）
+	virtual std::vector<std::vector<PassBarrier>> GetBarriers() = 0;
 
     // -------------------------------------------------------
     //  エフェクト名（PostEffectManagerがAdd時に付与する）

@@ -244,6 +244,8 @@
     <FxCompile Include="resources\shaders\GaussianFilter.PS.hlsl" />
     <FxCompile Include="resources\shaders\GaussianBlurH.PS.hlsl" />
     <FxCompile Include="resources\shaders\GaussianBlurV.PS.hlsl" />
+    <FxCompile Include="resources\shaders\LuminanceBasedOutline.PS.hlsl" />
+    <FxCompile Include="resources\shaders\DepthBasedOutline.PS.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Dict_Engine\io\DebugCamera.h">

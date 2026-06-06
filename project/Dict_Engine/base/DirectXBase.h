@@ -89,6 +89,8 @@ public:
 	// バッファリソース生成
 	ComPtr<ID3D12Resource> CreateBufferResource(size_t sizeInBytes);
 
+	// 256バイトアライン済みリソース生成
+	ComPtr<ID3D12Resource> CreateConstantBufferResource(size_t sizeInBytes);
 	
 	// テクスチャリソース生成
 	ComPtr<ID3D12Resource> CreateTextureResource(const DirectX::TexMetadata& metadata);
@@ -165,6 +167,8 @@ public: // ゲッター
 	size_t GetSwapChainResourceNum(){ return swapChainResources_.size(); }
 
 	D3D12_CPU_DESCRIPTOR_HANDLE GetBackBufferRTVHandle();
+
+	ID3D12Resource* GetDepthResource() { return depthResource_.Get(); }
 
 
 public: // その他関数

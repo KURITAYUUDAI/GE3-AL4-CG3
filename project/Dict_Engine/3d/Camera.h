@@ -45,6 +45,9 @@ public:	// 外部入出力
 
 	const Transform& GetTransform() const { return transform_; }
 
+	const Matrix4x4& GetWorldMatrix() const { return worldMatrix_; }
+	const Matrix4x4& GetViewMatrix() const { return viewMatrix_; }
+	const Matrix4x4& GetProjectionMatrix() const { return projectionMatrix_; }
 	const Matrix4x4& GetViewProjectionMatrix() const { return viewProjectionMatrix_; }
 
 	const Matrix4x4 GetBillboardWorldMatrix(const Vector3& scale,  const Vector3& rotate, const Vector3& translate) const;
