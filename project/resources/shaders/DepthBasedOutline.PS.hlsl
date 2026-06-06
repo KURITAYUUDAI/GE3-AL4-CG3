@@ -1,7 +1,7 @@
 #include "Fullscreen.hlsli"
 
 Texture2D<float4> gTexture : register(t0);
-Texture2D<float4> gDepthTexture : register(t1);
+Texture2D<float> gDepthTexture : register(t1);
 SamplerState gSampler : register(s0);
 SamplerState gSamplerPoint : register(s1);
 
