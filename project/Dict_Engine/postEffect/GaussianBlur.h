@@ -16,13 +16,14 @@ public:
 
 public:
     void Initialize(uint32_t width, uint32_t height) override;
-    void Draw(ID3D12Resource* srcResource, uint32_t srcSRVIndex,
-               D3D12_CPU_DESCRIPTOR_HANDLE destRTV) override;
 
 	void Finalize() override;
 
 
 public: // 外部入出力
+
+    std::vector<PassFunc> GetPasses(uint32_t srcSRVIndex) override;
+    std::vector<std::vector<PassBarrier>> GetBarriers() override;
 
     void SetSigma(float sigma) { params_.sigma = sigma; }
 	void SetKernelRadius(int kernelRadius) { params_.kernelRadius = kernelRadius; }
@@ -33,16 +34,15 @@ public: // 外部入出力
 
 private:
     
-    void CreateIntermediateBuffer(uint32_t width, uint32_t height);
+    // 横パス・縦パスそれぞれの描画処理
+    void PassH(uint32_t srcSRVIndex, D3D12_CPU_DESCRIPTOR_HANDLE destRTV);
+    void PassV(uint32_t srcSRVIndex, D3D12_CPU_DESCRIPTOR_HANDLE destRTV);
+
     void CreateConstantBuffer();
     void RegisterPSOs();
     void UpdateConstantBuffer();
 
 private:
-    ComPtr<ID3D12Resource>      intermediateResource_;
-    D3D12_CPU_DESCRIPTOR_HANDLE intermediateRTV_{};
-    uint32_t                    intermediateRTVIndex_ = 0;
-    uint32_t                    intermediateSRVIndex_ = 0;
 
     ComPtr<ID3D12Resource> constantBufferResource_;
     BlurParams* constantBufferMappedData_ = nullptr;

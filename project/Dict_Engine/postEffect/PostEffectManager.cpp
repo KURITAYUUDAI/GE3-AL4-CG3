@@ -19,7 +19,7 @@ PostEffectManager* PostEffectManager::GetInstance()
 
 void PostEffectManager::Finalize()
 {
-    chain_.clear();
+    effectChain_.clear();
     factories_.clear();
     instance_.reset();
 }
@@ -31,6 +31,8 @@ void PostEffectManager::Initialize(uint32_t width, uint32_t height)
 {
     width_ = width;
     height_ = height;
+
+    CreatePingPongBuffers(width, height);
 
     // エフェクトが0個のときのフォールバック用PSOを登録
     RegisterPassthroughPSO();
@@ -54,11 +56,11 @@ void PostEffectManager::RegisterFactory(const std::string& name, FactoryFunc fac
 // ---------------------------------------------------------------
 void PostEffectManager::Clear()
 {
-	for (auto& chainEffect : chain_)
+	for (auto& chainEffect : effectChain_)
 	{
 		chainEffect->Finalize();
 	}
-    chain_.clear();
+    effectChain_.clear();
 }
 
 void PostEffectManager::Add(const std::string& name)
@@ -71,20 +73,20 @@ void PostEffectManager::Add(const std::string& name)
     auto effect = it->second();
     effect->SetName(name);
     effect->Initialize(width_, height_);
-    chain_.push_back(std::move(effect));
+    effectChain_.push_back(std::move(effect));
 }
 
 void PostEffectManager::Remove(uint32_t index)
 {
-    assert(index < chain_.size() && "PostEffectManager: Remove インデックスが範囲外です");
-    chain_.erase(chain_.begin() + index);
+    assert(index < effectChain_.size() && "PostEffectManager: Remove インデックスが範囲外です");
+    effectChain_.erase(effectChain_.begin() + index);
 }
 
 void PostEffectManager::Swap(uint32_t indexA, uint32_t indexB)
 {
-    assert(indexA < chain_.size() && "PostEffectManager: Swap indexA が範囲外です");
-    assert(indexB < chain_.size() && "PostEffectManager: Swap indexB が範囲外です");
-    std::swap(chain_[indexA], chain_[indexB]);
+    assert(indexA < effectChain_.size() && "PostEffectManager: Swap indexA が範囲外です");
+    assert(indexB < effectChain_.size() && "PostEffectManager: Swap indexB が範囲外です");
+    std::swap(effectChain_[indexA], effectChain_[indexB]);
 }
 
 // ---------------------------------------------------------------
@@ -99,48 +101,76 @@ void PostEffectManager::Draw(ID3D12Resource* srcResource, uint32_t srcSRVIndex)
 {
     assert(isReady_);
 
-    if (chain_.empty())
+    if (effectChain_.empty())
     {
         DrawPassthrough(srcResource, srcSRVIndex);
         return;
     }
 
     auto* cmdList = DirectXBase::GetInstance()->GetCommandList();
-    auto* srvManager = SrvManager::GetInstance();
+
+    std::vector<PassEntry> allEntries;
+    for (auto& effect : effectChain_)
+    {
+        auto passes = effect->GetPasses(srcSRVIndex);
+		auto barriers = effect->GetBarriers();
+
+        for (size_t i = 0; i < passes.size(); ++i)
+        { 
+            PassEntry entry;
+			entry.pass = std::move(passes[i]);
+			if (i < barriers.size())
+			{
+				entry.barriers = barriers[i];
+			}
+            allEntries.push_back(std::move(entry));
+        }
+    }
+
 
     // 現在の入力
-    ID3D12Resource* currentSrc = srcResource;
     uint32_t        currentSRVIdx = srcSRVIndex;
 
     // ピンポンバッファのどちらに書くか（0 or 1）
     int dstPing = 0;
 
-    for (size_t i = 0; i < chain_.size(); ++i)
+    for (size_t i = 0; i < allEntries.size(); ++i)
     {
-        bool isLast = (i == chain_.size() - 1);
+		auto& entry = allEntries[i];
+        bool isLast = (i == allEntries.size() - 1);
+
+        for (const auto& barrier : entry.barriers)
+        {
+            PostEffect::TransitionResource(cmdList,
+                barrier.resource, barrier.before, barrier.after);
+        }
 
         if (isLast)
         {
-            // 最後のエフェクトはSwapChainへ直接書き込む
-            chain_[i]->Draw(currentSrc, currentSRVIdx,
-                DirectXBase::GetInstance()->GetBackBufferRTVHandle());
-        } else
+            // 最後のパスはSwapChainへ
+            entry.pass(DirectXBase::GetInstance()->GetBackBufferRTVHandle());
+        } 
+        else
         {
-            // 中間エフェクトはピンポンバッファへ書き込む
+            // 中間パスはピンポンバッファへ
             PostEffect::TransitionResource(cmdList, pingPongRT_[dstPing].Get(),
                 D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
                 D3D12_RESOURCE_STATE_RENDER_TARGET);
 
-            chain_[i]->Draw(currentSrc, currentSRVIdx, pingPongRTV_[dstPing]);
+            entry.pass(pingPongRTV_[dstPing]);
 
             PostEffect::TransitionResource(cmdList, pingPongRT_[dstPing].Get(),
                 D3D12_RESOURCE_STATE_RENDER_TARGET,
                 D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 
-            // 次のエフェクトの入力を今書いたピンポンバッファに切り替え
-            currentSrc = pingPongRT_[dstPing].Get();
             currentSRVIdx = pingPongSRVIndex_[dstPing];
-            dstPing = 1 - dstPing; // 0→1→0→1 と交互に切り替え
+            dstPing = 1 - dstPing;
+        }
+
+        for (const auto& barrier : entry.barriers)
+        {
+            PostEffect::TransitionResource(cmdList,
+                barrier.resource, barrier.after, barrier.before);
         }
     }
 }
@@ -150,8 +180,8 @@ void PostEffectManager::Draw(ID3D12Resource* srcResource, uint32_t srcSRVIndex)
 // ---------------------------------------------------------------
 const std::string& PostEffectManager::GetEffectName(uint32_t index) const
 {
-    assert(index < chain_.size() && "PostEffectManager: GetEffectName インデックスが範囲外です");
-    return chain_[index]->GetName();
+    assert(index < effectChain_.size() && "PostEffectManager: GetEffectName インデックスが範囲外です");
+    return effectChain_[index]->GetName();
 }
 
 // ---------------------------------------------------------------
@@ -233,4 +263,38 @@ void PostEffectManager::RegisterPassthroughPSO()
     config.depthEnable = false;
 
     PSOManager::GetInstance()->RegisterPSOConfig(kPsoNamePassthrough_, config);
+}
+
+void PostEffectManager::CreatePingPongBuffers(uint32_t width, uint32_t height)
+{
+    auto* dxBase = DirectXBase::GetInstance();
+    auto* srvManager = SrvManager::GetInstance();
+
+    for (int i = 0; i < 2; ++i)
+    {
+        pingPongRT_[i] = dxBase->CreateRenderTextureResource(
+            width, height, DXGI_FORMAT_R8G8B8A8_UNORM_SRGB,
+            Vector4{ 0.0f, 0.0f, 0.0f, 1.0f });
+
+
+        D3D12_RENDER_TARGET_VIEW_DESC rtvDesc{};
+        rtvDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
+        rtvDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
+
+        pingPongRTVIndex_[i] = dxBase->AllocateRTVIndex();
+        pingPongRTV_[i] = dxBase->GetRTVCPUDescriptorHandle(pingPongRTVIndex_[i]);
+        dxBase->GetDevice()->CreateRenderTargetView(
+            pingPongRT_[i].Get(), &rtvDesc, pingPongRTV_[i]);
+
+        pingPongSRVIndex_[i] = srvManager->AllocateSRVIndex();
+
+        D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc{};
+        srvDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
+        srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+        srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+        srvDesc.Texture2D.MipLevels = 1;
+        dxBase->GetDevice()->CreateShaderResourceView(
+            pingPongRT_[i].Get(), &srvDesc,
+            srvManager->GetCPUDescriptorHandle(pingPongSRVIndex_[i]));
+    }
 }

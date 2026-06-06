@@ -41,6 +41,11 @@ public:
 		Vector3 worldPosition;
 	};
 
+	struct ProjectionInverse
+	{
+		Matrix4x4 projectionInverse;
+	};
+
 public:
 
 	// 初期化
@@ -48,6 +53,8 @@ public:
 	void Update();
 
 	void SetCbufferCameraResource(UINT RootParameterIndex);
+
+	void SetCbufferProjectionInverseResource(UINT RootParameterIndex);
 
 	void AddCamera(const std::string& name, Camera* camera);
 
@@ -69,6 +76,9 @@ private:
 	// カメラ用リソースを作成
 	void CreateCameraResource();
 
+	// カメラの逆行列用リソースを作成
+	void CreateProjectionInverseResource();
+
 private:
 	std::unordered_map<std::string, Camera*> cameras_;
 	Camera* activeCamera_ = nullptr;
@@ -77,5 +87,10 @@ private:
 	Microsoft::WRL::ComPtr<ID3D12Resource> cameraResource_ = nullptr;
 	// バッファリソース内のデータを指すポインタ
 	CameraForGPU* cameraData_ = nullptr;
+
+	// カメラの逆行列用リソース
+	Microsoft::WRL::ComPtr<ID3D12Resource> projectionInverseResource_;
+	// バッファリソース内のデータを指すポインタ
+	ProjectionInverse* projectionInverseData_ = nullptr;
 };
 

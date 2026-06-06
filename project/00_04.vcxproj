@@ -159,6 +159,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="application\command\GameSceneCommand.cpp" />
     <ClCompile Include="Dict_Engine\3d\CameraManager.cpp" />
     <ClCompile Include="Dict_Engine\io\JSONManager.cpp" />
+    <ClCompile Include="Dict_Engine\postEffect\Outline.cpp" />
     <ClCompile Include="Dict_Engine\scene\BaseScene.cpp" />
     <ClCompile Include="Dict_Engine\scene\AbstractSceneFactory.cpp" />
     <ClCompile Include="Dict_Engine\3d\Camera.cpp" />
@@ -207,7 +208,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="application\object\player\PlayerState.cpp" />
     <ClCompile Include="Dict_Engine\postEffect\PostEffectManager.cpp" />
     <ClCompile Include="Dict_Engine\postEffect\PostEffect.cpp" />
-    <ClCompile Include="Dict_Engine\postEffect\Outline.cpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="resources\shaders\Environment.PS.hlsl">
@@ -296,12 +296,23 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </FxCompile>
+    <FxCompile Include="resources\shaders\LuminanceBasedOutline.PS.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Development|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="resources\shaders\DepthBasedOutline.PS.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Development|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="application\command\GameSceneCommand.h" />
     <ClInclude Include="Dict_Engine\3d\CameraManager.h" />
     <ClInclude Include="Dict_Engine\3d\ModelUtility.h" />
     <ClInclude Include="Dict_Engine\io\JSONManager.h" />
+    <ClInclude Include="Dict_Engine\postEffect\Outline.h" />
     <ClInclude Include="Dict_Engine\scene\BaseScene.h" />
     <ClInclude Include="Dict_Engine\scene\AbstractSceneFactory.h" />
     <ClInclude Include="Dict_Engine\3d\Camera.h" />
@@ -346,7 +357,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Dict_Engine\postEffect\PostEffectManager.h" />
     <ClInclude Include="Dict_Engine\postEffect\PostEffect.h" />
     <ClInclude Include="Dict_Engine\postEffect\GaussianBlur.h" />
-    <ClInclude Include="Dict_Engine\postEffect\Outline.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="externals\DirectXTex\DirectXTex_Desktop_2022_Win10.vcxproj">

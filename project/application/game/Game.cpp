@@ -2,6 +2,7 @@
 #include "SceneFactory.h"
 #include "PostEffectManager.h"
 #include "GaussianBlur.h"
+#include "Outline.h"
 
 void Game::Initialize()
 {
@@ -10,8 +11,8 @@ void Game::Initialize()
 	// 使えるエフェクトの種類を登録
 	postEffectManager_->RegisterFactory("GaussianBlur",
 		[]{ return std::make_unique<GaussianBlur>(); });
-	/*postEffectManager_->RegisterFactory("Monochrome",
-		[]{ return std::make_unique<Monochrome>(); });*/
+	postEffectManager_->RegisterFactory("Outline",
+		[]{ return std::make_unique<Outline>(); });
 
 
 	// シーンマネージャーに最初のシーンをセット

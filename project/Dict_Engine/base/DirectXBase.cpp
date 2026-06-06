@@ -328,6 +328,33 @@ Microsoft::WRL::ComPtr<ID3D12Resource> DirectXBase::CreateBufferResource(size_t 
 	return resource;
 }
 
+Microsoft::WRL::ComPtr<ID3D12Resource> DirectXBase::CreateConstantBufferResource(size_t sizeInBytes)
+{
+	// 256バイトアライン
+	size_t alignedSize = (sizeInBytes + 255) & ~255;
+
+	D3D12_HEAP_PROPERTIES heapProps{};
+	heapProps.Type = D3D12_HEAP_TYPE_UPLOAD;
+
+	D3D12_RESOURCE_DESC resDesc{};
+	resDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
+	resDesc.Width = alignedSize;
+	resDesc.Height = 1;
+	resDesc.DepthOrArraySize = 1;
+	resDesc.MipLevels = 1;
+	resDesc.SampleDesc.Count = 1;
+	resDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
+
+	ComPtr<ID3D12Resource> resource;
+	HRESULT hr = device_->CreateCommittedResource(
+		&heapProps, D3D12_HEAP_FLAG_NONE, &resDesc,
+		D3D12_RESOURCE_STATE_GENERIC_READ, nullptr,
+		IID_PPV_ARGS(&resource));
+	assert(SUCCEEDED(hr));
+
+	return resource;
+}
+
 Microsoft::WRL::ComPtr<ID3D12Resource> DirectXBase::CreateTextureResource(const DirectX::TexMetadata& metadata)
 {
 	// 1. metadataを基にResourceの設定

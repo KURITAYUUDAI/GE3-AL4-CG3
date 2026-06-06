@@ -186,7 +186,7 @@ void GamePlayScene::Initialize()
 		{ {1.0f, 0.0f, 1.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f} }, 1, 0.2f);
 
 	PostEffectManager::GetInstance()->Clear();
-	PostEffectManager::GetInstance()->Add("GaussianBlur");
+	PostEffectManager::GetInstance()->Add("Outline");
 
 
 	// シーン初期化終わり
@@ -261,7 +261,7 @@ void GamePlayScene::Update()
 	ImGui::End();
 
 
-	ImGui::Begin("GaussianBlur");
+	/*ImGui::Begin("GaussianBlur");
 	auto* blur = PostEffectManager::GetInstance()->Get<GaussianBlur>("GaussianBlur");
 	float sigma = blur->GetSigma();
 	int kernelRadius = blur->GetKernelRadius();
@@ -274,7 +274,7 @@ void GamePlayScene::Update()
 		blur->SetKernelRadius(kernelRadius);
 	}
 
-	ImGui::End();
+	ImGui::End();*/
 
 	//ImGui_ImplDX12_NewFrame();
 	//ImGui_ImplWin32_NewFrame();

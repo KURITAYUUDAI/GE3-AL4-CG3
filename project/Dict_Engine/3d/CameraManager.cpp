@@ -20,6 +20,7 @@ void CameraManager::Finalize()
 void CameraManager::Initialize()
 {
 	CreateCameraResource();
+	CreateProjectionInverseResource();
 }
 
 void CameraManager::Update()
@@ -30,6 +31,8 @@ void CameraManager::Update()
 		activeCamera_->Update();
 		// カメラのワールド座標をGPU用構造体に転送
 		cameraData_->worldPosition = activeCamera_->GetTranslate();
+		// カメラの逆行列をGPU用構造体に転送
+		projectionInverseData_->projectionInverse = Inverse(activeCamera_->GetProjectionMatrix());
 	}
 }
 
@@ -37,6 +40,12 @@ void CameraManager::SetCbufferCameraResource(UINT RootParameterIndex)
 {
 	// カメラ用のCBufferをバインド
 	DirectXBase::GetInstance()->GetCommandList()->SetGraphicsRootConstantBufferView(RootParameterIndex, cameraResource_->GetGPUVirtualAddress());
+}
+
+void CameraManager::SetCbufferProjectionInverseResource(UINT RootParameterIndex)
+{
+	// カメラの逆行列用のCBufferをバインド
+	DirectXBase::GetInstance()->GetCommandList()->SetGraphicsRootConstantBufferView(RootParameterIndex, projectionInverseResource_->GetGPUVirtualAddress());
 }
 
 void CameraManager::AddCamera(const std::string& name, Camera* camera)
@@ -68,5 +77,16 @@ void CameraManager::CreateCameraResource()
 	// カメラデータの初期値を書き込む
 	cameraData_->worldPosition = { 0.0f, 0.0f, 0.0f };
 
+}
+
+void CameraManager::CreateProjectionInverseResource()
+{
+	// リソース作成
+	projectionInverseResource_ = DirectXBase::GetInstance()->CreateConstantBufferResource(sizeof(ProjectionInverse));
+	// データを書き込むためのアドレスを取得してDataに割り当てる
+	projectionInverseResource_->Map(0, nullptr, reinterpret_cast<void**>(&projectionInverseData_));
+
+	// 初期値を書き込む
+	projectionInverseData_->projectionInverse = MakeIdentity4x4();
 }
 
