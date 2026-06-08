@@ -43,7 +43,7 @@ void Game::Update()
 
 	imguiManager_->Begin();
 
-	sceneManager_->Update();
+	sceneManager_->Update(deltaTime_);
 
 	imguiManager_->End();
 }

@@ -8,11 +8,11 @@ public:
 
 	void Initialize(const std::string& name, const Transform& transform, const uint32_t& count, const float& frequency);
 
-	void Update();
+	void Update(const float& deltaTime);
 
 	void Emit();
 
-	void RandomEmit();
+	void RandomEmit(const float& deltaTime);
 
 	void EmitSlash();
 

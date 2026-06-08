@@ -32,7 +32,7 @@ void SceneManager::Initialize(const std::string& sceneName)
 	ChangeScene(sceneName);
 }
 
-void SceneManager::Update()
+void SceneManager::Update(const float& deltaTime)
 {
 	if (sceneRequest_ != scene_)
 	{
@@ -42,7 +42,7 @@ void SceneManager::Update()
 
 	if (currentScene_)
 	{
-		currentScene_->Update();
+		currentScene_->Update(deltaTime);
 	}
 }
 

@@ -126,9 +126,9 @@ void Player::Initialize()
 	ChangeState(std::make_unique<PlayerIdleState>());
 }
 
-void Player::Update()
+void Player::Update(const float& deltaTime)
 {
-	state_->Update(this);
+	state_->Update(this, deltaTime);
 
 	transform_.translate += velocity_;
 

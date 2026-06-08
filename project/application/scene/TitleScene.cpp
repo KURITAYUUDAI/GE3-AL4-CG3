@@ -125,7 +125,7 @@ void TitleScene::Finalize()
 	CameraManager::GetInstance()->Finalize();
 }
 
-void TitleScene::Update()
+void TitleScene::Update(const float& deltaTime)
 {
 	if (inputManager_->TriggerKey(DIK_RETURN))
 	{
@@ -240,10 +240,10 @@ void TitleScene::Update()
 	for (auto it = emitters_.begin(); it != emitters_.end(); ++it)
 	{
 		ParticleEmitter* emitter = it->get();
-		emitter->Update();
+		emitter->Update(deltaTime);
 	}
 
-	particleManager_->Update();
+	particleManager_->Update(deltaTime);
 
 	//// ImGuiの内部コマンドを生成する
 	//ImGui::Render();

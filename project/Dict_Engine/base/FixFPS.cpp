@@ -1,14 +1,16 @@
 #include "FixFPS.h"
 
-void FixFPS::InitializeFixFPS(const float& frameNum)
+void FixFPS::Initialize(const float& frameNum)
 {
 	frameNum_ = frameNum;
 
 	reference_ = std::chrono::steady_clock::now();
+
+	deltaTime_ = 1.0f / frameNum_;
 }
 
 
-void FixFPS::UpdateFixFPS()
+void FixFPS::Update()
 {
 	// 1/60秒ぴったりの時間
 	const std::chrono::microseconds kMinTime(uint64_t(1.0e+6f / frameNum_));
@@ -35,5 +37,21 @@ void FixFPS::UpdateFixFPS()
 
 	// 現在の時間を記録する
 	reference_ = std::chrono::steady_clock::now();
+
+	std::chrono::steady_clock::time_point endOfFrame = std::chrono::steady_clock::now();
+	std::chrono::duration<float> actualElapsed = endOfFrame - reference_;
+
+	// 秒単位に変換して保持 (例: 60fpsで安定していれば 0.01666... が入る)
+	deltaTime_ = actualElapsed.count();
+
+	// 3. 次のフレームのための基準時間更新（ドリフト対策）
+	if (endOfFrame - reference_ > kMinTime * 2)
+	{
+		reference_ = endOfFrame; // 処理落ち時はリセット
+	} 
+	else
+	{
+		reference_ += kMinTime; // 通常時は理想時間を足していく
+	}
 
 }

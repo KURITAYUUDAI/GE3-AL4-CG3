@@ -170,6 +170,8 @@ public: // ゲッター
 
 	ID3D12Resource* GetDepthResource() { return depthResource_.Get(); }
 
+	float GetDeltaTime() { return fixFPS_->GetDeltaTime(); }
+
 
 public: // その他関数
 

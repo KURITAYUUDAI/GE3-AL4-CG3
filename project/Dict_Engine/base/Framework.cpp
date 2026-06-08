@@ -155,6 +155,8 @@ void Dict_Framework::Update()
 		return;
 	} 
 
+	deltaTime_ = dxBase_->GetDeltaTime();
+
 	inputManager_->Update();
 }
 

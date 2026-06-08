@@ -128,7 +128,7 @@ void ParticleManager::Finalize()
 	instance_.reset();
 }
 
-void ParticleManager::Update()
+void ParticleManager::Update(const float& deltaTime)
 {
 	viewProjectionMatrix_ = CameraManager::GetInstance()->GetActiveCamera()->GetViewProjectionMatrix();
 
@@ -151,16 +151,16 @@ void ParticleManager::Update()
 				if (IsCollision(accelerationField.area, particle.transform.translate) 
 					&& particleGroup.second.isMoveAccelerationField)
 				{
-					particle.velocity += accelerationField.acceleration * kDeltaTime;
+					particle.velocity += accelerationField.acceleration * deltaTime;
 				}
 			}
 
-			particle.transform.translate += particle.velocity * kDeltaTime;
+			particle.transform.translate += particle.velocity * deltaTime;
 
 			particle.color.w =
 				1.0f - (particle.currentTime / particle.lifeTime);
 
-			particle.currentTime += kDeltaTime;
+			particle.currentTime += deltaTime;
 
 			Matrix4x4 worldMatrix;
 

@@ -10,7 +10,7 @@ public:
 
 	void Initialize(const std::string& sceneName);
 
-	void Update();
+	void Update(const float& deltaTime);
 
 	void Draw();
 
