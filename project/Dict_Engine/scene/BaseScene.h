@@ -10,7 +10,7 @@ public:
 
 	virtual void Finalize() = 0;
 
-	virtual void Update() = 0;
+	virtual void Update(const float& deltaTime) = 0;
 
 	virtual void Draw() = 0;
 

@@ -20,7 +20,7 @@ public:
 
 	void Finalize() override;
 
-	void Update() override;
+	void Update(const float& deltaTime) override;
 
 	void Draw() override;
 

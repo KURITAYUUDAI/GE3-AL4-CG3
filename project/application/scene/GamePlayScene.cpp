@@ -186,7 +186,7 @@ void GamePlayScene::Initialize()
 		{ {1.0f, 0.0f, 1.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f} }, 1, 0.2f);
 
 	PostEffectManager::GetInstance()->Clear();
-	PostEffectManager::GetInstance()->Add("Outline");
+	//PostEffectManager::GetInstance()->Add("Outline");
 
 
 	// シーン初期化終わり
@@ -235,7 +235,7 @@ void GamePlayScene::Finalize()
 	cameraManager_->Finalize();
 }
 
-void GamePlayScene::Update()
+void GamePlayScene::Update(const float& deltaTime)
 {
 	if (inputManager_->TriggerKey(DIK_RETURN))
 	{
@@ -442,6 +442,13 @@ void GamePlayScene::Update()
 
 	ImGui::End();
 
+	ImGui::Begin("CheckFPS");
+
+	// FPS表示
+	ImGui::Text("FPS: %.1f", ImGui::GetIO().Framerate);
+
+	ImGui::End();
+
 	//if (ImGui::BeginTable("ItemsTable", 3, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg))
 	//{
 	//	ImGui::TableSetupScrollFreeze(1, 1);
@@ -633,16 +640,16 @@ void GamePlayScene::Update()
 	for (auto it = emitters_.begin(); it != emitters_.end(); ++it)
 	{
 		ParticleEmitter* emitter = it->get();
-		//emitter->Update();
+		//emitter->Update(deltaTime);
 	}
 
-	particleManager_->Update();
+	particleManager_->Update(deltaTime);
 
 	skyBox_->Update();
 
 	terrain_->Update();
 
-	player_->Update();
+	player_->Update(deltaTime);
 
 	if (inputManager_->TriggerKey(DIK_0))
 	{

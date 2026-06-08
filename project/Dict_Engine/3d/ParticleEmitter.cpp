@@ -11,9 +11,9 @@ void ParticleEmitter::Initialize(const std::string& name, const Transform& trans
 	frequencyTime_ = 0.0f;
 }
 
-void ParticleEmitter::Update()
+void ParticleEmitter::Update(const float& deltaTime)
 {
-	frequencyTime_ += kDeltaTime;
+	frequencyTime_ += deltaTime;
 	if (frequency_ <= frequencyTime_)
 	{
 		ParticleManager::GetInstance()->RandomEmit(name_, transform_.translate, count_);
@@ -26,9 +26,9 @@ void ParticleEmitter::Emit()
 	ParticleManager::GetInstance()->Emit(name_, transform_.translate, count_);
 }
 
-void ParticleEmitter::RandomEmit()
+void ParticleEmitter::RandomEmit(const float& deltaTime)
 {
-	frequencyTime_ += kDeltaTime;
+	frequencyTime_ += deltaTime;
 	if (frequency_ <= frequencyTime_)
 	{
 		ParticleManager::GetInstance()->RandomEmit(name_, transform_.translate, count_);

@@ -35,7 +35,7 @@ void DirectXBase::Initialize(WindowsAPI* winAPI)
 	this->winAPI_ = winAPI;
 	
 	// FPS固定初期化
-	fixFPS_->InitializeFixFPS(60.0f);
+	fixFPS_->Initialize(60.0f);
 
 	// デバイス初期化
 	InitializeDevice();
@@ -189,9 +189,6 @@ void DirectXBase::PostDraw()
 	hr = commandList_->Close();
 	assert(SUCCEEDED(hr));
 
-	// FPS固定
-	fixFPS_->UpdateFixFPS();
-
 	// GPUにコマンドリストの実行を行わせる
 	Microsoft::WRL::ComPtr<ID3D12CommandList> commandLists[] = { commandList_ };
 	commandQueue_->ExecuteCommandLists(1, commandLists->GetAddressOf());
@@ -212,6 +209,8 @@ void DirectXBase::PostDraw()
 		// イベント待つ
 		WaitForSingleObject(fenceEvent_, INFINITE);
 	}
+
+	fixFPS_->Update();
 
 	// 次のフレーム用のコマンドリストを準備
 	hr = commandAllocator_->Reset();

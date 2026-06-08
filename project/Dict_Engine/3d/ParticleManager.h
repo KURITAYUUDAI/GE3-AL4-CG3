@@ -126,7 +126,7 @@ public:
 	// 初期化
 	void Initialize(DirectXBase* dxBase);
 
-	void Update();
+	void Update(const float& deltaTime);
 
 	void Draw();
 

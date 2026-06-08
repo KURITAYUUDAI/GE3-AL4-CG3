@@ -13,7 +13,7 @@ class Player
 public:
 
 	void Initialize();
-	void Update();
+	void Update(const float& deltaTime);
 	void Draw();
 	void Finalize();
 

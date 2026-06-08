@@ -165,6 +165,8 @@ protected:
 	// シーンマネージャー
 	SceneManager* sceneManager_ = SceneManager::GetInstance();
 
+	float deltaTime_ = 0.0f;
+
 private:
 
 	D3DResourceLeakChecker LeakCheck_;

@@ -10,7 +10,7 @@ void PlayerIdleState::Initialize(Player* player)
 		player->GetInputHandlerSelector()->GetHandler());
 }
 
-void PlayerIdleState::Update(Player * player)
+void PlayerIdleState::Update(Player * player, const float& deltaTime)
 {
 	IInputHandler* handler = player->GetInputHandlerSelector()->GetHandler();
 
@@ -37,7 +37,7 @@ void PlayerShotState::Initialize(Player* player)
 		player->GetInputHandlerSelector()->GetHandler());
 }
 
-void PlayerShotState::Update(Player* player)
+void PlayerShotState::Update(Player* player, const float& deltaTime)
 {
 	moveCommand_->Execute(player);
 
