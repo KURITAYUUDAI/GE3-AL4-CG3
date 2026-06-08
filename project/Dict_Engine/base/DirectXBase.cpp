@@ -189,8 +189,6 @@ void DirectXBase::PostDraw()
 	hr = commandList_->Close();
 	assert(SUCCEEDED(hr));
 
-	fixFPS_->Update();
-
 	// GPUにコマンドリストの実行を行わせる
 	Microsoft::WRL::ComPtr<ID3D12CommandList> commandLists[] = { commandList_ };
 	commandQueue_->ExecuteCommandLists(1, commandLists->GetAddressOf());
@@ -212,6 +210,7 @@ void DirectXBase::PostDraw()
 		WaitForSingleObject(fenceEvent_, INFINITE);
 	}
 
+	fixFPS_->Update();
 
 	// 次のフレーム用のコマンドリストを準備
 	hr = commandAllocator_->Reset();
