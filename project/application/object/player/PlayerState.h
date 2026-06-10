@@ -27,6 +27,7 @@ private:
 
 	std::unique_ptr<ICommand>      moveCommand_;
 	std::unique_ptr<ICommand>      shotCommand_;
+	std::unique_ptr<ICommand>      avoidCommand_;
 };
 
 class PlayerShotState : public IPlayerState
@@ -42,4 +43,24 @@ private:
 	float duration_ = 0.5f;
 
 	std::unique_ptr<ICommand>      moveCommand_;
+};
+
+class PlayerAvoidState : public IPlayerState
+{
+public:
+
+	PlayerAvoidState(const Vector2& direction) : inputDirection_(direction) {}
+	
+	void Initialize(Player* player) override;
+	void Update(Player* player, const float& deltaTime) override;
+	void Draw(Player* player) override;
+	void Finalize(Player* player) override;
+
+private:
+	float timer_ = 0.0f;
+	float duration_ = 0.5f;
+
+	Vector3 avoidDirection_ = { 0.0f, 0.0f, 0.0f };
+	Vector2 inputDirection_ = { 0.0f, 0.0f };
+	float avoidSpeed_ = 25.0f; // 回避の速度
 };

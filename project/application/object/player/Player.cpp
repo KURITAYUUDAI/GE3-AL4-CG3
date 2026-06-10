@@ -6,6 +6,8 @@
 
 void Player::Initialize()
 {
+	deltaTime_ = 1.0f / 60.0f; // 仮の値。実際のゲームループで更新されるべ
+
 	// PSOの設定
 	PSOManager::PSOConfig config{};
 	config.vertexShaderPath = L"resources/shaders/Environment.VS.hlsl";
@@ -110,8 +112,11 @@ void Player::Initialize()
 
 	PSOManager::GetInstance()->RegisterPSOConfig(psoName_, config);
 
-	selector_.GetKeyboardHandler()->AssignKey("shot", DIK_Q);
-	selector_.GetGamepadHandler()->AssignKey("shot", XINPUT_GAMEPAD_A);
+	selector_.GetKeyboardHandler()->AssignKey("shot", DIK_SPACE);
+	selector_.GetKeyboardHandler()->AssignKey("avoid", DIK_E);
+
+	selector_.GetGamepadHandler()->AssignKey("shot", XINPUT_GAMEPAD_RIGHT_SHOULDER);
+	selector_.GetGamepadHandler()->AssignKey("avoid", XINPUT_GAMEPAD_X);
 
 	ModelManager::GetInstance()->LoadModel("sphere.obj");
 
@@ -128,9 +133,12 @@ void Player::Initialize()
 
 void Player::Update(const float& deltaTime)
 {
+	deltaTime_ = deltaTime;
+
 	state_->Update(this, deltaTime);
 
-	transform_.translate += velocity_;
+	transform_.translate += velocity_ * deltaTime;
+	/*transform_.rotate += (targetRoll_ - transform_.rotate) * 0.1f;*/
 
 	object3d_->SetTransform(transform_);
 	object3d_->Update();
@@ -215,24 +223,43 @@ void Player::ChangeState(std::unique_ptr<IPlayerState> newState)
 	state_->Initialize(this);
 }
 
-void Player::MoveHorizontal(const float& directionX, const float& directionZ)
+void Player::MoveHorizontal(const float& directionX, const float& directionY)
 {
 	float targetVelocityX = maxSpeed_.x * directionX;
-	float targetVelocityZ = maxSpeed_.z * directionZ;
+	float targetVelocityY = maxSpeed_.y * directionY;
 
 	// 現在速度を目標速度へ線形補間
 	// → スティックの倒し具合に応じた速度に滑らかに追従する
 	velocity_.x += (targetVelocityX - velocity_.x) * lerpFactor_;
-	velocity_.z += (targetVelocityZ - velocity_.z) * lerpFactor_;
+	velocity_.y += (targetVelocityY - velocity_.y) * lerpFactor_;
 }
 
 void Player::Decelerate()
 {
 	velocity_.x += (0.0f - velocity_.x) * lerpFactor_;
-	velocity_.z += (0.0f - velocity_.z) * lerpFactor_;
+	velocity_.y += (0.0f - velocity_.y) * lerpFactor_;
 }
 
 void Player::Shot()
 {
 	ChangeState(std::make_unique<PlayerShotState>());
 }
+
+void Player::Avoid(const Vector2& direction)
+{
+	ChangeState(std::make_unique<PlayerAvoidState>(direction));
+}
+
+void Player::MoveAvoid(const Vector3 direction, float speed)
+{
+	velocity_ = direction * speed;
+	
+	// 回避方向に回転する
+	
+}
+
+void Player::SetTargetRoll(const Vector3 rollRadian)
+{
+	targetRoll_ = rollRadian;
+}
+
