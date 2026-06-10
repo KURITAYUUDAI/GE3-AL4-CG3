@@ -32,3 +32,13 @@ public:
 private:
 	IInputHandler* inputHandler_;
 };
+
+class AvoidCommand : public ICommand
+{
+public:
+	AvoidCommand(IInputHandler* inputHandler) : inputHandler_(inputHandler) {}
+	void Execute(Player* player) override;
+
+private:
+	IInputHandler* inputHandler_;
+};
