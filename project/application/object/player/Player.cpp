@@ -3,6 +3,7 @@
 #include "TextureManager.h"
 #include "SrvManager.h"
 #include "InputManager.h"
+#include "BulletManager.h"
 
 void Player::Initialize()
 {
@@ -126,7 +127,7 @@ void Player::Initialize()
 
 	transform_.scale = { 1.0f, 1.0f, 1.0f };
 	transform_.rotate = { 0.0f, 0.0f, 0.0f };
-	transform_.translate = { 0.0f, 0.0f, 0.0f };
+	transform_.translate = { 0.0f, 0.0f, 15.0f };
 
 	ChangeState(std::make_unique<PlayerIdleState>());
 }
@@ -140,8 +141,7 @@ void Player::Update(const float& deltaTime)
 	transform_.translate += velocity_ * deltaTime;
 	/*transform_.rotate += (targetRoll_ - transform_.rotate) * 0.1f;*/
 
-	object3d_->SetTransform(transform_);
-	object3d_->Update();
+	
 
 #ifdef _DEBUG
 	ImGui::Begin("PlayerSetting");
@@ -190,6 +190,10 @@ void Player::Update(const float& deltaTime)
 
 	ImGui::End();
 #endif
+
+	object3d_->SetTransform(transform_);
+	object3d_->Update();
+
 }
 
 void Player::Draw()
@@ -242,6 +246,7 @@ void Player::Decelerate()
 
 void Player::Shot()
 {
+	/*BulletManager::GetInstance()->CreatePlayerBullet({2.0f})*/
 	ChangeState(std::make_unique<PlayerShotState>());
 }
 
@@ -261,5 +266,10 @@ void Player::MoveAvoid(const Vector3 direction, float speed)
 void Player::SetTargetRoll(const Vector3 rollRadian)
 {
 	targetRoll_ = rollRadian;
+}
+
+void Player::SetParent(WorldTransform* worldTransform)
+{
+	object3d_->SetParent(worldTransform);
 }
 

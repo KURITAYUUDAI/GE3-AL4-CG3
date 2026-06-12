@@ -12,18 +12,32 @@ void Object3d::Initialize()
 
 	object3dManager_ = Object3dManager::GetInstance();
 
-	CreateTransformationMatrixResource();
+	//CreateTransformationMatrixResource();
 
 	// Transform変数を作る
-	transform_ = { {1.0f, 1.0f, 1.0f}, {0.0f, pi, 0.0f}, {0.0f, 0.0f, 0.0f} };
+	worldTransform_.Initialize();
+	worldTransform_.scale_ = {1.0f, 1.0f, 1.0f};
+	worldTransform_.rotate_ = {0.0f, pi, 0.0f}; 
+	worldTransform_.translate_ = {0.0f, 0.0f, 0.0f} ;
 
 	psoName_ = Object3dManager::GetInstance()->GetDefaultPsoName();
 	
 }
 
-void Object3d::Update()
+void Object3d::Update(const Matrix4x4* worldMatrix)
 {
-	Matrix4x4 worldMatrix = MakeAffineMatrix(transform_.scale, transform_.rotate, transform_.translate);
+	/*worldTransform_.scale_ = transform_.scale;
+	worldTransform_.rotate_ = transform_.rotate;
+	worldTransform_.translate_ = transform_.translate;*/
+
+	worldTransform_.UpdateMatrix(worldMatrix);
+	if (worldTransform_.parent_)
+	{
+		worldTransform_.worldMatrix_ *= worldTransform_.parent_->worldMatrix_;			
+	}
+	worldTransform_.TransferMatrix(CameraManager::GetInstance()->GetMainCamera()->GetViewProjectionMatrix());
+
+	/*Matrix4x4 worldMatrix = MakeAffineMatrix(transform_.scale, transform_.rotate, transform_.translate);
 	Matrix4x4 worldViewProjectionMatrix;
 
 	const Matrix4x4& viewProjectionMatrix = CameraManager::GetInstance()->GetActiveCamera()->GetViewProjectionMatrix();
@@ -31,7 +45,7 @@ void Object3d::Update()
 	CameraManager::GetInstance()->SetCameraWorldPosition(CameraManager::GetInstance()->GetActiveCamera()->GetTranslate());
 	
 	transformationMatrixData_->World = worldMatrix;
-	transformationMatrixData_->WVP = worldViewProjectionMatrix;
+	transformationMatrixData_->WVP = worldViewProjectionMatrix;*/
 }
 
 void Object3d::Draw()
@@ -47,7 +61,9 @@ void Object3d::Draw()
 
 
 	// wvp用のCBufferの場所を設定
-	DirectXBase::GetInstance()->GetCommandList()->SetGraphicsRootConstantBufferView(1, transformationMatrixResource_->GetGPUVirtualAddress());
+	worldTransform_.SetCBufferTransformationResource(1);
+	
+	//DirectXBase::GetInstance()->GetCommandList()->SetGraphicsRootConstantBufferView(1, transformationMatrixResource_->GetGPUVirtualAddress());
 
 	// 平行光源用のCBufferをバインド（rootParameter[3] = b1）
 	LightManager::GetInstance()->SetCBufferLightsResource(3);
@@ -83,16 +99,16 @@ void Object3d::SetEnableLighting(const int32_t& enableLighting)
 	}
 }
 
-void Object3d::CreateTransformationMatrixResource()
-{
-
-	// 座標変換行列リソースを作成する。Matrix4x4 1つ分のサイズを用意する
-	transformationMatrixResource_ = object3dManager_->GetDxBase()->CreateBufferResource(sizeof(TransformationMatrix));
-	// TransformationMatrixResourceにデータを書き込むためのアドレスを取得してTransformationMatrixDataに割り当てる
-	transformationMatrixResource_->Map(0, nullptr, reinterpret_cast<void**>(&transformationMatrixData_));
-	
-	// 座標変換行列データの初期値を書き込む
-	transformationMatrixData_->World = MakeIdentity4x4();
-	transformationMatrixData_->WVP = MakeIdentity4x4();
-
-}
+//void Object3d::CreateTransformationMatrixResource()
+//{
+//
+//	// 座標変換行列リソースを作成する。Matrix4x4 1つ分のサイズを用意する
+//	transformationMatrixResource_ = object3dManager_->GetDxBase()->CreateBufferResource(sizeof(TransformationMatrix));
+//	// TransformationMatrixResourceにデータを書き込むためのアドレスを取得してTransformationMatrixDataに割り当てる
+//	transformationMatrixResource_->Map(0, nullptr, reinterpret_cast<void**>(&transformationMatrixData_));
+//	
+//	// 座標変換行列データの初期値を書き込む
+//	transformationMatrixData_->World = MakeIdentity4x4();
+//	transformationMatrixData_->WVP = MakeIdentity4x4();
+//
+//}

@@ -2,6 +2,7 @@
 #include "myMath.h"
 #include "DirectXBase.h"
 #include "SpriteManager.h"
+#include "WorldTransform.h"
 
 class Sprite
 {
@@ -88,9 +89,6 @@ private:	// 静的関数
 	// MaterialResourceを作成
 	void CreateMaterialResource();
 
-	// TransformationMatrixResourceを作成
-	void CreateTransformationMatrixResource();
-
 private:	// 静的変数
 
 	SpriteManager* spriteManager_ = nullptr;
@@ -114,12 +112,6 @@ private:	// 静的変数
 	// バッファリソース内のデータを指すポインタ
 	Material* materialData_ = nullptr;
 
-	// 座標変換行列用バッファリソース
-	Microsoft::WRL::ComPtr<ID3D12Resource> transformationMatrixResource_ = nullptr;
-
-	// データを書き込む
-	TransformationMatrix* transformationMatrixData_ = nullptr;
-
 	// アンカーポイント
 	Vector2 anchorPoint_ = {0.0f, 0.0f};
 
@@ -131,9 +123,7 @@ private:	// 静的変数
 	Vector2 size_ = { 100.0f, 100.0f };
 
 	// トランスフォーム
-	Transform transform_ = { {1.0f, 1.0f, 1.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f} };
-	// ワールド行列
-	Matrix4x4 worldMatrix_ = {};
+	WorldTransform worldTransform_;
 	// WVP行列
 	Matrix4x4 worldViewProjectionMatrix_ = {};
 

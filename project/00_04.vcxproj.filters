@@ -84,7 +84,7 @@
     <ClCompile Include="Dict_Engine\io\InputManager.cpp">
       <Filter>ソース ファイル\engine\io</Filter>
     </ClCompile>
-    <ClCompile Include="Dict_Engine\io\DebugCamera.cpp">
+    <ClCompile Include="Dict_Engine\camera\DebugCamera.cpp">
       <Filter>ソース ファイル\engine\io</Filter>
     </ClCompile>
     <ClCompile Include="Dict_Engine\base\DirectXBase.cpp">
@@ -126,7 +126,7 @@
     <ClCompile Include="Dict_Engine\3d\ModelManager.cpp">
       <Filter>ソース ファイル\engine\3d</Filter>
     </ClCompile>
-    <ClCompile Include="Dict_Engine\3d\Camera.cpp">
+    <ClCompile Include="Dict_Engine\camera\Camera.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="Dict_Engine\base\SrvManager.cpp">
@@ -180,7 +180,7 @@
     <ClCompile Include="Dict_Engine\3d\LightManager.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Dict_Engine\3d\CameraManager.cpp">
+    <ClCompile Include="Dict_Engine\camera\CameraManager.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="application\object\Terrain.cpp">
@@ -222,6 +222,24 @@
     <ClCompile Include="Dict_Engine\postEffect\Outline.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
+    <ClCompile Include="Dict_Engine\camera\ICameraController.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Dict_Engine\camera\RailCameraController.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Dict_Engine\camera\DefaultCameraController.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Dict_Engine\math\WorldTransform.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="application\object\bullet\BulletManager.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="application\object\bullet\Bullet.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="resources\shaders\Object3d.PS.hlsl">
@@ -248,7 +266,7 @@
     <FxCompile Include="resources\shaders\DepthBasedOutline.PS.hlsl" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Dict_Engine\io\DebugCamera.h">
+    <ClInclude Include="Dict_Engine\camera\DebugCamera.h">
       <Filter>ヘッダー ファイル\engine\io</Filter>
     </ClInclude>
     <ClInclude Include="Dict_Engine\io\InputManager.h">
@@ -296,7 +314,7 @@
     <ClInclude Include="Dict_Engine\3d\ModelManager.h">
       <Filter>ヘッダー ファイル\engine\3d</Filter>
     </ClInclude>
-    <ClInclude Include="Dict_Engine\3d\Camera.h">
+    <ClInclude Include="Dict_Engine\camera\Camera.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="Dict_Engine\base\SrvManager.h">
@@ -350,7 +368,7 @@
     <ClInclude Include="Dict_Engine\3d\LightManager.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Dict_Engine\3d\CameraManager.h">
+    <ClInclude Include="Dict_Engine\camera\CameraManager.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="application\object\Terrain.h">
@@ -393,6 +411,24 @@
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="Dict_Engine\postEffect\Outline.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Dict_Engine\camera\ICameraController.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Dict_Engine\camera\RailCameraController.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Dict_Engine\camera\DefaultCameraController.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Dict_Engine\math\WorldTransform.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="application\object\bullet\BulletManager.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="application\object\bullet\Bullet.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
   </ItemGroup>

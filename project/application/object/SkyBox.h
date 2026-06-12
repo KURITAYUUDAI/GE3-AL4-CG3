@@ -8,11 +8,11 @@
 class SkyBox
 {
 public:
-	struct TransformationMatrix
+	/*struct TransformationMatrix
 	{
 		Matrix4x4 WVP;
 		Matrix4x4 World;
-	};
+	};*/
 
 public:
 	void Initialize();
@@ -30,7 +30,7 @@ private:
 	void CreateIndexResource();
 
 	// TransformationMatrixResourceを作成
-	void CreateTransformationMatrixResource();
+	/*void CreateTransformationMatrixResource();*/
 
 	// VertexResourceを作成
 	void CreateVertexResource();
@@ -48,7 +48,7 @@ private:
 	Camera* camera_;
 	ModelData modelData_;
 
-	Transform transform_;
+	WorldTransform worldTransform_;
 
 	// IndexBufferResource
 	Microsoft::WRL::ComPtr<ID3D12Resource> indexResource_ = nullptr;
@@ -58,10 +58,10 @@ private:
 	D3D12_INDEX_BUFFER_VIEW indexBufferView;
 
 
-	// 座標変換行列用バッファリソース
-	Microsoft::WRL::ComPtr<ID3D12Resource> transformationMatrixResource_ = nullptr;
-	// バッファリソース内のデータを指すポインタ
-	TransformationMatrix* transformationMatrixData_ = nullptr;
+	//// 座標変換行列用バッファリソース
+	//Microsoft::WRL::ComPtr<ID3D12Resource> transformationMatrixResource_ = nullptr;
+	//// バッファリソース内のデータを指すポインタ
+	//TransformationMatrix* transformationMatrixData_ = nullptr;
 
 	// バッファリソース
 	Microsoft::WRL::ComPtr<ID3D12Resource> vertexResource_ = nullptr;

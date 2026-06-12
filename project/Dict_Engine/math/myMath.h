@@ -217,6 +217,12 @@ inline Matrix4x4 operator+(const Matrix4x4& m1, const Matrix4x4& m2) { return Ad
 inline Matrix4x4 operator-(const Matrix4x4& m1, const Matrix4x4& m2) { return Subtract(m1, m2); }
 inline Matrix4x4 operator*(const Matrix4x4& m1, const Matrix4x4& m2) { return Multiply(m1, m2); }
 
+inline Matrix4x4& operator*= (Matrix4x4& m1, const Matrix4x4& m2)
+{
+	m1 = Multiply(m1, m2);
+	return m1;
+}
+
 // Sphere構造体
 struct Sphere
 {

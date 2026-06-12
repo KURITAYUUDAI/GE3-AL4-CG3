@@ -3,6 +3,7 @@
 #include "DirectXBase.h"
 #include "Object3dManager.h"
 #include "PSOManager.h"
+#include "WorldTransform.h"
 
 class Model;
 
@@ -23,7 +24,7 @@ public:	// メンバ関数
 	
 	void Initialize();
 
-	void Update();
+	void Update(const Matrix4x4* worldMatrix = nullptr);
 
 	void DrawingCommon();
 
@@ -42,22 +43,33 @@ public:	// 外部入出力
 	void SetModel(Model* model){ model_ = model; }
 	void SetCamera(Camera* camera){ camera_ = camera; }
 
-	void SetScale(const Vector3& scale){ transform_.scale = scale; }
-	void SetRotate(const Vector3& rotate){ transform_.rotate = rotate; }
-	void SetTranslate(const Vector3& translate){ transform_.translate = translate; }
-	void SetTransform(const Transform& transform){ transform_ = transform; }
+	void SetScale(const Vector3& scale){ worldTransform_.scale_ = scale; }
+	void SetRotate(const Vector3& rotate){ worldTransform_.rotate_ = rotate; }
+	void SetTranslate(const Vector3& translate){ worldTransform_.translate_ = translate; }
+	void SetTransform(const Transform& transform)
+	{ 
+		worldTransform_.scale_ = transform.scale;
+		worldTransform_.rotate_ = transform.rotate;
+		worldTransform_.translate_ = transform.translate;
+	}
 
 	void SetEnableLighting(const int32_t& enableLighting);
+
+	void SetParent(WorldTransform* worldTransform){ worldTransform_.parent_ = worldTransform; }
 
 	// ゲッター
 	const std::string& GetPsoName() const { return psoName_; }
 	const PSOManager::BlendMode& GetBlendMode() const { return blendMode_; }
 	const PSOManager::FillMode& GetFillMode() const { return fillMode_; }
 
-	const Vector3& GetScale() const { return transform_.scale; }
-	const Vector3& GetRotate() const { return transform_.rotate; }
-	const Vector3& GetTranslate() const { return transform_.translate; }
-	const Transform& GetTransform() const { return transform_; }
+	const Vector3& GetScale() const { return worldTransform_.scale_; }
+	const Vector3& GetRotate() const { return worldTransform_.rotate_; }
+	const Vector3& GetTranslate() const { return worldTransform_.translate_; }
+	const Transform& GetTransform() const 
+	{ 
+		return Transform(worldTransform_.scale_, worldTransform_.rotate_, worldTransform_.translate_); 
+	}
+	WorldTransform* GetWorldTransform() { return &worldTransform_; }
 
 	const int32_t& GetEnableLighting() const { return enableLighting_; }
 	
@@ -66,7 +78,7 @@ public:	// 外部入出力
 private: // 静的関数
 
 	// TransformationMatrixResourceを作成
-	void CreateTransformationMatrixResource();
+	/*void CreateTransformationMatrixResource();*/
 
 private:
 
@@ -83,13 +95,13 @@ private:
 	// カメラ
 	Camera* camera_ = nullptr;
 
-	// 座標変換行列用バッファリソース
-	Microsoft::WRL::ComPtr<ID3D12Resource> transformationMatrixResource_ = nullptr;
-	// バッファリソース内のデータを指すポインタ
-	TransformationMatrix* transformationMatrixData_ = nullptr;
+	//// 座標変換行列用バッファリソース
+	//Microsoft::WRL::ComPtr<ID3D12Resource> transformationMatrixResource_ = nullptr;
+	//// バッファリソース内のデータを指すポインタ
+	//TransformationMatrix* transformationMatrixData_ = nullptr;
 
 	// トランスフォーム
-	Transform transform_;
+	WorldTransform worldTransform_;
 
 	// ライティング有効無効
 	int32_t enableLighting_ = true;

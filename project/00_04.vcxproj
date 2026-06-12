@@ -84,7 +84,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <TreatWarningAsError>true</TreatWarningAsError>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)Dict_Engine\2d;$(ProjectDir)Dict_Engine\3d;$(ProjectDir)Dict_Engine\audio;$(ProjectDir)Dict_Engine\base;$(ProjectDir)Dict_Engine\io;$(ProjectDir)Dict_Engine\math;$(ProjectDir)Dict_Engine\scene;$(ProjectDir)Dict_Engine\random;$(ProjectDir)application\game;$(ProjectDir)application\scene;$(ProjectDir)application\object;$(SolutionDir)externals\DirectXTex;$(SolutionDir)externals\imgui;$(SolutionDir)externals\assimp\include;$(ProjectDir)application\object\player;$(ProjectDir)application\command;$(ProjectDir)Dict_Engine\postEffect</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)Dict_Engine\2d;$(ProjectDir)Dict_Engine\3d;$(ProjectDir)Dict_Engine\audio;$(ProjectDir)Dict_Engine\base;$(ProjectDir)Dict_Engine\io;$(ProjectDir)Dict_Engine\math;$(ProjectDir)Dict_Engine\scene;$(ProjectDir)Dict_Engine\random;$(ProjectDir)application\game;$(ProjectDir)application\scene;$(ProjectDir)application\object;$(SolutionDir)externals\DirectXTex;$(SolutionDir)externals\imgui;$(SolutionDir)externals\assimp\include;$(ProjectDir)application\object\player;$(ProjectDir)application\command;$(ProjectDir)Dict_Engine\postEffect;$(ProjectDir)Dict_Engine\camera;$(ProjectDir)application\object\bullet</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -111,7 +111,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)Dict_Engine\2d;$(ProjectDir)Dict_Engine\3d;$(ProjectDir)Dict_Engine\audio;$(ProjectDir)Dict_Engine\base;$(ProjectDir)Dict_Engine\io;$(ProjectDir)Dict_Engine\math;$(ProjectDir)Dict_Engine\scene;$(ProjectDir)Dict_Engine\random;$(ProjectDir)application\game;$(ProjectDir)application\scene;$(ProjectDir)application\object;$(SolutionDir)externals\DirectXTex;$(SolutionDir)externals\imgui;$(SolutionDir)externals\assimp\include;$(ProjectDir)application\object\player;$(ProjectDir)application\command;$(ProjectDir)Dict_Engine\postEffect</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)Dict_Engine\2d;$(ProjectDir)Dict_Engine\3d;$(ProjectDir)Dict_Engine\audio;$(ProjectDir)Dict_Engine\base;$(ProjectDir)Dict_Engine\io;$(ProjectDir)Dict_Engine\math;$(ProjectDir)Dict_Engine\scene;$(ProjectDir)Dict_Engine\random;$(ProjectDir)application\game;$(ProjectDir)application\scene;$(ProjectDir)application\object;$(SolutionDir)externals\DirectXTex;$(SolutionDir)externals\imgui;$(SolutionDir)externals\assimp\include;$(ProjectDir)application\object\player;$(ProjectDir)application\command;$(ProjectDir)Dict_Engine\postEffect;$(ProjectDir)Dict_Engine\camera;$(ProjectDir)application\object\bullet</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -140,7 +140,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <Optimization>Disabled</Optimization>
       <WholeProgramOptimization>false</WholeProgramOptimization>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)Dict_Engine\2d;$(ProjectDir)Dict_Engine\3d;$(ProjectDir)Dict_Engine\audio;$(ProjectDir)Dict_Engine\base;$(ProjectDir)Dict_Engine\io;$(ProjectDir)Dict_Engine\math;$(ProjectDir)Dict_Engine\scene;$(ProjectDir)Dict_Engine\random;$(ProjectDir)application\game;$(ProjectDir)application\scene;$(ProjectDir)application\object;$(SolutionDir)externals\DirectXTex;$(SolutionDir)externals\imgui;$(SolutionDir)externals\assimp\include;$(ProjectDir)application\object\player;$(ProjectDir)application\command;$(ProjectDir)Dict_Engine\postEffect</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)Dict_Engine\2d;$(ProjectDir)Dict_Engine\3d;$(ProjectDir)Dict_Engine\audio;$(ProjectDir)Dict_Engine\base;$(ProjectDir)Dict_Engine\io;$(ProjectDir)Dict_Engine\math;$(ProjectDir)Dict_Engine\scene;$(ProjectDir)Dict_Engine\random;$(ProjectDir)application\game;$(ProjectDir)application\scene;$(ProjectDir)application\object;$(SolutionDir)externals\DirectXTex;$(SolutionDir)externals\imgui;$(SolutionDir)externals\assimp\include;$(ProjectDir)application\object\player;$(ProjectDir)application\command;$(ProjectDir)Dict_Engine\postEffect;$(ProjectDir)Dict_Engine\camera;$(ProjectDir)application\object\bullet</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -157,17 +157,20 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="application\command\GameSceneCommand.cpp" />
-    <ClCompile Include="Dict_Engine\3d\CameraManager.cpp" />
+    <ClCompile Include="application\object\bullet\BulletManager.cpp" />
+    <ClCompile Include="application\object\bullet\Bullet.cpp" />
+    <ClCompile Include="Dict_Engine\camera\DefaultCameraController.cpp" />
+    <ClCompile Include="Dict_Engine\camera\CameraManager.cpp" />
     <ClCompile Include="Dict_Engine\io\JSONManager.cpp" />
     <ClCompile Include="Dict_Engine\postEffect\Outline.cpp" />
     <ClCompile Include="Dict_Engine\scene\BaseScene.cpp" />
     <ClCompile Include="Dict_Engine\scene\AbstractSceneFactory.cpp" />
-    <ClCompile Include="Dict_Engine\3d\Camera.cpp" />
+    <ClCompile Include="Dict_Engine\camera\Camera.cpp" />
     <ClCompile Include="Dict_Engine\3d\ParticleManager.cpp" />
     <ClCompile Include="Dict_Engine\base\D3DResourceLeakChecker.cpp" />
     <ClCompile Include="Dict_Engine\base\DirectXBase.cpp" />
     <ClCompile Include="Dict_Engine\base\FixFPS.cpp" />
-    <ClCompile Include="Dict_Engine\io\DebugCamera.cpp" />
+    <ClCompile Include="Dict_Engine\camera\DebugCamera.cpp" />
     <ClCompile Include="Dict_Engine\io\InputManager.cpp" />
     <ClCompile Include="Dict_Engine\base\Logger.cpp" />
     <ClCompile Include="Dict_Engine\io\ImGuiManager.cpp" />
@@ -179,6 +182,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="application\command\InputHandler.cpp" />
     <ClCompile Include="application\command\InputHandlerSelector.cpp" />
     <ClCompile Include="Dict_Engine\postEffect\GaussianBlur.cpp" />
+    <ClCompile Include="Dict_Engine\camera\ICameraController.cpp" />
     <ClCompile Include="main.cpp">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Development|x64'">MaxSpeed</Optimization>
       <WholeProgramOptimization Condition="'$(Configuration)|$(Platform)'=='Development|x64'">true</WholeProgramOptimization>
@@ -208,6 +212,8 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="application\object\player\PlayerState.cpp" />
     <ClCompile Include="Dict_Engine\postEffect\PostEffectManager.cpp" />
     <ClCompile Include="Dict_Engine\postEffect\PostEffect.cpp" />
+    <ClCompile Include="Dict_Engine\camera\RailCameraController.cpp" />
+    <ClCompile Include="Dict_Engine\math\WorldTransform.cpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="resources\shaders\Environment.PS.hlsl">
@@ -309,18 +315,21 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="application\command\GameSceneCommand.h" />
-    <ClInclude Include="Dict_Engine\3d\CameraManager.h" />
+    <ClInclude Include="application\object\bullet\BulletManager.h" />
+    <ClInclude Include="application\object\bullet\Bullet.h" />
+    <ClInclude Include="Dict_Engine\camera\DefaultCameraController.h" />
+    <ClInclude Include="Dict_Engine\camera\CameraManager.h" />
     <ClInclude Include="Dict_Engine\3d\ModelUtility.h" />
     <ClInclude Include="Dict_Engine\io\JSONManager.h" />
     <ClInclude Include="Dict_Engine\postEffect\Outline.h" />
     <ClInclude Include="Dict_Engine\scene\BaseScene.h" />
     <ClInclude Include="Dict_Engine\scene\AbstractSceneFactory.h" />
-    <ClInclude Include="Dict_Engine\3d\Camera.h" />
+    <ClInclude Include="Dict_Engine\camera\Camera.h" />
     <ClInclude Include="Dict_Engine\3d\ParticleManager.h" />
     <ClInclude Include="Dict_Engine\base\D3DResourceLeakChecker.h" />
     <ClInclude Include="Dict_Engine\base\DirectXBase.h" />
     <ClInclude Include="Dict_Engine\base\FixFPS.h" />
-    <ClInclude Include="Dict_Engine\io\DebugCamera.h" />
+    <ClInclude Include="Dict_Engine\camera\DebugCamera.h" />
     <ClInclude Include="Dict_Engine\io\InputManager.h" />
     <ClInclude Include="Dict_Engine\math\myMath.h" />
     <ClInclude Include="Dict_Engine\base\WindowsAPI.h" />
@@ -357,6 +366,9 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Dict_Engine\postEffect\PostEffectManager.h" />
     <ClInclude Include="Dict_Engine\postEffect\PostEffect.h" />
     <ClInclude Include="Dict_Engine\postEffect\GaussianBlur.h" />
+    <ClInclude Include="Dict_Engine\camera\ICameraController.h" />
+    <ClInclude Include="Dict_Engine\camera\RailCameraController.h" />
+    <ClInclude Include="Dict_Engine\math\WorldTransform.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="externals\DirectXTex\DirectXTex_Desktop_2022_Win10.vcxproj">

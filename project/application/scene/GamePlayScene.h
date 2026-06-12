@@ -8,6 +8,9 @@
 #include "LightManager.h"
 #include "CameraManager.h"
 
+#include "DefaultCameraController.h"
+#include "RailCameraController.h"
+
 class GamePlayScene : public BaseScene
 {
 public:
@@ -70,8 +73,13 @@ private:
 	// カメラ
 	std::unique_ptr<Camera> camera_ = nullptr;
 
-	std::unique_ptr<DebugCamera> debugCamera_;
+	/*std::unique_ptr<DebugCamera> debugCamera_;*/
 	bool isDebugCamera_ = false;
+
+	std::unique_ptr<DefaultCameraController> defaultCameraController_ = nullptr;
+
+	std::unique_ptr<RailCameraController> railCameraController_ = nullptr;
+	
 
 	Vector2 mousePosition_ = { 0.0f, 0.0f };
 
