@@ -115,30 +115,20 @@ void SkyBox::Initialize()
 	
 
 	CreateIndexResource();
-	CreateTransformationMatrixResource();
+	/*CreateTransformationMatrixResource();*/
 	CreateVertexResource();
 	CreateMaterialResource();
 	
-	transform_ = 
-	{
-		10.0f, 10.0f, 10.0f, // scale
-		0.0f, 0.0f, 0.0f, // rotate
-		0.0f, 0.0f, 0.0f, // translate
-	};
-
-	
+	worldTransform_.Initialize();
+	worldTransform_.scale_  = {10.0f, 10.0f, 10.0f};
+	worldTransform_.rotate_ = {0.0f, 0.0f, 0.0f};
+	worldTransform_.translate_ = {0.0f, 0.0f, 0.0f};
 }
 
 void SkyBox::Update()
 {
-	Matrix4x4 worldMatrix = MakeAffineMatrix(transform_.scale, transform_.rotate, transform_.translate);
-	Matrix4x4 worldViewProjectionMatrix;
-
-	const Matrix4x4& viewProjectionMatrix = CameraManager::GetInstance()->GetActiveCamera()->GetViewProjectionMatrix();
-	worldViewProjectionMatrix = Multiply(worldMatrix, viewProjectionMatrix);
-
-	transformationMatrixData_->World = worldMatrix;
-	transformationMatrixData_->WVP = worldViewProjectionMatrix;
+	worldTransform_.UpdateMatrix();
+	worldTransform_.TransferMatrix(CameraManager::GetInstance()->GetActiveCamera()->GetViewProjectionMatrix());
 }
 
 void SkyBox::Draw()
@@ -154,7 +144,7 @@ void SkyBox::Draw()
 
 
 	// wvp用のCBufferの場所を設定
-	DirectXBase::GetInstance()->GetCommandList()->SetGraphicsRootConstantBufferView(1, transformationMatrixResource_->GetGPUVirtualAddress());
+	worldTransform_.SetCBufferTransformationResource(1);
 	// IndexBufferViewを設定
 	DirectXBase::GetInstance()->GetCommandList()->IASetIndexBuffer(&indexBufferView);
 	// VertexBufferViewを設定
@@ -218,17 +208,17 @@ void SkyBox::CreateIndexResource()
 	indexBufferView.Format = DXGI_FORMAT_R32_UINT;
 }
 
-void SkyBox::CreateTransformationMatrixResource()
-{
-	// 座標変換行列リソースを作成する。Matrix4x4 1つ分のサイズを用意する
-	transformationMatrixResource_ =DirectXBase::GetInstance()->CreateBufferResource(sizeof(TransformationMatrix));
-	// TransformationMatrixResourceにデータを書き込むためのアドレスを取得してTransformationMatrixDataに割り当てる
-	transformationMatrixResource_->Map(0, nullptr, reinterpret_cast<void**>(&transformationMatrixData_));
-
-	// 座標変換行列データの初期値を書き込む
-	transformationMatrixData_->World = MakeIdentity4x4();
-	transformationMatrixData_->WVP = MakeIdentity4x4();
-}
+//void SkyBox::CreateTransformationMatrixResource()
+//{
+//	// 座標変換行列リソースを作成する。Matrix4x4 1つ分のサイズを用意する
+//	transformationMatrixResource_ =DirectXBase::GetInstance()->CreateBufferResource(sizeof(TransformationMatrix));
+//	// TransformationMatrixResourceにデータを書き込むためのアドレスを取得してTransformationMatrixDataに割り当てる
+//	transformationMatrixResource_->Map(0, nullptr, reinterpret_cast<void**>(&transformationMatrixData_));
+//
+//	// 座標変換行列データの初期値を書き込む
+//	transformationMatrixData_->World = MakeIdentity4x4();
+//	transformationMatrixData_->WVP = MakeIdentity4x4();
+//}
 
 void SkyBox::CreateVertexResource()
 {

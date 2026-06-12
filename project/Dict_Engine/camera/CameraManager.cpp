@@ -1,5 +1,6 @@
 #include "CameraManager.h"
-#include "Camera.h"
+//#include "Camera.h"
+#include "ICameraController.h"
 
 std::unique_ptr<CameraManager> CameraManager::instance_ = nullptr;
 
@@ -14,26 +15,51 @@ CameraManager* CameraManager::GetInstance()
 
 void CameraManager::Finalize()
 {
+	if (mainCamera_)
+	{
+		mainCamera_->Finalize();
+	}
 	instance_.reset();
 }
 
 void CameraManager::Initialize()
 {
+	mainCamera_ = std::make_unique<Camera>();
+	mainCamera_->Initialize();
+
+	/*DefaultCameraController* defaultController = new DefaultCameraController();
+	defaultController->Initialize();
+	AddCameraController("Default", defaultController);
+	SetActiveCameraController("Default");*/
+
 	CreateCameraResource();
 	CreateProjectionInverseResource();
 }
 
-void CameraManager::Update()
+void CameraManager::Update(const float& deltaTime)
 {
-	if (activeCamera_)
+	if (activeCameraController_ && mainCamera_)
 	{
-		// カメラの更新
-		activeCamera_->Update();
+		activeCameraController_->Update(mainCamera_.get(), deltaTime);
+
+		mainCamera_->Update();
+
 		// カメラのワールド座標をGPU用構造体に転送
-		cameraData_->worldPosition = activeCamera_->GetTranslate();
+		cameraData_->worldPosition = mainCamera_->GetTranslate();
+
 		// カメラの逆行列をGPU用構造体に転送
-		projectionInverseData_->projectionInverse = Inverse(activeCamera_->GetProjectionMatrix());
+		projectionInverseData_->projectionInverse = Inverse(mainCamera_->GetProjectionMatrix());
 	}
+
+	//if (activeCamera_)
+	//{
+	//	// カメラの更新
+	//	activeCamera_->Update();
+	//	// カメラのワールド座標をGPU用構造体に転送
+	//	cameraData_->worldPosition = activeCamera_->GetTranslate();
+	//	// カメラの逆行列をGPU用構造体に転送
+	//	projectionInverseData_->projectionInverse = Inverse(activeCamera_->GetProjectionMatrix());
+	//}
 }
 
 void CameraManager::SetCbufferCameraResource(UINT RootParameterIndex)
@@ -47,6 +73,37 @@ void CameraManager::SetCbufferProjectionInverseResource(UINT RootParameterIndex)
 	// カメラの逆行列用のCBufferをバインド
 	DirectXBase::GetInstance()->GetCommandList()->SetGraphicsRootConstantBufferView(RootParameterIndex, projectionInverseResource_->GetGPUVirtualAddress());
 }
+
+void CameraManager::AddCameraController(const std::string& name, ICameraController* controller)
+{
+	cameraControllers_[name] = controller;
+	
+	if (!activeCameraController_)
+	{
+		activeCameraController_ = controller;
+	}
+}
+
+ICameraController* CameraManager::GetCameraController(const std::string& name) const
+{
+	auto it = cameraControllers_.find(name);
+	if (it != cameraControllers_.end())
+	{
+		return it->second;
+	}
+	return nullptr;
+}
+
+void CameraManager::SetActiveCameraController(const std::string& name)
+{
+	auto it = cameraControllers_.find(name);
+	if (it != cameraControllers_.end())
+	{
+		activeCameraController_ = it->second;
+	}
+}
+
+
 
 void CameraManager::AddCamera(const std::string& name, Camera* camera)
 {

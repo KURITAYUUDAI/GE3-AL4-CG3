@@ -2,8 +2,9 @@
 #include "myMath.h"
 #include "DirectXBase.h"
 #include <unordered_map>
+#include "Camera.h"
 
-class Camera;
+class ICameraController;
 
 class CameraManager
 {
@@ -46,15 +47,31 @@ public:
 		Matrix4x4 projectionInverse;
 	};
 
+	template<typename T>
+	T* Get(const std::string& name)
+	{
+		auto it = cameraControllers_.find(name);
+		if (it != cameraControllers_.end())
+		{
+			// 発見した ICameraController* を、指定された型 T* に安全にキャスト
+			// ※ dynamic_cast は、変換できない型（間違ったコントローラー）の場合は nullptr を返します
+			return dynamic_cast<T*>(it->second);
+		}
+		return nullptr; // 見つからなかった場合
+	}
+
 public:
 
 	// 初期化
 	void Initialize();
-	void Update();
+
+	void Update(const float& deltaTime);
 
 	void SetCbufferCameraResource(UINT RootParameterIndex);
 
 	void SetCbufferProjectionInverseResource(UINT RootParameterIndex);
+
+	void AddCameraController(const std::string& name, ICameraController* controller);
 
 	void AddCamera(const std::string& name, Camera* camera);
 
@@ -62,14 +79,21 @@ public: // 外部入出力
 
 	// カメラリソースのGPUアドレス
 	D3D12_GPU_VIRTUAL_ADDRESS GetCameraResourceGPUAddress() const { return cameraResource_->GetGPUVirtualAddress(); }
-	// 現在アクティブなカメラを取得
-	Camera* GetActiveCamera() const { return activeCamera_; }
 	
+	// 現在アクティブなカメラを取得
+	Camera* GetActiveCamera() const { return mainCamera_.get(); }
 	const Vector3& GetCameraWorldPosition() const { return cameraData_->worldPosition; }
 	
 	// カメラをアクティブにする
 	void SetActiveCamera(const std::string& name);
 	void SetCameraWorldPosition(const Vector3& worldPosition){ cameraData_->worldPosition = worldPosition; }
+
+
+
+	ICameraController* GetCameraController(const std::string& name) const;
+	Camera* GetMainCamera() const { return mainCamera_.get(); }
+	void SetActiveCameraController(const std::string& name);
+
 
 private:
 
@@ -80,6 +104,12 @@ private:
 	void CreateProjectionInverseResource();
 
 private:
+
+	std::unique_ptr<Camera> mainCamera_;
+	std::unordered_map<std::string, ICameraController*> cameraControllers_;
+	ICameraController* activeCameraController_ = nullptr;
+
+
 	std::unordered_map<std::string, Camera*> cameras_;
 	Camera* activeCamera_ = nullptr;
 

@@ -1,5 +1,6 @@
 #pragma once
 #include "myMath.h"
+#include "WorldTransform.h"
 
 class Camera
 {
@@ -23,8 +24,8 @@ public:	// 外部入出力
 
 	// セッター
 	/*void SetScale(const Vector3& scale){ transform_.scale = scale; }*/
-	void SetRotate(const Vector3& rotate){ transform_.rotate = rotate; }
-	void SetTranslate(const Vector3& translate){ transform_.translate = translate; }
+	void SetRotate(const Vector3& rotate){ rotate_ = rotate; }
+	void SetTranslate(const Vector3& translate){ translate_ = translate; }
 	void SetFovY(const float& fovY){ fovY_ = fovY; }
 	void SetAspectRatio(const float& aspectRatio){ aspectRatio_ = aspectRatio; }
 	void SetNearClip(const float& nearClip){ nearClip_ = nearClip; }
@@ -35,15 +36,18 @@ public:	// 外部入出力
 
 	// ゲッター
 	/*const Vector3& GetScale() const { return transform_.scale; }*/
-	const Vector3& GetRotate() const { return transform_.rotate; }
-	const Vector3& GetTranslate() const { return transform_.translate; }
+	const Vector3& GetRotate() const { return rotate_; }
+	const Vector3& GetTranslate() const { return translate_; }
 	const Matrix4x4& GetBillboardMatrix() const { return billboardMatrix_; }	
 	const float& GetFovY() const { return fovY_; }
 	const float& GetAspectRatio() const { return aspectRatio_; }
 	const float& GetNearClip() const { return nearClip_; }
 	const float& GetFarClip() const { return farClip_; }
 
-	const Transform& GetTransform() const { return transform_; }
+	const Transform& GetTransform() const 
+	{ 
+		return Transform({{0.0f, 0.0f, 0.0f}, rotate_, translate_ });
+	}
 
 	const Matrix4x4& GetWorldMatrix() const { return worldMatrix_; }
 	const Matrix4x4& GetViewMatrix() const { return viewMatrix_; }
@@ -56,7 +60,9 @@ public:	// 外部入出力
 
 protected:	// メンバ変数
 
-	Transform transform_;
+	Vector3 rotate_;
+	Vector3 translate_;
+
 	Matrix4x4 worldMatrix_;
 	Matrix4x4 viewMatrix_;
 

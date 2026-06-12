@@ -11,7 +11,8 @@ void Sprite::Initialize(std::string textureFilePath)
 
 	CreateMaterialResource();
 
-	CreateTransformationMatrixResource();
+	//CreateTransformationMatrixResource();
+	worldTransform_.Initialize();
 
 	// テクスチャファイルパスを受け取る
 	textureFilePath_ = textureFilePath;
@@ -46,20 +47,19 @@ void Sprite::Update()
 	vertexData_[3].position = { right, top, 0.0f, 1.0f };
 
 	// transformに値を代入
-	transform_.translate = Vector3{ position_.x, position_.y, 0.0f };
-	transform_.rotate = Vector3{ 0.0f, 0.0f, rotation_ };
-	transform_.scale = Vector3{ size_.x, size_.y, 1.0f };
+	worldTransform_.translate_ = Vector3{ position_.x, position_.y, 0.0f };
+	worldTransform_.rotate_ = Vector3{ 0.0f, 0.0f, rotation_ };
+	worldTransform_.scale_ = Vector3{ size_.x, size_.y, 1.0f };
+
+	worldTransform_.UpdateMatrix();
 
 	// WorldViewProjectionMatrixを作る
-	worldMatrix_ = MakeAffineMatrix(transform_.scale, transform_.rotate, transform_.translate);
 	Matrix4x4 viewMatrix = MakeIdentity4x4();
 	Matrix4x4 projectionMatrix = MakeOrthographicMatrix(
 		0.0f, 0.0f, float(WindowsAPI::kClientWidth), float(WindowsAPI::kClientHeight), 0.0f, 100.0f);
-	worldViewProjectionMatrix_ = Multiply(worldMatrix_, Multiply(viewMatrix, projectionMatrix));
+	Matrix4x4 viewProjectionMatrix = Multiply(viewMatrix, projectionMatrix);
 
-	// 座標変換行列データに各行列をコピー
-	transformationMatrixData_->World = worldMatrix_;
-	transformationMatrixData_->WVP = worldViewProjectionMatrix_;
+	worldTransform_.TransferMatrix(viewProjectionMatrix);
 
 	const DirectX::TexMetadata& metaData =
 		TextureManager::GetInstance()->GetMetaData(textureFilePath_);
@@ -94,7 +94,8 @@ void Sprite::Draw()
 	// SpriteのマテリアルのCBufferの場所を設定
 	spriteManager_->GetDxBase()->GetCommandList()->SetGraphicsRootConstantBufferView(0, materialResource_->GetGPUVirtualAddress());
 	// TransformationMatrixCBufferの」場所を設定
-	spriteManager_->GetDxBase()->GetCommandList()->SetGraphicsRootConstantBufferView(1, transformationMatrixResource_->GetGPUVirtualAddress());
+	worldTransform_.SetCBufferTransformationResource(1);
+
 	// SRV用のDescriptorTableの先頭を設定。2はrootParameter[2]である。
 	spriteManager_->GetDxBase()->GetCommandList()->SetGraphicsRootDescriptorTable(2, TextureManager::GetInstance()->GetSRVHandleGPU(textureFilePath_));
 
@@ -172,18 +173,18 @@ void Sprite::CreateMaterialResource()
 	materialData_->uvTransform = MakeIdentity4x4();
 }
 
-void Sprite::CreateTransformationMatrixResource()
-{
-	// 座標変換行列リソースを作成する。Matrix4x41つ分のサイズを用意する。
-	transformationMatrixResource_ = spriteManager_->GetDxBase()->CreateBufferResource(sizeof(TransformationMatrix));
-	// TransformationMatrixResourceにデータを書き込むためのアドレスを取得してTransformationMatrixDataに割り当てる
-	transformationMatrixResource_->Map(0, nullptr, reinterpret_cast<void**>(&transformationMatrixData_));
-
-	// 座標変換行列データの初期値を書き込む
-	transformationMatrixData_->World = MakeIdentity4x4();
-	transformationMatrixData_->WVP = MakeIdentity4x4();
-
-}
+//void Sprite::CreateTransformationMatrixResource()
+//{
+//	// 座標変換行列リソースを作成する。Matrix4x41つ分のサイズを用意する。
+//	transformationMatrixResource_ = spriteManager_->GetDxBase()->CreateBufferResource(sizeof(TransformationMatrix));
+//	// TransformationMatrixResourceにデータを書き込むためのアドレスを取得してTransformationMatrixDataに割り当てる
+//	transformationMatrixResource_->Map(0, nullptr, reinterpret_cast<void**>(&transformationMatrixData_));
+//
+//	// 座標変換行列データの初期値を書き込む
+//	transformationMatrixData_->World = MakeIdentity4x4();
+//	transformationMatrixData_->WVP = MakeIdentity4x4();
+//
+//}
 
 void Sprite::AdjustTextureSize()
 {

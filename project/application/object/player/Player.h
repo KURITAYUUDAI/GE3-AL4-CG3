@@ -49,6 +49,8 @@ public:	//外部入出力
 	void SetTransform(const Transform& transform) { transform_ = transform; }
 	void SetVelocity(const Vector3& velocity) { velocity_ = velocity; }
 
+	void SetParent(WorldTransform* worldTransform);
+
 private:
 
 	// 入力ハンドル

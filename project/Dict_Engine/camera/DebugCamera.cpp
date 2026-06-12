@@ -44,14 +44,14 @@ void DebugCamera::Update()
 	radius -= wheel * 0.005f;              // 感度は 0.1f などで調整
 	radius = max(1.0f, min(radius, 20.0f)); // クランプして近づきすぎ防止
 
-	transform_.rotate.x = phi;
-	transform_.rotate.y = theta;
+	rotate_.x = phi;
+	rotate_.y = theta;
 
-	transform_.translate.x = radius * std::cos(theta) * std::sin(phi);
-	transform_.translate.y = radius * std::sin(theta);
-	transform_.translate.z = radius * std::cos(theta) * std::cos(phi);
+	translate_.x = radius * std::cos(theta) * std::sin(phi);
+	translate_.y = radius * std::sin(theta);
+	translate_.z = radius * std::cos(theta) * std::cos(phi);
 
-	viewMatrix_ = MakeLookAtMatrix(transform_.translate, { 0.0f, 0.0f, 0.0f }, { 0.0f, 1.0f, 0.0f });
+	viewMatrix_ = MakeLookAtMatrix(translate_, { 0.0f, 0.0f, 0.0f }, { 0.0f, 1.0f, 0.0f });
 
 	ImGui::End();
 

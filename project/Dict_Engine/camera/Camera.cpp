@@ -2,27 +2,27 @@
 #include "WindowsAPI.h"
 
 Camera::Camera()
-	: transform_({{1.0f, 1.0f, 1.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f} })
-	, fovY_(0.45f)
+	: fovY_(0.45f)
 	, aspectRatio_(static_cast<float>(WindowsAPI::kClientWidth) / static_cast<float>(WindowsAPI::kClientHeight))
 	, nearClip_(0.1f)
 	, farClip_(100.0f)
-	, worldMatrix_(MakeAffineMatrix(transform_.scale, transform_.rotate, transform_.translate))
-	, viewMatrix_(Inverse(worldMatrix_))
+	, viewMatrix_(MakeIdentity4x4())
 	, projectionMatrix_(MakePerspectiveFovMatrix(fovY_, aspectRatio_, nearClip_, farClip_))
-	, viewProjectionMatrix_(Multiply(viewMatrix_, projectionMatrix_))
+	, viewProjectionMatrix_(MakeIdentity4x4())
 	, billboardMatrix_(MakeIdentity4x4())
 {}
 
 void Camera::Initialize()
-{
-
-
+{	
+	rotate_ = {0.0f, 0.0f, 0.0f};
+	translate_ = {0.0f, 0.0f, 0.0f};
 }
 
 void Camera::Update()
 {
-	worldMatrix_ = MakeAffineMatrix(transform_.scale, transform_.rotate, transform_.translate);
+	worldMatrix_ = MakeAffineMatrixB({1.0f, 1.0f, 1.0f}, rotate_, translate_);
+
+	//worldMatrix_ = MakeAffineMatrix(transform_.scale, transform_.rotate, transform_.translate);
 
 	viewMatrix_ = Inverse(worldMatrix_);
 

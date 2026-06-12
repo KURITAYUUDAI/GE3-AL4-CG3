@@ -134,6 +134,8 @@ void TitleScene::Update(const float& deltaTime)
 		return;
 	}
 
+	WorldTransform::AdvanceFrame();
+
 #ifdef USE_IMGUI
 
 	// デモウィンドウ表示
@@ -222,7 +224,7 @@ void TitleScene::Update(const float& deltaTime)
 		CameraManager::GetInstance()->SetActiveCamera("Default");
 	}
 
-	CameraManager::GetInstance()->Update();
+	CameraManager::GetInstance()->Update(deltaTime);
 
 
 	for (auto it = sprites_.begin(); it != sprites_.end(); ++it)

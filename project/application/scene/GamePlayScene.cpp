@@ -26,15 +26,25 @@ void GamePlayScene::Initialize()
 	camera_->SetRotate({ 0.0f, 0.0f, 0.0f });
 	camera_->SetTranslate({ 0.0f, 0.0f, -15.0f });
 
-	debugCamera_ = std::make_unique<DebugCamera>();
+	/*debugCamera_ = std::make_unique<DebugCamera>();
 	debugCamera_->Initialize();
 	debugCamera_->SetRotate(camera_->GetRotate());
-	debugCamera_->SetTranslate(camera_->GetTranslate());
+	debugCamera_->SetTranslate(camera_->GetTranslate());*/
 
 	cameraManager_->Initialize();
 	cameraManager_->AddCamera("Default", camera_.get());
-	cameraManager_->AddCamera("Debug", debugCamera_.get());
+	/*cameraManager_->AddCamera("Debug", debugCamera_.get());*/
 	cameraManager_->SetActiveCamera("Default");
+
+	defaultCameraController_ = std::make_unique<DefaultCameraController>();
+	defaultCameraController_->Initialize();
+
+	railCameraController_ = std::make_unique<RailCameraController>();
+	railCameraController_->Initialize();
+
+	cameraManager_->AddCameraController("Defalut", defaultCameraController_.get());
+	cameraManager_->AddCameraController("Rail", railCameraController_.get());
+	cameraManager_->SetActiveCameraController("Rail");
 
 	lightManager_->Initialize();
 	lightManager_->SetDirectionalLightColor({ 1.0f, 1.0f, 1.0f, 1.0f });
@@ -172,6 +182,7 @@ void GamePlayScene::Initialize()
 	player_ = std::make_unique<Player>();
 	player_->Initialize();
 	player_->SetEnvironmentTextureIndex(skyBox_->GetEnvironmentTextureIndex());
+	player_->SetParent(railCameraController_->GetWorldTransform());
 
 	slashEmitter = std::make_unique<ParticleEmitter>();
 	slashEmitter->Initialize("slash", 
@@ -242,6 +253,8 @@ void GamePlayScene::Update(const float& deltaTime)
 		// シーン切り替え
 		SceneManager::GetInstance()->SetSceneRequest("TITLE");
 	}
+
+	WorldTransform::AdvanceFrame();
 
 #ifdef USE_IMGUI
 
@@ -414,21 +427,6 @@ void GamePlayScene::Update(const float& deltaTime)
 	//}
 
 	//ImGui::End();
-
-	ImGui::Begin("CameraSetting");
-	Vector3 cameraRotate = camera_->GetRotate();
-	Vector3 cameraTranslate = camera_->GetTranslate();
-	if (ImGui::DragFloat3("CameraRotate", &cameraRotate.x, (1.0f / 180.0f) * pi))
-	{
-		camera_->SetRotate(cameraRotate);
-	}
-	if (ImGui::DragFloat3("CameraTranslate", &cameraTranslate.x, 0.1f))
-	{
-		camera_->SetTranslate(cameraTranslate);
-	}
-
-	ImGui::End();
-
 	ImGui::Begin("LightSetting");
 
 	int32_t enableLighting = object3ds_[0]->GetEnableLighting();
@@ -613,14 +611,14 @@ void GamePlayScene::Update(const float& deltaTime)
 
 	if (isDebugCamera_)
 	{
-		cameraManager_->SetActiveCamera("Debug");
+		/*cameraManager_->SetActiveCamera("Debug");*/
 	}
 	else
 	{
 		cameraManager_->SetActiveCamera("Default");
 	}
 
-	cameraManager_->Update();
+	cameraManager_->Update(deltaTime);
 
 
 
