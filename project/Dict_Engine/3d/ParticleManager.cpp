@@ -173,7 +173,7 @@ void ParticleManager::Update(const float& deltaTime)
 			}
 			else
 			{
-				worldMatrix = MakeAffineMatrixB(particle.transform.scale,
+				worldMatrix = MakeAffineMatrix(particle.transform.scale,
 					particle.transform.rotate, particle.transform.translate);
 			}
 			
@@ -184,7 +184,7 @@ void ParticleManager::Update(const float& deltaTime)
 			}
 
 			Matrix4x4 uvTransformMatrix;
-			uvTransformMatrix = MakeAffineMatrixB(
+			uvTransformMatrix = MakeAffineMatrix(
 				particle.uvTransform.scale, particle.uvTransform.rotate, particle.uvTransform.translate);
 
 			if (particleGroup.second.instanceNum < particleGroup.second.maxInstanceNum)

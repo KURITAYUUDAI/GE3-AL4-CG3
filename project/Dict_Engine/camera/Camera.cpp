@@ -20,7 +20,7 @@ void Camera::Initialize()
 
 void Camera::Update()
 {
-	worldMatrix_ = MakeAffineMatrixB({1.0f, 1.0f, 1.0f}, rotate_, translate_);
+	worldMatrix_ = MakeAffineMatrix({1.0f, 1.0f, 1.0f}, rotate_, translate_);
 
 	//worldMatrix_ = MakeAffineMatrix(transform_.scale, transform_.rotate, transform_.translate);
 

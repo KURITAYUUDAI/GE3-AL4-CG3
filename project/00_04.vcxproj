@@ -214,6 +214,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="Dict_Engine\postEffect\PostEffect.cpp" />
     <ClCompile Include="Dict_Engine\camera\RailCameraController.cpp" />
     <ClCompile Include="Dict_Engine\math\WorldTransform.cpp" />
+    <ClCompile Include="Dict_Engine\math\Quaternion.cpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="resources\shaders\Environment.PS.hlsl">
@@ -369,6 +370,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Dict_Engine\camera\ICameraController.h" />
     <ClInclude Include="Dict_Engine\camera\RailCameraController.h" />
     <ClInclude Include="Dict_Engine\math\WorldTransform.h" />
+    <ClInclude Include="Dict_Engine\math\Quaternion.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="externals\DirectXTex\DirectXTex_Desktop_2022_Win10.vcxproj">

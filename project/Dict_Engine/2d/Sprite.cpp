@@ -48,7 +48,7 @@ void Sprite::Update()
 
 	// transformに値を代入
 	worldTransform_.translate_ = Vector3{ position_.x, position_.y, 0.0f };
-	worldTransform_.rotate_ = Vector3{ 0.0f, 0.0f, rotation_ };
+	worldTransform_.SetRotate(Vector3{ 0.0f, 0.0f, rotation_ });
 	worldTransform_.scale_ = Vector3{ size_.x, size_.y, 1.0f };
 
 	worldTransform_.UpdateMatrix();

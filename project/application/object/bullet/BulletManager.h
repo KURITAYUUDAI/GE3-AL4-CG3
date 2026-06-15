@@ -40,7 +40,7 @@ public:
 	void Initialize();
 
 	// 更新
-	void Update();
+	void Update(const float& deltaTime);
 
 	// 描画
 	void Draw();

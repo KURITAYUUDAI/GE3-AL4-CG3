@@ -24,12 +24,12 @@ public:
 	/// </summary>
 	/// <param name = "model">モデル</param>
 	/// <param name = "textureHandle">テクスチャハンドル</param>
-	void Initialize(const Vector3& position, const Vector3& velocity, const ID& id, const std::string& textureFilePath);
+	void Initialize(const Vector3& position, const Vector3& velocity, const ID& id, const std::string& modelName);
 
 	/// <summary>
 	/// 更新
 	/// </summary>
-	void Update();
+	void Update(const float& deltaTime);
 
 	/// <summary>
 	/// 描画
@@ -61,8 +61,6 @@ public: // 外部入出力
 	void SetVelocity(const Vector3& velocity) { velocity_ = velocity; }
 
 private:
-
-	float deltaTime_ = 0.0f;
 
 	std::unique_ptr<Object3d> object3d_;
 

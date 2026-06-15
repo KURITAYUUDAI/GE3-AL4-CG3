@@ -17,7 +17,7 @@ void Object3d::Initialize()
 	// Transform変数を作る
 	worldTransform_.Initialize();
 	worldTransform_.scale_ = {1.0f, 1.0f, 1.0f};
-	worldTransform_.rotate_ = {0.0f, pi, 0.0f}; 
+	worldTransform_.SetRotate({0.0f, pi, 0.0f}); 
 	worldTransform_.translate_ = {0.0f, 0.0f, 0.0f} ;
 
 	psoName_ = Object3dManager::GetInstance()->GetDefaultPsoName();

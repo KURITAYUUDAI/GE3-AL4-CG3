@@ -1,6 +1,7 @@
 #pragma once
 #include "DirectXBase.h"
 #include "myMath.h"
+#include "Quaternion.h"
 
 class WorldTransform
 {
@@ -25,14 +26,27 @@ public:
 
 	static void AdvanceFrame() { ++currentFrame_; }
 
+public:
+
+	
+	void SetRotate(const Vector3& rotate);
+	void SetRotateQuat(const Quaternion& rotateQuat);
+	
+	const Vector3& GetRotate() const { return rotate_; }
+	const Quaternion& GetRotateQuat() const { return rotateQuat_; }
+
 private:
 
 	void CreateTransformationMatrixResource();
 
+private:
+
+	Vector3 rotate_ = { 0.0f, 0.0f, 0.0f };
+	Quaternion rotateQuat_ = { 0.0f, 0.0f, 0.0f, 1.0f };
+
 public:
 
 	Vector3 scale_ = {1.0f, 1.0f, 1.0f};
-	Vector3 rotate_ = {0.0f, 0.0f, 0.0f};
 	Vector3 translate_{ 0.0f, 0.0f, 0.0f };
 
 	Matrix4x4 worldMatrix_;
@@ -40,9 +54,6 @@ public:
 	WorldTransform* parent_ = nullptr;
 
 	static uint32_t currentFrame_;
-	
-
-private:
 
 	// 座標変換行列用バッファリソース
 	Microsoft::WRL::ComPtr<ID3D12Resource> transformationMatrixResource_ = nullptr;
