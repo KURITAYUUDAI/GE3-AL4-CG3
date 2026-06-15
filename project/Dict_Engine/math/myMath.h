@@ -105,10 +105,10 @@ Matrix4x4 MakeRotateZMatrix(float radian);
 
 // 00_05
 // 3次元アフィン変換行列（Y → X → Z）
-Matrix4x4 MakeAffineMatrix(const Vector3& scale, const Vector3& rotate, const Vector3& translate);
+Matrix4x4 MakeAffineMatrixB(const Vector3& scale, const Vector3& rotate, const Vector3& translate);
 
 // 3次元アフィン変換行列(GPT製)（Y → X → Z）
-Matrix4x4 MakeAffineMatrixB(const Vector3& scale, const Vector3& rotate, const Vector3& translate);
+Matrix4x4 MakeAffineMatrix(const Vector3& scale, const Vector3& rotate, const Vector3& translate);
 
 // cot（コタンジェント）関数が無いので作る
 float cot(float theta);
@@ -333,3 +333,6 @@ Matrix4x4 MakeLookRotationXAxis(const Vector3& xAxis, const Vector3& up);
 Vector3 TransformNormal(const Vector3& v, const Matrix4x4& m);
 
 Matrix4x4 MakeLookAtMatrix(const Vector3& eye, const Vector3& target, const Vector3& up);
+
+// YXZ回転
+Vector3 MatrixToEulerYXZ(const Matrix4x4& m);

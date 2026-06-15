@@ -44,12 +44,12 @@ public:	// 外部入出力
 	void SetCamera(Camera* camera){ camera_ = camera; }
 
 	void SetScale(const Vector3& scale){ worldTransform_.scale_ = scale; }
-	void SetRotate(const Vector3& rotate){ worldTransform_.rotate_ = rotate; }
+	void SetRotate(const Vector3& rotate){ worldTransform_.SetRotate(rotate); }
 	void SetTranslate(const Vector3& translate){ worldTransform_.translate_ = translate; }
 	void SetTransform(const Transform& transform)
 	{ 
 		worldTransform_.scale_ = transform.scale;
-		worldTransform_.rotate_ = transform.rotate;
+		worldTransform_.SetRotate(transform.rotate);
 		worldTransform_.translate_ = transform.translate;
 	}
 
@@ -63,11 +63,11 @@ public:	// 外部入出力
 	const PSOManager::FillMode& GetFillMode() const { return fillMode_; }
 
 	const Vector3& GetScale() const { return worldTransform_.scale_; }
-	const Vector3& GetRotate() const { return worldTransform_.rotate_; }
+	const Vector3& GetRotate() const { return worldTransform_.GetRotate(); }
 	const Vector3& GetTranslate() const { return worldTransform_.translate_; }
 	const Transform& GetTransform() const 
 	{ 
-		return Transform(worldTransform_.scale_, worldTransform_.rotate_, worldTransform_.translate_); 
+		return Transform(worldTransform_.scale_, worldTransform_.GetRotate(), worldTransform_.translate_);
 	}
 	WorldTransform* GetWorldTransform() { return &worldTransform_; }
 
