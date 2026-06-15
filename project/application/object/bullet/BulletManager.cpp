@@ -166,6 +166,7 @@ void BulletManager::Update(const float& deltaTime)
 
 	for (auto& bullet : bullets_)
 	{
+
 		bullet->Update(deltaTime);
 	}
 
