@@ -323,7 +323,7 @@ Matrix4x4 MakeRotateZMatrix(float radian)
 
 // 00_05
 // 3次元アフィン変換行列（Y → X → Z）
-Matrix4x4 MakeAffineMatrix(const Vector3& scale, const Vector3& rotate, const Vector3& translate)
+Matrix4x4 MakeAffineMatrixB(const Vector3& scale, const Vector3& rotate, const Vector3& translate)
 {
 	Matrix4x4 rotateMatrix = Multiply(MakeRotateZMatrix(rotate.z),
 		Multiply(MakeRotateXMatrix(rotate.x), MakeRotateYMatrix(rotate.y)));
@@ -332,7 +332,7 @@ Matrix4x4 MakeAffineMatrix(const Vector3& scale, const Vector3& rotate, const Ve
 }
 
 // 3次元アフィン変換行列(GPT製)（Y → X → Z）
-Matrix4x4 MakeAffineMatrixB(const Vector3& scale, const Vector3& rotate, const Vector3& translate) {
+Matrix4x4 MakeAffineMatrix(const Vector3& scale, const Vector3& rotate, const Vector3& translate) {
 	float cx = cosf(rotate.x), sx = sinf(rotate.x);
 	float cy = cosf(rotate.y), sy = sinf(rotate.y);
 	float cz = cosf(rotate.z), sz = sinf(rotate.z);
@@ -929,3 +929,27 @@ Matrix4x4 MakeLookAtMatrix(const Vector3& eye, const Vector3& target, const Vect
 	view.m[3][0] = -Dot(xAxis, eye); view.m[3][1] = -Dot(yAxis, eye); view.m[3][2] = -Dot(zAxis, eye); view.m[3][3] = 1.0f;
 	return view;
 }
+
+Vector3 MatrixToEulerYXZ(const Matrix4x4& m)
+{
+	float sx = -m.m[1][2];
+	bool unlocked = std::abs(sx) < 0.99999f;
+
+	Vector3 euler;
+
+	// 1. X軸の回転 (asin)
+	euler.x = std::asin(sx);
+
+	// 2. Y軸の回転
+	euler.y = unlocked
+		? std::atan2(m.m[0][2], m.m[2][2])
+		: std::atan2(-m.m[2][0], m.m[0][0]);
+
+	// 3. Z軸の回転
+	euler.z = unlocked
+		? std::atan2(m.m[1][0], m.m[1][1])
+		: 0.0f;
+
+	return euler;
+}
+

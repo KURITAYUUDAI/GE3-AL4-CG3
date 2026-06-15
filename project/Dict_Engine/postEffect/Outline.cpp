@@ -17,11 +17,11 @@ void Outline::Initialize(uint32_t width, uint32_t height)
 void Outline::Finalize()
 {}
 
-std::vector<PostEffect::PassFunc> Outline::GetPasses(uint32_t srcSRVIndex)
+std::vector<PostEffect::PassFunc> Outline::GetPasses()
 {
     return 
     {
-        [this, srcSRVIndex](D3D12_CPU_DESCRIPTOR_HANDLE destRTV)
+        [this](D3D12_CPU_DESCRIPTOR_HANDLE destRTV, uint32_t srcSRVIndex)
         {
             Pass(destRTV, srcSRVIndex);
         }
@@ -143,8 +143,8 @@ void Outline::RegisterPSOs()
         };
 
     PSOManager::PSOConfig configH{};
-    configH.vertexShaderPath = L"resources/shaders/Fullscreen.VS.hlsl";
-    configH.pixelShaderPath = L"resources/shaders/DepthBasedOutline.PS.hlsl";
+    configH.vertexShaderPath = L"resources/shaders/PostEffect/Fullscreen.VS.hlsl";
+    configH.pixelShaderPath = L"resources/shaders/PostEffect/DepthBasedOutline.PS.hlsl";
     configH.rootSignatureGenerator = makeRootSignature;
     configH.inputLayoutGenerator = makeInputLayout;
     configH.depthEnable = false;

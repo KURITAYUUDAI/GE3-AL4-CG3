@@ -18,6 +18,9 @@ void Sprite::Initialize(std::string textureFilePath)
 	textureFilePath_ = textureFilePath;
 
 	AdjustTextureSize();
+
+	psoName_ = SpriteManager::GetInstance()->GetDefaultPsoName();
+	blendMode_ = SpriteManager::GetInstance()->GetDefaultBlendmode();
 }
 
 void Sprite::Update()
@@ -48,7 +51,7 @@ void Sprite::Update()
 
 	// transformに値を代入
 	worldTransform_.translate_ = Vector3{ position_.x, position_.y, 0.0f };
-	worldTransform_.rotate_ = Vector3{ 0.0f, 0.0f, rotation_ };
+	worldTransform_.SetRotate(Vector3{ 0.0f, 0.0f, rotation_ });
 	worldTransform_.scale_ = Vector3{ size_.x, size_.y, 1.0f };
 
 	worldTransform_.UpdateMatrix();
@@ -83,8 +86,10 @@ void Sprite::Update()
 
 void Sprite::Draw()
 {
+	auto psoSet = PSOManager::GetInstance()->GetPSOData(psoName_, blendMode_, fillMode_);
+
 	// Spriteの描画。変更が必要なものだけ変更する。
-	spriteManager_->GetDxBase()->GetCommandList()->SetPipelineState(spriteManager_->GetGraphicsPipeLineState());	// PS0を設定
+	spriteManager_->GetDxBase()->GetCommandList()->SetPipelineState(psoSet.pipelineState.Get());	// PS0を設定
 
 	spriteManager_->GetDxBase()->GetCommandList()->IASetVertexBuffers(0, 1, &vertexBufferView_);
 
@@ -172,19 +177,6 @@ void Sprite::CreateMaterialResource()
 	materialData_->enableLighting = false;
 	materialData_->uvTransform = MakeIdentity4x4();
 }
-
-//void Sprite::CreateTransformationMatrixResource()
-//{
-//	// 座標変換行列リソースを作成する。Matrix4x41つ分のサイズを用意する。
-//	transformationMatrixResource_ = spriteManager_->GetDxBase()->CreateBufferResource(sizeof(TransformationMatrix));
-//	// TransformationMatrixResourceにデータを書き込むためのアドレスを取得してTransformationMatrixDataに割り当てる
-//	transformationMatrixResource_->Map(0, nullptr, reinterpret_cast<void**>(&transformationMatrixData_));
-//
-//	// 座標変換行列データの初期値を書き込む
-//	transformationMatrixData_->World = MakeIdentity4x4();
-//	transformationMatrixData_->WVP = MakeIdentity4x4();
-//
-//}
 
 void Sprite::AdjustTextureSize()
 {

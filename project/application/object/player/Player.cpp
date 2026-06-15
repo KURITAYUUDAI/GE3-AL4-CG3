@@ -11,8 +11,8 @@ void Player::Initialize()
 
 	// PSOの設定
 	PSOManager::PSOConfig config{};
-	config.vertexShaderPath = L"resources/shaders/Environment.VS.hlsl";
-	config.pixelShaderPath = L"resources/shaders/Environment.PS.hlsl";
+	config.vertexShaderPath = L"resources/shaders/Environment/Environment.VS.hlsl";
+	config.pixelShaderPath = L"resources/shaders/Environment/Environment.PS.hlsl";
 
 	// RootSignatureの設定
 	config.rootSignatureGenerator = [](){
@@ -199,6 +199,8 @@ void Player::Update(const float& deltaTime)
 void Player::Draw()
 {
 	object3d_->SetPsoName(psoName_);
+	object3d_->SetBlendMode(blendMode_);
+	object3d_->SetFillMode(fillMode_);
 	auto psoSet = PSOManager::GetInstance()->GetPSOData(psoName_, blendMode_, fillMode_);
 
 	// パイプラインステートとルートシグネチャをセット
@@ -246,7 +248,9 @@ void Player::Decelerate()
 
 void Player::Shot()
 {
-	/*BulletManager::GetInstance()->CreatePlayerBullet({2.0f})*/
+	Vector3 bulletDirection = { 0.0f, 0.0f, 1.0f };
+	bulletDirection = Normalize(TransformNormal(bulletDirection, object3d_->GetWorldTransform()->worldMatrix_));
+	BulletManager::GetInstance()->CreatePlayerBullet(GetWorldPosition(), bulletDirection * bulletSpeed_);
 	ChangeState(std::make_unique<PlayerShotState>());
 }
 
@@ -266,6 +270,43 @@ void Player::MoveAvoid(const Vector3 direction, float speed)
 void Player::SetTargetRoll(const Vector3 rollRadian)
 {
 	targetRoll_ = rollRadian;
+}
+
+const Vector3 Player::GetWorldPosition() const
+{
+	Matrix4x4 worldMatrix = object3d_->GetWorldTransform()->worldMatrix_;
+
+	// ワールド座標を入れる変数
+	Vector3 worldPos;
+	// ワールド行列の平行移動成分を取得（ワールド座標）
+	worldPos.x = worldMatrix.m[3][0];
+	worldPos.y = worldMatrix.m[3][1];
+	worldPos.z = worldMatrix.m[3][2];
+
+	return worldPos;
+}
+
+const Vector3 Player::GetWorldRotate() const
+{
+	Matrix4x4 worldMatrix = object3d_->GetWorldTransform()->worldMatrix_;
+	if (object3d_->GetWorldTransform()->parent_)
+	{
+		worldMatrix *= object3d_->GetWorldTransform()->parent_->worldMatrix_;
+	}
+
+	Vector3 worldRotEuler;
+	// 行列からエウラー角を計算する（一般的な公式に基づく抽出）
+	// ※アークサイン等を使うため、XYZの回転順序に依存します
+	worldRotEuler.y = std::asin(-worldMatrix.m[0][2]);
+	if (std::cos(worldRotEuler.y) > 0.0001f) {
+		worldRotEuler.x = std::atan2(worldMatrix.m[1][2], worldMatrix.m[2][2]);
+		worldRotEuler.z = std::atan2(worldMatrix.m[0][1], worldMatrix.m[0][0]);
+	} else {
+		worldRotEuler.x = std::atan2(-worldMatrix.m[2][1], worldMatrix.m[1][1]);
+		worldRotEuler.z = 0.0f;
+	}
+
+	return worldRotEuler;
 }
 
 void Player::SetParent(WorldTransform* worldTransform)

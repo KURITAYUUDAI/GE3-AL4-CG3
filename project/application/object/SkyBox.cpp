@@ -10,8 +10,8 @@ void SkyBox::Initialize()
 {
 	// PSOの設定
 	PSOManager::PSOConfig config{};
-	config.vertexShaderPath = L"resources/shaders/SkyBox.VS.hlsl";
-	config.pixelShaderPath = L"resources/shaders/SkyBox.PS.hlsl";
+	config.vertexShaderPath = L"resources/shaders/SkyBox/SkyBox.VS.hlsl";
+	config.pixelShaderPath = L"resources/shaders/SkyBox/SkyBox.PS.hlsl";
 
 	// RootSignatureの設定
 	config.rootSignatureGenerator = [](){
@@ -120,8 +120,8 @@ void SkyBox::Initialize()
 	CreateMaterialResource();
 	
 	worldTransform_.Initialize();
-	worldTransform_.scale_  = {10.0f, 10.0f, 10.0f};
-	worldTransform_.rotate_ = {0.0f, 0.0f, 0.0f};
+	worldTransform_.scale_ = { 100.0f, 100.0f, 100.0f };
+	worldTransform_.SetRotate({0.0f, 0.0f, 0.0f});
 	worldTransform_.translate_ = {0.0f, 0.0f, 0.0f};
 }
 

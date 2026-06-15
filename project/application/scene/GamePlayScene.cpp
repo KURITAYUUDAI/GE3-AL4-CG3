@@ -5,6 +5,7 @@
 #include "PrimitiveManager.h"
 #include "PostEffectManager.h"
 #include "GaussianBlur.h"
+#include "BulletManager.h"
 
 void GamePlayScene::Initialize()
 {
@@ -184,6 +185,8 @@ void GamePlayScene::Initialize()
 	player_->SetEnvironmentTextureIndex(skyBox_->GetEnvironmentTextureIndex());
 	player_->SetParent(railCameraController_->GetWorldTransform());
 
+	BulletManager::GetInstance()->Initialize();
+
 	slashEmitter = std::make_unique<ParticleEmitter>();
 	slashEmitter->Initialize("slash", 
 		{ {1.0f, 1.0f, 1.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f} }, 3, 0.2f);
@@ -198,6 +201,8 @@ void GamePlayScene::Initialize()
 
 	PostEffectManager::GetInstance()->Clear();
 	//PostEffectManager::GetInstance()->Add("Outline");
+	//PostEffectManager::GetInstance()->Add("GaussianBlur");
+	PostEffectManager::GetInstance()->Add("Bloom");
 
 
 	// シーン初期化終わり
@@ -220,6 +225,8 @@ void GamePlayScene::Finalize()
 	emitters_.clear();
 
 	particleManager_->Reset();
+
+	BulletManager::GetInstance()->Finalize();
 
 	/*for (auto it = object3ds_.begin(); it != object3ds_.end(); ++it)
 	{
@@ -649,6 +656,8 @@ void GamePlayScene::Update(const float& deltaTime)
 
 	player_->Update(deltaTime);
 
+	BulletManager::GetInstance()->Update(deltaTime);
+
 	if (inputManager_->TriggerKey(DIK_0))
 	{
 		slashEmitter->EmitSlash();
@@ -684,6 +693,7 @@ void GamePlayScene::Draw()
 
 		terrain_->Draw();
 		player_->Draw();
+		BulletManager::GetInstance()->Draw();
 	}
 
 	

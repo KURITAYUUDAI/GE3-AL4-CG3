@@ -24,12 +24,12 @@ public:
 	/// </summary>
 	/// <param name = "model">モデル</param>
 	/// <param name = "textureHandle">テクスチャハンドル</param>
-	void Initialize(const Vector3& position, const Vector3& velocity, const ID& id, const std::string& textureFilePath);
+	void Initialize(const Vector3& position, const Vector3& velocity, const ID& id, const std::string& modelName);
 
 	/// <summary>
 	/// 更新
 	/// </summary>
-	void Update();
+	void Update(const float& deltaTime);
 
 	/// <summary>
 	/// 描画
@@ -45,8 +45,9 @@ public:
 public: // 外部入出力
 	const Vector3& GetScale() { return transform_.scale; }
 	const Vector3& GetRotation() { return transform_.rotate; }
-	const Vector3& GetTranslation() { return transform_.translate; };
+	const Vector3& GetTranslation() { return transform_.translate; }
 	const Vector3& GetVelocity() { return velocity_; }
+	const float& GetDeathTimer(){ return deathTimer_; }
 	const bool GetIsDead() { return isDead_; }
 	const ID& GetID() { return id_; }
 
@@ -60,9 +61,9 @@ public: // 外部入出力
 	void SetTranslation(const Vector3& translation) { transform_.translate = translation; }
 	void SetVelocity(const Vector3& velocity) { velocity_ = velocity; }
 
-private:
+	void SetPsoName(const std::string& psoName){ object3d_->SetPsoName(psoName); }
 
-	float deltaTime_ = 0.0f;
+private:
 
 	std::unique_ptr<Object3d> object3d_;
 

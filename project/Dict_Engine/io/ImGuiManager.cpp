@@ -52,7 +52,7 @@ void ImGuiManager::Initialize([[maybe_unused]] WindowsAPI* winAPI, [[maybe_unuse
 	init_info.Device = DirectXBase::GetInstance()->GetDevice();
 	init_info.CommandQueue = DirectXBase::GetInstance()->GetCommandQueue();
 	init_info.NumFramesInFlight = static_cast<int>(DirectXBase::GetInstance()->GetSwapChainResourceNum());
-	init_info.RTVFormat = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
+	init_info.RTVFormat = DirectXBase::GetInstance()->GetRtvFormat();
 	init_info.LegacySingleSrvCpuDescriptor = srvHandleCPU_;
 	init_info.LegacySingleSrvGpuDescriptor = srvHandleGPU_;
 

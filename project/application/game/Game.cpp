@@ -3,6 +3,7 @@
 #include "PostEffectManager.h"
 #include "GaussianBlur.h"
 #include "Outline.h"
+#include "Bloom.h"
 
 void Game::Initialize()
 {
@@ -13,6 +14,8 @@ void Game::Initialize()
 		[]{ return std::make_unique<GaussianBlur>(); });
 	postEffectManager_->RegisterFactory("Outline",
 		[]{ return std::make_unique<Outline>(); });
+	postEffectManager_->RegisterFactory("Bloom",
+		[]{ return std::make_unique<Bloom>(); });
 
 
 	// シーンマネージャーに最初のシーンをセット

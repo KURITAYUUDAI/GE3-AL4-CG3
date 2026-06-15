@@ -114,6 +114,14 @@ void Model::LoadObjFile(const std::string& directoryPath, const std::string& fil
 	const aiScene* scene = importer.ReadFile(filePath.c_str(), aiProcess_FlipWindingOrder | aiProcess_FlipUVs);
 	assert(scene->HasMeshes());
 
+	// OBJファイルのあるサブディレクトリを求める
+	std::string objDirectory = directoryPath;
+	size_t slashPos = filename.find_last_of("/\\");
+	if (slashPos != std::string::npos)
+	{
+		objDirectory = directoryPath + "/" + filename.substr(0, slashPos);
+	}
+
 	modelData_.meshes.clear();
 
 	for (uint32_t meshIndex = 0; meshIndex < scene->mNumMeshes; ++meshIndex)
@@ -171,7 +179,7 @@ void Model::LoadObjFile(const std::string& directoryPath, const std::string& fil
 		{
 			aiString textureFilePath;
 			material->GetTexture(aiTextureType_DIFFUSE, 0, &textureFilePath);
-			newMesh.material.textureFilePath = directoryPath + "/" + textureFilePath.C_Str();
+			newMesh.material.textureFilePath = objDirectory + "/" + textureFilePath.C_Str();
 
 			// .objの参照しているテクスチャファイル読み込み
 			TextureManager::GetInstance()->LoadTexture(newMesh.material.textureFilePath);
@@ -415,7 +423,7 @@ void Model::CreateMaterialResource()
 
 void Model::SetUVTransform(const Transform& uvTransform, uint32_t meshIndex)
 {
-	Matrix4x4 uvTransformMatrix = MakeAffineMatrixB(uvTransform.scale, uvTransform.rotate, uvTransform.translate);
+	Matrix4x4 uvTransformMatrix = MakeAffineMatrix(uvTransform.scale, uvTransform.rotate, uvTransform.translate);
 
 	modelData_.meshes[meshIndex].materialData_->uvTransform = uvTransformMatrix;
 }

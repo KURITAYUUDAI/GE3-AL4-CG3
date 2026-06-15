@@ -1,5 +1,6 @@
 #pragma once
 #include "DirectXBase.h"
+#include "PSOManager.h"
 
 class SpriteManager
 {
@@ -8,29 +9,6 @@ public:
 	static SpriteManager* GetInstance();
 	// 終了
 	void Finalize();
-
-public:
-
-	void Initialize(DirectXBase* dxBase);
-
-	void Update();
-
-	void Draw();
-
-	void DrawingCommon();
-	
-public: // 外部入力＆出力
-
-	DirectXBase* GetDxBase() const { return dxBase_; }
-	ID3D12RootSignature* GetRootSignature() { return rootSignature_.Get(); }
-	ID3D12PipelineState* GetGraphicsPipeLineState(){ return graphicsPipeLineState_.Get(); }
-	
-
-private:
-
-	void CreateRootSignature(ID3DBlob* signatureBlob);
-
-	void CreateGraphicsPipelineState();
 
 public:
 	// コンストラクタに渡すための鍵
@@ -54,6 +32,33 @@ private: 	// シングルトンインスタンス
 
 	friend struct std::default_delete<SpriteManager>;
 
+public:
+
+	void Initialize(DirectXBase* dxBase);
+
+	void Update();
+
+	void Draw();
+
+	void DrawingCommon();
+	
+public: // 外部入力＆出力
+
+	// ゲッター
+	const std::string& GetDefaultPsoName() const { return psoName_; }
+	const PSOManager::BlendMode& GetDefaultBlendmode() const { return blendMode_; }
+
+	DirectXBase* GetDxBase() const { return dxBase_; }
+	ID3D12RootSignature* GetRootSignature() { return rootSignature_.Get(); }
+	ID3D12PipelineState* GetGraphicsPipeLineState(){ return graphicsPipeLineState_.Get(); }
+	
+
+private:
+
+	/*void CreateRootSignature(ID3DBlob* signatureBlob);
+
+	void CreateGraphicsPipelineState();*/
+
 private:
 
 	DirectXBase* dxBase_ = nullptr;
@@ -61,6 +66,10 @@ private:
 	Microsoft::WRL::ComPtr <ID3D12RootSignature> rootSignature_ = nullptr;
 
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipeLineState_;
+
+	std::string psoName_ = "Sprite";
+	PSOManager::BlendMode blendMode_ = PSOManager::BlendMode::Normal;
+	PSOManager::FillMode fillMode_ = PSOManager::FillMode::kSolid;
 
 
 };

@@ -8,10 +8,9 @@ public:
 
     void Finalize() override;
 
-
 public: // 外部入出力
 
-    std::vector<PassFunc> GetPasses(uint32_t srcSRVIndex) override;
+    std::vector<PassFunc> GetPasses() override;
 
     std::vector<std::vector<PassBarrier>> GetBarriers() override;
 
@@ -29,7 +28,7 @@ private:
 	D3D12_CPU_DESCRIPTOR_HANDLE depthStencilDescriptorHandle_ = {};
 	uint32_t depthStencilSrvIndex_ = 0;
 
-	PassBarrier depthStencilBarrier_ = {};
+	/*PassBarrier depthStencilBarrier_ = {};*/
 
 	const std::string kPsoName_ = "Outline";
 };

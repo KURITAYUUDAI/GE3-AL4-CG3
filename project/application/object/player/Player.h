@@ -14,6 +14,8 @@ public:
 
 	void Initialize();
 	void Update(const float& deltaTime);
+
+
 	void Draw();
 	void Finalize();
 
@@ -42,6 +44,9 @@ public:	//外部入出力
 	const Vector3& GetTranslate() const { return transform_.translate; }
 	const Transform& GetTransform() const { return transform_; }
 	const Vector3& GetVelocity() const { return velocity_; }
+
+	const Vector3 GetWorldPosition() const;
+	const Vector3 GetWorldRotate() const;
 
 	void SetScale(const Vector3& scale) { transform_.scale = scale; }
 	void SetRotate(const Vector3& rotate) { transform_.rotate = rotate; }
@@ -78,4 +83,6 @@ private:
 	uint32_t environmentTextureIndex_ = 0;
 
 	bool isDraw_ = true;
+
+	float bulletSpeed_ = 32.0f;
 };

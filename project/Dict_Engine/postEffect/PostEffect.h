@@ -20,7 +20,7 @@ class PostEffect
 public:
     template<class T> using ComPtr = Microsoft::WRL::ComPtr<T>;
 
-    using PassFunc = std::function<void(D3D12_CPU_DESCRIPTOR_HANDLE destRTV)>;
+    using PassFunc = std::function<void(D3D12_CPU_DESCRIPTOR_HANDLE destRTV, uint32_t srcSRVIndex)>;
 
     struct PassBarrier
     {
@@ -64,7 +64,7 @@ public:
 
     // 各パスの描画関数リストを返す
     // PostEffectManagerがこれを使ってピンポンバッファで順番に実行する
-    virtual std::vector<PassFunc> GetPasses(uint32_t srcSRVIndex) = 0;
+    virtual std::vector<PassFunc> GetPasses() = 0;
 
     // GetPasses() と対になるバリア情報を返す
     // 戻り値: パスごとのバリアリスト（書き込み前に張るもの）
@@ -94,7 +94,7 @@ public:
 protected:
     
     // テクスチャフォーマット（OffscreenRenderに合わせる）
-    static const DXGI_FORMAT    kFormat_ = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
+    static const DXGI_FORMAT    kFormat_ = DXGI_FORMAT_R16G16B16A16_FLOAT;
 
     // クリアカラー
     static constexpr Vector4      kClearColor_ = { 0.0f, 0.0f, 0.0f, 1.0f };

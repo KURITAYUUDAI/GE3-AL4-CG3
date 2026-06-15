@@ -18,8 +18,8 @@ void ParticleManager::Initialize(DirectXBase* dxBase)
 
 	// PSOの設定
 	PSOManager::PSOConfig config{};
-	config.vertexShaderPath = L"Resources/Shaders/Particle.VS.hlsl";
-	config.pixelShaderPath = L"Resources/Shaders/Particle.PS.hlsl";
+	config.vertexShaderPath = L"Resources/Shaders/Particle/Particle.VS.hlsl";
+	config.pixelShaderPath = L"Resources/Shaders/Particle/Particle.PS.hlsl";
 
 	// RootSignatureの設定
 	config.rootSignatureGenerator = []
@@ -591,11 +591,11 @@ const std::list<std::string> ParticleManager::GetParticleGroupName()
 //
 //	// Shaderをコンパイルする
 //	Microsoft::WRL::ComPtr<IDxcBlob> vertexShaderBlob = dxBase_->CompileShader(
-//		L"resources/shaders/Particle.VS.hlsl", L"vs_6_0");
+//		L"resources/shaders/Particle/Particle.VS.hlsl", L"vs_6_0");
 //	assert(vertexShaderBlob != nullptr);
 //
 //	Microsoft::WRL::ComPtr<IDxcBlob> pixelShaderBlob = dxBase_->CompileShader(
-//		L"resources/shaders/Particle.PS.hlsl", L"ps_6_0");
+//		L"resources/shaders/Particle/Particle.PS.hlsl", L"ps_6_0");
 //	assert(pixelShaderBlob != nullptr);
 //
 //

@@ -47,6 +47,8 @@ void TextureManager::LoadTexture(const std::string& filePath)
 	std::wstring filePathW = StringUtility::ConvertString(filePath);
 	// DirectX::WIC_FLAGS_FORCE_SRGB : sRGB空間で作られたモノとして読む。
 	HRESULT hr;
+
+	OutputDebugStringA(("LoadTexture: " + filePath + "\n").c_str());
 	
 	if (filePathW.ends_with(L".dds"))	// .ddsで終わって居たらddsとみなす。より安全な方法はいくらでもあるので余裕があれば対応するといい
 	{

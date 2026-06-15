@@ -172,6 +172,7 @@ public: // ゲッター
 
 	float GetDeltaTime() { return fixFPS_->GetDeltaTime(); }
 
+	const DXGI_FORMAT GetRtvFormat(){ return kRtvFormat; }
 
 public: // その他関数
 
@@ -253,7 +254,7 @@ private:
 	static const int32_t kSwapChainBufferCount = 2;
 
 	// rtvのフォーマット
-	static const DXGI_FORMAT kRtvFormat = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
+	static const DXGI_FORMAT kRtvFormat = DXGI_FORMAT_R16G16B16A16_FLOAT;
 
 	// スワップチェーン用のリソース
 	std::array<ComPtr<ID3D12Resource>, 2> swapChainResources_;

@@ -31,13 +31,13 @@ void OffscreenRender::Initialize()
 	renderTextureResource_ = dxBase->CreateRenderTextureResource(
 		WindowsAPI::kClientWidth,
 		WindowsAPI::kClientHeight,
-		DXGI_FORMAT_R8G8B8A8_UNORM_SRGB,
+		DirectXBase::GetInstance()->GetRtvFormat(),
 		kRenderTargetClearValue_
 	);
 
 	// --- RTV登録（index=2をそのまま流用） ---
 	D3D12_RENDER_TARGET_VIEW_DESC rtvDesc{};
-	rtvDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
+	rtvDesc.Format = DirectXBase::GetInstance()->GetRtvFormat();
 	rtvDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
 
 	rtvIndex_ = dxBase->AllocateRTVIndex();
@@ -50,7 +50,7 @@ void OffscreenRender::Initialize()
 	/*DirectXBase::GetInstance()->SetRenderTextureSRVIndex(renderTextureSRVIndex_);*/
 
 	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc{};
-	srvDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
+	srvDesc.Format = DirectXBase::GetInstance()->GetRtvFormat();
 	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
 	srvDesc.Texture2D.MipLevels = 1;
@@ -62,8 +62,8 @@ void OffscreenRender::Initialize()
 
 	// PSOの設定
 	PSOManager::PSOConfig config{};
-	config.vertexShaderPath = L"resources/shaders/Fullscreen.VS.hlsl";
-	config.pixelShaderPath = L"resources/shaders/Fullscreen.PS.hlsl";
+	config.vertexShaderPath = L"resources/shaders/PostEffect/Fullscreen.VS.hlsl";
+	config.pixelShaderPath = L"resources/shaders/PostEffect/Fullscreen.PS.hlsl";
 
 	// RootSignatureの設定
 	config.rootSignatureGenerator = [](){
@@ -133,6 +133,9 @@ void OffscreenRender::Initialize()
 	PSOManager::GetInstance()->RegisterPSOConfig(psoNameRenderTexture_, config);
 
 	isReady_ = true;
+
+	OutputDebugStringA(("OffScreanRender::Initialize offscreanSRVIndex_ = "
+		+ std::to_string(GetSRVIndex()) + "\n").c_str());
 }
 
 void OffscreenRender::Draw()

@@ -40,7 +40,7 @@ public:
 
 private:
 	float timer_ = 0.0f;
-	float duration_ = 0.5f;
+	float duration_ = 0.1f;
 
 	std::unique_ptr<ICommand>      moveCommand_;
 };

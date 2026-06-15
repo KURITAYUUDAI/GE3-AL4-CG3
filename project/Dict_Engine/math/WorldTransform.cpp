@@ -18,7 +18,7 @@ void WorldTransform::UpdateMatrix(const Matrix4x4* worldMatrix)
 		return;
 	}
 		
-	worldMatrix_ = MakeAffineMatrixB(scale_, rotate_, translate_);
+	worldMatrix_ = MakeAffineMatrix(scale_, rotateQuat_, translate_);
 }
 
 void WorldTransform::TransferMatrix(const Matrix4x4& viewProjection)
@@ -63,6 +63,18 @@ void WorldTransform::SetCBufferTransformationResource(UINT rootParamaterIndex)
 {
 	// wvp用のCBufferの場所を設定
 	DirectXBase::GetInstance()->GetCommandList()->SetGraphicsRootConstantBufferView(rootParamaterIndex, transformationMatrixResource_->GetGPUVirtualAddress());
+}
+
+void WorldTransform::SetRotate(const Vector3& rotate)
+{
+	rotate_ = rotate;
+	rotateQuat_ = MakeFromEuler(rotate);
+}
+
+void WorldTransform::SetRotateQuat(const Quaternion& rotateQuat)
+{
+	rotateQuat_ = rotateQuat;
+	rotate_ = MakeToEuler(rotateQuat);
 }
 
 void WorldTransform::CreateTransformationMatrixResource()

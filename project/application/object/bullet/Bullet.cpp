@@ -23,11 +23,16 @@
 
 void Bullet::Initialize(const Vector3& position, const Vector3& velocity, const ID& id, const std::string& modelName)
 {
-	deltaTime_ = 1.0f / 60.0f; // 仮の値。実際のゲームループで更新されるべ
+	OutputDebugStringA(("Bullet::Initialize position: " +
+		std::to_string(position.x) + ", " +
+		std::to_string(position.y) + ", " +
+		std::to_string(position.z) + "\n").c_str());
 
 	object3d_ = std::make_unique<Object3d>();
 	object3d_->Initialize();
 	object3d_->SetModel(modelName);
+	object3d_->SetEnableLighting(false);
+	object3d_->SetColor({2.0f, 2.0f, 2.0f, 1.0f});
 
 	transform_.scale = { 1.0f, 1.0f, 1.0f };
 	transform_.rotate = { 0.0f, 0.0f, 0.0f };
@@ -37,15 +42,16 @@ void Bullet::Initialize(const Vector3& position, const Vector3& velocity, const 
 	id_ = id;
 }
 
-void Bullet::Update()
+void Bullet::Update(const float& deltaTime)
 {
-	transform_.translate += velocity_;
-	
+	transform_.translate += velocity_ * deltaTime;
+
 	Matrix4x4 billboard = CameraManager::GetInstance()->GetMainCamera()->
 		GetBillboardWorldMatrix(transform_.scale, transform_.rotate, transform_.translate);
-	
+
+	object3d_->SetTransform(transform_);
 	object3d_->Update(&billboard);
-	
+
 	if (--deathTimer_ <= 0)
 	{
 		isDead_ = true;

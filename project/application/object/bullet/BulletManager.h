@@ -4,6 +4,7 @@
 #include <list>
 #include <memory>
 #include "Bullet.h"
+#include "BulletManager.h"
 
 class BulletManager
 {
@@ -40,7 +41,7 @@ public:
 	void Initialize();
 
 	// 更新
-	void Update();
+	void Update(const float& deltaTime);
 
 	// 描画
 	void Draw();
@@ -72,6 +73,10 @@ private:
 
 	// ワールドに存在できる弾の最大数
 	static inline const int kMaxBullet = 100;
+
+	std::string psoName_ = "Bullet";
+	PSOManager::BlendMode blendMode_ = PSOManager::BlendMode::Add;
+	PSOManager::FillMode fillMode_ = PSOManager::FillMode::kSolid;
 
 private:
 

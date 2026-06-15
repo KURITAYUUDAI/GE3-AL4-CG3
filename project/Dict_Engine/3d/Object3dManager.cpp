@@ -20,8 +20,8 @@ void Object3dManager::Initialize(DirectXBase* dxBase)
 
 	// PSOの設定
 	PSOManager::PSOConfig config{};
-	config.vertexShaderPath = L"resources/shaders/Object3d.VS.hlsl";
-	config.pixelShaderPath = L"resources/shaders/Object3d.PS.hlsl";
+	config.vertexShaderPath = L"resources/shaders/Object3d/Object3d.VS.hlsl";
+	config.pixelShaderPath = L"resources/shaders/Object3d/Object3d.PS.hlsl";
 
 	// RootSignatureの設定
 	config.rootSignatureGenerator = []()
@@ -269,11 +269,11 @@ void Object3dManager::CreateGraphicsPipelineState()
 
 	// Shaderをコンパイルする
 	Microsoft::WRL::ComPtr<IDxcBlob> vertexShaderBlob = dxBase_->CompileShader(
-		L"resources/shaders/Object3d.Vs.hlsl", L"vs_6_0");
+		L"resources/shaders/Object3d/Object3d.Vs.hlsl", L"vs_6_0");
 	assert(vertexShaderBlob != nullptr);
 
 	Microsoft::WRL::ComPtr<IDxcBlob> pixelShaderBlob = dxBase_->CompileShader(
-		L"resources/shaders/Object3d.PS.hlsl", L"ps_6_0");
+		L"resources/shaders/Object3d/Object3d.PS.hlsl", L"ps_6_0");
 	assert(pixelShaderBlob != nullptr);
 
 
@@ -307,7 +307,7 @@ void Object3dManager::CreateGraphicsPipelineState()
 
 	// 書き込むRTVの情報
 	graphicsPipelineStateDesc.NumRenderTargets = 1;
-	graphicsPipelineStateDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
+	graphicsPipelineStateDesc.RTVFormats[0] = DXGI_FORMAT_R16G16B16A16_FLOAT;
 
 	// 利用するトポロジ（形状）のタイプ。三角形
 	graphicsPipelineStateDesc.PrimitiveTopologyType =
