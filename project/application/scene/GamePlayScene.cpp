@@ -201,6 +201,8 @@ void GamePlayScene::Initialize()
 
 	PostEffectManager::GetInstance()->Clear();
 	//PostEffectManager::GetInstance()->Add("Outline");
+	//PostEffectManager::GetInstance()->Add("GaussianBlur");
+	PostEffectManager::GetInstance()->Add("Bloom");
 
 
 	// シーン初期化終わり

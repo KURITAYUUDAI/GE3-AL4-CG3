@@ -99,6 +99,15 @@ void Object3d::SetEnableLighting(const int32_t& enableLighting)
 	}
 }
 
+void Object3d::SetColor(const Vector4& color)
+{
+	color_ = color;
+	if (model_)
+	{
+		model_->SetColor(color_, 0);
+	}
+}
+
 //void Object3d::CreateTransformationMatrixResource()
 //{
 //

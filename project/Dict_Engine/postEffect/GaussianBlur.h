@@ -22,7 +22,7 @@ public:
 
 public: // 外部入出力
 
-    std::vector<PassFunc> GetPasses(uint32_t srcSRVIndex) override;
+    std::vector<PassFunc> GetPasses() override;
     std::vector<std::vector<PassBarrier>> GetBarriers() override;
 
     void SetSigma(float sigma) { params_.sigma = sigma; }

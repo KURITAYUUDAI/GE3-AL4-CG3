@@ -109,10 +109,15 @@ void PostEffectManager::Draw(ID3D12Resource* srcResource, uint32_t srcSRVIndex)
 
     auto* cmdList = DirectXBase::GetInstance()->GetCommandList();
 
+    float clearColor[4] = { 0.1f, 0.25f, 0.5f, 1.0f };
+    cmdList->ClearRenderTargetView(
+        DirectXBase::GetInstance()->GetBackBufferRTVHandle(), clearColor, 0, nullptr);
+
+
     std::vector<PassEntry> allEntries;
     for (auto& effect : effectChain_)
     {
-        auto passes = effect->GetPasses(srcSRVIndex);
+        auto passes = effect->GetPasses();
 		auto barriers = effect->GetBarriers();
 
         for (size_t i = 0; i < passes.size(); ++i)
@@ -129,7 +134,7 @@ void PostEffectManager::Draw(ID3D12Resource* srcResource, uint32_t srcSRVIndex)
 
 
     // 現在の入力
-    uint32_t        currentSRVIdx = srcSRVIndex;
+    uint32_t        currentSRVIndex = srcSRVIndex;
 
     // ピンポンバッファのどちらに書くか（0 or 1）
     int dstPing = 0;
@@ -148,7 +153,7 @@ void PostEffectManager::Draw(ID3D12Resource* srcResource, uint32_t srcSRVIndex)
         if (isLast)
         {
             // 最後のパスはSwapChainへ
-            entry.pass(DirectXBase::GetInstance()->GetBackBufferRTVHandle());
+            entry.pass(DirectXBase::GetInstance()->GetBackBufferRTVHandle(), currentSRVIndex);
         } 
         else
         {
@@ -157,13 +162,13 @@ void PostEffectManager::Draw(ID3D12Resource* srcResource, uint32_t srcSRVIndex)
                 D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
                 D3D12_RESOURCE_STATE_RENDER_TARGET);
 
-            entry.pass(pingPongRTV_[dstPing]);
+            entry.pass(pingPongRTV_[dstPing], currentSRVIndex);
 
             PostEffect::TransitionResource(cmdList, pingPongRT_[dstPing].Get(),
                 D3D12_RESOURCE_STATE_RENDER_TARGET,
                 D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 
-            currentSRVIdx = pingPongSRVIndex_[dstPing];
+            currentSRVIndex = pingPongSRVIndex_[dstPing];
             dstPing = 1 - dstPing;
         }
 
@@ -214,8 +219,8 @@ void PostEffectManager::DrawPassthrough(ID3D12Resource* srcResource, uint32_t sr
 void PostEffectManager::RegisterPassthroughPSO()
 {
     PSOManager::PSOConfig config{};
-    config.vertexShaderPath = L"resources/shaders/Fullscreen.VS.hlsl";
-    config.pixelShaderPath = L"resources/shaders/Fullscreen.PS.hlsl";
+    config.vertexShaderPath = L"resources/shaders/PostEffect/Fullscreen.VS.hlsl";
+    config.pixelShaderPath = L"resources/shaders/PostEffect/Fullscreen.PS.hlsl";
 
     config.rootSignatureGenerator = []() -> ComPtr<ID3D12RootSignature>{
         D3D12_DESCRIPTOR_RANGE srvRange{};
@@ -273,12 +278,12 @@ void PostEffectManager::CreatePingPongBuffers(uint32_t width, uint32_t height)
     for (int i = 0; i < 2; ++i)
     {
         pingPongRT_[i] = dxBase->CreateRenderTextureResource(
-            width, height, DXGI_FORMAT_R8G8B8A8_UNORM_SRGB,
+            width, height, DirectXBase::GetInstance()->GetRtvFormat(),
             Vector4{ 0.0f, 0.0f, 0.0f, 1.0f });
 
 
         D3D12_RENDER_TARGET_VIEW_DESC rtvDesc{};
-        rtvDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
+        rtvDesc.Format = DirectXBase::GetInstance()->GetRtvFormat();
         rtvDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
 
         pingPongRTVIndex_[i] = dxBase->AllocateRTVIndex();
@@ -289,7 +294,7 @@ void PostEffectManager::CreatePingPongBuffers(uint32_t width, uint32_t height)
         pingPongSRVIndex_[i] = srvManager->AllocateSRVIndex();
 
         D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc{};
-        srvDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
+        srvDesc.Format = DirectXBase::GetInstance()->GetRtvFormat();
         srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
         srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
         srvDesc.Texture2D.MipLevels = 1;

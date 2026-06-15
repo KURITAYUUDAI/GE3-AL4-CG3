@@ -94,7 +94,7 @@ private:
 	uint32_t descriptorSize_ = 0;
 
 	std::queue<uint32_t> freeSRVIndices_; // 空いている（再利用可能な）インデックスのプール
-	uint32_t currentSRVCount_ = 0;        // 新規に発番するときのカウンタ
+	uint32_t currentSRVCount_ = 1;        // 新規に発番するときのカウンタ
 
 
 };

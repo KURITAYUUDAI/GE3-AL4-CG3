@@ -32,6 +32,7 @@ void Bullet::Initialize(const Vector3& position, const Vector3& velocity, const 
 	object3d_->Initialize();
 	object3d_->SetModel(modelName);
 	object3d_->SetEnableLighting(false);
+	object3d_->SetColor({2.0f, 2.0f, 2.0f, 1.0f});
 
 	transform_.scale = { 1.0f, 1.0f, 1.0f };
 	transform_.rotate = { 0.0f, 0.0f, 0.0f };

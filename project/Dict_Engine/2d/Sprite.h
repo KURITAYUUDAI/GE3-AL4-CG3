@@ -3,6 +3,7 @@
 #include "DirectXBase.h"
 #include "SpriteManager.h"
 #include "WorldTransform.h"
+#include "PSOManager.h"
 
 class Sprite
 {
@@ -45,6 +46,10 @@ public:
 public:		// 外部入出力
 
 	// セッター
+	void SetPsoName(const std::string& psoName){ psoName_ = psoName; }
+	void SetBlendMode(const PSOManager::BlendMode& blendMode){ blendMode_ = blendMode; }
+	void SetFillMode(const PSOManager::FillMode& fillMode){ fillMode_ = fillMode; }
+
 	void SetAnchorPoint(const Vector2& anchorPoint){ anchorPoint_ = anchorPoint; }
 
 	void SetPosition(const Vector2& position){ position_ = position; }
@@ -64,6 +69,10 @@ public:		// 外部入出力
 	void SetTexture(std::string textureFilePath);
 
 	// ゲッター
+	const std::string& GetPsoName() const { return psoName_; }
+	const PSOManager::BlendMode& GetBlendMode() const { return blendMode_; }
+	const PSOManager::FillMode& GetFillMode() const { return fillMode_; }
+	
 	const Vector2& GetAnchorPoint(){ return anchorPoint_; }
 
 	const Vector2 GetPosition(){ return position_; }
@@ -111,6 +120,10 @@ private:	// 静的変数
 
 	// バッファリソース内のデータを指すポインタ
 	Material* materialData_ = nullptr;
+
+	std::string psoName_;
+	PSOManager::BlendMode blendMode_ = PSOManager::BlendMode::Normal;
+	PSOManager::FillMode fillMode_ = PSOManager::FillMode::kSolid;
 
 	// アンカーポイント
 	Vector2 anchorPoint_ = {0.0f, 0.0f};

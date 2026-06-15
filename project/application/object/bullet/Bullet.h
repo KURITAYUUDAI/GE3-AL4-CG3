@@ -45,8 +45,9 @@ public:
 public: // 外部入出力
 	const Vector3& GetScale() { return transform_.scale; }
 	const Vector3& GetRotation() { return transform_.rotate; }
-	const Vector3& GetTranslation() { return transform_.translate; };
+	const Vector3& GetTranslation() { return transform_.translate; }
 	const Vector3& GetVelocity() { return velocity_; }
+	const float& GetDeathTimer(){ return deathTimer_; }
 	const bool GetIsDead() { return isDead_; }
 	const ID& GetID() { return id_; }
 
@@ -59,6 +60,8 @@ public: // 外部入出力
 	void SetRotation(const Vector3& rotation) { transform_.rotate = rotation; }
 	void SetTranslation(const Vector3& translation) { transform_.translate = translation; }
 	void SetVelocity(const Vector3& velocity) { velocity_ = velocity; }
+
+	void SetPsoName(const std::string& psoName){ object3d_->SetPsoName(psoName); }
 
 private:
 

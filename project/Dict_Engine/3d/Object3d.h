@@ -54,6 +54,7 @@ public:	// 外部入出力
 	}
 
 	void SetEnableLighting(const int32_t& enableLighting);
+	void SetColor(const Vector4& color);
 
 	void SetParent(WorldTransform* worldTransform){ worldTransform_.parent_ = worldTransform; }
 
@@ -72,6 +73,7 @@ public:	// 外部入出力
 	WorldTransform* GetWorldTransform() { return &worldTransform_; }
 
 	const int32_t& GetEnableLighting() const { return enableLighting_; }
+	const Vector4& GetColor() const { return color_; }
 	
 	Model* GetModel() const { return model_; }
 
@@ -102,6 +104,9 @@ private:
 
 	// トランスフォーム
 	WorldTransform worldTransform_;
+
+	// カラー
+	Vector4 color_ = {1.0f, 1.0f, 1.0f, 1.0f};
 
 	// ライティング有効無効
 	int32_t enableLighting_ = true;

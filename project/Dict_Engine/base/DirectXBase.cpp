@@ -584,7 +584,7 @@ void DirectXBase::InitializeSwapChain(WindowsAPI* winAPI)
 	DXGI_SWAP_CHAIN_DESC1 swapChainDesc{};
 	swapChainDesc.Width = WindowsAPI::kClientWidth;		// 画面の幅。ウィンドウのクライアント領域を同じものにしておく
 	swapChainDesc.Height = WindowsAPI::kClientHeight;	// 画面の高さ。ウィンドウのクライアント領域を同じものにしておく
-	swapChainDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;	// 色の形式
+	swapChainDesc.Format = kRtvFormat;	// 色の形式
 	swapChainDesc.SampleDesc.Count = 1;	// マルチサンプルしない
 	swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;	// 描画のターゲットとして利用する
 	swapChainDesc.BufferCount = kSwapChainBufferCount;	// ダブルバッファ

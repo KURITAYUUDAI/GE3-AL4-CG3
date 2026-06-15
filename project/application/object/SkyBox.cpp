@@ -10,8 +10,8 @@ void SkyBox::Initialize()
 {
 	// PSOの設定
 	PSOManager::PSOConfig config{};
-	config.vertexShaderPath = L"resources/shaders/SkyBox.VS.hlsl";
-	config.pixelShaderPath = L"resources/shaders/SkyBox.PS.hlsl";
+	config.vertexShaderPath = L"resources/shaders/SkyBox/SkyBox.VS.hlsl";
+	config.pixelShaderPath = L"resources/shaders/SkyBox/SkyBox.PS.hlsl";
 
 	// RootSignatureの設定
 	config.rootSignatureGenerator = [](){

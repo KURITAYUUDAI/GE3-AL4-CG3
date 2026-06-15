@@ -11,8 +11,8 @@ void Player::Initialize()
 
 	// PSOの設定
 	PSOManager::PSOConfig config{};
-	config.vertexShaderPath = L"resources/shaders/Environment.VS.hlsl";
-	config.pixelShaderPath = L"resources/shaders/Environment.PS.hlsl";
+	config.vertexShaderPath = L"resources/shaders/Environment/Environment.VS.hlsl";
+	config.pixelShaderPath = L"resources/shaders/Environment/Environment.PS.hlsl";
 
 	// RootSignatureの設定
 	config.rootSignatureGenerator = [](){
@@ -199,6 +199,8 @@ void Player::Update(const float& deltaTime)
 void Player::Draw()
 {
 	object3d_->SetPsoName(psoName_);
+	object3d_->SetBlendMode(blendMode_);
+	object3d_->SetFillMode(fillMode_);
 	auto psoSet = PSOManager::GetInstance()->GetPSOData(psoName_, blendMode_, fillMode_);
 
 	// パイプラインステートとルートシグネチャをセット

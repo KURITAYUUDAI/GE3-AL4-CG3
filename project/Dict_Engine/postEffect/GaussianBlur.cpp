@@ -24,14 +24,15 @@ void GaussianBlur::Finalize()
 
 }
 
-std::vector<PostEffect::PassFunc> GaussianBlur::GetPasses(uint32_t srcSRVIndex)
+std::vector<PostEffect::PassFunc> GaussianBlur::GetPasses()
 {
     // thisキャプチャでメンバ関数を関数オブジェクトとして返す
-    return {
-        [this, srcSRVIndex](D3D12_CPU_DESCRIPTOR_HANDLE destRTV){
+    return 
+    {
+        [this](D3D12_CPU_DESCRIPTOR_HANDLE destRTV, uint32_t srcSRVIndex){
             PassH(srcSRVIndex, destRTV);
         },
-        [this, srcSRVIndex](D3D12_CPU_DESCRIPTOR_HANDLE destRTV){
+        [this](D3D12_CPU_DESCRIPTOR_HANDLE destRTV, uint32_t srcSRVIndex){
             PassV(srcSRVIndex, destRTV);
         }
     };
@@ -71,6 +72,10 @@ void GaussianBlur::PassV(uint32_t srcSRVIndex, D3D12_CPU_DESCRIPTOR_HANDLE destR
 {
     auto* cmdList = DirectXBase::GetInstance()->GetCommandList();
     auto* srvManager = SrvManager::GetInstance();
+
+    float clearColor[4] = {
+        kClearColor_.x, kClearColor_.y, kClearColor_.z, kClearColor_.w };
+    cmdList->ClearRenderTargetView(destRTV, clearColor, 0, nullptr);
 
     // UpdateConstantBufferはPassHで済んでいるので不要
     cmdList->OMSetRenderTargets(1, &destRTV, FALSE, nullptr);
@@ -161,16 +166,16 @@ void GaussianBlur::RegisterPSOs()
         };
 
     PSOManager::PSOConfig configH{};
-    configH.vertexShaderPath = L"resources/shaders/Fullscreen.VS.hlsl";
-    configH.pixelShaderPath = L"resources/shaders/GaussianBlurH.PS.hlsl";
+    configH.vertexShaderPath = L"resources/shaders/PostEffect/Fullscreen.VS.hlsl";
+    configH.pixelShaderPath = L"resources/shaders/PostEffect/GaussianBlurH.PS.hlsl";
     configH.rootSignatureGenerator = makeRootSignature;
     configH.inputLayoutGenerator = makeInputLayout;
     configH.depthEnable = false;
     PSOManager::GetInstance()->RegisterPSOConfig(kPsoNameH_, configH);
 
     PSOManager::PSOConfig configV{};
-    configV.vertexShaderPath = L"resources/shaders/Fullscreen.VS.hlsl";
-    configV.pixelShaderPath = L"resources/shaders/GaussianBlurV.PS.hlsl";
+    configV.vertexShaderPath = L"resources/shaders/PostEffect/Fullscreen.VS.hlsl";
+    configV.pixelShaderPath = L"resources/shaders/PostEffect/GaussianBlurV.PS.hlsl";
     configV.rootSignatureGenerator = makeRootSignature;
     configV.inputLayoutGenerator = makeInputLayout;
     configV.depthEnable = false;
