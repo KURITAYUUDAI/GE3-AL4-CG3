@@ -135,7 +135,7 @@ void PSOManager::CreatePipeLineState(const std::string& name, BlendMode blend, F
 		// その他の設定
 		graphicsPipelineStateDesc.RTVFormats[0] = DirectXBase::GetInstance()->GetRtvFormat();
 		graphicsPipelineStateDesc.NumRenderTargets = 1;
-		graphicsPipelineStateDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+		graphicsPipelineStateDesc.PrimitiveTopologyType = psoConfig.toporogyType;
 		graphicsPipelineStateDesc.SampleDesc.Count = 1;
 		graphicsPipelineStateDesc.SampleMask = D3D12_DEFAULT_SAMPLE_MASK;
 	}

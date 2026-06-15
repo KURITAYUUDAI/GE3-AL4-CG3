@@ -10,6 +10,7 @@
 
 #include "DefaultCameraController.h"
 #include "RailCameraController.h"
+#include "DebugDrawManager.h"
 
 class GamePlayScene : public BaseScene
 {
@@ -64,6 +65,9 @@ private:
 	// カメラマネージャー
 	CameraManager* cameraManager_ = CameraManager::GetInstance();
 
+	// デバッグ描画マネージャー
+	DebugDrawManager* debugManager_ = DebugDrawManager::GetInstance();
+
 private:
 
 	bool isDrawSprite_ = false;
@@ -94,6 +98,9 @@ private:
 	std::unique_ptr<ParticleEmitter> ringEmitter = nullptr;
 
 	std::unique_ptr<ParticleEmitter> cylinderEmitter = nullptr;
+
+
+	std::vector<Vector3> controlPoints_;
 
 };
 

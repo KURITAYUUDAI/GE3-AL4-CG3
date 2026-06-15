@@ -68,6 +68,8 @@ public:
 		bool depthEnable = true;
 		D3D12_DEPTH_WRITE_MASK depthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
 		D3D12_COMPARISON_FUNC depthFunc = D3D12_COMPARISON_FUNC_LESS;
+
+		D3D12_PRIMITIVE_TOPOLOGY_TYPE toporogyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
 	};
 
 	enum class BlendMode { None, Normal, Add, Subtract, Multiply, Screen };

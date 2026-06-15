@@ -47,7 +47,7 @@ public: // 外部入出力
 	const Vector3& GetRotation() { return transform_.rotate; }
 	const Vector3& GetTranslation() { return transform_.translate; }
 	const Vector3& GetVelocity() { return velocity_; }
-	const float& GetDeathTimer(){ return deathTimer_; }
+	const int32_t& GetDeathTimer(){ return deathTimer_; }
 	const bool GetIsDead() { return isDead_; }
 	const ID& GetID() { return id_; }
 

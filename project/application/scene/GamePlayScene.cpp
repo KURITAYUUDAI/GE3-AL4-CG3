@@ -6,6 +6,7 @@
 #include "PostEffectManager.h"
 #include "GaussianBlur.h"
 #include "BulletManager.h"
+#include "SplineCurve.h"
 
 void GamePlayScene::Initialize()
 {
@@ -45,7 +46,7 @@ void GamePlayScene::Initialize()
 
 	cameraManager_->AddCameraController("Defalut", defaultCameraController_.get());
 	cameraManager_->AddCameraController("Rail", railCameraController_.get());
-	cameraManager_->SetActiveCameraController("Rail");
+	cameraManager_->SetActiveCameraController("Default");
 
 	lightManager_->Initialize();
 	lightManager_->SetDirectionalLightColor({ 1.0f, 1.0f, 1.0f, 1.0f });
@@ -183,7 +184,7 @@ void GamePlayScene::Initialize()
 	player_ = std::make_unique<Player>();
 	player_->Initialize();
 	player_->SetEnvironmentTextureIndex(skyBox_->GetEnvironmentTextureIndex());
-	player_->SetParent(railCameraController_->GetWorldTransform());
+	player_->SetParent(defaultCameraController_->GetWorldTransform());
 
 	BulletManager::GetInstance()->Initialize();
 
@@ -204,16 +205,29 @@ void GamePlayScene::Initialize()
 	//PostEffectManager::GetInstance()->Add("GaussianBlur");
 	PostEffectManager::GetInstance()->Add("Bloom");
 
+	debugManager_->Initialize();
 
 	// シーン初期化終わり
 
 	soundManager_->SoundLoadFile("Resources/Alarm01.wav");
 	soundManager_->SoundLoadFile("Resources/test.mp3");
 
+	controlPoints_ = 
+	{
+		{  0,  0,  0 },
+		{ 10, 10,  0 },
+		{ 10, 15,  0 },
+		{ 20, 15,  0 },
+		{ 20,  0,  0 },
+		{ 30,  0,  0 },
+	};
+
 }
 
 void GamePlayScene::Finalize()
 {
+	debugManager_->Finalize();
+
 	PostEffectManager::GetInstance()->Clear();
 
 	/*for (auto it = emitters_.begin(); it != emitters_.end(); ++it)
@@ -676,6 +690,10 @@ void GamePlayScene::Update(const float& deltaTime)
 	//// ImGuiの内部コマンドを生成する
 	//ImGui::Render();
 
+	debugManager_->AddBox(player_->GetWorldPosition(), 
+		{ 2.0f, 2.0f, 2.0f }, { 1.0f, 1.0f, 1.0f, 1.0f });
+
+	DrawSpline(controlPoints_, {1.0f, 0.0f, 0.0f, 1.0f}, 100);
 
 }
 
@@ -736,6 +754,8 @@ void GamePlayScene::Draw()
 		}
 	}
 
+
+	debugManager_->DrawAll(cameraManager_->GetMainCamera()->GetViewProjectionMatrix());
 
 
 	if (inputManager_->TriggerKey(DIK_0))

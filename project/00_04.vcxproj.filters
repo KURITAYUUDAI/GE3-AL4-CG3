@@ -246,6 +246,12 @@
     <ClCompile Include="Dict_Engine\postEffect\Bloom.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
+    <ClCompile Include="Dict_Engine\math\DebugDrawManager.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Dict_Engine\math\SplineCurve.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="resources\shaders\Object3d\Object3d.PS.hlsl">
@@ -272,6 +278,8 @@
     <FxCompile Include="resources\shaders\PostEffect\DepthBasedOutline.PS.hlsl" />
     <FxCompile Include="resources\shaders\PostEffect\BloomExtract.PS.hlsl" />
     <FxCompile Include="resources\shaders\PostEffect\BloomComposite.PS.hlsl" />
+    <FxCompile Include="resources\shaders\DebugDraw\DebugDraw.PS.hlsl" />
+    <FxCompile Include="resources\shaders\DebugDraw\DebugDraw.VS.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Dict_Engine\camera\DebugCamera.h">
@@ -445,6 +453,12 @@
     <ClInclude Include="Dict_Engine\postEffect\Bloom.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
+    <ClInclude Include="Dict_Engine\math\DebugDrawManager.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Dict_Engine\math\SplineCurve.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="resources\shaders\Object3d\Object3d.hlsli">
@@ -454,5 +468,6 @@
     <None Include="resources\shaders\SkyBox\SkyBox.hlsli" />
     <None Include="resources\shaders\Environment\Environment.hlsli" />
     <None Include="resources\shaders\PostEffect\Fullscreen.hlsli" />
+    <None Include="resources\shaders\DebugDraw\DebugDraw.hlsli" />
   </ItemGroup>
 </Project>
