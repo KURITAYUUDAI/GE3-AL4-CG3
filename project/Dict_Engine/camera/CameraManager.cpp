@@ -40,6 +40,24 @@ void CameraManager::Update(const float& deltaTime)
 {
 	if (activeCameraController_ && mainCamera_)
 	{
+	#ifdef _DEBUG
+
+		ImGui::Begin("CameraSetting");
+		Vector3 cameraRotate = activeCameraController_->GetWorldTransform()->GetRotate();
+		Vector3 cameraTranslate = activeCameraController_->GetWorldTransform()->translate_;
+		if (ImGui::DragFloat3("CameraRotate", &cameraRotate.x, (1.0f / 180.0f) * pi))
+		{
+			activeCameraController_->GetWorldTransform()->SetRotate(cameraRotate);
+		}
+		if (ImGui::DragFloat3("CameraTranslate", &cameraTranslate.x, 0.1f))
+		{
+			activeCameraController_->GetWorldTransform()->translate_ = cameraTranslate;
+		}
+
+		ImGui::End();
+
+	#endif
+
 		activeCameraController_->Update(mainCamera_.get(), deltaTime);
 
 		mainCamera_->Update();
@@ -60,6 +78,14 @@ void CameraManager::Update(const float& deltaTime)
 	//	// カメラの逆行列をGPU用構造体に転送
 	//	projectionInverseData_->projectionInverse = Inverse(activeCamera_->GetProjectionMatrix());
 	//}
+}
+
+void CameraManager::DrawDebugUI()
+{
+	if (activeCameraController_ && mainCamera_)
+	{
+		activeCameraController_->DrawDebugUI();
+	}
 }
 
 void CameraManager::SetCbufferCameraResource(UINT RootParameterIndex)
@@ -101,6 +127,35 @@ void CameraManager::SetActiveCameraController(const std::string& name)
 	{
 		activeCameraController_ = it->second;
 	}
+}
+
+void CameraManager::LimitPlayerInFrustum(Vector3& playerLocalPos)
+{
+	float distance = playerLocalPos.z;
+
+	// ニアクリップより手前、またはファークリップより奥にいる場合は処理しない（任意）
+	if (distance < mainCamera_->GetNearClip() || distance > mainCamera_->GetFarClip()) {
+		return;
+	}
+
+	// 2. カメラのゲッターから視野角(fovY)とアスペクト比を取得
+	float fovY = mainCamera_->GetFovY();
+	float aspectRatio = mainCamera_->GetAspectRatio();
+
+	// 3. 現在の深さ（distance）における、視錐台の縦・横の限界サイズ（半分の値）を計算
+	// ※ fovY がラジアン単位であることを前提としています。度数法の場合は std::tan(fovY * 0.5f * (pi / 180.0f)) にしてください。
+	float frustumHeightHalf = distance * std::tan(fovY * 0.5f);
+	float frustumWidthHalf = frustumHeightHalf * aspectRatio;
+
+	// 4. 画面ぴったりだとプレイヤーの中心点しか残らないため、
+	//    プレイヤーのサイズ分（マージン）を考慮して内側に制限を設定します
+	float marginFactor = 0.85f; // 0.0〜1.0 で調整（小さいほど画面の内側に制限される）
+	float xLimit = frustumWidthHalf * marginFactor;
+	float yLimit = frustumHeightHalf * marginFactor;
+
+	// 5. 計算した限界値でローカルのXとYの座標をクランプ（制限）する
+	playerLocalPos.x = std::clamp(playerLocalPos.x, -xLimit, xLimit);
+	playerLocalPos.y = std::clamp(playerLocalPos.y, -yLimit, yLimit);
 }
 
 

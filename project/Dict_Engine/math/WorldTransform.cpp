@@ -17,7 +17,8 @@ void WorldTransform::UpdateMatrix(const Matrix4x4* worldMatrix)
 		worldMatrix_ = *worldMatrix;
 		return;
 	}
-		
+	
+	rotateQuat_ = Normalize(rotateQuat_);
 	worldMatrix_ = MakeAffineMatrix(scale_, rotateQuat_, translate_);
 }
 

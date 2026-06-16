@@ -128,7 +128,7 @@ void SkyBox::Initialize()
 void SkyBox::Update()
 {
 	worldTransform_.UpdateMatrix();
-	worldTransform_.TransferMatrix(CameraManager::GetInstance()->GetActiveCamera()->GetViewProjectionMatrix());
+	worldTransform_.TransferMatrix(CameraManager::GetInstance()->GetMainCamera()->GetViewProjectionMatrix());
 }
 
 void SkyBox::Draw()

@@ -130,7 +130,7 @@ void ParticleManager::Finalize()
 
 void ParticleManager::Update(const float& deltaTime)
 {
-	viewProjectionMatrix_ = CameraManager::GetInstance()->GetActiveCamera()->GetViewProjectionMatrix();
+	viewProjectionMatrix_ = CameraManager::GetInstance()->GetMainCamera()->GetViewProjectionMatrix();
 
 	for (auto& particleGroup : particleGroups_)
 	{
@@ -166,7 +166,7 @@ void ParticleManager::Update(const float& deltaTime)
 
 			if (particleGroup.second.isBillboard)
 			{
-				worldMatrix = CameraManager::GetInstance()->GetActiveCamera()->GetBillboardWorldMatrix(
+				worldMatrix = CameraManager::GetInstance()->GetMainCamera()->GetBillboardWorldMatrix(
 					particle.transform.scale,
 					particle.transform.rotate,
 					particle.transform.translate);
@@ -199,7 +199,7 @@ void ParticleManager::Update(const float& deltaTime)
 				{
 					worldViewProjectionMatrix = worldMatrix;
 				}*/
-				const Matrix4x4& viewProjectionMatrix = CameraManager::GetInstance()->GetActiveCamera()->GetViewProjectionMatrix();
+				const Matrix4x4& viewProjectionMatrix = CameraManager::GetInstance()->GetMainCamera()->GetViewProjectionMatrix();
 				worldViewProjectionMatrix = Multiply(worldMatrix, viewProjectionMatrix);
 
 				particleGroup.second.instancingData[particleGroup.second.instanceNum].WVP = worldViewProjectionMatrix;

@@ -155,8 +155,8 @@ void BulletManager::Update(const float& deltaTime)
 			ImGui::Text("Velocity  : X:%.2f, Y:%.2f, Z:%.2f", velocity.x, velocity.y, velocity.z);
 
 			// デスタイマーも
-			float deathTimer = bullet->GetDeathTimer();
-			ImGui::Text("DeathTimer  : %.2f", deathTimer);
+			int32_t deathTimer = bullet->GetDeathTimer();
+			ImGui::Text("DeathTimer  : %d", deathTimer);
 		}
 
 		index++;

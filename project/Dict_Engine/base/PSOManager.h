@@ -43,6 +43,7 @@ public:
 	{
 		Microsoft::WRL::ComPtr<IDxcBlob> vertexShader;
 		Microsoft::WRL::ComPtr<IDxcBlob> pixelShader;
+		Microsoft::WRL::ComPtr<IDxcBlob> geometryShader;
 	};
 
 	struct InputElement
@@ -54,6 +55,7 @@ public:
 	{
 		std::wstring vertexShaderPath;
 		std::wstring pixelShaderPath;
+		std::wstring geometryShaderPath;
 
 		D3D12_RASTERIZER_DESC rasterizerDesc = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
 
@@ -68,6 +70,8 @@ public:
 		bool depthEnable = true;
 		D3D12_DEPTH_WRITE_MASK depthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
 		D3D12_COMPARISON_FUNC depthFunc = D3D12_COMPARISON_FUNC_LESS;
+
+		D3D12_PRIMITIVE_TOPOLOGY_TYPE toporogyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
 	};
 
 	enum class BlendMode { None, Normal, Add, Subtract, Multiply, Screen };
@@ -123,8 +127,8 @@ private:
 
 	void CreatePipeLineState(const std::string& name, BlendMode blend, FillMode fill);
 	D3D12_BLEND_DESC CreateBlendDesc(BlendMode blendMode);
-	void CompileShader(const std::string& name,
-		Microsoft::WRL::ComPtr<IDxcBlob>& outVS, Microsoft::WRL::ComPtr<IDxcBlob>& outPS);
+	void CompileShader(const std::string& name, Microsoft::WRL::ComPtr<IDxcBlob>& outVS,
+		Microsoft::WRL::ComPtr<IDxcBlob>& outPS, Microsoft::WRL::ComPtr<IDxcBlob>& outGS);
 
 
 

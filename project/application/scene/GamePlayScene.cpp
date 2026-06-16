@@ -6,6 +6,7 @@
 #include "PostEffectManager.h"
 #include "GaussianBlur.h"
 #include "BulletManager.h"
+#include "SplineCurve.h"
 
 void GamePlayScene::Initialize()
 {
@@ -183,7 +184,7 @@ void GamePlayScene::Initialize()
 	player_ = std::make_unique<Player>();
 	player_->Initialize();
 	player_->SetEnvironmentTextureIndex(skyBox_->GetEnvironmentTextureIndex());
-	player_->SetParent(railCameraController_->GetWorldTransform());
+	player_->SetParent(cameraManager_->GetActiveCameraController()->GetWorldTransform());
 
 	BulletManager::GetInstance()->Initialize();
 
@@ -204,16 +205,21 @@ void GamePlayScene::Initialize()
 	//PostEffectManager::GetInstance()->Add("GaussianBlur");
 	PostEffectManager::GetInstance()->Add("Bloom");
 
+	debugManager_->Initialize();
 
 	// シーン初期化終わり
 
 	soundManager_->SoundLoadFile("Resources/Alarm01.wav");
 	soundManager_->SoundLoadFile("Resources/test.mp3");
 
+	
+
 }
 
 void GamePlayScene::Finalize()
 {
+	debugManager_->Finalize();
+
 	PostEffectManager::GetInstance()->Clear();
 
 	/*for (auto it = emitters_.begin(); it != emitters_.end(); ++it)
@@ -676,6 +682,8 @@ void GamePlayScene::Update(const float& deltaTime)
 	//// ImGuiの内部コマンドを生成する
 	//ImGui::Render();
 
+	debugManager_->AddBox(player_->GetWorldPosition(), 
+		{ 2.0f, 2.0f, 2.0f }, { 1.0f, 1.0f, 1.0f, 1.0f });
 
 }
 
@@ -736,6 +744,9 @@ void GamePlayScene::Draw()
 		}
 	}
 
+	cameraManager_->DrawDebugUI();
+
+	debugManager_->DrawAll(cameraManager_->GetMainCamera()->GetViewProjectionMatrix());
 
 
 	if (inputManager_->TriggerKey(DIK_0))

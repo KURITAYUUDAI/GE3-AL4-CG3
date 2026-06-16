@@ -67,6 +67,8 @@ public:
 
 	void Update(const float& deltaTime);
 
+	void DrawDebugUI();
+
 	void SetCbufferCameraResource(UINT RootParameterIndex);
 
 	void SetCbufferProjectionInverseResource(UINT RootParameterIndex);
@@ -81,7 +83,6 @@ public: // 外部入出力
 	D3D12_GPU_VIRTUAL_ADDRESS GetCameraResourceGPUAddress() const { return cameraResource_->GetGPUVirtualAddress(); }
 	
 	// 現在アクティブなカメラを取得
-	Camera* GetActiveCamera() const { return mainCamera_.get(); }
 	const Vector3& GetCameraWorldPosition() const { return cameraData_->worldPosition; }
 	
 	// カメラをアクティブにする
@@ -91,9 +92,13 @@ public: // 外部入出力
 
 
 	ICameraController* GetCameraController(const std::string& name) const;
+	ICameraController* GetActiveCameraController() {return activeCameraController_; }
 	Camera* GetMainCamera() const { return mainCamera_.get(); }
+	
 	void SetActiveCameraController(const std::string& name);
 
+
+	void LimitPlayerInFrustum(Vector3& playerLocalPos);
 
 private:
 

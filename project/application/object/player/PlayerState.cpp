@@ -85,7 +85,10 @@ void PlayerAvoidState::Initialize(Player* player)
 		avoidDirection_ = { inputDirection_.x, inputDirection_.y, 0.0f };
 	}
 
-	avoidDirection_ = Normalize(avoidDirection_);
+	if (inputDirection_.x != 0.0f || inputDirection_.y != 0.0f)
+	{
+		avoidDirection_ = Normalize(avoidDirection_);
+	}
 
 	//float maxAvoidRoll = 2.0f * pi; // 最大で傾ける角度（ラジアン。0.5f は約30度）
 

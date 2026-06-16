@@ -86,7 +86,8 @@ void PSOManager::CreatePipeLineState(const std::string& name, BlendMode blend, F
 	// 4. Shaderをコンパイル
 	Microsoft::WRL::ComPtr<IDxcBlob> vertexShaderBlob;
 	Microsoft::WRL::ComPtr<IDxcBlob> pixelShaderBlob;
-	CompileShader(name, vertexShaderBlob, pixelShaderBlob);
+	Microsoft::WRL::ComPtr<IDxcBlob> geometryShaderBlob;
+	CompileShader(name, vertexShaderBlob, pixelShaderBlob, geometryShaderBlob);
 	
 	// 5. RasterizerStateの設定
 	D3D12_RASTERIZER_DESC rasterizerDesc{};
@@ -105,7 +106,14 @@ void PSOManager::CreatePipeLineState(const std::string& name, BlendMode blend, F
 	D3D12_DEPTH_STENCIL_DESC depthStencilDesc{};
 	depthStencilDesc.DepthEnable = psoConfig.depthEnable; // Depthの機能を有効化する
 	depthStencilDesc.DepthWriteMask = psoConfig.depthWriteMask;	// 書き込まない
-	depthStencilDesc.DepthFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;	// 比較関数はLessEqual。近ければ描画される
+	if (psoConfig.depthFunc)
+	{
+		depthStencilDesc.DepthFunc = psoConfig.depthFunc;	// 比較関数はLessEqual。近ければ描画される
+	}
+	else
+	{
+		depthStencilDesc.DepthFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;	// 比較関数はLessEqual。近ければ描画される
+	}
 
 	// 7. PSOを構築
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC graphicsPipelineStateDesc{};
@@ -123,6 +131,11 @@ void PSOManager::CreatePipeLineState(const std::string& name, BlendMode blend, F
 		graphicsPipelineStateDesc.VS = { vertexShaderBlob->GetBufferPointer(), vertexShaderBlob->GetBufferSize() };
 		graphicsPipelineStateDesc.PS = { pixelShaderBlob->GetBufferPointer(), pixelShaderBlob->GetBufferSize() };
 
+		if (geometryShaderBlob)
+		{
+			graphicsPipelineStateDesc.GS = { geometryShaderBlob->GetBufferPointer(), geometryShaderBlob->GetBufferSize() };
+		}
+
 		// RasterizerStateを代入
 		graphicsPipelineStateDesc.RasterizerState = rasterizerDesc;
 
@@ -135,9 +148,12 @@ void PSOManager::CreatePipeLineState(const std::string& name, BlendMode blend, F
 		// その他の設定
 		graphicsPipelineStateDesc.RTVFormats[0] = DirectXBase::GetInstance()->GetRtvFormat();
 		graphicsPipelineStateDesc.NumRenderTargets = 1;
-		graphicsPipelineStateDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+		graphicsPipelineStateDesc.PrimitiveTopologyType = psoConfig.toporogyType;
 		graphicsPipelineStateDesc.SampleDesc.Count = 1;
 		graphicsPipelineStateDesc.SampleMask = D3D12_DEFAULT_SAMPLE_MASK;
+
+		graphicsPipelineStateDesc.StreamOutput.NumEntries = 0;
+		graphicsPipelineStateDesc.StreamOutput.NumStrides = 0;
 	}
 	
 	// 8. PSOを生成
@@ -197,13 +213,15 @@ D3D12_BLEND_DESC PSOManager::CreateBlendDesc(BlendMode blendMode)
 	return blendDesc;
 }
 
-void PSOManager::CompileShader(const std::string& name, Microsoft::WRL::ComPtr<IDxcBlob>& outVS, Microsoft::WRL::ComPtr<IDxcBlob>& outPS)
+void PSOManager::CompileShader(const std::string& name, Microsoft::WRL::ComPtr<IDxcBlob>& outVS, 
+	Microsoft::WRL::ComPtr<IDxcBlob>& outPS, Microsoft::WRL::ComPtr<IDxcBlob>& outGS)
 {
 	// キャッシュを確認してあれば渡す
 	if (shaderDatas_.contains(name))
 	{
 		outVS = shaderDatas_[name].vertexShader;
 		outPS = shaderDatas_[name].pixelShader;
+		outGS = shaderDatas_[name].geometryShader;
 		return;
 	}
 
@@ -212,14 +230,21 @@ void PSOManager::CompileShader(const std::string& name, Microsoft::WRL::ComPtr<I
 	
 	Microsoft::WRL::ComPtr<IDxcBlob> vertexShaderBlob;
 	Microsoft::WRL::ComPtr<IDxcBlob> pixelShaderBlob;
+	Microsoft::WRL::ComPtr<IDxcBlob> geometryShaderBlob;
 
 	vertexShaderBlob = DirectXBase::GetInstance()->CompileShader(psoConfigs_[name].vertexShaderPath, L"vs_6_0");
 	pixelShaderBlob = DirectXBase::GetInstance()->CompileShader(psoConfigs_[name].pixelShaderPath, L"ps_6_0");
 	
+	if (!psoConfigs_[name].geometryShaderPath.empty())
+	{
+		geometryShaderBlob = DirectXBase::GetInstance()->CompileShader(psoConfigs_[name].geometryShaderPath, L"gs_6_0");
+	}
+
 	assert(vertexShaderBlob && pixelShaderBlob);
 
 	shaderDatas_[name] = { vertexShaderBlob, pixelShaderBlob };
 
 	outVS = vertexShaderBlob;
 	outPS = pixelShaderBlob;
+	outGS = geometryShaderBlob;
 }

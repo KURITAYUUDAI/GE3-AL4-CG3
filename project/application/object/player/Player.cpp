@@ -4,6 +4,7 @@
 #include "SrvManager.h"
 #include "InputManager.h"
 #include "BulletManager.h"
+#include "CameraManager.h"
 
 void Player::Initialize()
 {
@@ -110,6 +111,7 @@ void Player::Initialize()
 	// 深度設定
 	config.depthEnable = true;
 	config.depthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
+	config.depthFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
 
 	PSOManager::GetInstance()->RegisterPSOConfig(psoName_, config);
 
@@ -165,7 +167,10 @@ void Player::Update(const float& deltaTime)
 		transform_ = transform;
 	}
 	ImGui::InputFloat3 ("Velocity", &velocity_.x, "%.3f", ImGuiInputTextFlags_ReadOnly);
-
+	Vector3 worldPosition = GetWorldPosition();
+	ImGui::InputFloat3 ("WorldPosition", &worldPosition.x, "%.3f", ImGuiInputTextFlags_ReadOnly);
+	Vector3 worldRotate = GetWorldRotate();
+	ImGui::InputFloat3 ("WorldRotate", &worldRotate.x, "%.3f", ImGuiInputTextFlags_ReadOnly);
 
 	float environmentCoefficient = object3d_->GetModel()->GetEnvironmentCoefficient(0);
 	if (ImGui::SliderFloat("Environment Coefficient", &environmentCoefficient, 0.0f, 1.0f))
@@ -190,6 +195,8 @@ void Player::Update(const float& deltaTime)
 
 	ImGui::End();
 #endif
+
+	CameraManager::GetInstance()->LimitPlayerInFrustum(transform_.translate);
 
 	object3d_->SetTransform(transform_);
 	object3d_->Update();
