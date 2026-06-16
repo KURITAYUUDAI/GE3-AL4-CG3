@@ -3,6 +3,7 @@
 #include "DirectXBase.h"
 #include <unordered_map>
 #include "Camera.h"
+#include "DebugCamera.h"
 
 class ICameraController;
 
@@ -93,7 +94,14 @@ public: // 外部入出力
 
 	ICameraController* GetCameraController(const std::string& name) const;
 	ICameraController* GetActiveCameraController() {return activeCameraController_; }
-	Camera* GetMainCamera() const { return mainCamera_.get(); }
+	Camera* GetMainCamera() const 
+	{
+		if (isDebugCamera_)
+		{
+			return debugCamera_.get();
+		}
+		return mainCamera_.get(); 
+	}
 	
 	void SetActiveCameraController(const std::string& name);
 
@@ -114,6 +122,8 @@ private:
 	std::unordered_map<std::string, ICameraController*> cameraControllers_;
 	ICameraController* activeCameraController_ = nullptr;
 
+	std::unique_ptr<DebugCamera> debugCamera_;
+	bool isDebugCamera_ = false;
 
 	std::unordered_map<std::string, Camera*> cameras_;
 	Camera* activeCamera_ = nullptr;

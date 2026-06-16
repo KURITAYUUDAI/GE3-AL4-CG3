@@ -20,7 +20,14 @@ public:
 	/// </summary>
 	void Update() override;
 
+	void SetTargetPosition(WorldTransform* target) { target_ = target; }
+
 private:
+
+	Vector3 originRotate_;
+	Vector3 originTranslate_;
+
+	WorldTransform* target_ = nullptr;
 
 	float radius = 6.0f;    // 原点からの距離
 	const float rotationSpeed = 0.005f; // ドラッグ速度の調整係数
