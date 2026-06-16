@@ -1,5 +1,6 @@
 #pragma once
 #include "myMath.h"
+#include "WorldTransform.h"
 
 class Camera;
 
@@ -11,6 +12,19 @@ public:
 	virtual void Update(Camera* mainCamera, const float& deltaTime) = 0;
 	virtual void Finalize() = 0;
 	virtual void DrawDebugUI() = 0;
+
+public:
+
+	const virtual Vector3& GetRotate(){ return worldTransform_.GetRotate(); }
+	const virtual Vector3& GetTranslate(){ return worldTransform_.translate_; }
+	virtual WorldTransform* GetWorldTransform() { return &worldTransform_; }
+
+	virtual void SetRotate(const Vector3& rotate){ worldTransform_.SetRotate(rotate); }
+	virtual void SetTranslate(const Vector3& translate){ worldTransform_.translate_ = translate; }
+
+protected:
+
+	WorldTransform worldTransform_;
 
 };
 

@@ -1,6 +1,6 @@
 #pragma once
 #include "ICameraController.h"
-#include "WorldTransform.h"
+#include "SplineCurve.h"
 
 class RailCameraController :public ICameraController
 {
@@ -11,18 +11,23 @@ public:
 	void Finalize() override;
 	void DrawDebugUI() override;
 
-public:
-
-	const Vector3& GetRotate(){ return worldTransform_.GetRotate(); }
-	const Vector3& GetTranslate(){ return worldTransform_.translate_; }
-	WorldTransform* GetWorldTransform() { return &worldTransform_; }
-
-	void SetRotate(const Vector3& rotate){ worldTransform_.SetRotate(rotate); }
-	void SetTranslate(const Vector3& translate){ worldTransform_.translate_ = translate; }
+	void BuildLenghthTable();
+	float GetTFromDistance(float distance);
 
 private:
 
-	WorldTransform worldTransform_;
+	std::vector<Vector3> controlPoints_;
 
+	Vector3 target_ = {0.0f, 0.0f, 0.0f};
+
+	std::vector<SplineSample> lengthTable_; // 距離逆引き用テーブル
+	float totalLength_ = 0.0f;              // レール全体の総延長（長さ）
+
+	float currentDistance_ = 0.0f;          // 【重要】progress_の代わりに「進んだ距離(メートル)」で管理する
+	float moveSpeed_ = 5.0f;                // 移動速度 (1秒間に進むメートル数)
+
+	float targetRange_ = 0.5f;
+	
+	float heightOffset_ = 1.0f;
 };
 

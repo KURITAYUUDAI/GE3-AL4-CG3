@@ -50,6 +50,12 @@ public:
     void AddLine(const Vector3& start, const Vector3& end, const Vector4& color);
     void AddBox(const Vector3& center, const Vector3& size, const Vector4& color);
     void AddSphere(const Vector3& center, float radius, const Vector4& color, uint32_t segments = 16);
+	void AddBezier(const Vector3& controlPoint0, const Vector3& controlPoint1,
+		const Vector3& controlPoint2, const uint32_t segments, const Vector4& color);
+	void AddSpline(const std::vector<Vector3>& controlPoints, const Vector4& color,
+		uint32_t segments);
+	void AddLoopSpline(const std::vector<Vector3>& controlPoints, 
+		const Vector4& color, uint32_t segments);
 
     // --- レンダリングパスの後半でエンジンが呼ぶ関数 ---
     void DrawAll(const Matrix4x4& viewProjectionMatrix);
@@ -69,7 +75,7 @@ private:
 	Matrix4x4* transformationData_ = nullptr;
 
 	std::string psoName_ = "DebugLine";
-	PSOManager::BlendMode blendMode_ = PSOManager::BlendMode::Normal;
+	PSOManager::BlendMode blendMode_ = PSOManager::BlendMode::None;
 	PSOManager::FillMode fillMode_ = PSOManager::FillMode::kWireFrame;
 
 	// 一度に描画できる最大頂点数（必要に応じて調整）

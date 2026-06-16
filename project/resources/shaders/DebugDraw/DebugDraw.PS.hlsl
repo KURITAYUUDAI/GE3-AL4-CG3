@@ -1,12 +1,15 @@
 #include "DebugDraw.hlsli"
 
-struct PSInput
+struct PixelShaderOutput
 {
-    float4 position : SV_POSITION;
-    float4 color : COLOR;
+    float4 color : SV_TARGET0;
 };
 
-float4 main(PSInput input) : SV_TARGET
-{
-    return input.color; // 頂点カラーをそのまま出力
+float4 main(VertexShaderOutput input) : SV_TARGET
+{    
+    PixelShaderOutput output;
+
+    output.color = input.color;
+    
+    return output.color; // 頂点カラーをそのまま出力
 }

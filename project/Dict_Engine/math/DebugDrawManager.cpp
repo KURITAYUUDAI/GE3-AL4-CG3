@@ -2,6 +2,7 @@
 #include "DebugDrawManager.h"
 #include <algorithm>
 #include "Logger.h"
+#include "SplineCurve.h"
 
 std::unique_ptr<DebugDrawManager> DebugDrawManager::instance_ = nullptr;
 
@@ -69,6 +70,149 @@ void DebugDrawManager::AddSphere(const Vector3& center, float radius, const Vect
     }
 }
 
+void DebugDrawManager::AddBezier(const Vector3& controlPoint0, const Vector3& controlPoint1, const Vector3& controlPoint2, const uint32_t segments, const Vector4& color)
+{
+	auto* debugManager = DebugDrawManager::GetInstance();
+	Vector3 previousP = controlPoint0;
+
+	for (uint32_t i = 1; i < segments; ++i)
+	{
+		float t = static_cast<float>(i) / static_cast<float>(segments);
+		Vector3 p0p1 = Lerp(controlPoint0, controlPoint1, t);
+		Vector3 p1p2 = Lerp(controlPoint1, controlPoint2, t);
+		Vector3 currentP = Lerp(p0p1, p1p2, t);
+
+		/*Vector3 nextP0P1 = Lerp(controlPoint0, controlPoint1, t + 1.0f / 32.0f);
+		Vector3 nextP1P2 = Lerp(controlPoint1, controlPoint2, t + 1.0f / 32.0f);
+		Vector3 nextP = Lerp(nextP0P1, nextP1P2, t + 1.0f / 32.0f);*/
+		debugManager->AddLine(previousP, currentP, color);
+	}
+
+	Sphere controlSphere[3];
+	controlSphere[0] = { controlPoint0, 0.01f };
+	controlSphere[1] = { controlPoint1, 0.01f };
+	controlSphere[2] = { controlPoint2, 0.01f };
+
+	for (uint32_t i = 0; i < 3; ++i)
+	{
+		debugManager->AddSphere(controlSphere[i].center, controlSphere[i].radius, { 1.0f, 1.0f, 1.0f, 1.0f });
+	}
+
+}
+
+void DebugDrawManager::AddSpline(const std::vector<Vector3>&controlPoints, const Vector4 & color, uint32_t segments)
+{
+	// 制御点が少なすぎる場合は描画できない
+	if (controlPoints.size() < 2 || segments <= 0) return;
+
+	auto* debugManager = DebugDrawManager::GetInstance();
+
+	// 制御点の総数
+	size_t numPoints = controlPoints.size();
+	size_t numSections = numPoints - 1;
+
+	Vector3 previousP = controlPoints[0];
+
+	for (uint32_t i = 1; i <= segments; ++i)
+	{
+		// 曲線全体を通した進捗率 (0.0 から 1.0)
+		float globalT = static_cast<float>(i) / static_cast<float>(segments);
+
+		// globalT から「現在どの区間にいるか」のインデックスを計算する
+		// 例: globalT = 0.5 で 4区間ある場合、 0.5 * 4 = 2.0 -> sectionIndexは2番目
+		float sectionProgress = globalT * static_cast<float>(numSections);
+		size_t sectionIndex = static_cast<size_t>(sectionProgress);
+
+		// globalT = 1.0 の時など、配列外参照を防ぐためのガード
+		if (sectionIndex >= numSections)
+		{
+			sectionIndex = numSections - 1;
+		}
+
+		// その区間内だけのローカルな進捗率 (0.0 から 1.0) に変換
+		float localT = sectionProgress - static_cast<float>(sectionIndex);
+
+		// 4つの制御点 (P0, P1, P2, P3) をクランプ処理を交えて取得
+		Vector3 p0 = (sectionIndex == 0) ? controlPoints[0] : controlPoints[sectionIndex - 1];
+		Vector3 p1 = controlPoints[sectionIndex];
+		Vector3 p2 = controlPoints[sectionIndex + 1];
+		Vector3 p3 = (sectionIndex + 2 >= numPoints) ? controlPoints[numPoints - 1] : controlPoints[sectionIndex + 2];
+
+		// 現在の補間座標を計算
+		Vector3 currentP = CatmullRom(p0, p1, p2, p3, localT);
+
+		// 前回の位置から現在の位置へ線を引く
+		debugManager->AddLine(previousP, currentP, color);
+
+		// 次のステップのために現在の座標を保存
+		previousP = currentP;
+	}
+
+	for (size_t i = 0; i < numPoints; ++i)
+	{
+		debugManager->AddSphere(controlPoints[i], 0.02f, { 1.0f, 1.0f, 1.0f, 1.0f });
+	}
+}
+
+void DebugDrawManager::AddLoopSpline(const std::vector<Vector3>& controlPoints, const Vector4& color, uint32_t segments)
+{
+	// 制御点が少なすぎる、またはセグメント数が0以下の場合は描画できない
+	if (controlPoints.size() < 2 || segments <= 0) return;
+
+	auto* debugManager = DebugDrawManager::GetInstance();
+
+	size_t numPoints = controlPoints.size();
+	// 変更点: ループするため、区間数は制御点の総数と同じ
+	size_t numSections = numPoints;
+
+	// 始点は最初の制御点
+	Vector3 previousP = controlPoints[0];
+
+	for (uint32_t i = 1; i <= segments; ++i)
+	{
+		float globalT = static_cast<float>(i) / static_cast<float>(segments);
+
+		float sectionProgress = globalT * static_cast<float>(numSections);
+		size_t sectionIndex = static_cast<size_t>(sectionProgress);
+
+		float localT = 0.0f;
+		if (sectionIndex >= numSections)
+		{
+			sectionIndex = numSections - 1;
+			localT = 1.0f;
+		} else
+		{
+			localT = sectionProgress - static_cast<float>(sectionIndex);
+		}
+
+		// 変更点: インデックスを循環させる
+		size_t idx0 = (sectionIndex + numPoints - 1) % numPoints;
+		size_t idx1 = sectionIndex;
+		size_t idx2 = (sectionIndex + 1) % numPoints;
+		size_t idx3 = (sectionIndex + 2) % numPoints;
+
+		Vector3 p0 = controlPoints[idx0];
+		Vector3 p1 = controlPoints[idx1];
+		Vector3 p2 = controlPoints[idx2];
+		Vector3 p3 = controlPoints[idx3];
+
+		// 現在の補間座標を計算
+		Vector3 currentP = CatmullRom(p0, p1, p2, p3, localT);
+
+		// 前回の位置から現在の位置へ線を引く
+		debugManager->AddLine(previousP, currentP, color);
+
+		// 次のステップのために現在の座標を保存
+		previousP = currentP;
+	}
+
+	// 各制御点に球体を描画
+	for (size_t i = 0; i < numPoints; ++i)
+	{
+		debugManager->AddSphere(controlPoints[i], 0.02f, { 1.0f, 1.0f, 1.0f, 1.0f });
+	}
+}
+
 // --- 実際の描画処理 ---
 void DebugDrawManager::DrawAll(const Matrix4x4& viewProjectionMatrix) 
 {
@@ -102,6 +246,7 @@ void DebugDrawManager::RegisterPSO()
 	PSOManager::PSOConfig config{};
 	config.vertexShaderPath = L"resources/shaders/DebugDraw/DebugDraw.VS.hlsl";
 	config.pixelShaderPath = L"resources/shaders/DebugDraw/DebugDraw.PS.hlsl";
+	config.geometryShaderPath = L"resources/shaders/DebugDraw/DebugDraw.GS.hlsl";
 
 	// RootSignatureの設定
 	config.rootSignatureGenerator = []()
@@ -156,8 +301,10 @@ void DebugDrawManager::RegisterPSO()
 		};
 
 	// 深度設定
+	config.depth.DepthFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
 	config.depthEnable = true;
 	config.depthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
+	config.depthFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
 
     config.toporogyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_LINE;
 

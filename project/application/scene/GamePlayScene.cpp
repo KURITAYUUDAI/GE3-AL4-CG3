@@ -46,7 +46,7 @@ void GamePlayScene::Initialize()
 
 	cameraManager_->AddCameraController("Defalut", defaultCameraController_.get());
 	cameraManager_->AddCameraController("Rail", railCameraController_.get());
-	cameraManager_->SetActiveCameraController("Default");
+	cameraManager_->SetActiveCameraController("Rail");
 
 	lightManager_->Initialize();
 	lightManager_->SetDirectionalLightColor({ 1.0f, 1.0f, 1.0f, 1.0f });
@@ -184,7 +184,7 @@ void GamePlayScene::Initialize()
 	player_ = std::make_unique<Player>();
 	player_->Initialize();
 	player_->SetEnvironmentTextureIndex(skyBox_->GetEnvironmentTextureIndex());
-	player_->SetParent(defaultCameraController_->GetWorldTransform());
+	player_->SetParent(cameraManager_->GetActiveCameraController()->GetWorldTransform());
 
 	BulletManager::GetInstance()->Initialize();
 
@@ -212,15 +212,7 @@ void GamePlayScene::Initialize()
 	soundManager_->SoundLoadFile("Resources/Alarm01.wav");
 	soundManager_->SoundLoadFile("Resources/test.mp3");
 
-	controlPoints_ = 
-	{
-		{  0,  0,  0 },
-		{ 10, 10,  0 },
-		{ 10, 15,  0 },
-		{ 20, 15,  0 },
-		{ 20,  0,  0 },
-		{ 30,  0,  0 },
-	};
+	
 
 }
 
@@ -693,8 +685,6 @@ void GamePlayScene::Update(const float& deltaTime)
 	debugManager_->AddBox(player_->GetWorldPosition(), 
 		{ 2.0f, 2.0f, 2.0f }, { 1.0f, 1.0f, 1.0f, 1.0f });
 
-	DrawSpline(controlPoints_, {1.0f, 0.0f, 0.0f, 1.0f}, 100);
-
 }
 
 void GamePlayScene::Draw()
@@ -754,6 +744,7 @@ void GamePlayScene::Draw()
 		}
 	}
 
+	cameraManager_->DrawDebugUI();
 
 	debugManager_->DrawAll(cameraManager_->GetMainCamera()->GetViewProjectionMatrix());
 

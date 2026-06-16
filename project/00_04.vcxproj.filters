@@ -280,6 +280,7 @@
     <FxCompile Include="resources\shaders\PostEffect\BloomComposite.PS.hlsl" />
     <FxCompile Include="resources\shaders\DebugDraw\DebugDraw.PS.hlsl" />
     <FxCompile Include="resources\shaders\DebugDraw\DebugDraw.VS.hlsl" />
+    <FxCompile Include="resources\shaders\DebugDraw\DebugDraw.GS.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Dict_Engine\camera\DebugCamera.h">

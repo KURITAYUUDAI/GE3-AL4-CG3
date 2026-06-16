@@ -44,6 +44,8 @@ void Bullet::Initialize(const Vector3& position, const Vector3& velocity, const 
 
 void Bullet::Update(const float& deltaTime)
 {
+	transform_.scale = size_;
+
 	transform_.translate += velocity_ * deltaTime;
 
 	Matrix4x4 billboard = CameraManager::GetInstance()->GetMainCamera()->

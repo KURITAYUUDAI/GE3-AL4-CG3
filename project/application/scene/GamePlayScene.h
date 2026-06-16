@@ -100,7 +100,7 @@ private:
 	std::unique_ptr<ParticleEmitter> cylinderEmitter = nullptr;
 
 
-	std::vector<Vector3> controlPoints_;
+	
 
 };
 

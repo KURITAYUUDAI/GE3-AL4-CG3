@@ -11,15 +11,9 @@ struct VSInput
     float4 color : COLOR;
 };
 
-struct VSOutput
+VertexShaderOutput main(VSInput input)
 {
-    float4 position : SV_POSITION;
-    float4 color : COLOR;
-};
-
-VSOutput main(VSInput input)
-{
-    VSOutput output;
+    VertexShaderOutput output;
     // 3D空間の座標を画面座標に変換
     output.position = mul(input.position, gViewProjection);
     output.color = input.color;

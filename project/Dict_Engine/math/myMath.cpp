@@ -1,5 +1,10 @@
 #include "myMath.h"
 
+float Length(const Vector2 v)
+{
+	return sqrtf((v.x * v.x) + (v.y * v.y));
+}
+
 // 00_01
 // 加算
 Vector3 Add(const Vector3& v1, const Vector3& v2)

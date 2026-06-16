@@ -69,7 +69,7 @@ private:
 
 	Transform transform_;
 
-	Vector3 size_ = { 0.8f, 0.8f, 0.8f };
+	Vector3 size_ = { 0.4f, 0.4f, 0.4f };
 
 	const float speed_ = 2.0f;
 
@@ -80,7 +80,7 @@ private:
 	ID id_;
 
 	// 寿命
-	static inline const int32_t kLifeTime = 60 * 2;
+	static inline const int32_t kLifeTime = 60 * 5;
 
 	// デスタイマー
 	int32_t deathTimer_ = kLifeTime;

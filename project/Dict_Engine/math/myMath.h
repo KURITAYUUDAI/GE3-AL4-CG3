@@ -45,6 +45,8 @@ static const float pi = std::numbers::pi_v<float>;
 
 static const float kDeltaTime = 1.0f / 60.0f;
 
+float Length(const Vector2 v);
+
 // 00_01
 // 加算
 Vector3 Add(const Vector3& v1, const Vector3& v2);
