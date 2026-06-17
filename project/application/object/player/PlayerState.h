@@ -25,9 +25,9 @@ public:
 
 private:
 
-	std::unique_ptr<ICommand>      moveCommand_;
-	std::unique_ptr<ICommand>      shotCommand_;
-	std::unique_ptr<ICommand>      avoidCommand_;
+	std::unique_ptr<IPlayerCommand>      moveCommand_;
+	std::unique_ptr<IPlayerCommand>      shotCommand_;
+	std::unique_ptr<IPlayerCommand>      avoidCommand_;
 };
 
 class PlayerShotState : public IPlayerState
@@ -42,7 +42,7 @@ private:
 	float timer_ = 0.0f;
 	float duration_ = 0.1f;
 
-	std::unique_ptr<ICommand>      moveCommand_;
+	std::unique_ptr<IPlayerCommand>      moveCommand_;
 };
 
 class PlayerAvoidState : public IPlayerState

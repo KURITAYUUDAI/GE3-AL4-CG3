@@ -5,15 +5,15 @@ class Player;
 
 class IInputHandler;
 
-class ICommand
+class IPlayerCommand
 {
 public:
 
-	virtual ~ICommand() = default;
+	virtual ~IPlayerCommand() = default;
 	virtual void Execute(Player* player) = 0;
 };
 
-class MoveHorizontalCommand : public ICommand
+class MoveHorizontalCommand : public IPlayerCommand
 {
 public:
 	MoveHorizontalCommand(IInputHandler* inputHandler) : inputHandler_(inputHandler) {}
@@ -23,7 +23,7 @@ private:
 	IInputHandler* inputHandler_;
 };
 
-class ShotCommand : public ICommand
+class ShotCommand : public IPlayerCommand
 {
 public:
 	ShotCommand(IInputHandler* inputHandler) : inputHandler_(inputHandler) {}
@@ -33,7 +33,7 @@ private:
 	IInputHandler* inputHandler_;
 };
 
-class AvoidCommand : public ICommand
+class AvoidCommand : public IPlayerCommand
 {
 public:
 	AvoidCommand(IInputHandler* inputHandler) : inputHandler_(inputHandler) {}
