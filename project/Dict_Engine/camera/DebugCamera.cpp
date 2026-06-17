@@ -5,11 +5,16 @@
 void DebugCamera::Initialize()
 {
 	Camera::Initialize();
+	theta = 0.52f;
+	phi = 0.0f;
 }
 
 void DebugCamera::Update()
 {
 #ifdef _DEBUG
+
+	originRotate_ = rotate_;
+	originTranslate_ = translate_;
 
 	ImGui::Begin("DebugCameraWindow");
 
@@ -47,11 +52,15 @@ void DebugCamera::Update()
 	rotate_.x = phi;
 	rotate_.y = theta;
 
-	translate_.x = radius * std::cos(theta) * std::sin(phi);
-	translate_.y = radius * std::sin(theta);
-	translate_.z = radius * std::cos(theta) * std::cos(phi);
+	translate_.x = target_->translate_.x + radius * std::cos(theta) * std::sin(phi);
+	translate_.y = target_->translate_.y + radius * std::sin(theta);
+	translate_.z = target_->translate_.z + radius * std::cos(theta) * std::cos(phi);
 
-	viewMatrix_ = MakeLookAtMatrix(translate_, { 0.0f, 0.0f, 0.0f }, { 0.0f, 1.0f, 0.0f });
+	viewMatrix_ = MakeLookAtMatrix(translate_, target_->translate_, { 0.0f, 1.0f, 0.0f });
+
+	ImGui::Text("Target Pos : X:%3.2f, Y:%3.2f, Z:%3.2f", 
+		target_->translate_.x, target_->translate_.y, target_->translate_.z);
+	ImGui::Text("Camera Distance : %3.2f", radius);
 
 	ImGui::End();
 

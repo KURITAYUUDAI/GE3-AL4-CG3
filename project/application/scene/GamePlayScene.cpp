@@ -283,7 +283,6 @@ void GamePlayScene::Update(const float& deltaTime)
 	}
 	ImGui::Checkbox("DrawSprite", &isDrawSprite_);
 	ImGui::Checkbox("DrawObject3d", &isDrawObject3d_);
-	ImGui::Checkbox("DebugCamera", &isDebugCamera_);
 	ImGui::End();
 
 

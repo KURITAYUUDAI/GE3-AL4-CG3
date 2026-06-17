@@ -27,6 +27,13 @@ void CameraManager::Initialize()
 	mainCamera_ = std::make_unique<Camera>();
 	mainCamera_->Initialize();
 
+#ifdef _DEBUG
+
+	debugCamera_ = std::make_unique<DebugCamera>();
+	debugCamera_->Initialize();
+
+#endif
+
 	/*DefaultCameraController* defaultController = new DefaultCameraController();
 	defaultController->Initialize();
 	AddCameraController("Default", defaultController);
@@ -43,6 +50,8 @@ void CameraManager::Update(const float& deltaTime)
 	#ifdef _DEBUG
 
 		ImGui::Begin("CameraSetting");
+		ImGui::Checkbox("DebugCamera", &isDebugCamera_);
+
 		Vector3 cameraRotate = activeCameraController_->GetWorldTransform()->GetRotate();
 		Vector3 cameraTranslate = activeCameraController_->GetWorldTransform()->translate_;
 		if (ImGui::DragFloat3("CameraRotate", &cameraRotate.x, (1.0f / 180.0f) * pi))
@@ -60,13 +69,26 @@ void CameraManager::Update(const float& deltaTime)
 
 		activeCameraController_->Update(mainCamera_.get(), deltaTime);
 
-		mainCamera_->Update();
+		if (isDebugCamera_ && debugCamera_)
+		{
+			// デバッグカメラ自体の行列計算を呼び出す
+			debugCamera_->Update();
 
-		// カメラのワールド座標をGPU用構造体に転送
-		cameraData_->worldPosition = mainCamera_->GetTranslate();
+			// GPUに転送する行列や座標を、通常カメラではなく「デバッグカメラ」のものに差し替える
+			cameraData_->worldPosition = debugCamera_->GetTranslate();
+			projectionInverseData_->projectionInverse = Inverse(debugCamera_->GetProjectionMatrix());
+			return;
+		}
+		else
+		{
+			mainCamera_->Update();
 
-		// カメラの逆行列をGPU用構造体に転送
-		projectionInverseData_->projectionInverse = Inverse(mainCamera_->GetProjectionMatrix());
+			// カメラのワールド座標をGPU用構造体に転送
+			cameraData_->worldPosition = mainCamera_->GetTranslate();
+
+			// カメラの逆行列をGPU用構造体に転送
+			projectionInverseData_->projectionInverse = Inverse(mainCamera_->GetProjectionMatrix());
+		}
 	}
 
 	//if (activeCamera_)
@@ -84,7 +106,7 @@ void CameraManager::DrawDebugUI()
 {
 	if (activeCameraController_ && mainCamera_)
 	{
-		activeCameraController_->DrawDebugUI();
+		activeCameraController_->DrawDebugUI(mainCamera_.get(), isDebugCamera_);
 	}
 }
 
@@ -126,6 +148,12 @@ void CameraManager::SetActiveCameraController(const std::string& name)
 	if (it != cameraControllers_.end())
 	{
 		activeCameraController_ = it->second;
+
+	#ifdef _DEBUG
+
+		debugCamera_->SetTargetPosition(activeCameraController_->GetWorldTransform());
+
+	#endif
 	}
 }
 
