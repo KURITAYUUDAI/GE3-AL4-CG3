@@ -186,6 +186,11 @@ void GamePlayScene::Initialize()
 	player_->SetEnvironmentTextureIndex(skyBox_->GetEnvironmentTextureIndex());
 	player_->SetParent(cameraManager_->GetActiveCameraController()->GetWorldTransform());
 
+	enemy_ = std::make_unique<Enemy>();
+	enemy_->Initialize();
+	enemy_->SetEnvironmentTextureIndex(skyBox_->GetEnvironmentTextureIndex());
+	enemy_->SetParent(cameraManager_->GetActiveCameraController()->GetWorldTransform());
+
 	BulletManager::GetInstance()->Initialize();
 
 	slashEmitter = std::make_unique<ParticleEmitter>();
@@ -218,6 +223,9 @@ void GamePlayScene::Initialize()
 
 void GamePlayScene::Finalize()
 {
+	enemy_->Finalize();
+	player_->Finalize();
+	
 	debugManager_->Finalize();
 
 	PostEffectManager::GetInstance()->Clear();
@@ -661,6 +669,8 @@ void GamePlayScene::Update(const float& deltaTime)
 
 	player_->Update(deltaTime);
 
+	enemy_->Update(deltaTime);
+
 	BulletManager::GetInstance()->Update(deltaTime);
 
 	if (inputManager_->TriggerKey(DIK_0))
@@ -683,6 +693,10 @@ void GamePlayScene::Update(const float& deltaTime)
 
 	debugManager_->AddBox(player_->GetWorldPosition(), 
 		{ 2.0f, 2.0f, 2.0f }, { 1.0f, 1.0f, 1.0f, 1.0f });
+	debugManager_->AddBox(enemy_->GetWorldPosition(),
+		{ 2.0f, 2.0f, 2.0f }, { 1.0f, 0.0f, 1.0f, 1.0f });
+
+
 
 }
 
@@ -700,6 +714,7 @@ void GamePlayScene::Draw()
 
 		terrain_->Draw();
 		player_->Draw();
+		enemy_->Draw();
 		BulletManager::GetInstance()->Draw();
 	}
 

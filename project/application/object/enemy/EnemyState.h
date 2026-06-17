@@ -1,6 +1,8 @@
 #pragma once
 #include "myMath.h"
 #include <memory>
+#include "AIHandler.h"
+#include "EnemyCommand.h"
 
 class Enemy;
 
@@ -20,9 +22,14 @@ public:
 	void Update(Enemy* enemy, const float& deltaTime) override;
 	void Draw(Enemy* enemy) override;
 	void Finalize(Enemy* enemy) override;
+
+private:
+
+	std::unique_ptr<IEnemyCommand> moveCommand_;
+	std::unique_ptr<IEnemyCommand> shotCommand_;
 };
 
-class EnemeyMoveState : public IEnemyState
+class EnemyMoveState : public IEnemyState
 {
 public:
 	void Initialize(Enemy* enemy) override;
@@ -38,6 +45,13 @@ public:
 	void Update(Enemy* enemy, const float& deltaTime) override;
 	void Draw(Enemy* enemy) override;
 	void Finalize(Enemy* enemy) override;
+
+private:
+
+	float timer_ = 0.0f;
+	float duration_ = 0.1f;
+
+	std::unique_ptr<IEnemyCommand> moveCommand_;
 };
 
 

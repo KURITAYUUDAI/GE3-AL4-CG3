@@ -2,7 +2,7 @@
 #include "DirectXBase.h"
 #include "object3d.h"
 #include "myMath.h"
-
+#include "AIHandler.h"
 #include "Model.h"
 #include <memory>
 #include "EnemyState.h"
@@ -29,20 +29,22 @@ public:	// Command
 
 public: // Command対応
 
-	void MoveAvoid(const Vector3 direction, float speed);
-	void SetTargetRoll(const Vector3 rollRadian);
+	/*void MoveAvoid(const Vector3 direction, float speed);
+	void SetTargetRoll(const Vector3 rollRadian);*/
 
 public:	//外部入出力
 
 	void SetEnvironmentTextureIndex(const uint32_t& srvIndex){ environmentTextureIndex_ = srvIndex; }
 
-	//InputHandlerSelector* GetInputHandlerSelector() { return &selector_; }
+	AIHandler* GetAIHandler() { return &handler_; }
 
 	const Vector3& GetScale() const { return transform_.scale; }
 	const Vector3& GetRotate() const { return transform_.rotate; }
 	const Vector3& GetTranslate() const { return transform_.translate; }
 	const Transform& GetTransform() const { return transform_; }
 	const Vector3& GetVelocity() const { return velocity_; }
+
+	const float& GetDeltaTime() const { return deltaTime_; }
 
 	const Vector3 GetWorldPosition() const;
 	const Vector3 GetWorldRotate() const;
@@ -58,7 +60,7 @@ public:	//外部入出力
 private:
 
 	// 入力ハンドル
-	//InputHandlerSelector selector_;
+	AIHandler handler_;
 
 	// 現在の状態
 	std::unique_ptr<IEnemyState> state_;
