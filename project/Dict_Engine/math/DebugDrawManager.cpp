@@ -52,7 +52,7 @@ void DebugDrawManager::AddBox(const Vector3& center, const Vector3& size, const 
     AddLine(v[0], v[4], color); AddLine(v[1], v[5], color); AddLine(v[2], v[6], color); AddLine(v[3], v[7], color); // 繋ぐ線
 }
 
-void DebugDrawManager::AddSphere(const Vector3& center, float radius, const Vector4& color, uint32_t segments) {
+void DebugDrawManager::AddSphereAxis(const Vector3& center, float radius, const Vector4& color, uint32_t segments) {
     // 緯線・経線をLINELISTで繋ぐ（簡易的に3軸の輪っかを描画するだけでもデバッグ用なら十分見やすいです）
     // ここでは一番手軽で視認性の高い「X, Y, Z軸に沿った3本の輪っか」を描画するアプローチを紹介します
     float angleStep = (2.0f * 3.14159265f) / segments;
@@ -209,7 +209,66 @@ void DebugDrawManager::AddLoopSpline(const std::vector<Vector3>& controlPoints, 
 	// 各制御点に球体を描画
 	for (size_t i = 0; i < numPoints; ++i)
 	{
-		debugManager->AddSphere(controlPoints[i], 0.02f, { 1.0f, 1.0f, 1.0f, 1.0f });
+		debugManager->AddSphere(controlPoints[i], 0.05f, { 1.0f, 1.0f, 1.0f, 1.0f });
+	}
+}
+
+void DebugDrawManager::AddSphere(const Vector3& center, float radius, const Vector4& color, uint32_t segments)
+{
+	// 最低限の分割数を保証（小さすぎると立体にならないため）
+	if (segments < 3) segments = 3;
+
+	// 仰角（緯度）のステップ数: 北極から南極まで (0 ～ PI)
+	uint32_t latSegments = segments;
+	// 方位角（経度）のステップ数: 360度周回 (0 ～ 2*PI)
+	uint32_t lonSegments = segments * 2; // 経度方向を多めにすると、より均等な格子になります
+
+	const float PI = 3.14159265f;
+	float latStep = PI / latSegments;
+	float lonStep = (2.0f * PI) / lonSegments;
+
+	// 各格子の点を計算して保持するためのバッファ（動的確保を避けるため、または数式で直接繋いでもOK）
+	// ここでは分かりやすさと計算節約のため、1ループ前の点（上の階層の点）を記憶しながら描画します
+
+	// 緯度方向のループ
+	for (uint32_t lat = 0; lat <= latSegments; ++lat) {
+		float theta = lat * latStep;
+		float sinTheta = sinf(theta);
+		float cosTheta = cosf(theta);
+
+		// 次の緯度階層のデータ
+		float nextTheta = (lat + 1) * latStep;
+		float sinNextTheta = sinf(nextTheta);
+		float cosNextTheta = cosf(nextTheta);
+
+		// 経度方向のループ
+		for (uint32_t lon = 0; lon < lonSegments; ++lon) {
+			float phi1 = lon * lonStep;
+			float phi2 = (lon + 1) * lonStep;
+
+			// 現在の緯度における、経度方向の2点 (現在の点と、次の点)
+			Vector3 pA(sinTheta * cosf(phi1), cosTheta, sinTheta * sinf(phi1));
+			Vector3 pB(sinTheta * cosf(phi2), cosTheta, sinTheta * sinf(phi2));
+
+			// 1ステップ下の緯度における、経度方向の点
+			Vector3 pC(sinNextTheta * cosf(phi1), cosNextTheta, sinNextTheta * sinf(phi1));
+
+			// スケールと位置の適用
+			Vector3 posA = center + pA * radius;
+			Vector3 posB = center + pB * radius;
+			Vector3 posC = center + pC * radius;
+
+			// 1. 緯線（横の線）を描画
+			// 北極点・南極点での無駄な描画をスキップ
+			if (lat > 0 && lat < latSegments) {
+				AddLine(posA, posB, color);
+			}
+
+			// 2. 経線（縦の線）を描画
+			if (lat < latSegments) {
+				AddLine(posA, posC, color);
+			}
+		}
 	}
 }
 

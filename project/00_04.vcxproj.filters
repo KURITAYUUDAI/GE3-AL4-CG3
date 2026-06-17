@@ -225,10 +225,10 @@
     <ClCompile Include="Dict_Engine\camera\ICameraController.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Dict_Engine\camera\RailCameraController.cpp">
+    <ClCompile Include="application\camera\RailCameraController.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Dict_Engine\camera\DefaultCameraController.cpp">
+    <ClCompile Include="application\camera\DefaultCameraController.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="Dict_Engine\math\WorldTransform.cpp">
@@ -433,10 +433,10 @@
     <ClInclude Include="Dict_Engine\camera\ICameraController.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Dict_Engine\camera\RailCameraController.h">
+    <ClInclude Include="application\camera\RailCameraController.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Dict_Engine\camera\DefaultCameraController.h">
+    <ClInclude Include="application\camera\DefaultCameraController.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="Dict_Engine\math\WorldTransform.h">
