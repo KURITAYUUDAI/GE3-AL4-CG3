@@ -16,6 +16,7 @@ void Enemy::Initialize()
 	object3d_ = std::make_unique<Object3d>();
 	object3d_->Initialize();
 	object3d_->SetModel("axis.obj");
+	object3d_->GetModel()->SetEnvironmentCoefficient(0.2f, 0);
 
 	transform_.scale = { 1.0f, 1.0f, 1.0f };
 	transform_.rotate = { 0.0f, 0.0f, 0.0f };

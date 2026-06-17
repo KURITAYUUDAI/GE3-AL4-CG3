@@ -11,11 +11,13 @@ SamplerState gSampler : register(s0);
 struct Material
 {
     float4 color;
+    
     int enableLighting;
-    row_major float4x4 uvTransform;
     float shiniess;
     float environmentCoefficient;
     float alphaReference;
+    
+    row_major float4x4 uvTransform;
 };
 ConstantBuffer<Material> gMaterial : register(b0);
 
@@ -36,6 +38,14 @@ PixelShaderOutput main(VertexShaderOutput input)
 {
     float4 transformedUV = mul(float4(input.texcoord, 0.0f, 1.0f), input.uvTransform);
     float4 textureColor = gTexture.Sample(gSampler, transformedUV.xy);
+    
+    float alpha = gMaterial.color.a * textureColor.a;
+
+    if (alpha < gMaterial.alphaReference)
+    {
+        discard;
+    }
+    
     PixelShaderOutput output;
     
     output.color = gMaterial.color * textureColor * input.color;

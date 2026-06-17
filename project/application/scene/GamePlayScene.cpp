@@ -44,9 +44,9 @@ void GamePlayScene::Initialize()
 	railCameraController_ = std::make_unique<RailCameraController>();
 	railCameraController_->Initialize();
 
-	cameraManager_->AddCameraController("Defalut", defaultCameraController_.get());
+	cameraManager_->AddCameraController("Default", defaultCameraController_.get());
 	cameraManager_->AddCameraController("Rail", railCameraController_.get());
-	cameraManager_->SetActiveCameraController("Rail");
+	cameraManager_->SetActiveCameraController("Default");
 
 	lightManager_->Initialize();
 	lightManager_->SetDirectionalLightColor({ 1.0f, 1.0f, 1.0f, 1.0f });

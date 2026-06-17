@@ -75,7 +75,7 @@ private:
 	static inline const int kMaxBullet = 100;
 
 	std::string psoName_ = "Bullet";
-	PSOManager::BlendMode blendMode_ = PSOManager::BlendMode::Add;
+	PSOManager::BlendMode blendMode_ = PSOManager::BlendMode::Normal;
 	PSOManager::FillMode fillMode_ = PSOManager::FillMode::kSolid;
 
 private:

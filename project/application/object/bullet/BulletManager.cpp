@@ -117,6 +117,7 @@ void BulletManager::Initialize()
 	// 深度設定
 	config.depthEnable = true;
 	config.depthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
+	config.depthFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
 
 	PSOManager::GetInstance()->RegisterPSOConfig(psoName_, config);
 
