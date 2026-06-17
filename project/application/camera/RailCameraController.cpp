@@ -38,8 +38,9 @@ void RailCameraController::Update(Camera* mainCamera, const float& deltaTime)
 
 	ImGui::Begin("ReilCamera");
 
-	ImGui::DragFloat("heightOffset", &heightOffset_, 0.1f);
+	ImGui::DragFloat2("Offset", &offset_.x, 0.1f);
 	ImGui::DragFloat("MoveSpeed", &moveSpeed_, 0.1f);
+	ImGui::InputFloat3("RailPos", &railPos_.x, "%.3f", ImGuiInputTextFlags_ReadOnly);
 
 	ImGui::End();
 
@@ -56,7 +57,7 @@ void RailCameraController::Update(Camera* mainCamera, const float& deltaTime)
 
 	// 2. 現在の距離に対応する「正しいt」を逆引きする
 	float equalT = GetTFromDistance(currentDistance_);
-	Vector3 railPos = GetLoopSplinePosition(controlPoints_, equalT);
+	railPos_ = GetLoopSplinePosition(controlPoints_, equalT);
 
 	// 3. ターゲット（注視点）の位置も「現在の距離 + 〇〇メートル先」から取得する
 	float targetDistance = currentDistance_ + targetRange_;
@@ -64,7 +65,7 @@ void RailCameraController::Update(Camera* mainCamera, const float& deltaTime)
 	target_ = GetLoopSplinePosition(controlPoints_, targetT);
 
 	// --- 以降のベクトル計算やカメラ設定はそのまま流用 ---
-	Vector3 forward = target_ - railPos;
+	Vector3 forward = target_ - railPos_;
 	forward = Normalize(forward);
 
 	Vector3 upIndex = { 0.0f, 1.0f, 0.0f };
@@ -75,9 +76,9 @@ void RailCameraController::Update(Camera* mainCamera, const float& deltaTime)
 	Vector3 localUp = Cross(forward, xAxis);
 
 	Vector3 eyePos = {
-		railPos.x + localUp.x * heightOffset_,
-		railPos.y + localUp.y * heightOffset_,
-		railPos.z + localUp.z * heightOffset_
+		railPos_.x + xAxis.x * offset_.x + localUp.x * offset_.y,
+		railPos_.y + xAxis.y * offset_.x + localUp.y * offset_.y,
+		railPos_.z + xAxis.z * offset_.x + localUp.z * offset_.y
 	};
 
 	// (前回提案した行列による回転制御への移行を推奨しますが、一旦既存のオイラー角のままでも動作します)
@@ -99,10 +100,15 @@ void RailCameraController::Finalize()
 
 }
 
-void RailCameraController::DrawDebugUI(const Camera* mainCamera)
+void RailCameraController::DrawDebugUI(const Camera* mainCamera, bool& isDebugCamera)
 {
-	DebugDrawManager::GetInstance()->AddSphere(GetWorldPosition(), 0.5f, {0.0f, 1.0f, 0.0f, 1.0f}, 32);
-
+	if (isDebugCamera)
+	{
+		DebugDrawManager::GetInstance()->AddSphere(GetWorldPosition(), 0.2f, { 0.0f, 1.0f, 0.0f, 1.0f }, 12);
+		DebugDrawManager::GetInstance()->AddLine(GetWorldPosition(), railPos_, {0.0f, 0.0f, 1.0f, 1.0f});
+	}
+	DebugDrawManager::GetInstance()->AddSphere(railPos_, 0.2f, { 1.0f, 1.0f, 0.0f, 1.0f }, 12);
+	DebugDrawManager::GetInstance()->AddSphere(target_, 0.2f, { 0.0f, 1.0f, 1.0f, 1.0f }, 12);
 	DebugDrawManager::GetInstance()->AddLoopSpline(controlPoints_, { 1.0f, 0.0f, 0.0f, 1.0f }, 300);
 }
 

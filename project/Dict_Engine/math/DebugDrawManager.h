@@ -80,7 +80,7 @@ private:
 	PSOManager::FillMode fillMode_ = PSOManager::FillMode::kWireFrame;
 
 	// 一度に描画できる最大頂点数（必要に応じて調整）
-	UINT maxVertices_ = 20000;
+	UINT maxVertices_ = 100000;
 
     // 1フレーム分のリクエストを貯めるバッファ
     std::vector<DebugVertex> vertices_;

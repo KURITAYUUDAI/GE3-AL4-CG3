@@ -11,7 +11,7 @@ public:
 	virtual void Initialize() = 0;
 	virtual void Update(Camera* mainCamera, const float& deltaTime) = 0;
 	virtual void Finalize() = 0;
-	virtual void DrawDebugUI(const Camera* mainCamera) = 0;
+	virtual void DrawDebugUI(const Camera* mainCamera, bool& isDebuCamera) = 0;
 
 public:
 

@@ -9,7 +9,7 @@ public:
 	void Initialize() override;
 	void Update(Camera* mainCamera, const float& deltaTime) override;
 	void Finalize() override;
-	void DrawDebugUI(const Camera* mainCamera) override;
+	void DrawDebugUI(const Camera* mainCamera, bool& isDebugCamera) override;
 
 	void BuildLenghthTable();
 	float GetTFromDistance(float distance);
@@ -18,6 +18,7 @@ private:
 
 	std::vector<Vector3> controlPoints_;
 
+	Vector3 railPos_ = {0.0f, 0.0f, 0.0f};
 	Vector3 target_ = {0.0f, 0.0f, 0.0f};
 
 	std::vector<SplineSample> lengthTable_; // 距離逆引き用テーブル
@@ -28,6 +29,6 @@ private:
 
 	float targetRange_ = 0.5f;
 	
-	float heightOffset_ = 1.0f;
+	Vector2 offset_ = {1.0f, 1.0f};
 };
 

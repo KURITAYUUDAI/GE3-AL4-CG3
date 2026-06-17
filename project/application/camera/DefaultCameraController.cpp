@@ -26,7 +26,7 @@ void DefaultCameraController::Finalize()
 
 }
 
-void DefaultCameraController::DrawDebugUI(const Camera* mainCamera)
+void DefaultCameraController::DrawDebugUI(const Camera* mainCamera, bool& isDebugCamera)
 {
 	worldTransform_.TransferMatrix(mainCamera->GetViewProjectionMatrix());
 
