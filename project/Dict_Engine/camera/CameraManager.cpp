@@ -106,7 +106,7 @@ void CameraManager::DrawDebugUI()
 {
 	if (activeCameraController_ && mainCamera_)
 	{
-		activeCameraController_->DrawDebugUI();
+		activeCameraController_->DrawDebugUI(mainCamera_.get());
 	}
 }
 

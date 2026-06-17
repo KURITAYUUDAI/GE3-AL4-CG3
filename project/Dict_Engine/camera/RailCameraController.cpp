@@ -99,8 +99,10 @@ void RailCameraController::Finalize()
 
 }
 
-void RailCameraController::DrawDebugUI()
+void RailCameraController::DrawDebugUI(const Camera* mainCamera)
 {
+	DebugDrawManager::GetInstance()->AddSphere(GetWorldPosition(), 1.0f, {0.0f, 1.0f, 0.0f, 1.0f}, 32);
+
 	DebugDrawManager::GetInstance()->AddLoopSpline(controlPoints_, { 1.0f, 0.0f, 0.0f, 1.0f }, 300);
 }
 

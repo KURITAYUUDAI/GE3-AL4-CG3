@@ -9,7 +9,7 @@ public:
 	void Initialize() override;
 	void Update(Camera* mainCamera, const float& deltaTime) override;
 	void Finalize() override;
-	void DrawDebugUI() override;
+	void DrawDebugUI(const Camera* mainCamera) override;
 
 	void BuildLenghthTable();
 	float GetTFromDistance(float distance);
