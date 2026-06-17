@@ -106,9 +106,10 @@ void RailCameraController::DrawDebugUI(const Camera* mainCamera, bool& isDebugCa
 	{
 		DebugDrawManager::GetInstance()->AddSphere(GetWorldPosition(), 0.2f, { 0.0f, 1.0f, 0.0f, 1.0f }, 12);
 		DebugDrawManager::GetInstance()->AddLine(GetWorldPosition(), railPos_, {0.0f, 0.0f, 1.0f, 1.0f});
+		DebugDrawManager::GetInstance()->AddSphere(railPos_, 0.2f, { 1.0f, 1.0f, 0.0f, 1.0f }, 12);
+		DebugDrawManager::GetInstance()->AddSphere(target_, 0.2f, { 0.0f, 1.0f, 1.0f, 1.0f }, 12);
 	}
-	DebugDrawManager::GetInstance()->AddSphere(railPos_, 0.2f, { 1.0f, 1.0f, 0.0f, 1.0f }, 12);
-	DebugDrawManager::GetInstance()->AddSphere(target_, 0.2f, { 0.0f, 1.0f, 1.0f, 1.0f }, 12);
+	
 	DebugDrawManager::GetInstance()->AddLoopSpline(controlPoints_, { 1.0f, 0.0f, 0.0f, 1.0f }, 300);
 }
 
