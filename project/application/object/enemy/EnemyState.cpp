@@ -4,9 +4,9 @@
 
 void EnemyIdleState::Initialize(Enemy* enemy)
 {
-	moveCommand_ = std::make_unique<MoveCommand>(
+	moveCommand_ = std::make_unique<EnemyMoveCommand>(
 		enemy->GetAIHandler());
-	shotCommand_ = std::make_unique<ShotCommand>(
+	shotCommand_ = std::make_unique<EnemyShotCommand>(
 		enemy->GetAIHandler());
 }
 
@@ -56,7 +56,7 @@ void EnemyMoveState::Finalize(Enemy * enemy)
 
 void EnemyShotState::Initialize(Enemy* enemy)
 {
-	moveCommand_ = std::make_unique<MoveCommand>(
+	moveCommand_ = std::make_unique<EnemyMoveCommand>(
 		enemy->GetAIHandler());
 }
 

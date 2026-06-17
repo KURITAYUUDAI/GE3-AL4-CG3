@@ -13,30 +13,30 @@ public:
 	virtual void Execute(Enemy* enemy) = 0;
 };
 
-class MoveCommand : public IEnemyCommand
+class EnemyMoveCommand : public IEnemyCommand
 {
 public:
-	MoveCommand(AIHandler* aiHandler) : aiHandler_(aiHandler) {}
+	EnemyMoveCommand(AIHandler* aiHandler) : aiHandler_(aiHandler) {}
 	void Execute(Enemy* enemy) override;
 
 private:
 	AIHandler* aiHandler_;
 };
 
-class ShotCommand : public IEnemyCommand
+class EnemyShotCommand : public IEnemyCommand
 {
 public:
-	ShotCommand(AIHandler* aiHandler) : aiHandler_(aiHandler) {}
+	EnemyShotCommand(AIHandler* aiHandler) : aiHandler_(aiHandler) {}
 	void Execute(Enemy* enemy) override;
 
 private:
 	AIHandler* aiHandler_;
 };
 
-class AttackCommand : public IEnemyCommand
+class EnemyAttackCommand : public IEnemyCommand
 {
 public:
-	AttackCommand(AIHandler* aiHandler) : aiHandler_(aiHandler) {}
+	EnemyAttackCommand(AIHandler* aiHandler) : aiHandler_(aiHandler) {}
 	void Execute(Enemy* enemy) override;
 
 private:

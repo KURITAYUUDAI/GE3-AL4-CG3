@@ -85,5 +85,5 @@ private:
 
 	bool isDraw_ = true;
 
-	float bulletSpeed_ = 300.0f;
+	float bulletSpeed_ = 30.0f;
 };

@@ -11,15 +11,15 @@ void Enemy::Initialize()
 
 	PSOManager::GetInstance()->RegisterEnvironmentPSO();
 
-	ModelManager::GetInstance()->LoadModel("sphere.obj");
+	ModelManager::GetInstance()->LoadModel("axis.obj");
 
 	object3d_ = std::make_unique<Object3d>();
 	object3d_->Initialize();
-	object3d_->SetModel("sphere.obj");
+	object3d_->SetModel("axis.obj");
 
 	transform_.scale = { 1.0f, 1.0f, 1.0f };
 	transform_.rotate = { 0.0f, 0.0f, 0.0f };
-	transform_.translate = { 0.0f, 0.0f, 15.0f };
+	transform_.translate = { 0.0f, 0.0f, 30.0f };
 
 	ChangeState(std::make_unique<EnemyIdleState>());
 }
@@ -110,11 +110,7 @@ void Enemy::Attack()
 const Vector3 Enemy::GetWorldPosition() const
 {
 	Matrix4x4 worldMatrix = object3d_->GetWorldTransform()->worldMatrix_;
-	if (object3d_->GetWorldTransform()->parent_)
-	{
-		worldMatrix *= object3d_->GetWorldTransform()->parent_->worldMatrix_;
-	}
-
+	
 	// ワールド座標を入れる変数
 	Vector3 worldPos;
 	// ワールド行列の平行移動成分を取得（ワールド座標）

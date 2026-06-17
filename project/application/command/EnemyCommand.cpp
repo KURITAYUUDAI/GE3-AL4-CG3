@@ -2,7 +2,7 @@
 #include "Enemy/Enemy.h"
 #include "AIHandler.h"
 
-void MoveCommand::Execute(Enemy* enemy)
+void EnemyMoveCommand::Execute(Enemy* enemy)
 {
     Vector2 direction = aiHandler_->GetDirection();
     if (direction.x == 0.0f && direction.y == 0.0f)
@@ -15,12 +15,12 @@ void MoveCommand::Execute(Enemy* enemy)
     }
 }
 
-void ShotCommand::Execute(Enemy* enemy)
+void EnemyShotCommand::Execute(Enemy* enemy)
 {
     enemy->Shot();
 }
 
-void AttackCommand::Execute(Enemy* enemy)
+void EnemyAttackCommand::Execute(Enemy* enemy)
 {
     enemy->Attack();
 }
