@@ -688,6 +688,16 @@ void GamePlayScene::Update(const float& deltaTime)
 		cylinderEmitter->Emit();
 	}
 
+
+	collisionManager_->Clear();
+	collisionManager_->AddCollider(player_->GetCollider());
+	collisionManager_->AddCollider(enemy_->GetCollider());
+	for (auto& bullet : BulletManager::GetInstance()->GetBullets())
+	{
+		collisionManager_->AddCollider(bullet->GetCollider());
+	}
+	collisionManager_->CheckAllCollisions();
+
 	//// ImGuiの内部コマンドを生成する
 	//ImGui::Render();
 
@@ -696,8 +706,15 @@ void GamePlayScene::Update(const float& deltaTime)
 	debugManager_->AddBox(enemy_->GetWorldPosition(),
 		{ 2.0f, 2.0f, 2.0f }, { 1.0f, 0.0f, 1.0f, 1.0f });
 
+	if (enemy_->GetIsDead())
+	{
+		SceneManager::GetInstance()->SetSceneRequest("TITLE");
+	}
 
-
+	if (player_->GetIsDead())
+	{
+		SceneManager::GetInstance()->SetSceneRequest("TITLE");
+	}
 }
 
 void GamePlayScene::Draw()

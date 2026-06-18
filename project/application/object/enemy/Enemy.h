@@ -7,7 +7,10 @@
 #include <memory>
 #include "EnemyState.h"
 
-class Enemy
+#include "Collision/CollisionObserver.h"
+#include "Collision/Collider.h"
+
+class Enemy : public ICollisionObserver
 {
 public:
 
@@ -19,6 +22,8 @@ public:
 	void Finalize();
 
 	void ChangeState(std::unique_ptr<IEnemyState> newState);
+
+	void OnCollision(Collider* self, Collider* other) override;
 
 public:	// Command
 
@@ -49,6 +54,13 @@ public:	//外部入出力
 	const Vector3 GetWorldPosition() const;
 	const Vector3 GetWorldRotate() const;
 
+	Collider* GetCollider() { return collider_.get(); }
+
+	// HP
+	const int& GetHitPoint() const { return hitPoint_; }
+	// デスフラグ
+	bool GetIsDead() const { return isDead_; }
+
 	void SetScale(const Vector3& scale) { transform_.scale = scale; }
 	void SetRotate(const Vector3& rotate) { transform_.rotate = rotate; }
 	void SetTranslate(const Vector3& translate) { transform_.translate = translate; }
@@ -72,6 +84,7 @@ private:
 	PSOManager::FillMode fillMode_ = PSOManager::FillMode::kSolid;
 
 	std::unique_ptr<Object3d> object3d_;
+	std::unique_ptr<Collider> collider_;
 
 	Transform transform_;
 
@@ -84,6 +97,17 @@ private:
 	uint32_t environmentTextureIndex_ = 0;
 
 	bool isDraw_ = true;
+
+	// HP
+	int hitPoint_;
+	// 最大HP
+	static inline const int kMaxHitPoint = 3;
+
+	float damageTimer_;
+	const float kDamageInvincible_ = 1.0f;
+
+	// デスフラグ
+	bool isDead_ = false;
 
 	float bulletSpeed_ = 10.0f;
 };

@@ -5,6 +5,7 @@
 #include "LightManager.h"
 #include "CameraManager.h"
 #include "DebugDrawManager.h"
+#include "Collision/CollisionManager.h"
 
 
 #include "DefaultCameraController.h"
@@ -70,6 +71,9 @@ private:
 
 	// デバッグ描画マネージャー
 	DebugDrawManager* debugManager_ = DebugDrawManager::GetInstance();
+
+	// 衝突マネージャー
+	CollisionManager* collisionManager_ = CollisionManager::GetInstance();
 
 private:
 

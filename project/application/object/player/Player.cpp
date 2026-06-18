@@ -24,6 +24,11 @@ void Player::Initialize()
 	object3d_->Initialize();
 	object3d_->SetModel("sphere.obj");
 
+	collider_ = std::make_unique<Collider>();
+	collider_->SetOwner(this);
+	collider_->SetRadius(1.0f);
+	collider_->SetAttribute(CollisionAttribute::Player);
+
 	transform_.scale = { 1.0f, 1.0f, 1.0f };
 	transform_.rotate = { 0.0f, 0.0f, 0.0f };
 	transform_.translate = { 0.0f, 0.0f, 15.0f };
@@ -98,6 +103,17 @@ void Player::Update(const float& deltaTime)
 	object3d_->SetTransform(transform_);
 	object3d_->Update();
 
+	if (damageTimer_ > 0.0f)
+	{
+		damageTimer_ -= kDeltaTime;
+	}
+	if (damageTimer_ < 0.0f)
+	{
+		damageTimer_ = 0.0f;
+		//isPlayHitSE_ = false;
+	}
+
+	collider_->SetWorldPosition(GetWorldPosition());
 }
 
 void Player::Draw()
@@ -131,6 +147,24 @@ void Player::ChangeState(std::unique_ptr<IPlayerState> newState)
 {
 	state_ = std::move(newState);
 	state_->Initialize(this);
+}
+
+void Player::OnCollision(Collider* self, Collider* other)
+{
+	if (other->GetAttribute() == CollisionAttribute::PlayerBullet)
+	{
+		if (damageTimer_ == 0.0f)
+		{
+			hitPoint_--;
+			damageTimer_ = kDamageInvincible_;
+			//PlaySEHit();
+		}
+		if (hitPoint_ <= 0)
+		{
+			isDead_ = true;
+			//PlaySEDead();
+		}
+	}
 }
 
 void Player::MoveHorizontal(const float& directionX, const float& directionY)

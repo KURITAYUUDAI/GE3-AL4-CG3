@@ -7,8 +7,10 @@
 
 #include "InputHandlerSelector.h"
 #include "PlayerState.h"
+#include "Collision/CollisionObserver.h"
+#include "Collision/Collider.h"
 
-class Player
+class Player : public ICollisionObserver
 {
 public:
 
@@ -20,6 +22,8 @@ public:
 	void Finalize();
 
 	void ChangeState(std::unique_ptr<IPlayerState> newState);
+
+	void OnCollision(Collider* self, Collider* other) override;
 
 public:	// Command
 
@@ -33,9 +37,9 @@ public: // Command対応
 	void MoveAvoid(const Vector3 direction, float speed);
 	void SetTargetRoll(const Vector3 rollRadian);
 
-public:	//外部入出力
+	
 
-	void SetEnvironmentTextureIndex(const uint32_t& srvIndex){ environmentTextureIndex_ = srvIndex; }
+public:	//外部入出力
 
 	InputHandlerSelector* GetInputHandlerSelector() { return &selector_; }
 	
@@ -48,11 +52,20 @@ public:	//外部入出力
 	const Vector3 GetWorldPosition() const;
 	const Vector3 GetWorldRotate() const;
 
+	Collider* GetCollider() { return collider_.get(); }
+
+	// HP
+	const int& GetHitPoint() const { return hitPoint_; }
+	// デスフラグ
+	bool GetIsDead() const { return isDead_; }
+
 	void SetScale(const Vector3& scale) { transform_.scale = scale; }
 	void SetRotate(const Vector3& rotate) { transform_.rotate = rotate; }
 	void SetTranslate(const Vector3& translate) { transform_.translate = translate; }
 	void SetTransform(const Transform& transform) { transform_ = transform; }
 	void SetVelocity(const Vector3& velocity) { velocity_ = velocity; }
+
+	void SetEnvironmentTextureIndex(const uint32_t& srvIndex){ environmentTextureIndex_ = srvIndex; }
 
 	void SetParent(WorldTransform* worldTransform);
 
@@ -71,6 +84,7 @@ private:
 	PSOManager::FillMode fillMode_ = PSOManager::FillMode::kSolid;
 
 	std::unique_ptr<Object3d> object3d_;
+	std::unique_ptr<Collider> collider_;
 
 	Transform transform_;
 
@@ -85,4 +99,15 @@ private:
 	bool isDraw_ = true;
 
 	float bulletSpeed_ = 300.0f;
+
+	// HP
+	int hitPoint_;
+	// 最大HP
+	static inline const int kMaxHitPoint = 3;
+
+	float damageTimer_;
+	const float kDamageInvincible_ = 1.0f;
+
+	// デスフラグ
+	bool isDead_ = false;
 };

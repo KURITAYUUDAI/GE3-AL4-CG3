@@ -18,6 +18,11 @@ void Enemy::Initialize()
 	object3d_->SetModel("axis.obj");
 	object3d_->GetModel()->SetEnvironmentCoefficient(0.2f, 0);
 
+	collider_ = std::make_unique<Collider>();
+	collider_->SetOwner(this);
+	collider_->SetRadius(1.0f);
+	collider_->SetAttribute(CollisionAttribute::Enemy);
+
 	transform_.scale = { 1.0f, 1.0f, 1.0f };
 	transform_.rotate = { 0.0f, 0.0f, 0.0f };
 	transform_.translate = { 0.0f, 0.0f, 30.0f };
@@ -47,6 +52,17 @@ void Enemy::Update(const float& deltaTime)
 	object3d_->SetTransform(transform_);
 	object3d_->Update();
 
+	if (damageTimer_ > 0.0f)
+	{
+		damageTimer_ -= kDeltaTime;
+	}
+	if (damageTimer_ < 0.0f)
+	{
+		damageTimer_ = 0.0f;
+		// isPlayHitSE_ = false;
+	}
+
+	collider_->SetWorldPosition(GetWorldPosition());
 }
 
 void Enemy::Draw()
@@ -80,6 +96,24 @@ void Enemy::ChangeState(std::unique_ptr<IEnemyState> newState)
 {
 	state_ = std::move(newState);
 	state_->Initialize(this);
+}
+
+void Enemy::OnCollision(Collider* self, Collider* other)
+{
+	if (other->GetAttribute() == CollisionAttribute::PlayerBullet)
+	{
+		if (damageTimer_ == 0.0f)
+		{
+			hitPoint_--;
+			damageTimer_ = kDamageInvincible_;
+			//PlaySEHit();
+		}
+		if (hitPoint_ <= 0)
+		{
+			isDead_ = true;
+			//PlaySEDead();
+		}
+	}
 }
 
 void Enemy::Move(const float& directionX, const float& directionY)
