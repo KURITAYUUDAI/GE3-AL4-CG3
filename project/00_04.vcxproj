@@ -156,9 +156,13 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="application\command\AIHandler.cpp" />
     <ClCompile Include="application\command\GameSceneCommand.cpp" />
     <ClCompile Include="application\object\bullet\BulletManager.cpp" />
     <ClCompile Include="application\object\bullet\Bullet.cpp" />
+    <ClCompile Include="Dict_Engine\random\Collision\CollisionObserver.cpp" />
+    <ClCompile Include="Dict_Engine\random\Collision\Collider.cpp" />
+    <ClCompile Include="Dict_Engine\random\Collision\CollisionManager.cpp" />
     <ClCompile Include="Dict_Engine\math\DebugDrawManager.cpp" />
     <ClCompile Include="Dict_Engine\math\SplineCurve.cpp" />
     <ClCompile Include="Dict_Engine\postEffect\Bloom.cpp" />
@@ -186,6 +190,9 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="application\command\InputHandlerSelector.cpp" />
     <ClCompile Include="Dict_Engine\postEffect\GaussianBlur.cpp" />
     <ClCompile Include="Dict_Engine\camera\ICameraController.cpp" />
+    <ClCompile Include="application\object\enemy\Enemy.cpp" />
+    <ClCompile Include="application\object\enemy\EnemyState.cpp" />
+    <ClCompile Include="application\command\EnemyCommand.cpp" />
     <ClCompile Include="main.cpp">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Development|x64'">MaxSpeed</Optimization>
       <WholeProgramOptimization Condition="'$(Configuration)|$(Platform)'=='Development|x64'">true</WholeProgramOptimization>
@@ -349,9 +356,13 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="application\command\AIHandler.h" />
     <ClInclude Include="application\command\GameSceneCommand.h" />
     <ClInclude Include="application\object\bullet\BulletManager.h" />
     <ClInclude Include="application\object\bullet\Bullet.h" />
+    <ClInclude Include="Dict_Engine\random\Collision\CollisionObserver.h" />
+    <ClInclude Include="Dict_Engine\random\Collision\Collider.h" />
+    <ClInclude Include="Dict_Engine\random\Collision\CollisionManager.h" />
     <ClInclude Include="Dict_Engine\math\DebugDrawManager.h" />
     <ClInclude Include="Dict_Engine\math\SplineCurve.h" />
     <ClInclude Include="Dict_Engine\postEffect\Bloom.h" />
@@ -408,6 +419,9 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="application\camera\RailCameraController.h" />
     <ClInclude Include="Dict_Engine\math\WorldTransform.h" />
     <ClInclude Include="Dict_Engine\math\Quaternion.h" />
+    <ClInclude Include="application\object\enemy\Enemy.h" />
+    <ClInclude Include="application\object\enemy\EnemyState.h" />
+    <ClInclude Include="application\command\EnemyCommand.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="externals\DirectXTex\DirectXTex_Desktop_2022_Win10.vcxproj">

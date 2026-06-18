@@ -87,16 +87,16 @@ public:
 
 	void Initialize();
 
+public:
+
+	void RegisterEnvironmentPSO();
 
 public: // 外部入出力
 
 	D3D12_STATIC_SAMPLER_DESC GetDefaultStaticSamplerDesc();
 	const PSOData& GetPSOData(const std::string& name, BlendMode blendMode, FillMode fillMode);
 
-	void RegisterPSOConfig(const std::string& name, const PSOConfig& config)
-	{
-		psoConfigs_[name] = config;
-	}
+	void RegisterPSOConfig(const std::string& name, const PSOConfig& config);
 
 private:
 

@@ -34,12 +34,24 @@ void Bullet::Initialize(const Vector3& position, const Vector3& velocity, const 
 	object3d_->SetEnableLighting(false);
 	object3d_->SetColor({2.0f, 2.0f, 2.0f, 1.0f});
 
+	collider_ = std::make_unique<Collider>();
+	collider_->SetOwner(this);
+	collider_->SetRadius(1.0f);
+	if (id == ID::kPlayer)
+	{
+		collider_->SetAttribute(CollisionAttribute::PlayerBullet);
+	}
+	else
+	{
+		collider_->SetAttribute(CollisionAttribute::EnemyBullet);
+	}
+
 	transform_.scale = { 1.0f, 1.0f, 1.0f };
 	transform_.rotate = { 0.0f, 0.0f, 0.0f };
 	transform_.translate = position;
 	velocity_ = velocity;
 
-	id_ = id;
+	
 }
 
 void Bullet::Update(const float& deltaTime)
@@ -53,6 +65,8 @@ void Bullet::Update(const float& deltaTime)
 
 	object3d_->SetTransform(transform_);
 	object3d_->Update(&billboard);
+
+	collider_->SetWorldPosition(GetWorldPosition());
 
 	if (--deathTimer_ <= 0)
 	{
@@ -70,16 +84,24 @@ void Bullet::Finalize()
 	
 }
 
-//void Bullet::OnCollision(const Enemy* enemy)
-//{
-//	(void)enemy;
-//	isDead_ = true;
-//}
-
-void Bullet::OnCollision(const Player* player)
+void Bullet::OnCollision(Collider* self, Collider* other)
 {
-	(void)player;
-	isDead_ = true;
+	if (self->GetAttribute() == CollisionAttribute::PlayerBullet 
+		&& other->GetAttribute() == CollisionAttribute::Enemy)
+	{
+		// 弾を消す
+		isDead_ = true;
+		return;
+	}
+	
+	if (self->GetAttribute() == CollisionAttribute::EnemyBullet
+		&& other->GetAttribute() == CollisionAttribute::Player)
+	{
+		// 弾を消す
+		isDead_ = true;
+		return;
+	}
+
 }
 
 const Vector3 Bullet::GetWorldPosition() const

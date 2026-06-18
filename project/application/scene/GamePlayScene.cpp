@@ -44,9 +44,9 @@ void GamePlayScene::Initialize()
 	railCameraController_ = std::make_unique<RailCameraController>();
 	railCameraController_->Initialize();
 
-	cameraManager_->AddCameraController("Defalut", defaultCameraController_.get());
+	cameraManager_->AddCameraController("Default", defaultCameraController_.get());
 	cameraManager_->AddCameraController("Rail", railCameraController_.get());
-	cameraManager_->SetActiveCameraController("Rail");
+	cameraManager_->SetActiveCameraController("Default");
 
 	lightManager_->Initialize();
 	lightManager_->SetDirectionalLightColor({ 1.0f, 1.0f, 1.0f, 1.0f });
@@ -186,6 +186,11 @@ void GamePlayScene::Initialize()
 	player_->SetEnvironmentTextureIndex(skyBox_->GetEnvironmentTextureIndex());
 	player_->SetParent(cameraManager_->GetActiveCameraController()->GetWorldTransform());
 
+	enemy_ = std::make_unique<Enemy>();
+	enemy_->Initialize();
+	enemy_->SetEnvironmentTextureIndex(skyBox_->GetEnvironmentTextureIndex());
+	enemy_->SetParent(cameraManager_->GetActiveCameraController()->GetWorldTransform());
+
 	BulletManager::GetInstance()->Initialize();
 
 	slashEmitter = std::make_unique<ParticleEmitter>();
@@ -218,6 +223,9 @@ void GamePlayScene::Initialize()
 
 void GamePlayScene::Finalize()
 {
+	enemy_->Finalize();
+	player_->Finalize();
+	
 	debugManager_->Finalize();
 
 	PostEffectManager::GetInstance()->Clear();
@@ -661,6 +669,8 @@ void GamePlayScene::Update(const float& deltaTime)
 
 	player_->Update(deltaTime);
 
+	enemy_->Update(deltaTime);
+
 	BulletManager::GetInstance()->Update(deltaTime);
 
 	if (inputManager_->TriggerKey(DIK_0))
@@ -678,12 +688,33 @@ void GamePlayScene::Update(const float& deltaTime)
 		cylinderEmitter->Emit();
 	}
 
+
+	collisionManager_->Clear();
+	collisionManager_->AddCollider(player_->GetCollider());
+	collisionManager_->AddCollider(enemy_->GetCollider());
+	for (auto& bullet : BulletManager::GetInstance()->GetBullets())
+	{
+		collisionManager_->AddCollider(bullet->GetCollider());
+	}
+	collisionManager_->CheckAllCollisions();
+
 	//// ImGuiの内部コマンドを生成する
 	//ImGui::Render();
 
 	debugManager_->AddBox(player_->GetWorldPosition(), 
 		{ 2.0f, 2.0f, 2.0f }, { 1.0f, 1.0f, 1.0f, 1.0f });
+	debugManager_->AddBox(enemy_->GetWorldPosition(),
+		{ 2.0f, 2.0f, 2.0f }, { 1.0f, 0.0f, 1.0f, 1.0f });
 
+	if (enemy_->GetIsDead())
+	{
+		SceneManager::GetInstance()->SetSceneRequest("TITLE");
+	}
+
+	if (player_->GetIsDead())
+	{
+		SceneManager::GetInstance()->SetSceneRequest("TITLE");
+	}
 }
 
 void GamePlayScene::Draw()
@@ -700,6 +731,7 @@ void GamePlayScene::Draw()
 
 		terrain_->Draw();
 		player_->Draw();
+		enemy_->Draw();
 		BulletManager::GetInstance()->Draw();
 	}
 

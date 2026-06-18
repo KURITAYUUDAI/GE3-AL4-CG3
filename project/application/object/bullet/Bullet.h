@@ -4,11 +4,10 @@
 #include "WorldTransform.h"
 #include <memory>
 
-//class Enemy;
+#include "Collision/CollisionObserver.h"
+#include "Collision/Collider.h"
 
-class Player;
-
-class Bullet
+class Bullet : public ICollisionObserver
 {
 public:
 
@@ -40,7 +39,9 @@ public:
 
 	/*void OnCollision(const Enemy* enemy);*/
 
-	void OnCollision(const Player* player);
+	/*void OnCollision(const Player* player);*/
+
+	void OnCollision(Collider* self, Collider* other) override;
 
 public: // 外部入出力
 	const Vector3& GetScale() { return transform_.scale; }
@@ -56,6 +57,8 @@ public: // 外部入出力
 	// AABB
 	AABB GetAABB();
 
+	Collider* GetCollider() { return collider_.get(); }
+
 	void SetScale(const Vector3& scale) { transform_.scale = scale; }
 	void SetRotation(const Vector3& rotation) { transform_.rotate = rotation; }
 	void SetTranslation(const Vector3& translation) { transform_.translate = translation; }
@@ -66,6 +69,7 @@ public: // 外部入出力
 private:
 
 	std::unique_ptr<Object3d> object3d_;
+	std::unique_ptr<Collider> collider_;
 
 	Transform transform_;
 

@@ -1,6 +1,5 @@
 #include "PlayerState.h"
 #include "Player.h"
-#include "GameSceneCommand.h"
 
 void PlayerIdleState::Initialize(Player* player)
 {

@@ -1,16 +1,20 @@
 #pragma once
 #include "BaseScene.h"
 #include "Framework.h"
-#include "SkyBox.h"
-#include "Terrain.h"
-#include "Player.h"
 
 #include "LightManager.h"
 #include "CameraManager.h"
+#include "DebugDrawManager.h"
+#include "Collision/CollisionManager.h"
+
 
 #include "DefaultCameraController.h"
 #include "RailCameraController.h"
-#include "DebugDrawManager.h"
+#include "SkyBox.h"
+#include "Terrain.h"
+#include "Player.h"
+#include "Enemy/Enemy.h"
+
 
 class GamePlayScene : public BaseScene
 {
@@ -68,6 +72,9 @@ private:
 	// デバッグ描画マネージャー
 	DebugDrawManager* debugManager_ = DebugDrawManager::GetInstance();
 
+	// 衝突マネージャー
+	CollisionManager* collisionManager_ = CollisionManager::GetInstance();
+
 private:
 
 	bool isDrawSprite_ = false;
@@ -92,6 +99,8 @@ private:
 	std::unique_ptr<Terrain> terrain_ = nullptr;
 
 	std::unique_ptr<Player> player_ = nullptr;
+
+	std::unique_ptr<Enemy> enemy_ = nullptr;
 
 	std::unique_ptr<ParticleEmitter> slashEmitter = nullptr;
 
