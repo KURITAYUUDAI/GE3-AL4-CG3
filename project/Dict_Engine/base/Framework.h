@@ -70,7 +70,7 @@ using namespace DirectX;
 #include "ParticleManager.h"
 #include "ParticleEmitter.h"
 
-#include "SeedManager.h"
+#include "random/SeedManager.h"
 #include "ImGuiManager.h"
 #include "SoundManager.h"
 

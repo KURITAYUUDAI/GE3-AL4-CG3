@@ -2,7 +2,7 @@
 #include "Logger.h"
 #include "SrvManager.h"
 #include "TextureManager.h"
-#include "SeedManager.h"
+#include "random/SeedManager.h"
 #include "ModelManager.h"
 #include "Model.h"
 #include "CameraManager.h"

@@ -137,7 +137,7 @@ void BulletManager::Update(const float& deltaTime)
 	for (auto& bullet : bullets_)
 	{
 		// 弾の種類（Player / Enemy）を判定
-		std::string bulletType = (bullet->GetID() == Bullet::ID::kPlayer) ? "Player" : "Enemy";
+		std::string bulletType = (bullet->GetCollider()->GetAttribute() == CollisionAttribute::PlayerBullet ? "Player" : "Enemy");
 
 		// 折りたたみヘッダー（クリックで開閉）
 		std::string label = "Bullet [" + std::to_string(index) + "] (" + bulletType + ")";

@@ -7,8 +7,8 @@
 
 #include "InputHandlerSelector.h"
 #include "PlayerState.h"
-#include "Collision/CollisionObserver.h"
-#include "Collision/Collider.h"
+#include "collision/CollisionObserver.h"
+#include "collision/Collider.h"
 
 class Player : public ICollisionObserver
 {
@@ -103,7 +103,7 @@ private:
 	// HP
 	int hitPoint_;
 	// 最大HP
-	static inline const int kMaxHitPoint = 3;
+	static inline const int kMaxHitPoint = 25;
 
 	float damageTimer_;
 	const float kDamageInvincible_ = 1.0f;

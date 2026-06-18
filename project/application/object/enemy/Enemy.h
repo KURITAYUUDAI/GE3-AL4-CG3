@@ -7,8 +7,8 @@
 #include <memory>
 #include "EnemyState.h"
 
-#include "Collision/CollisionObserver.h"
-#include "Collision/Collider.h"
+#include "collision/CollisionObserver.h"
+#include "collision/Collider.h"
 
 class Enemy : public ICollisionObserver
 {
@@ -101,10 +101,10 @@ private:
 	// HP
 	int hitPoint_;
 	// 最大HP
-	static inline const int kMaxHitPoint = 3;
+	static inline const int kMaxHitPoint = 100;
 
 	float damageTimer_;
-	const float kDamageInvincible_ = 1.0f;
+	const float kDamageInvincible_ = 0.1f;
 
 	// デスフラグ
 	bool isDead_ = false;

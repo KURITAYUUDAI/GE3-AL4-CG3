@@ -33,6 +33,8 @@ void Player::Initialize()
 	transform_.rotate = { 0.0f, 0.0f, 0.0f };
 	transform_.translate = { 0.0f, 0.0f, 15.0f };
 
+	hitPoint_ = kMaxHitPoint;
+
 	ChangeState(std::make_unique<PlayerIdleState>());
 }
 
@@ -134,7 +136,10 @@ void Player::Draw()
 
 	if (isDraw_)
 	{
-		object3d_->Draw();
+		if (static_cast<int>(damageTimer_ * 60.0f) % 5 == 0)
+		{
+			object3d_->Draw();
+		}
 	}
 }
 
@@ -151,7 +156,7 @@ void Player::ChangeState(std::unique_ptr<IPlayerState> newState)
 
 void Player::OnCollision(Collider* self, Collider* other)
 {
-	if (other->GetAttribute() == CollisionAttribute::PlayerBullet)
+	if (other->GetAttribute() == CollisionAttribute::EnemyBullet)
 	{
 		if (damageTimer_ == 0.0f)
 		{

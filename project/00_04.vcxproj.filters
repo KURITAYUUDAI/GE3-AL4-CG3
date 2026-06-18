@@ -132,7 +132,7 @@
     <ClCompile Include="Dict_Engine\base\SrvManager.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Dict_Engine\random\SeedManager.cpp">
+    <ClCompile Include="Dict_Engine\tool\random\SeedManager.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="Dict_Engine\3d\ParticleManager.cpp">
@@ -264,13 +264,13 @@
     <ClCompile Include="application\command\EnemyCommand.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Dict_Engine\random\Collision\CollisionManager.cpp">
+    <ClCompile Include="Dict_Engine\tool\collision\CollisionManager.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Dict_Engine\random\Collision\Collider.cpp">
+    <ClCompile Include="Dict_Engine\tool\collision\Collider.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Dict_Engine\random\Collision\CollisionObserver.cpp">
+    <ClCompile Include="Dict_Engine\tool\collision\CollisionObserver.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
   </ItemGroup>
@@ -358,7 +358,7 @@
     <ClInclude Include="Dict_Engine\base\SrvManager.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Dict_Engine\random\SeedManager.h">
+    <ClInclude Include="Dict_Engine\tool\random\SeedManager.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="Dict_Engine\3d\ParticleManager.h">
@@ -493,13 +493,13 @@
     <ClInclude Include="application\command\EnemyCommand.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Dict_Engine\random\Collision\CollisionManager.h">
+    <ClInclude Include="Dict_Engine\tool\collision\CollisionManager.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Dict_Engine\random\Collision\Collider.h">
+    <ClInclude Include="Dict_Engine\tool\collision\Collider.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Dict_Engine\random\Collision\CollisionObserver.h">
+    <ClInclude Include="Dict_Engine\tool\collision\CollisionObserver.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
   </ItemGroup>

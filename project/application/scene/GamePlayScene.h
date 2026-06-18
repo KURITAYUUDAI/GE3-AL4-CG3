@@ -5,7 +5,7 @@
 #include "LightManager.h"
 #include "CameraManager.h"
 #include "DebugDrawManager.h"
-#include "Collision/CollisionManager.h"
+#include "collision/CollisionManager.h"
 
 
 #include "DefaultCameraController.h"

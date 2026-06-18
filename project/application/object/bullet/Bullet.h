@@ -4,8 +4,8 @@
 #include "WorldTransform.h"
 #include <memory>
 
-#include "Collision/CollisionObserver.h"
-#include "Collision/Collider.h"
+#include "collision/CollisionObserver.h"
+#include "collision/Collider.h"
 
 class Bullet : public ICollisionObserver
 {
