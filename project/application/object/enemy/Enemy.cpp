@@ -4,6 +4,7 @@
 #include "SrvManager.h"
 #include "CameraManager.h"
 #include "BulletManager.h"
+#include "DebugDrawManager.h"
 
 void Enemy::Initialize()
 {
@@ -22,6 +23,7 @@ void Enemy::Initialize()
 	collider_->SetOwner(this);
 	collider_->SetRadius(1.0f);
 	collider_->SetAttribute(CollisionAttribute::Enemy);
+	collider_->SetMask(CollisionAttribute::Enemy);
 
 	transform_.scale = { 1.0f, 1.0f, 1.0f };
 	transform_.rotate = { 0.0f, 0.0f, 0.0f };
@@ -92,6 +94,9 @@ void Enemy::Draw()
 			object3d_->Draw();
 		}
 	}
+
+	DebugDrawManager::GetInstance()->AddSphere(GetWorldPosition(),
+		collider_->GetRadius(), {1.0f, 0.0f, 1.0f, 1.0f}, 8);
 }
 
 void Enemy::Finalize()
@@ -107,20 +112,22 @@ void Enemy::ChangeState(std::unique_ptr<IEnemyState> newState)
 
 void Enemy::OnCollision(Collider* self, Collider* other)
 {
-	if (other->GetAttribute() == CollisionAttribute::PlayerBullet)
+	if (damageTimer_ == 0.0f)
 	{
-		if (damageTimer_ == 0.0f)
-		{
-			hitPoint_--;
-			damageTimer_ = kDamageInvincible_;
-			//PlaySEHit();
-		}
-		if (hitPoint_ <= 0)
-		{
-			isDead_ = true;
-			//PlaySEDead();
-		}
+		hitPoint_--;
+		damageTimer_ = kDamageInvincible_;
+		//PlaySEHit();
 	}
+	if (hitPoint_ <= 0)
+	{
+		isDead_ = true;
+		//PlaySEDead();
+	}
+
+	/*if (other->GetAttribute() == static_cast<uint32_t>(CollisionAttribute::Player))
+	{
+		
+	}*/
 }
 
 void Enemy::Move(const float& directionX, const float& directionY)

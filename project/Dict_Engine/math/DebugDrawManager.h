@@ -56,7 +56,8 @@ public:
 		uint32_t segments);
 	void AddLoopSpline(const std::vector<Vector3>& controlPoints, 
 		const Vector4& color, uint32_t segments);
-    void AddSphere(const Vector3& center, float radius, const Vector4& color, uint32_t segments = 16);
+	void AddSphere(const Vector3& center, float radius, const Vector4& color,
+		uint32_t lat = 10, uint32_t lon = 10);
 
     // --- レンダリングパスの後半でエンジンが呼ぶ関数 ---
     void DrawAll(const Matrix4x4& viewProjectionMatrix);

@@ -701,11 +701,6 @@ void GamePlayScene::Update(const float& deltaTime)
 	//// ImGuiの内部コマンドを生成する
 	//ImGui::Render();
 
-	debugManager_->AddBox(player_->GetWorldPosition(), 
-		{ 2.0f, 2.0f, 2.0f }, { 1.0f, 1.0f, 1.0f, 1.0f });
-	debugManager_->AddBox(enemy_->GetWorldPosition(),
-		{ 2.0f, 2.0f, 2.0f }, { 1.0f, 0.0f, 1.0f, 1.0f });
-
 	if (enemy_->GetIsDead())
 	{
 		SceneManager::GetInstance()->SetSceneRequest("TITLE");

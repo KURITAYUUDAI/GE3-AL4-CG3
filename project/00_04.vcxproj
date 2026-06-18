@@ -225,6 +225,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="application\camera\RailCameraController.cpp" />
     <ClCompile Include="Dict_Engine\math\WorldTransform.cpp" />
     <ClCompile Include="Dict_Engine\math\Quaternion.cpp" />
+    <ClCompile Include="Dict_Engine\ui\UIBase.cpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="resources\shaders\DebugDraw\DebugDraw.GS.hlsl">
@@ -422,6 +423,8 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="application\object\enemy\Enemy.h" />
     <ClInclude Include="application\object\enemy\EnemyState.h" />
     <ClInclude Include="application\command\EnemyCommand.h" />
+    <ClInclude Include="Dict_Engine\ui\UIBase.h" />
+    <ClInclude Include="Dict_Engine\ui\UIUtility.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="externals\DirectXTex\DirectXTex_Desktop_2022_Win10.vcxproj">
