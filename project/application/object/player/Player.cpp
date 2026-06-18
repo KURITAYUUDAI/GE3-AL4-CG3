@@ -19,7 +19,7 @@ void Player::Initialize()
 	selector_.GetGamepadHandler()->AssignKey("shot", XINPUT_GAMEPAD_RIGHT_SHOULDER);
 	selector_.GetGamepadHandler()->AssignKey("avoid", XINPUT_GAMEPAD_X);
 
-	ModelManager::GetInstance()->LoadModel("sphere.obj");
+	ModelManager::GetInstance()->LoadModel("", "sphere.obj");
 
 	object3d_ = std::make_unique<Object3d>();
 	object3d_->Initialize();

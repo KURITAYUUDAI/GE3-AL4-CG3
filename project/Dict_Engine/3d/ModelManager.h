@@ -51,14 +51,14 @@ public:
 	/// モデルファイルの読み込み
 	/// </summary>
 	/// <param name="filePath">モデルファイルのパス</param>
-	void LoadModel(const std::string& filePath);
+	void LoadModel(const std::string& directoryPath, const std::string& filename);
 
 	/// <summary>
 	/// モデルの検索
 	/// </summary>
 	/// <param name="filePath">モデルファイルのパス</param>
 	/// <returns>モデル</returns>
-	Model* FindModel(const std::string& filePath);
+	Model* FindModel(const std::string& filename);
 
 	void InsertMesh(const std::string& name, Mesh newMesh);
 

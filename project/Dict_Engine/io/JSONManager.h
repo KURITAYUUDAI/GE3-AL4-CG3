@@ -124,7 +124,7 @@ private:
     std::map<std::string, Group> datas_;	// グループデータ
 
     // グローバル変数の保存先ファイルパス
-    const std::string kDirectoryPath = "Resources/JSONManager/";
+    const std::string kDirectoryPath = "JSONManager/";
 
 };
 

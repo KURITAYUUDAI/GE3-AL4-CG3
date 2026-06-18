@@ -14,7 +14,8 @@
 #include "Terrain.h"
 #include "Player.h"
 #include "Enemy/Enemy.h"
-
+#include "SceneUIManager.h"
+#include "UIUtility.h"
 
 class GamePlayScene : public BaseScene
 {
@@ -102,14 +103,13 @@ private:
 
 	std::unique_ptr<Enemy> enemy_ = nullptr;
 
-	std::unique_ptr<ParticleEmitter> slashEmitter = nullptr;
+	std::unique_ptr<ParticleEmitter> slashEmitter_ = nullptr;
 
-	std::unique_ptr<ParticleEmitter> ringEmitter = nullptr;
+	std::unique_ptr<ParticleEmitter> ringEmitter_ = nullptr;
 
-	std::unique_ptr<ParticleEmitter> cylinderEmitter = nullptr;
+	std::unique_ptr<ParticleEmitter> cylinderEmitter_ = nullptr;
 
-
-	
-
+	std::unique_ptr<SceneUIManager> sceneUIManager_ = nullptr;
+	GameUIViewModel uiViewModel_;
 };
 

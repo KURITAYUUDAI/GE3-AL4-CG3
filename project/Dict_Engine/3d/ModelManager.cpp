@@ -21,10 +21,10 @@ void ModelManager::Finalize()
 
 }
 
-void ModelManager::LoadModel(const std::string& filePath)
+void ModelManager::LoadModel(const std::string& directoryPath, const std::string& filename)
 {
 	// 読み込み済みモデルを検索
-	if (models_.contains(filePath))
+	if (models_.contains(filename))
 	{
 		// 読み込み済みなら早期return
 		return;
@@ -33,21 +33,23 @@ void ModelManager::LoadModel(const std::string& filePath)
 	// モデルの生成とファイル読み込み、初期化
 	std::unique_ptr<Model> model = std::make_unique<Model>();
 	model->Initialize();
-	model->LoadObjFile("resources", filePath);
+	model->LoadObjFile(directoryPath, filename);
 	model->CreateResources();
 
 	// モデルをmapコンテナに格納する
-	models_.insert(std::make_pair(filePath, std::move(model)));
+	models_.insert(std::make_pair(filename, std::move(model)));
 }
 
-Model* ModelManager::FindModel(const std::string& filePath)
+Model* ModelManager::FindModel(const std::string& filename)
 {
 	// 読み込み済みモデルを検索
-	if (models_.contains(filePath))
+	if (models_.contains(filename))
 	{
 		// 読み込み済みなら早期return
-		return models_.at(filePath).get();
+		return models_.at(filename).get();
 	}
+
+	assert(false);
 
 	// ファイル名一致無し
 	return nullptr;

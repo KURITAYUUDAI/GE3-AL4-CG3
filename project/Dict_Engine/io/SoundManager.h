@@ -70,7 +70,7 @@ public:
 
 public:
 
-	void SoundLoadFile(const char* filename);
+	void SoundLoadFile(const std::string& directoryPath, const char* filename);
 
 	void SoundUnload(const char* filename);
 

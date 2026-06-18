@@ -39,8 +39,6 @@ public:
 	void Update();
 
 	void Draw();
-
-	void DrawingCommon();
 	
 public: // 外部入力＆出力
 

@@ -104,8 +104,8 @@ void SkyBox::Initialize()
 
 	modelData_ = CreateSkyBox();
 
-	TextureManager::GetInstance()->LoadTexture("resources/output_skybox.dds");
-	modelData_.meshes[0].material.textureFilePath = "resources/output_skybox.dds";
+	TextureManager::GetInstance()->LoadTexture("output_skybox.dds");
+	modelData_.meshes[0].material.textureFilePath = "output_skybox.dds";
 	// テクスチャファイル読み込み
 	TextureManager::GetInstance()->LoadTexture(modelData_.meshes[0].material.textureFilePath);
 	// 読み込んだテクスチャの番号を取得

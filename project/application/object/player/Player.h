@@ -56,6 +56,7 @@ public:	//外部入出力
 
 	// HP
 	const int& GetHitPoint() const { return hitPoint_; }
+	const int& GetMaxHitPoint() const { return kMaxHitPoint; }
 	// デスフラグ
 	bool GetIsDead() const { return isDead_; }
 

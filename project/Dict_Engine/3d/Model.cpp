@@ -10,6 +10,8 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 
+#include "ResourcePath.h"
+
 void Model::Initialize()
 {
 	// スプライトの共通処理を受け取る
@@ -110,17 +112,19 @@ MaterialData Model::LoadMaterialTemplateFile(const std::string& directoryPath, c
 void Model::LoadObjFile(const std::string& directoryPath, const std::string& filename)
 {
 	Assimp::Importer importer;
-	std::string filePath = directoryPath + "/" + filename;
-	const aiScene* scene = importer.ReadFile(filePath.c_str(), aiProcess_FlipWindingOrder | aiProcess_FlipUVs);
+	std::string relativePath = directoryPath + "/" + filename;
+	std::string fullPath = ResourcePath::MakeString(relativePath);
+
+	const aiScene* scene = importer.ReadFile(fullPath.c_str(), aiProcess_FlipWindingOrder | aiProcess_FlipUVs);
 	assert(scene->HasMeshes());
 
-	// OBJファイルのあるサブディレクトリを求める
-	std::string objDirectory = directoryPath;
-	size_t slashPos = filename.find_last_of("/\\");
-	if (slashPos != std::string::npos)
-	{
-		objDirectory = directoryPath + "/" + filename.substr(0, slashPos);
-	}
+	//// OBJファイルのあるサブディレクトリを求める
+	//std::string objDirectory = directoryPath;
+	//size_t slashPos = filename.find_last_of("/\\");
+	//if (slashPos != std::string::npos)
+	//{
+	//	objDirectory = directoryPath + "/" + filename.substr(0, slashPos);
+	//}
 
 	modelData_.meshes.clear();
 
@@ -179,7 +183,7 @@ void Model::LoadObjFile(const std::string& directoryPath, const std::string& fil
 		{
 			aiString textureFilePath;
 			material->GetTexture(aiTextureType_DIFFUSE, 0, &textureFilePath);
-			newMesh.material.textureFilePath = objDirectory + "/" + textureFilePath.C_Str();
+			newMesh.material.textureFilePath = directoryPath + "/" + textureFilePath.C_Str();
 
 			// .objの参照しているテクスチャファイル読み込み
 			TextureManager::GetInstance()->LoadTexture(newMesh.material.textureFilePath);

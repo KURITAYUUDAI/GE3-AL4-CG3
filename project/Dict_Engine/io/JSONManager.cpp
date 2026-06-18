@@ -1,6 +1,7 @@
 #include "JSONManager.h"
 #include <fstream>
 #include <WindowsAPI.h>
+#include "ResourcePath.h"
 
 std::unique_ptr<JSONManager> JSONManager::instance_ = nullptr;
 
@@ -131,18 +132,18 @@ void JSONManager::SaveFile(const std::string& groupName)
     }
 
     // ディレクトリが無ければ作成する
-    std::filesystem::path dir(kDirectoryPath);
+    std::filesystem::path dir(ResourcePath::MakeString(kDirectoryPath));
     if (!std::filesystem::exists(dir))
     {
         std::filesystem::create_directories(dir);
     }
 
     // 書き込むJSONファイルのフルパスを合成する
-    std::string filePath = kDirectoryPath + groupName + ".json";
+    std::string fullPath = ResourcePath::MakeString(kDirectoryPath + groupName + ".json");
     // 書き込み用ファイルストリーム
     std::ofstream ofs;
     // ファイルを書き込み用に開く
-    ofs.open(filePath);
+    ofs.open(fullPath);
 
     // ファイルオープン失敗？
     if (ofs.fail())
@@ -164,12 +165,12 @@ void JSONManager::SaveFile(const std::string& groupName)
 // ファイルを読み込み、datas_ に登録する
 void JSONManager::LoadFile(const std::string& groupName)
 {
-    std::string filePath = kDirectoryPath + groupName + ".json";
-    if (!std::filesystem::exists(filePath)) {
+    std::string fullPath = ResourcePath::MakeString(kDirectoryPath + groupName + ".json");
+    if (!std::filesystem::exists(fullPath)) {
         return;
     }
 
-    std::ifstream ifs(filePath);
+    std::ifstream ifs(fullPath);
     if (!ifs.is_open()) {
         return;
     }

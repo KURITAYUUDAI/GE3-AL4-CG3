@@ -1,5 +1,6 @@
 #include "SoundManager.h"
 #include "StringUtility.h"
+#include "ResourcePath.h"
 
 std::unique_ptr<SoundManager, SoundManager::Deleter> SoundManager::instance_ = nullptr;
 
@@ -65,19 +66,22 @@ void SoundManager::Initialize()
 	soundDatas_.reserve(kMaSoundCount);
 }
 
-void SoundManager::SoundLoadFile(const char* fullpath)
+void SoundManager::SoundLoadFile(const std::string& directoryPath, const char* filename)
 {
 	// 読み込み済みサウンドを検索
-	if (soundDatas_.contains(fullpath))
+	if (soundDatas_.contains(filename))
 	{
 		return;
 	}
 
 	// サウンドデータ数上限チェック
 	assert(soundDatas_.size() < kMaSoundCount);
-	
+
+	std::string relativePath = directoryPath + "/" + filename;
+	std::string fullPath = ResourcePath::MakeString(relativePath);
+
 	// フルパスをワイド文字列に変換
-	std::wstring filePathW = StringUtility::ConvertString(fullpath);
+	std::wstring filePathW = StringUtility::ConvertString(fullPath);
 	HRESULT result;
 
 	// SourceReader作成
@@ -102,7 +106,7 @@ void SoundManager::SoundLoadFile(const char* fullpath)
 	MFCreateWaveFormatExFromMFMediaType(pOutType.Get(), &waveFormat, nullptr);
 
 	// コンテナに格納する音声データ
-	SoundData& soundData = soundDatas_[fullpath];
+	SoundData& soundData = soundDatas_[filename];
 	soundData.wfex = *waveFormat;
 
 	// 生成したWaveフォーマットを解放
@@ -118,7 +122,7 @@ void SoundManager::SoundLoadFile(const char* fullpath)
 		result = pReader->ReadSample(
 			MF_SOURCE_READER_FIRST_AUDIO_STREAM, 0, &streamIndex, &flags, &llTimeStamp, &pSample);
 		// ストリームの末尾に達したら抜ける
-		if(flags & MF_SOURCE_READERF_ENDOFSTREAM) break;
+		if (flags & MF_SOURCE_READERF_ENDOFSTREAM) break;
 
 		if (pSample)
 		{

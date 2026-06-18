@@ -16,6 +16,7 @@ void Sprite::Initialize(std::string textureFilePath)
 
 	// テクスチャファイルパスを受け取る
 	textureFilePath_ = textureFilePath;
+	TextureManager::GetInstance()->LoadTexture(textureFilePath);
 
 	AdjustTextureSize();
 
@@ -87,6 +88,13 @@ void Sprite::Update()
 void Sprite::Draw()
 {
 	auto psoSet = PSOManager::GetInstance()->GetPSOData(psoName_, blendMode_, fillMode_);
+
+	// パイプラインステートとルートシグネチャをセット
+	DirectXBase::GetInstance()->GetCommandList()->SetPipelineState(psoSet.pipelineState.Get());
+	DirectXBase::GetInstance()->GetCommandList()->SetGraphicsRootSignature(psoSet.rootSignature.Get());
+
+	// 形状を設定。PS0に設定しているものとはまた別。同じものを設定すると考えておけば良い
+	DirectXBase::GetInstance()->GetCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	// Spriteの描画。変更が必要なものだけ変更する。
 	spriteManager_->GetDxBase()->GetCommandList()->SetPipelineState(psoSet.pipelineState.Get());	// PS0を設定
