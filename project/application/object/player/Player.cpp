@@ -1,3 +1,4 @@
+#define NOMINMAX
 #include "Player.h"
 #include "Logger.h"
 #include "TextureManager.h"
@@ -6,6 +7,7 @@
 #include "BulletManager.h"
 #include "CameraManager.h"
 #include "DebugDrawManager.h"
+#include "PlayerEvent.h"
 
 void Player::Initialize()
 {
@@ -38,6 +40,19 @@ void Player::Initialize()
 	hitPoint_ = kMaxHitPoint;
 
 	ChangeState(std::make_unique<PlayerIdleState>());
+}
+
+void Player::EventDispatch()
+{
+	eventBus_->Publish(PlayerHPChangeEvent
+		{
+			.currentHitPoint = hitPoint_,
+			.previousHitPoint = hitPoint_,
+			.maxHitPoint = kMaxHitPoint
+		}
+	);
+
+	eventBus_->Dispatch();
 }
 
 void Player::Update(const float& deltaTime)
@@ -163,7 +178,7 @@ void Player::OnCollision(Collider* self, Collider* other)
 {
 	if (damageTimer_ == 0.0f)
 	{
-		hitPoint_--;
+		Damage(1);
 		damageTimer_ = kDamageInvincible_;
 		//PlaySEHit();
 	}
@@ -177,6 +192,32 @@ void Player::OnCollision(Collider* self, Collider* other)
 	{
 		
 	}*/
+}
+
+void Player::Damage(int damage)
+{
+	const int previousHP = hitPoint_;
+
+	hitPoint_ -= damage;
+	if (hitPoint_ < 0)
+	{
+		hitPoint_ = 0;
+	}
+
+	if (hitPoint_ == previousHP)
+	{
+		return;
+	}
+	if (eventBus_)
+	{
+		eventBus_->Publish(PlayerHPChangeEvent
+			{
+				.currentHitPoint = hitPoint_,
+				.previousHitPoint = previousHP,
+				.maxHitPoint = kMaxHitPoint
+			}
+		);
+	}
 }
 
 void Player::MoveHorizontal(const float& directionX, const float& directionY)

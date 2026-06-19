@@ -218,15 +218,20 @@ void GamePlayScene::Initialize()
 	soundManager_->SoundLoadFile("", "Alarm01.wav");
 	soundManager_->SoundLoadFile("", "test.mp3");
 
-	
-	sceneUIManager_ = std::make_unique<SceneUIManager>();
-	sceneUIManager_->Initialize();
+	eventBus_ = std::make_unique<EventBus>();
+	uiController_ =  std::make_unique<GameUIController>();
+	uiController_->Initialize(eventBus_.get());
+
+	uiManager_ = std::make_unique<UIManager>();
+	uiManager_->Initialize();
 	auto hpGageUI = std::make_unique<HPGageUI>();
 	hpGageUI->Initialize();
-	sceneUIManager_->AddUI(std::move(hpGageUI));
+	uiManager_->AddUI(std::move(hpGageUI));
 
-	uiViewModel_.playerHP = player_->GetHitPoint();
-	uiViewModel_.playerMaxHP = player_->GetMaxHitPoint();
+	player_->SetEventBus(eventBus_.get());
+	player_->EventDispatch();
+
+	eventBus_->Dispatch();
 }
 
 void GamePlayScene::Finalize()
@@ -709,6 +714,11 @@ void GamePlayScene::Update(const float& deltaTime)
 	//// ImGuiの内部コマンドを生成する
 	//ImGui::Render();
 
+
+	eventBus_->Dispatch();
+	uiController_->Update(deltaTime);
+	uiManager_->Update(uiController_->GetViewModel(), deltaTime);
+
 	if (enemy_->GetIsDead())
 	{
 		SceneManager::GetInstance()->SetSceneRequest("TITLE");
@@ -718,11 +728,6 @@ void GamePlayScene::Update(const float& deltaTime)
 	{
 		SceneManager::GetInstance()->SetSceneRequest("TITLE");
 	}
-
-	uiViewModel_.playerHP = player_->GetHitPoint();
-	uiViewModel_.playerMaxHP = player_->GetMaxHitPoint();
-
-	sceneUIManager_->Update(uiViewModel_, deltaTime);
 }
 
 void GamePlayScene::Draw()
@@ -797,7 +802,7 @@ void GamePlayScene::Draw()
 	}
 
 
-	sceneUIManager_->DrawLayer(UILayer::World);
-	sceneUIManager_->DrawLayer(UILayer::Screen);
-	sceneUIManager_->DrawLayer(UILayer::Overlay);
+	uiManager_->DrawLayer(UILayer::World);
+	uiManager_->DrawLayer(UILayer::Screen);
+	uiManager_->DrawLayer(UILayer::Overlay);
 }

@@ -7,8 +7,14 @@ enum class UILayer
     Overlay  // 最前面UI
 };
 
+struct HPViewModel
+{
+    int currentHitPoint = 0;
+    int previousHitPoint = 1;
+    int maxHitPoint = 1;
+};
+
 struct GameUIViewModel 
 {
-    int playerHP = 0;
-    int playerMaxHP = 1;
+    HPViewModel playerHitPoint;
 };

@@ -22,14 +22,15 @@ void HPGageUI::Update(const GameUIViewModel & viewModel, const float& deltaTime)
 #ifdef _DEBUG
 	ImGui::Begin("HPGageUI Setting");
 
-	int playerHP = viewModel.playerHP;
+	int playerHP = viewModel.playerHitPoint.currentHitPoint;
 	ImGui::InputInt("playerHp", &playerHP, 0, 0, ImGuiInputTextFlags_ReadOnly);
 	ImGui::InputFloat("hpRate", &hpRate_);
 
 	ImGui::End();
 #endif
 
-	hpRate_ = static_cast<float>(viewModel.playerHP) / static_cast<float>(viewModel.playerMaxHP);
+	hpRate_ = static_cast<float>(viewModel.playerHitPoint.currentHitPoint) 
+		/ static_cast<float>(viewModel.playerHitPoint.maxHitPoint);
 
 	fillSprite_->SetSize({300.0f * hpRate_, {fillSprite_->GetSize().y}});
 

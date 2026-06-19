@@ -1,11 +1,11 @@
-#include "SceneUIManager.h"
+#include "UIManager.h"
 
-void SceneUIManager::Initialize()
+void UIManager::Initialize()
 {
 
 }
 
-void SceneUIManager::Update(const GameUIViewModel& viewModel, const float& deltaTime)
+void UIManager::Update(const GameUIViewModel& viewModel, const float& deltaTime)
 {
     if (!isVisible_) 
     {
@@ -23,7 +23,7 @@ void SceneUIManager::Update(const GameUIViewModel& viewModel, const float& delta
     }
 }
 
-void SceneUIManager::DrawLayer(const UILayer& layer)
+void UIManager::DrawLayer(const UILayer& layer)
 {
     if (!isVisible_) {
         return;
@@ -45,7 +45,7 @@ void SceneUIManager::DrawLayer(const UILayer& layer)
     }
 }
 
-void SceneUIManager::AddUI(std::unique_ptr<UIBase> uiBase)
+void UIManager::AddUI(std::unique_ptr<UIBase> uiBase)
 {
     uiList_.push_back(std::move(uiBase));
 }

@@ -3,7 +3,7 @@
 #include <list>
 #include <memory>
 
-class SceneUIManager
+class UIManager
 {
 public:
 

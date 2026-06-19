@@ -10,11 +10,14 @@
 #include "collision/CollisionObserver.h"
 #include "collision/Collider.h"
 
+#include "EventBus.h"
+
 class Player : public ICollisionObserver
 {
 public:
 
 	void Initialize();
+	void EventDispatch();
 	void Update(const float& deltaTime);
 
 
@@ -24,6 +27,8 @@ public:
 	void ChangeState(std::unique_ptr<IPlayerState> newState);
 
 	void OnCollision(Collider* self, Collider* other) override;
+
+	void Damage(int damage);
 
 public:	// Command
 
@@ -67,8 +72,11 @@ public:	//外部入出力
 	void SetVelocity(const Vector3& velocity) { velocity_ = velocity; }
 
 	void SetEnvironmentTextureIndex(const uint32_t& srvIndex){ environmentTextureIndex_ = srvIndex; }
+	void SetEventBus(EventBus* eventBus) { eventBus_ = eventBus; }
 
 	void SetParent(WorldTransform* worldTransform);
+
+	void SetIsHPChanged(const int isHPChanged){ isHPChanged_ = isHPChanged; }
 
 private:
 
@@ -77,6 +85,9 @@ private:
 
 	// 現在の状態
 	std::unique_ptr<IPlayerState> state_;
+
+	// イベント
+	EventBus* eventBus_ = nullptr;
 	
 	float deltaTime_ = 0.0f;
 
@@ -111,4 +122,6 @@ private:
 
 	// デスフラグ
 	bool isDead_ = false;
+
+	bool isHPChanged_ = false;
 };
