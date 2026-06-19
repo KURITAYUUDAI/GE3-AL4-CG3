@@ -52,14 +52,39 @@ public:
         }
     }
 
-    void AddUI(std::unique_ptr<UIBase<ViewModelType>> uiBase)
+    UIID AddUI(std::unique_ptr<UIBase<ViewModelType>> uiBase)
     {
         if (!uiBase)
+        {
+            return kInvalidUIID;
+        }
+
+        UIID id{ nextUIID_.value++ };
+        uiBase->SetUIID(id);
+
+        uiList_.push_back(std::move(uiBase));
+
+        return id;
+    }
+
+    void RemoveUI(UIID id)
+    {
+        if (id == kInvalidUIID)
         {
             return;
         }
 
-        uiList_.push_back(std::move(uiBase));
+        uiList_.remove_if(
+            [id](const std::unique_ptr<UIBase<ViewModelType>>& ui)
+            {
+                return ui && ui->GetUIID() == id;
+            }
+        );
+    }
+
+    void Clear()
+    {
+        uiList_.clear();
     }
 
     void SetIsVisible(bool visible) { isVisible_ = visible; }
@@ -69,5 +94,7 @@ public:
 private:
     bool isVisible_ = true;
     std::list<std::unique_ptr<UIBase<ViewModelType>>> uiList_;
+
+    UIID nextUIID_ = 1;
 };
 

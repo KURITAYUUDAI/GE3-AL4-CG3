@@ -5,6 +5,7 @@
 #include "UIUtility.h"
 #include "GamePlayUIUtility.h"
 #include "player/PlayerEvent.h"
+#include "enemy/EnemyEvent.h"
 
 class GameUIController : public UIControllerBase
 {
@@ -18,6 +19,9 @@ private:
     void RegisterEvents() override;
    
     void OnPlayerHPChanged(const PlayerHPChangeEvent& event);
+    void OnEnemyAppier(const EnemyAppierEvent& event);
+    void OnEnemyScreenPosition(const EnemyScreenPositionEvent& event);
+    void OnEnemyHPChanged(const EnemyHPChangeEvent& event);
 
 private:
 

@@ -5,6 +5,7 @@
 #include "CameraManager.h"
 #include "BulletManager.h"
 #include "DebugDrawManager.h"
+#include "EnemyEvent.h"
 
 void Enemy::Initialize()
 {
@@ -34,6 +35,28 @@ void Enemy::Initialize()
 	ChangeState(std::make_unique<EnemyIdleState>());
 }
 
+void Enemy::EventDispatch()
+{
+	eventBus_->Publish(EnemyAppierEvent
+		{
+			 .enemyID = enemyID_,
+
+			.currentHitPoint = hitPoint_,
+			.previousHitPoint = hitPoint_,
+			.maxHitPoint = kMaxHitPoint,
+
+			.screenPosition = GetScreenPosition(),
+
+			.isVisible = !isDead_,
+
+			.displayType = hpGageDisplayType_,
+			.screenBossPriority = screenBossPriority_
+		}
+	);
+
+	eventBus_->Dispatch();
+}
+
 void Enemy::Update(const float& deltaTime)
 {
 	deltaTime_ = deltaTime;
@@ -51,6 +74,8 @@ void Enemy::Update(const float& deltaTime)
 	}
 
 	ImGui::InputInt("HitPoint", &hitPoint_);
+	Vector2 screenPos = GetScreenPosition();
+	ImGui::InputFloat2("ScreenPos", &screenPos.x);
 
 	ImGui::End();
 #endif
@@ -69,6 +94,14 @@ void Enemy::Update(const float& deltaTime)
 	}
 
 	collider_->SetWorldPosition(GetWorldPosition());
+
+	eventBus_->Publish(EnemyScreenPositionEvent
+		{
+			.enemyID = enemyID_,
+			.screenPosition = GetScreenPosition(),
+			.isVisible = !isDead_
+		}
+	);
 }
 
 void Enemy::Draw()
@@ -114,7 +147,7 @@ void Enemy::OnCollision(Collider* self, Collider* other)
 {
 	if (damageTimer_ == 0.0f)
 	{
-		hitPoint_--;
+		Damage(1);
 		damageTimer_ = kDamageInvincible_;
 		//PlaySEHit();
 	}
@@ -128,6 +161,33 @@ void Enemy::OnCollision(Collider* self, Collider* other)
 	{
 		
 	}*/
+}
+
+void Enemy::Damage(int damage)
+{
+	const int previousHP = hitPoint_;
+
+	hitPoint_ -= damage;
+	if (hitPoint_ < 0)
+	{
+		hitPoint_ = 0;
+	}
+
+	if (hitPoint_ == previousHP)
+	{
+		return;
+	}
+	if (eventBus_)
+	{
+		eventBus_->Publish(EnemyHPChangeEvent
+			{
+				.enemyID = enemyID_,
+				.currentHitPoint = hitPoint_,
+				.previousHitPoint = previousHP,
+				.maxHitPoint = kMaxHitPoint
+			}
+		);
+	}
 }
 
 void Enemy::Move(const float& directionX, const float& directionY)
@@ -158,6 +218,7 @@ void Enemy::Attack()
 
 const Vector3 Enemy::GetWorldPosition() const
 {
+	
 	Matrix4x4 worldMatrix = object3d_->GetWorldTransform()->worldMatrix_;
 	
 	// ワールド座標を入れる変数
@@ -168,6 +229,22 @@ const Vector3 Enemy::GetWorldPosition() const
 	worldPos.z = worldMatrix.m[3][2];
 
 	return worldPos;
+}
+
+const Vector2 Enemy::GetScreenPosition() const
+{
+	Matrix4x4 worldMatrix = object3d_->GetWorldTransform()->worldMatrix_;
+	worldMatrix.m[3][1] += 1.0f;
+	worldMatrix.m[3][0] += 1.0f;
+	Vector3 worldPos = { worldMatrix.m[3][0], worldMatrix.m[3][1], worldMatrix.m[3][2] };
+
+	Matrix4x4 vpMatrix = CameraManager::GetInstance()->GetMainCamera()->GetViewProjectionMatrix();
+	Matrix4x4 viewport = DirectXBase::GetInstance()->GetViewportMatrix();
+	Matrix4x4 screenMatrix = vpMatrix * viewport;
+
+	// スクリーン座標を入れる変数
+	Vector3 screenPos = TransformPosition(worldPos, screenMatrix);
+	return {screenPos.x, screenPos.y};
 }
 
 const Vector3 Enemy::GetWorldRotate() const

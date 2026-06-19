@@ -225,6 +225,12 @@ void GamePlayScene::Initialize()
 	player_->SetEventBus(eventBus_.get());
 	player_->EventDispatch();
 
+	enemy_->SetEventBus(eventBus_.get());
+	enemy_->SetHPGageDisplayType(EnemyHPGageDisplayType::ScreenBoss |
+		EnemyHPGageDisplayType::OverHead);
+	enemy_->SetScreenBossPriority(50);
+	enemy_->EventDispatch();
+
 	eventBus_->Dispatch();
 }
 

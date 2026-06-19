@@ -28,6 +28,8 @@ using namespace DirectX;
 
 #include "queue"
 
+Matrix4x4 MakeViewportMatrix(D3D12_VIEWPORT viewport);
+
 class DirectXBase
 {
 public:
@@ -172,7 +174,9 @@ public: // ゲッター
 
 	float GetDeltaTime() { return fixFPS_->GetDeltaTime(); }
 
-	const DXGI_FORMAT GetRtvFormat(){ return kRtvFormat; }
+	const DXGI_FORMAT GetRtvFormat() { return kRtvFormat; }
+
+	const Matrix4x4 GetViewportMatrix() { return viewportMatrix_; }
 
 public: // その他関数
 
@@ -269,6 +273,7 @@ private:
 
 	// ビューポート
 	D3D12_VIEWPORT viewport_{};
+	Matrix4x4 viewportMatrix_;
 
 	// シザー矩形
 	D3D12_RECT scissorRect_{};

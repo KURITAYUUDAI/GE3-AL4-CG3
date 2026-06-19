@@ -1,3 +1,4 @@
+#define NOMINAMX
 #include "myMath.h"
 
 float Length(const Vector2 v)

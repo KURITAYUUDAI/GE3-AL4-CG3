@@ -723,8 +723,6 @@ D3D12_GPU_DESCRIPTOR_HANDLE DirectXBase::GetRTVGPUDescriptorHandle(uint32_t inde
 		rtvDescriptorHeap_, rtvDescriptorSize_, index);
 }
 
-
-
 D3D12_CPU_DESCRIPTOR_HANDLE DirectXBase::GetDSVCPUDescriptorHandle(uint32_t index)
 {
 	return GetCPUDescriptorHandle(
@@ -773,6 +771,8 @@ void DirectXBase::InitializeViewportRect()
 	viewport_.TopLeftY = 0;
 	viewport_.MinDepth = 0.0f;
 	viewport_.MaxDepth = 1.0f;
+
+	viewportMatrix_ = MakeViewportMatrix(viewport_);
 }
 
 void DirectXBase::InitializeScissorRect()
@@ -812,3 +812,14 @@ void DirectXBase::CreateDXCCompiler()
 //		srvDescriptorHeap_->GetGPUDescriptorHandleForHeapStart());
 //
 //}
+
+Matrix4x4 MakeViewportMatrix(D3D12_VIEWPORT viewport)
+{
+	return
+	{
+		viewport.Width / 2.0f, 0.0f, 0.0f, 0.0f,
+		0.0f, -viewport.Height / 2.0f, 0.0f, 0.0f,
+		0.0f, 0.0f, viewport.MaxDepth - viewport.MinDepth, 0.0f,
+		viewport.TopLeftX + (viewport.Width / 2.0f), viewport.TopLeftY + (viewport.Height / 2.0f), viewport.MinDepth, 1.0f
+	};
+}

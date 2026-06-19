@@ -10,11 +10,16 @@
 #include "collision/CollisionObserver.h"
 #include "collision/Collider.h"
 
+#include "EventBus.h"
+
+#include "GamePlayUIUtility.h"
+
 class Enemy : public ICollisionObserver
 {
 public:
 
 	void Initialize();
+	void EventDispatch();
 	void Update(const float& deltaTime);
 
 
@@ -24,6 +29,7 @@ public:
 	void ChangeState(std::unique_ptr<IEnemyState> newState);
 
 	void OnCollision(Collider* self, Collider* other) override;
+	void Damage(int damage);
 
 public:	// Command
 
@@ -39,8 +45,6 @@ public: // Command対応
 
 public:	//外部入出力
 
-	void SetEnvironmentTextureIndex(const uint32_t& srvIndex){ environmentTextureIndex_ = srvIndex; }
-
 	AIHandler* GetAIHandler() { return &handler_; }
 
 	const Vector3& GetScale() const { return transform_.scale; }
@@ -52,6 +56,7 @@ public:	//外部入出力
 	const float& GetDeltaTime() const { return deltaTime_; }
 
 	const Vector3 GetWorldPosition() const;
+	const Vector2 GetScreenPosition() const;
 	const Vector3 GetWorldRotate() const;
 
 	Collider* GetCollider() { return collider_.get(); }
@@ -61,21 +66,46 @@ public:	//外部入出力
 	// デスフラグ
 	bool GetIsDead() const { return isDead_; }
 
+	EnemyHPGageDisplayType GetHPGageDisplayType() const { return hpGageDisplayType_; }
+	int GetScreenBossPriority() const { return screenBossPriority_; }
+	EnemyID GetEnemyID() const { return enemyID_; }
+
+
+
 	void SetScale(const Vector3& scale) { transform_.scale = scale; }
 	void SetRotate(const Vector3& rotate) { transform_.rotate = rotate; }
 	void SetTranslate(const Vector3& translate) { transform_.translate = translate; }
 	void SetTransform(const Transform& transform) { transform_ = transform; }
 	void SetVelocity(const Vector3& velocity) { velocity_ = velocity; }
 
+	void SetEnvironmentTextureIndex(const uint32_t& srvIndex){ environmentTextureIndex_ = srvIndex; }
+	void SetEventBus(EventBus* eventBus) { eventBus_ = eventBus; }
+
 	void SetParent(WorldTransform* worldTransform);
+
+	void SetIsHPChanged(const int isHPChanged){ isHPChanged_ = isHPChanged; }
+
+	void SetEnemyID(EnemyID id) { enemyID_ = id; }
+	void SetHPGageDisplayType(EnemyHPGageDisplayType type) { hpGageDisplayType_ = type; }
+	void SetScreenBossPriority(int priority) { screenBossPriority_ = priority; }
 
 private:
 
-	// 入力ハンドル
+	// AI入力ハンドル
 	AIHandler handler_;
 
 	// 現在の状態
 	std::unique_ptr<IEnemyState> state_;
+
+	EnemyID enemyID_ = 0;
+
+	EnemyHPGageDisplayType hpGageDisplayType_ =
+		EnemyHPGageDisplayType::None;
+
+	int screenBossPriority_ = 0;
+
+	// イベント
+	EventBus* eventBus_ = nullptr;
 
 	float deltaTime_ = 0.0f;
 
@@ -98,6 +128,8 @@ private:
 
 	bool isDraw_ = true;
 
+	float bulletSpeed_ = 10.0f;
+
 	// HP
 	int hitPoint_;
 	// 最大HP
@@ -109,5 +141,5 @@ private:
 	// デスフラグ
 	bool isDead_ = false;
 
-	float bulletSpeed_ = 10.0f;
+	bool isHPChanged_ = false;
 };

@@ -21,6 +21,33 @@ void GameUIController::RegisterEvents()
             }
         )
     );
+
+    subscriptionIDs_.push_back(
+         eventBus_->Subscribe<EnemyAppierEvent>(
+             [this](const EnemyAppierEvent& event)
+             {
+                 OnEnemyAppier(event);
+             }
+         )
+    );
+
+    subscriptionIDs_.push_back(
+        eventBus_->Subscribe<EnemyScreenPositionEvent>(
+            [this](const EnemyScreenPositionEvent& event)
+            {
+                OnEnemyScreenPosition(event);
+            }
+        )
+    );
+
+    subscriptionIDs_.push_back(
+        eventBus_->Subscribe<EnemyHPChangeEvent>(
+            [this](const EnemyHPChangeEvent& event)
+            {
+                OnEnemyHPChanged(event);
+            }
+        )
+    );
 }
 
 void GameUIController::OnPlayerHPChanged(const PlayerHPChangeEvent& event)
@@ -28,4 +55,55 @@ void GameUIController::OnPlayerHPChanged(const PlayerHPChangeEvent& event)
 	viewModel_.playerHitPoint.currentHitPoint = event.currentHitPoint;
     viewModel_.playerHitPoint.previousHitPoint = event.previousHitPoint;
 	viewModel_.playerHitPoint.maxHitPoint = event.maxHitPoint;
+}
+
+void GameUIController::OnEnemyAppier(const EnemyAppierEvent& event)
+{
+    EnemyHPViewModel enemyHP{};
+
+    enemyHP.enemyID = event.enemyID;
+
+    enemyHP.hitPoint.currentHitPoint = event.currentHitPoint;
+    enemyHP.hitPoint.previousHitPoint = event.previousHitPoint;
+    enemyHP.hitPoint.maxHitPoint = event.maxHitPoint;
+
+    enemyHP.screenPosition = event.screenPosition;
+    enemyHP.isVisible = event.isVisible;
+
+    enemyHP.displayType = event.displayType;
+    enemyHP.screenBossPriority = event.screenBossPriority;
+
+    viewModel_.enemyHitPoints.push_back(enemyHP);
+}
+
+void GameUIController::OnEnemyScreenPosition(const EnemyScreenPositionEvent& event)
+{
+    for (auto& enemyHP : viewModel_.enemyHitPoints)
+    {
+        if (enemyHP.enemyID != event.enemyID)
+        {
+            continue;
+        }
+
+        enemyHP.screenPosition = event.screenPosition;
+        enemyHP.isVisible = event.isVisible;
+        return;
+    }
+}
+
+void GameUIController::OnEnemyHPChanged(const EnemyHPChangeEvent& event)
+{
+    for (auto& enemyHP : viewModel_.enemyHitPoints)
+    {
+        if (enemyHP.enemyID != event.enemyID)
+        {
+            continue;
+        }
+
+        enemyHP.hitPoint.currentHitPoint = event.currentHitPoint;
+        enemyHP.hitPoint.previousHitPoint = event.previousHitPoint;
+        enemyHP.hitPoint.maxHitPoint = event.maxHitPoint;
+
+        return;
+    }
 }

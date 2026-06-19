@@ -565,6 +565,9 @@
     <ClInclude Include="application\ui\GamePlayUIUtility.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
+    <ClInclude Include="application\object\enemy\EnemyEvent.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="resources\shaders\Object3d\Object3d.hlsli">

@@ -42,8 +42,6 @@ public: // Command対応
 	void MoveAvoid(const Vector3 direction, float speed);
 	void SetTargetRoll(const Vector3 rollRadian);
 
-	
-
 public:	//外部入出力
 
 	InputHandlerSelector* GetInputHandlerSelector() { return &selector_; }
