@@ -219,14 +219,8 @@ void GamePlayScene::Initialize()
 	soundManager_->SoundLoadFile("", "test.mp3");
 
 	eventBus_ = std::make_unique<EventBus>();
-	uiController_ =  std::make_unique<GameUIController>();
-	uiController_->Initialize(eventBus_.get());
-
-	uiManager_ = std::make_unique<UIManager>();
-	uiManager_->Initialize();
-	auto hpGageUI = std::make_unique<HPGageUI>();
-	hpGageUI->Initialize();
-	uiManager_->AddUI(std::move(hpGageUI));
+	sceneUI_ = std::make_unique<GamePlaySceneUI>();
+	sceneUI_->Initialize(eventBus_.get());
 
 	player_->SetEventBus(eventBus_.get());
 	player_->EventDispatch();
@@ -716,8 +710,7 @@ void GamePlayScene::Update(const float& deltaTime)
 
 
 	eventBus_->Dispatch();
-	uiController_->Update(deltaTime);
-	uiManager_->Update(uiController_->GetViewModel(), deltaTime);
+	sceneUI_->Update(deltaTime);
 
 	if (enemy_->GetIsDead())
 	{
@@ -801,8 +794,7 @@ void GamePlayScene::Draw()
 
 	}
 
-
-	uiManager_->DrawLayer(UILayer::World);
-	uiManager_->DrawLayer(UILayer::Screen);
-	uiManager_->DrawLayer(UILayer::Overlay);
+	sceneUI_->DrawLayer(UILayer::World);
+	sceneUI_->DrawLayer(UILayer::Screen);
+	sceneUI_->DrawLayer(UILayer::Overlay);
 }

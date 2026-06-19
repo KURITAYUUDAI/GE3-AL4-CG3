@@ -194,9 +194,11 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="application\object\enemy\EnemyState.cpp" />
     <ClCompile Include="application\command\EnemyCommand.cpp" />
     <ClCompile Include="Dict_Engine\ui\GameUIController.cpp" />
+    <ClCompile Include="Dict_Engine\ui\UIControllerBase.cpp" />
     <ClCompile Include="Dict_Engine\ui\UIManager.cpp" />
     <ClCompile Include="application\ui\HPGageUI.cpp" />
     <ClCompile Include="Dict_Engine\ui\EventBus.cpp" />
+    <ClCompile Include="application\ui\GamePlaySceneUI.cpp" />
     <ClCompile Include="main.cpp">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Development|x64'">MaxSpeed</Optimization>
       <WholeProgramOptimization Condition="'$(Configuration)|$(Platform)'=='Development|x64'">true</WholeProgramOptimization>
@@ -231,6 +233,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="Dict_Engine\math\Quaternion.cpp" />
     <ClCompile Include="Dict_Engine\ui\UIBase.cpp" />
     <ClCompile Include="Dict_Engine\io\ResourcePath.cpp" />
+    <ClCompile Include="Dict_Engine\ui\SceneUIBase.cpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="resources\shaders\DebugDraw\DebugDraw.GS.hlsl">
@@ -430,12 +433,15 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="application\object\enemy\EnemyState.h" />
     <ClInclude Include="application\command\EnemyCommand.h" />
     <ClInclude Include="Dict_Engine\ui\GameUIController.h" />
+    <ClInclude Include="Dict_Engine\ui\UIControllerBase.h" />
     <ClInclude Include="Dict_Engine\ui\UIManager.h" />
     <ClInclude Include="Dict_Engine\ui\UIBase.h" />
     <ClInclude Include="Dict_Engine\ui\UIUtility.h" />
     <ClInclude Include="application\ui\HPGageUI.h" />
     <ClInclude Include="Dict_Engine\io\ResourcePath.h" />
     <ClInclude Include="Dict_Engine\ui\EventBus.h" />
+    <ClInclude Include="Dict_Engine\ui\SceneUIBase.h" />
+    <ClInclude Include="application\ui\GamePlaySceneUI.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="externals\DirectXTex\DirectXTex_Desktop_2022_Win10.vcxproj">
