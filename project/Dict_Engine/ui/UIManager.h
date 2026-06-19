@@ -1,28 +1,73 @@
 #pragma once
 #include "UIBase.h"
+#include "UIUtility.h"
 #include <list>
 #include <memory>
 
+template<class ViewModelType>
 class UIManager
 {
 public:
+    void Initialize()
+    {}
 
-	void Initialize();
+    void Update(const ViewModelType& viewModel, const float& deltaTime)
+    {
+        if (!isVisible_)
+        {
+            return;
+        }
 
-	void Update(const GameUIViewModel& viewModel, const float& deltaTime);
+        for (auto& ui : uiList_)
+        {
+            if (!ui->GetIsVisible())
+            {
+                continue;
+            }
 
-	void DrawLayer(const UILayer& layer);
+            ui->Update(viewModel, deltaTime);
+        }
+    }
 
-	void AddUI(std::unique_ptr<UIBase> uiBase);
+    void DrawLayer(const UILayer& layer)
+    {
+        if (!isVisible_)
+        {
+            return;
+        }
 
-	void SetIsVisible(bool visible) { isVisible_ = visible; }
+        for (auto& ui : uiList_)
+        {
+            if (!ui->GetIsVisible())
+            {
+                continue;
+            }
 
-	bool GetIsVisible() const { return isVisible_; }
+            if (ui->GetLayer() != layer)
+            {
+                continue;
+            }
+
+            ui->Draw();
+        }
+    }
+
+    void AddUI(std::unique_ptr<UIBase<ViewModelType>> uiBase)
+    {
+        if (!uiBase)
+        {
+            return;
+        }
+
+        uiList_.push_back(std::move(uiBase));
+    }
+
+    void SetIsVisible(bool visible) { isVisible_ = visible; }
+
+    bool GetIsVisible() const { return isVisible_; }
 
 private:
-
-	bool isVisible_ = true;
-	std::list<std::unique_ptr<UIBase>> uiList_;
-
+    bool isVisible_ = true;
+    std::list<std::unique_ptr<UIBase<ViewModelType>>> uiList_;
 };
 

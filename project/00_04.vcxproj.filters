@@ -285,7 +285,7 @@
     <ClCompile Include="Dict_Engine\io\ResourcePath.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Dict_Engine\ui\GameUIController.cpp">
+    <ClCompile Include="application\ui\GameUIController.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="Dict_Engine\ui\EventBus.cpp">
@@ -544,7 +544,7 @@
     <ClInclude Include="Dict_Engine\io\ResourcePath.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Dict_Engine\ui\GameUIController.h">
+    <ClInclude Include="application\ui\GameUIController.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="Dict_Engine\ui\EventBus.h">
@@ -560,6 +560,9 @@
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="Dict_Engine\ui\UIControllerBase.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="application\ui\GamePlayUIUtility.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
   </ItemGroup>

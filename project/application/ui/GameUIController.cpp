@@ -1,18 +1,5 @@
 #include "GameUIController.h"
 
-void GameUIController::Initialize(EventBus* eventBus)
-{
-	eventBus_ = eventBus;
-
-	RegisterEvents();
-}
-
-void GameUIController::Finalize()
-{
-	UnregisterEvents();
-
-	eventBus_ = nullptr;
-}
 
 void GameUIController::Update(float deltaTime)
 {
@@ -34,21 +21,6 @@ void GameUIController::RegisterEvents()
             }
         )
     );
-}
-
-void GameUIController::UnregisterEvents()
-{
-    if (!eventBus_)
-    {
-        return;
-    }
-
-    for (auto id : subscriptionIDs_)
-    {
-        eventBus_->Unsubscribe(id);
-    }
-
-    subscriptionIDs_.clear();
 }
 
 void GameUIController::OnPlayerHPChanged(const PlayerHPChangeEvent& event)

@@ -1,28 +1,25 @@
 #pragma once
+#include "UIControllerBase.h"
 #include <vector>
 #include "EventBus.h"
 #include "UIUtility.h"
+#include "GamePlayUIUtility.h"
 #include "player/PlayerEvent.h"
 
-class GameUIController
+class GameUIController : public UIControllerBase
 {
 public:
-    void Initialize(EventBus* eventBus);
-    void Finalize();
-
-    void Update(float deltaTime);
+   
+    void Update(float deltaTime) override;
 
     const GameUIViewModel& GetViewModel() const { return viewModel_; }
 
 private:
-    void RegisterEvents();
-    void UnregisterEvents();
-
+    void RegisterEvents() override;
+   
     void OnPlayerHPChanged(const PlayerHPChangeEvent& event);
 
 private:
-    EventBus* eventBus_ = nullptr;
-    std::vector<EventBus::SubscriptionID> subscriptionIDs_;
 
     GameUIViewModel viewModel_;
 };

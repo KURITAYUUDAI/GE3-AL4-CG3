@@ -3,7 +3,7 @@
 
 void GamePlaySceneUI::Initialize(EventBus* eventBus)
 {
-    uiManager_ = std::make_unique<UIManager>();
+    uiManager_ = std::make_unique<UIManager<GameUIViewModel>>();
     uiManager_->Initialize();
 
     gameUIController_ = std::make_unique<GameUIController>();
@@ -31,4 +31,9 @@ void GamePlaySceneUI::Update(float deltaTime)
     gameUIController_->Update(deltaTime);
 
     uiManager_->Update(gameUIController_->GetViewModel(), deltaTime);
+}
+
+void GamePlaySceneUI::DrawLayer(const UILayer& layer)
+{
+    uiManager_->DrawLayer(layer);
 }

@@ -1,9 +1,9 @@
 #pragma once
-#include <memory>
 #include "UIBase.h"
+#include "GamePlayUIUtility.h"
 #include "Sprite.h"
 
-class HPGageUI : public UIBase
+class HPGageUI : public UIBase<GameUIViewModel>
 {
 public:
 
