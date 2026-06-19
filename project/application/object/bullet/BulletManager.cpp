@@ -121,8 +121,8 @@ void BulletManager::Initialize()
 
 	PSOManager::GetInstance()->RegisterPSOConfig(psoName_, config);
 
-	ModelManager::GetInstance()->LoadModel("playerBullet/playerBullet.obj");
-	ModelManager::GetInstance()->LoadModel("enemyBullet/enemyBullet.obj");
+	ModelManager::GetInstance()->LoadModel("playerBullet", "playerBullet.obj");
+	ModelManager::GetInstance()->LoadModel("enemyBullet", "enemyBullet.obj");
 }
 
 void BulletManager::Update(const float& deltaTime)
@@ -137,7 +137,7 @@ void BulletManager::Update(const float& deltaTime)
 	for (auto& bullet : bullets_)
 	{
 		// 弾の種類（Player / Enemy）を判定
-		std::string bulletType = (bullet->GetCollider()->GetAttribute() == CollisionAttribute::PlayerBullet ? "Player" : "Enemy");
+		std::string bulletType = (bullet->GetCollider()->GetAttribute() == static_cast<uint32_t>(CollisionAttribute::Player) ? "Player" : "Enemy");
 
 		// 折りたたみヘッダー（クリックで開閉）
 		std::string label = "Bullet [" + std::to_string(index) + "] (" + bulletType + ")";
@@ -201,7 +201,7 @@ void BulletManager::CreatePlayerBullet(const Vector3& position, const Vector3& v
 		return;
 	}
 	std::unique_ptr<Bullet> newBullet = std::make_unique<Bullet>();
-	newBullet->Initialize(position, velocity, Bullet::ID::kPlayer, "playerBullet/playerBullet.obj");
+	newBullet->Initialize(position, velocity, Bullet::ID::kPlayer, "playerBullet.obj");
 	bullets_.push_back(std::move(newBullet));
 
 	/*PlaySEShot();
@@ -216,7 +216,7 @@ void BulletManager::CreateEnemyBullet(const Vector3& position, const Vector3& ve
 		return;
 	}
 	std::unique_ptr<Bullet> newBullet = std::make_unique<Bullet>();
-	newBullet->Initialize(position, velocity, Bullet::ID::kEnemy, "enemyBullet/enemyBullet.obj");
+	newBullet->Initialize(position, velocity, Bullet::ID::kEnemy, "enemyBullet.obj");
 	bullets_.push_back(std::move(newBullet));
 
 	/*PlaySEShot();

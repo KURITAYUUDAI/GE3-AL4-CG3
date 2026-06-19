@@ -40,7 +40,8 @@ void CollisionManager::CheckAllCollisions()
             Collider* a = *itrA;
             Collider* b = *itrB;
 
-			if (!CanCheckCollision(a, b))
+			if ((a->GetAttribute() & b->GetMask()) == 0 ||
+				(b->GetAttribute() & a->GetMask()) == 0)
 			{
 				continue;
 			}
@@ -60,42 +61,3 @@ void CollisionManager::CheckAllCollisions()
     }
 }
 
-bool IsPair(
-		CollisionAttribute a,
-		CollisionAttribute b,
-		CollisionAttribute targetA,
-		CollisionAttribute targetB)
-{
-	return
-		(a == targetA && b == targetB) ||
-		(a == targetB && b == targetA);
-};
-
-bool CollisionManager::CanCheckCollision(Collider* a, Collider* b)
-{
-	CollisionAttribute attrA = a->GetAttribute();
-	CollisionAttribute attrB = b->GetAttribute();
-
-	if (IsPair(attrA, attrB, CollisionAttribute::PlayerBullet, CollisionAttribute::PlayerBullet))
-	{
-		return false;
-	}
-
-	if (IsPair(attrA, attrB, CollisionAttribute::EnemyBullet, CollisionAttribute::EnemyBullet))
-	{
-		return false;
-	}
-
-	if (IsPair(attrA, attrB, CollisionAttribute::Player, CollisionAttribute::PlayerBullet))
-	{
-		return false;
-	}
-
-	if (IsPair(attrA, attrB, CollisionAttribute::Enemy, CollisionAttribute::EnemyBullet))
-	{
-		return false;
-	}
-
-
-	return true;
-}

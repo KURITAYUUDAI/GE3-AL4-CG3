@@ -132,19 +132,6 @@ void SpriteManager::Finalize()
 	instance_.reset();
 }
 
-void SpriteManager::DrawingCommon()
-{
-	auto psoSet = PSOManager::GetInstance()->GetPSOData(psoName_, blendMode_, fillMode_);
-
-	// パイプラインステートとルートシグネチャをセット
-	DirectXBase::GetInstance()->GetCommandList()->SetPipelineState(psoSet.pipelineState.Get());
-	DirectXBase::GetInstance()->GetCommandList()->SetGraphicsRootSignature(psoSet.rootSignature.Get());
-
-	// 形状を設定。PS0に設定しているものとはまた別。同じものを設定すると考えておけば良い
-	dxBase_->GetCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
-}
-
 //void SpriteManager::CreateRootSignature(ID3DBlob* signatureBlob)
 //{
 //	HRESULT hr;

@@ -7,6 +7,7 @@
 #include "Model.h"
 #include "CameraManager.h"
 #include "Camera.h"
+#include "ResourcePath.h"
 
 std::unique_ptr<ParticleManager> ParticleManager::instance_ = nullptr;
 
@@ -272,7 +273,7 @@ void ParticleManager::CreateParticleGroup(const std::string name, const std::str
 	particleGroup.maxInstanceNum = 30;
 	
 	// テクスチャのファイルパスを設定
-	particleGroup.materialData.textureFilePath = textureFilePath;
+	particleGroup.materialData.textureFilePath = ResourcePath::MakeString(textureFilePath);
 	// テクスチャをロード
 	TextureManager::GetInstance()->LoadTexture(particleGroup.materialData.textureFilePath);
 	// テクスチャの内部番号を取得

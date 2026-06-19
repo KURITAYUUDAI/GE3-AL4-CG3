@@ -1,3 +1,4 @@
+#define NOMINMAX
 #include "Player.h"
 #include "Logger.h"
 #include "TextureManager.h"
@@ -5,6 +6,8 @@
 #include "InputManager.h"
 #include "BulletManager.h"
 #include "CameraManager.h"
+#include "DebugDrawManager.h"
+#include "PlayerEvent.h"
 
 void Player::Initialize()
 {
@@ -18,7 +21,7 @@ void Player::Initialize()
 	selector_.GetGamepadHandler()->AssignKey("shot", XINPUT_GAMEPAD_RIGHT_SHOULDER);
 	selector_.GetGamepadHandler()->AssignKey("avoid", XINPUT_GAMEPAD_X);
 
-	ModelManager::GetInstance()->LoadModel("sphere.obj");
+	ModelManager::GetInstance()->LoadModel("", "sphere.obj");
 
 	object3d_ = std::make_unique<Object3d>();
 	object3d_->Initialize();
@@ -28,6 +31,7 @@ void Player::Initialize()
 	collider_->SetOwner(this);
 	collider_->SetRadius(1.0f);
 	collider_->SetAttribute(CollisionAttribute::Player);
+	collider_->SetMask(CollisionAttribute::Player);
 
 	transform_.scale = { 1.0f, 1.0f, 1.0f };
 	transform_.rotate = { 0.0f, 0.0f, 0.0f };
@@ -36,6 +40,19 @@ void Player::Initialize()
 	hitPoint_ = kMaxHitPoint;
 
 	ChangeState(std::make_unique<PlayerIdleState>());
+}
+
+void Player::EventDispatch()
+{
+	eventBus_->Publish(PlayerHPChangeEvent
+		{
+			.currentHitPoint = hitPoint_,
+			.previousHitPoint = hitPoint_,
+			.maxHitPoint = kMaxHitPoint
+		}
+	);
+
+	eventBus_->Dispatch();
 }
 
 void Player::Update(const float& deltaTime)
@@ -141,6 +158,9 @@ void Player::Draw()
 			object3d_->Draw();
 		}
 	}
+
+	DebugDrawManager::GetInstance()->AddSphere(GetWorldPosition(),
+		collider_->GetRadius(), { 1.0f, 1.0f, 1.0f, 1.0f }, 8);
 }
 
 void Player::Finalize()
@@ -156,19 +176,47 @@ void Player::ChangeState(std::unique_ptr<IPlayerState> newState)
 
 void Player::OnCollision(Collider* self, Collider* other)
 {
-	if (other->GetAttribute() == CollisionAttribute::EnemyBullet)
+	if (damageTimer_ == 0.0f)
 	{
-		if (damageTimer_ == 0.0f)
-		{
-			hitPoint_--;
-			damageTimer_ = kDamageInvincible_;
-			//PlaySEHit();
-		}
-		if (hitPoint_ <= 0)
-		{
-			isDead_ = true;
-			//PlaySEDead();
-		}
+		Damage(1);
+		damageTimer_ = kDamageInvincible_;
+		//PlaySEHit();
+	}
+	if (hitPoint_ <= 0)
+	{
+		isDead_ = true;
+		//PlaySEDead();
+	}
+
+	/*if (other->GetAttribute() == static_cast<uint32_t>(CollisionAttribute::Enemy))
+	{
+		
+	}*/
+}
+
+void Player::Damage(int damage)
+{
+	const int previousHP = hitPoint_;
+
+	hitPoint_ -= damage;
+	if (hitPoint_ < 0)
+	{
+		hitPoint_ = 0;
+	}
+
+	if (hitPoint_ == previousHP)
+	{
+		return;
+	}
+	if (eventBus_)
+	{
+		eventBus_->Publish(PlayerHPChangeEvent
+			{
+				.currentHitPoint = hitPoint_,
+				.previousHitPoint = previousHP,
+				.maxHitPoint = kMaxHitPoint
+			}
+		);
 	}
 }
 

@@ -6,9 +6,9 @@
 void TitleScene::Initialize()
 {
 	// Textureを読んで転送する
-	textureManager_->LoadTexture("resources/uvChecker.png");
-	textureManager_->LoadTexture("resources/monsterBall.png");
-	textureManager_->LoadTexture("resources/title.png");
+	textureManager_->LoadTexture("uvChecker.png");
+	textureManager_->LoadTexture("monsterBall.png");
+	textureManager_->LoadTexture("title.png");
 
 	int textureIndex = 0;
 	const char* textureOptions[] = { "Checker", "monsterBall" };
@@ -40,20 +40,20 @@ void TitleScene::Initialize()
 	for (size_t i = 0; i < 1; i++)
 	{
 		std::unique_ptr<Sprite> newSprite = std::make_unique<Sprite>();
-		newSprite->Initialize("resources/uvChecker.png");
+		newSprite->Initialize("uvChecker.png");
 		newSprite->SetAnchorPoint(Vector2{ 0.5f, 0.5f });
 		sprites_.push_back(std::move(newSprite));
 	}
 
-	sprites_[0]->SetTexture("resources/title.png");
+	sprites_[0]->SetTexture("title.png");
 	sprites_[0]->SetPosition(Vector2{ 100.0f, 100.0f });
 	sprites_[0]->AdjustTextureSize();
 
 
 
-	ModelManager::GetInstance()->LoadModel("plane.obj");
-	ModelManager::GetInstance()->LoadModel("axis.obj");
-	ModelManager::GetInstance()->LoadModel("sphere.obj");
+	ModelManager::GetInstance()->LoadModel("", "plane.obj");
+	ModelManager::GetInstance()->LoadModel("", "axis.obj");
+	ModelManager::GetInstance()->LoadModel("", "sphere.obj");
 
 	for (size_t i = 0; i < 1; i++)
 	{
@@ -68,7 +68,7 @@ void TitleScene::Initialize()
 
 
 	particleManager_->SetModel("plane.obj");
-	particleManager_->CreateParticleGroup("circle", "resources/circle.png");
+	particleManager_->CreateParticleGroup("circle", "circle.png");
 
 
 	AABB  aabb;
@@ -87,8 +87,8 @@ void TitleScene::Initialize()
 
 	// シーン初期化終わり
 
-	SoundManager::GetInstance()->SoundLoadFile("Resources/Alarm01.wav");
-	SoundManager::GetInstance()->SoundLoadFile("Resources/test.mp3");
+	SoundManager::GetInstance()->SoundLoadFile("", "Alarm01.wav");
+	SoundManager::GetInstance()->SoundLoadFile("", "test.mp3");
 
 }
 
@@ -277,8 +277,6 @@ void TitleScene::Draw()
 
 	if (isDrawSprite_)
 	{
-		spriteManager_->DrawingCommon();
-
 		for (size_t i = 0; i < sprites_.size(); i++)
 		{
 			sprites_[i]->Draw();
@@ -289,11 +287,11 @@ void TitleScene::Draw()
 
 	if (inputManager_->TriggerKey(DIK_0))
 	{
-		SoundManager::GetInstance()->SoundPlayWave("Resources/Alarm01.wav");
+		SoundManager::GetInstance()->SoundPlayWave("Alarm01.wav");
 	}
 	if (inputManager_->TriggerKey(DIK_1))
 	{
-		SoundManager::GetInstance()->SoundPlayWave("Resources/test.mp3");
+		SoundManager::GetInstance()->SoundPlayWave("test.mp3");
 
 	}
 }

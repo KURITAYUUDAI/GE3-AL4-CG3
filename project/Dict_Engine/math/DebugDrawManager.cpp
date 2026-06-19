@@ -213,15 +213,17 @@ void DebugDrawManager::AddLoopSpline(const std::vector<Vector3>& controlPoints, 
 	}
 }
 
-void DebugDrawManager::AddSphere(const Vector3& center, float radius, const Vector4& color, uint32_t segments)
+void DebugDrawManager::AddSphere(const Vector3& center, float radius, const Vector4& color, 
+	uint32_t lat, uint32_t lon)
 {
 	// 最低限の分割数を保証（小さすぎると立体にならないため）
-	if (segments < 3) segments = 3;
+	if (lat < 3) lat = 3;
+	if (lon < 3) lon = 3;
 
 	// 仰角（緯度）のステップ数: 北極から南極まで (0 ～ PI)
-	uint32_t latSegments = segments;
+	uint32_t latSegments = lat;
 	// 方位角（経度）のステップ数: 360度周回 (0 ～ 2*PI)
-	uint32_t lonSegments = segments * 2; // 経度方向を多めにすると、より均等な格子になります
+	uint32_t lonSegments = lon * 2; // 経度方向を多めにすると、より均等な格子になります
 
 	const float PI = 3.14159265f;
 	float latStep = PI / latSegments;

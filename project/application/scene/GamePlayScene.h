@@ -15,6 +15,8 @@
 #include "Player.h"
 #include "Enemy/Enemy.h"
 
+#include "EventBus.h"
+#include "GamePlaySceneUI.h"
 
 class GamePlayScene : public BaseScene
 {
@@ -102,14 +104,14 @@ private:
 
 	std::unique_ptr<Enemy> enemy_ = nullptr;
 
-	std::unique_ptr<ParticleEmitter> slashEmitter = nullptr;
+	std::unique_ptr<ParticleEmitter> slashEmitter_ = nullptr;
 
-	std::unique_ptr<ParticleEmitter> ringEmitter = nullptr;
+	std::unique_ptr<ParticleEmitter> ringEmitter_ = nullptr;
 
-	std::unique_ptr<ParticleEmitter> cylinderEmitter = nullptr;
+	std::unique_ptr<ParticleEmitter> cylinderEmitter_ = nullptr;
 
+	std::unique_ptr<EventBus> eventBus_;
 
-	
-
+	std::unique_ptr<GamePlaySceneUI> sceneUI_;
 };
 

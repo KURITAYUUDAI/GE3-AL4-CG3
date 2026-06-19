@@ -2,6 +2,7 @@
 #include "DirectXBase.h"
 #include "StringUtility.h"
 #include "SrvManager.h"
+#include "ResourcePath.h"
 
 std::unique_ptr<TextureManager> TextureManager::instance_ = nullptr;
 
@@ -44,11 +45,12 @@ void TextureManager::LoadTexture(const std::string& filePath)
 
 	// テクスチャファイルを呼んでプログラムで扱えるようにする
 	DirectX::ScratchImage image{};
-	std::wstring filePathW = StringUtility::ConvertString(filePath);
+	std::string fullPath = ResourcePath::MakeString(filePath);
+	std::wstring filePathW = StringUtility::ConvertString(fullPath);
 	// DirectX::WIC_FLAGS_FORCE_SRGB : sRGB空間で作られたモノとして読む。
 	HRESULT hr;
 
-	OutputDebugStringA(("LoadTexture: " + filePath + "\n").c_str());
+	OutputDebugStringA(("LoadTexture: " + fullPath + "\n").c_str());
 	
 	if (filePathW.ends_with(L".dds"))	// .ddsで終わって居たらddsとみなす。より安全な方法はいくらでもあるので余裕があれば対応するといい
 	{
@@ -62,21 +64,39 @@ void TextureManager::LoadTexture(const std::string& filePath)
 
 	// ミップマップの作成　（MipMap : 元画像より小さなテクスチャ群）
 	DirectX::ScratchImage mipImages{};
-	if (DirectX::IsCompressed(image.GetMetadata().format))	// 圧縮フォーマット化どうかを調べる
+
+	const DirectX::TexMetadata metadata = image.GetMetadata();
+
+	if (DirectX::IsCompressed(metadata.format) ||
+		metadata.width <= 1 ||
+		metadata.height <= 1)
 	{
-		mipImages = std::move(image); // 圧縮フォーマットならそのまま使うのでmoveする
-	}
+		mipImages = std::move(image);
+	} 
 	else
 	{
-		hr = DirectX::GenerateMipMaps(image.GetImages(), image.GetImageCount(), image.GetMetadata(), DirectX::TEX_FILTER_SRGB, 4, mipImages);
+		hr = DirectX::GenerateMipMaps(
+			image.GetImages(),
+			image.GetImageCount(),
+			metadata,
+			DirectX::TEX_FILTER_SRGB,
+			4,
+			mipImages
+		);
+		assert(SUCCEEDED(hr));
 	}
-
-	assert(SUCCEEDED(hr));
 	
 	// テクスチャデータを追加して書き込む
 	TextureData& textureData = textureDatas_[filePath];
 
 	textureData.metadata = mipImages.GetMetadata();
+
+	assert(textureData.metadata.width > 0);
+	assert(textureData.metadata.height > 0);
+	assert(textureData.metadata.arraySize > 0);
+	assert(mipImages.GetImageCount() > 0);
+
+
 	textureData.resource = DirectXBase::GetInstance()->CreateTextureResource(textureData.metadata);
 
 	textureData.srvIndex = SrvManager::GetInstance()->AllocateSRVIndex();
@@ -103,7 +123,6 @@ D3D12_GPU_DESCRIPTOR_HANDLE TextureManager::GetSRVHandleGPU(const std::string& f
 {
 	//// 範囲外指定違反チェック
 	//assert(textureIndex < textureDatas_.size());
-
 	TextureData& textureData = textureDatas_[filePath];
 
 	return textureData.srvHandleGPU;

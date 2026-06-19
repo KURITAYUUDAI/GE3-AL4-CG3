@@ -4,6 +4,7 @@
 #include "ModelManager.h"
 #include "CameraManager.h"
 #include "Model.h"
+#include "DebugDrawManager.h"
 
 //void Bullet::Initialize(Model* model, const Camera* camera, const Vector3& position,
 //	const Vector3& velocity, const ID& id)
@@ -36,14 +37,24 @@ void Bullet::Initialize(const Vector3& position, const Vector3& velocity, const 
 
 	collider_ = std::make_unique<Collider>();
 	collider_->SetOwner(this);
-	collider_->SetRadius(1.0f);
+	collider_->SetRadius(0.4f);
 	if (id == ID::kPlayer)
 	{
-		collider_->SetAttribute(CollisionAttribute::PlayerBullet);
+		collider_->SetAttribute(CollisionAttribute::PlayerAttack);
+		uint32_t mask = 
+			( uint32_t(CollisionAttribute::Player) 
+			| uint32_t(CollisionAttribute::PlayerAttack) 
+			| uint32_t(CollisionAttribute::EnemyAttack));
+		collider_->SetMask(~mask);
 	}
 	else
 	{
-		collider_->SetAttribute(CollisionAttribute::EnemyBullet);
+		collider_->SetAttribute(CollisionAttribute::EnemyAttack);
+		uint32_t mask =
+			( uint32_t(CollisionAttribute::Enemy)
+			| uint32_t(CollisionAttribute::EnemyAttack)
+			| uint32_t(CollisionAttribute::PlayerAttack));
+		collider_->SetMask(~mask);
 	}
 
 	transform_.scale = { 1.0f, 1.0f, 1.0f };
@@ -77,6 +88,9 @@ void Bullet::Update(const float& deltaTime)
 void Bullet::Draw()
 {
 	object3d_->Draw();
+
+	DebugDrawManager::GetInstance()->AddSphere(GetWorldPosition(),
+		collider_->GetRadius(), { 0.0f, 0.0f, 0.0f, 1.0f }, 6);
 }
 
 void Bullet::Finalize()
@@ -86,21 +100,24 @@ void Bullet::Finalize()
 
 void Bullet::OnCollision(Collider* self, Collider* other)
 {
-	if (self->GetAttribute() == CollisionAttribute::PlayerBullet 
-		&& other->GetAttribute() == CollisionAttribute::Enemy)
-	{
-		// 弾を消す
-		isDead_ = true;
-		return;
-	}
-	
-	if (self->GetAttribute() == CollisionAttribute::EnemyBullet
-		&& other->GetAttribute() == CollisionAttribute::Player)
-	{
-		// 弾を消す
-		isDead_ = true;
-		return;
-	}
+	isDead_ = true;
+	return;
+
+	//if (self->GetAttribute() == static_cast<uint32_t>(CollisionAttribute::PlayerAttack) 
+	//	&& other->GetAttribute() == static_cast<uint32_t>(CollisionAttribute::Enemy))
+	//{
+	//	// 弾を消す
+	//	isDead_ = true;
+	//	return;
+	//}
+	//
+	//if (self->GetAttribute() == static_cast<uint32_t>(CollisionAttribute::EnemyAttack)
+	//	&& other->GetAttribute() == static_cast<uint32_t>(CollisionAttribute::Player))
+	//{
+	//	// 弾を消す
+	//	isDead_ = true;
+	//	return;
+	//}
 
 }
 

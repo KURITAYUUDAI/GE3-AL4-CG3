@@ -39,7 +39,6 @@ public:
 	void AddCollider(Collider* collider);
 	void Clear();
 	void CheckAllCollisions();
-	bool CanCheckCollision(Collider* a, Collider* b);
 
 private:
 	std::list<Collider*> colliders_;

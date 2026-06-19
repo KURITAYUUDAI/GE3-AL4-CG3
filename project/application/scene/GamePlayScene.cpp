@@ -7,6 +7,7 @@
 #include "GaussianBlur.h"
 #include "BulletManager.h"
 #include "SplineCurve.h"
+#include "HPGageUI.h"
 
 void GamePlayScene::Initialize()
 {
@@ -14,9 +15,9 @@ void GamePlayScene::Initialize()
 	camera_->Initialize();
 
 	// Textureを読んで転送する
-	textureManager_->LoadTexture("resources/uvChecker.png");
-	textureManager_->LoadTexture("resources/monsterBall.png");
-	textureManager_->LoadTexture("resources/rostock_laage_airport_4k.dds");
+	textureManager_->LoadTexture("uvChecker.png");
+	textureManager_->LoadTexture("monsterBall.png");
+	textureManager_->LoadTexture("rostock_laage_airport_4k.dds");
 
 	int textureIndex = 0;
 	const char* textureOptions[] = { "Checker", "monsterBall" };
@@ -73,19 +74,19 @@ void GamePlayScene::Initialize()
 	for (size_t i = 0; i < 1; i++)
 	{
 		std::unique_ptr<Sprite> newSprite = std::make_unique<Sprite>();
-		newSprite->Initialize("resources/uvChecker.png");
+		newSprite->Initialize("uvChecker.png");
 		newSprite->SetAnchorPoint(Vector2{ 0.5f, 0.5f });
 		sprites_.push_back(std::move(newSprite));
 	}
 
-	sprites_[0]->SetTexture("resources/monsterBall.png");
+	sprites_[0]->SetTexture("monsterBall.png");
 	sprites_[0]->SetPosition(Vector2{ 100.0f, 100.0f });
 	sprites_[0]->AdjustTextureSize();
 
-	modelManager_->LoadModel("plane.obj");
-	modelManager_->LoadModel("axis.obj");
-	modelManager_->LoadModel("sphere.obj");
-	modelManager_->LoadModel("multiMaterial.obj");
+	modelManager_->LoadModel("", "plane.obj");
+	modelManager_->LoadModel("", "axis.obj");
+	modelManager_->LoadModel("", "sphere.obj");
+	modelManager_->LoadModel("", "multiMaterial.obj");
 
 	for (size_t i = 0; i < 1; i++)
 	{
@@ -97,10 +98,10 @@ void GamePlayScene::Initialize()
 
 	object3ds_[0]->SetModel("sphere.obj");
 
-	/*particleManager_->CreateParticleGroup("circle", "resources/circle.png");
+	/*particleManager_->CreateParticleGroup("circle", "circle.png");
 	particleManager_->SetModel("circle", "plane.obj");
 	particleManager_->SetIsMoveAccelerationField("circle", true);*/
-	particleManager_->CreateParticleGroup("slash", "resources/circle2.png");
+	particleManager_->CreateParticleGroup("slash", "circle2.png");
 	particleManager_->SetModel("slash", "plane.obj");
 	particleManager_->SetIsMoveAccelerationField("slash", false);
 
@@ -125,7 +126,7 @@ void GamePlayScene::Initialize()
 	ringConfig.alphaFade.endFadeRange = 0.15f;
 	PrimitiveManager::GetInstance()->CreateRing("ring_primitive", ringConfig);
 	
-	particleManager_->CreateParticleGroup("ring", "resources/gradationLine.png");
+	particleManager_->CreateParticleGroup("ring", "gradationLine.png");
 	particleManager_->SetModel("ring", "ring_primitive");
 	particleManager_->SetIsMoveAccelerationField("ring", false);
 	particleManager_->SetIsBillboard("ring", false);
@@ -155,7 +156,7 @@ void GamePlayScene::Initialize()
 	cylinderConfig.alphaFade.endFadeRange = 0.15f;
 	PrimitiveManager::GetInstance()->CreateCylinder("cylinder_primitive", cylinderConfig);
 
-	particleManager_->CreateParticleGroup("cylinder", "resources/uvChecker.png");
+	particleManager_->CreateParticleGroup("cylinder", "uvChecker.png");
 	particleManager_->SetModel("cylinder", "cylinder_primitive");
 	particleManager_->SetIsMoveAccelerationField("cylinder", false);
 	particleManager_->SetIsBillboard("cylinder", false);
@@ -193,16 +194,16 @@ void GamePlayScene::Initialize()
 
 	BulletManager::GetInstance()->Initialize();
 
-	slashEmitter = std::make_unique<ParticleEmitter>();
-	slashEmitter->Initialize("slash", 
+	slashEmitter_ = std::make_unique<ParticleEmitter>();
+	slashEmitter_->Initialize("slash", 
 		{ {1.0f, 1.0f, 1.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f} }, 3, 0.2f);
 
-	ringEmitter = std::make_unique<ParticleEmitter>();
-	ringEmitter->Initialize("ring", 
+	ringEmitter_ = std::make_unique<ParticleEmitter>();
+	ringEmitter_->Initialize("ring", 
 		{ {1.0f, 2.0f, 1.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f} }, 1, 0.2f);
 
-	cylinderEmitter = std::make_unique<ParticleEmitter>();
-	cylinderEmitter->Initialize("cylinder",
+	cylinderEmitter_ = std::make_unique<ParticleEmitter>();
+	cylinderEmitter_->Initialize("cylinder",
 		{ {1.0f, 0.0f, 1.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f} }, 1, 0.2f);
 
 	PostEffectManager::GetInstance()->Clear();
@@ -214,11 +215,17 @@ void GamePlayScene::Initialize()
 
 	// シーン初期化終わり
 
-	soundManager_->SoundLoadFile("Resources/Alarm01.wav");
-	soundManager_->SoundLoadFile("Resources/test.mp3");
+	soundManager_->SoundLoadFile("", "Alarm01.wav");
+	soundManager_->SoundLoadFile("", "test.mp3");
 
-	
+	eventBus_ = std::make_unique<EventBus>();
+	sceneUI_ = std::make_unique<GamePlaySceneUI>();
+	sceneUI_->Initialize(eventBus_.get());
 
+	player_->SetEventBus(eventBus_.get());
+	player_->EventDispatch();
+
+	eventBus_->Dispatch();
 }
 
 void GamePlayScene::Finalize()
@@ -403,11 +410,11 @@ void GamePlayScene::Update(const float& deltaTime)
 	//		ImGui::TableSetColumnIndex(5);
 	//		if (ImGui::SmallButton("UV"))
 	//		{
-	//			sprite->SetTexture("resources/uvChecker.png");
+	//			sprite->SetTexture("uvChecker.png");
 	//		}
 	//		if (ImGui::SmallButton("MB"))
 	//		{
-	//			sprite->SetTexture("resources/monsterBall.png");
+	//			sprite->SetTexture("monsterBall.png");
 	//		}
 	//		bool isFlipXSprite = sprite->GetIsFlipX();
 	//		if (ImGui::Checkbox("FlipX", &isFlipXSprite))
@@ -441,7 +448,7 @@ void GamePlayScene::Update(const float& deltaTime)
 	//	if (ImGui::SmallButton("Add##del"))
 	//	{
 	//		Sprite* sprite = new Sprite();
-	//		sprite->Initialize(spriteBase, "resources/uvChecker.png");
+	//		sprite->Initialize(spriteBase, "uvChecker.png");
 	//		sprites.push_back(sprite);
 	//	}
 	//}
@@ -675,17 +682,17 @@ void GamePlayScene::Update(const float& deltaTime)
 
 	if (inputManager_->TriggerKey(DIK_0))
 	{
-		slashEmitter->EmitSlash();
+		slashEmitter_->EmitSlash();
 	}
 
 	if (inputManager_->TriggerKey(DIK_1))
 	{
-		ringEmitter->Emit();
+		ringEmitter_->Emit();
 	}
 
 	if (inputManager_->TriggerKey(DIK_2))
 	{
-		cylinderEmitter->Emit();
+		cylinderEmitter_->Emit();
 	}
 
 
@@ -701,10 +708,9 @@ void GamePlayScene::Update(const float& deltaTime)
 	//// ImGuiの内部コマンドを生成する
 	//ImGui::Render();
 
-	debugManager_->AddBox(player_->GetWorldPosition(), 
-		{ 2.0f, 2.0f, 2.0f }, { 1.0f, 1.0f, 1.0f, 1.0f });
-	debugManager_->AddBox(enemy_->GetWorldPosition(),
-		{ 2.0f, 2.0f, 2.0f }, { 1.0f, 0.0f, 1.0f, 1.0f });
+
+	eventBus_->Dispatch();
+	sceneUI_->Update(deltaTime);
 
 	if (enemy_->GetIsDead())
 	{
@@ -767,8 +773,6 @@ void GamePlayScene::Draw()
 
 	if (isDrawSprite_)
 	{
-		spriteManager_->DrawingCommon();
-
 		for (size_t i = 0; i < sprites_.size(); i++)
 		{
 			sprites_[i]->Draw();
@@ -782,11 +786,15 @@ void GamePlayScene::Draw()
 
 	if (inputManager_->TriggerKey(DIK_0))
 	{
-		soundManager_->SoundPlayWave("Resources/Alarm01.wav");
+		soundManager_->SoundPlayWave("Alarm01.wav");
 	}
 	if (inputManager_->TriggerKey(DIK_1))
 	{
-		soundManager_->SoundPlayWave("Resources/test.mp3");
+		soundManager_->SoundPlayWave("test.mp3");
 
 	}
+
+	sceneUI_->DrawLayer(UILayer::World);
+	sceneUI_->DrawLayer(UILayer::Screen);
+	sceneUI_->DrawLayer(UILayer::Overlay);
 }

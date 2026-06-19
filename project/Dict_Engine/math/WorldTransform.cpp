@@ -81,7 +81,7 @@ void WorldTransform::SetRotateQuat(const Quaternion& rotateQuat)
 void WorldTransform::CreateTransformationMatrixResource()
 {
 	// 座標変換行列リソースを作成する。Matrix4x4 1つ分のサイズを用意する
-	transformationMatrixResource_ = DirectXBase::GetInstance()->CreateBufferResource(sizeof(TransformationMatrix));
+	transformationMatrixResource_ = DirectXBase::GetInstance()->CreateConstantBufferResource(sizeof(TransformationMatrix));
 	// TransformationMatrixResourceにデータを書き込むためのアドレスを取得してTransformationMatrixDataに割り当てる
 	transformationMatrixResource_->Map(0, nullptr, reinterpret_cast<void**>(&transformationMatrixData_));
 
