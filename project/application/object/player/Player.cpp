@@ -160,6 +160,13 @@ void Player::Update(const float& deltaTime)
 		}
 	);
 
+	eventBus_->Publish(PlayerLockOnEvent
+		{
+			.isLockOn = isLockOnHeld_,
+		}
+	);
+
+
 	if (damageTimer_ > 0.0f)
 	{
 		damageTimer_ -= kDeltaTime;

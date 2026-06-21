@@ -19,6 +19,7 @@ public:
 private:
     void SyncScreenBossHPGage();
     void SyncOverHeadEnemyHPGages();
+    void SyncLockOnUI();
 
     const EnemyHPViewModel* FindScreenBossTarget() const;
 
@@ -31,5 +32,6 @@ private:
     EnemyID screenBossEnemyID_ = 0;
 
     std::unordered_map<EnemyID, UIID> overHeadHPGageUIIDs_;
+    UIID lockOnUIID_ = kInvalidUIID;
 };
 
