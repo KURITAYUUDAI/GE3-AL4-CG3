@@ -12,6 +12,11 @@ struct PlayerWorldPositionEvent
 	Vector3 worldPosition{};
 };
 
+struct PlayerLockOnEvent
+{
+	bool isLockOn;
+};
+
 //struct PlayerRockOnEvent
 //{
 //	EnemyID enemyID;

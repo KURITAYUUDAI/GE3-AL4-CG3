@@ -23,6 +23,9 @@ private:
     void OnEnemyScreenPosition(const EnemyScreenPositionEvent& event);
     void OnEnemyHPChanged(const EnemyHPChangeEvent& event);
 
+    void OnNearestEnemyInfo(const NearestEnemyInfoEvent& event);
+    void OnPlayerLockOn(const PlayerLockOnEvent& event);
+
 private:
 
     GameUIViewModel viewModel_;

@@ -37,6 +37,19 @@ void GameUIController::RegisterEvents()
             OnEnemyHPChanged(event);
         }
     );
+
+    eventSubscriber_.Subscribe<NearestEnemyInfoEvent>(
+        [this](const NearestEnemyInfoEvent& event)
+        {
+            OnNearestEnemyInfo(event);
+        }
+    );
+
+    eventSubscriber_.Subscribe<PlayerLockOnEvent>(
+        [this](const PlayerLockOnEvent& event){
+            OnPlayerLockOn(event);
+        }
+    );
 }
 
 void GameUIController::OnPlayerHPChanged(const PlayerHPChangeEvent& event)
@@ -95,4 +108,14 @@ void GameUIController::OnEnemyHPChanged(const EnemyHPChangeEvent& event)
 
         return;
     }
+}
+
+void GameUIController::OnNearestEnemyInfo(const NearestEnemyInfoEvent& event)
+{
+    viewModel_.targetEnemyWorldPosition = event.worldPosition;
+}
+
+void GameUIController::OnPlayerLockOn(const PlayerLockOnEvent& event)
+{
+    viewModel_.isLockOn = event.isLockOn;
 }

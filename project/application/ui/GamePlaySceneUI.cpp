@@ -1,5 +1,8 @@
 #include "GamePlaySceneUI.h"
 #include "HPGageUI.h"
+#include "LockOnUI.h"
+#include "DirectXBase.h"
+#include "CameraManager.h"
 
 void GamePlaySceneUI::Initialize(EventBus* eventBus)
 {
@@ -31,6 +34,9 @@ void GamePlaySceneUI::Initialize(EventBus* eventBus)
     playerHPGage->Initialize();
 
     uiManager_->AddUI(std::move(playerHPGage));
+
+   /* auto lockOn = std::make_unique<LockOnUI>();*/
+    
 
     /*auto enemyHPGage = std::make_unique<HPGageUI>();
     HPGageUIConfig enemyConfig{};
@@ -73,6 +79,7 @@ void GamePlaySceneUI::Update(float deltaTime)
 
     SyncScreenBossHPGage();
     SyncOverHeadEnemyHPGages();
+    SyncLockOnUI();
 
     uiManager_->Update(gameUIController_->GetViewModel(), deltaTime);
 }
@@ -254,6 +261,59 @@ void GamePlaySceneUI::SyncOverHeadEnemyHPGages()
             ++it;
         }
     }
+}
+
+void GamePlaySceneUI::SyncLockOnUI()
+{
+    const GameUIViewModel& viewModel = gameUIController_->GetViewModel();
+
+    // 1. ロックオンしていない場合
+    if (!viewModel.isLockOn)
+    {
+        // すでにUIが存在するなら削除する
+        if (lockOnUIID_ != kInvalidUIID)
+        {
+            uiManager_->RemoveUI(lockOnUIID_);
+            lockOnUIID_ = kInvalidUIID; // 無効値に戻す
+        }
+        return;
+    }
+
+    // 2. ロックオン中、かつすでにUIが生成されている場合は何もしない
+    if (lockOnUIID_ != kInvalidUIID)
+    {
+        return;
+    }
+
+    // 3. ロックオン中、かつUIがまだ未生成の場合のみ作成して Add する
+
+    auto lockOnUI = std::make_unique<LockOnUI>();
+
+    // 座標取得用ラムダの登録
+    lockOnUI->SetPositionGetter(
+        [](const GameUIViewModel& viewModel) -> Vector2
+        {
+            Matrix4x4 vpMatrix = CameraManager::GetInstance()->GetMainCamera()->GetViewProjectionMatrix();
+            Matrix4x4 viewport = DirectXBase::GetInstance()->GetViewportMatrix();
+            Matrix4x4 screenMatrix = vpMatrix * viewport;
+
+            // スクリーン座標を入れる変数
+            Vector3 screenPos = TransformPosition(viewModel.targetEnemyWorldPosition, screenMatrix);
+            return { screenPos.x, screenPos.y };
+        }
+    );
+
+    // 表示フラグ取得用ラムダの登録
+    lockOnUI->SetVisibilityGetter(
+        [](const GameUIViewModel& viewModel) -> bool
+        {
+           return viewModel.isLockOn;
+        }
+    );
+
+    lockOnUI->Initialize();
+
+    lockOnUIID_ = uiManager_->AddUI(std::move(lockOnUI));
 }
 
 const EnemyHPViewModel* GamePlaySceneUI::FindScreenBossTarget() const
