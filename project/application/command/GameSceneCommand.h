@@ -3,6 +3,8 @@
 
 class Player;
 
+class EnemyManager;
+
 class IInputHandler;
 
 class IPlayerCommand

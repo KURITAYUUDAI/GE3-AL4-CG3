@@ -11,7 +11,8 @@ class IInputHandler
 	public:
 	virtual ~IInputHandler() = default;
 	virtual Vector2 GetDirection() = 0;
-	virtual bool IsActionPressed(const std::string& actionName) { return false; }
+    virtual bool IsActionPressed(const std::string& actionName) { return false; }
+	virtual bool IsActionTriggerd(const std::string& actionName) { return false; }
 };
 
 class KeyboardInputHandler : public IInputHandler
@@ -19,7 +20,8 @@ class KeyboardInputHandler : public IInputHandler
 public:
     void AssignKey(const std::string& actionName, int keyCode);
     Vector2 GetDirection() override;
-	bool IsActionPressed(const std::string& actionName) override;
+    bool IsActionPressed(const std::string& actionName) override;
+	bool IsActionTriggerd(const std::string& actionName) override;
 
 private:
 
@@ -34,7 +36,8 @@ public:
 
     void AssignKey(const std::string& actionName, int buttonCode);
     Vector2 GetDirection() override;
-	bool IsActionPressed(const std::string& actionName) override;
+    bool IsActionPressed(const std::string& actionName) override;
+	bool IsActionTriggerd(const std::string& actionName) override;
 
 private:
     std::unordered_map<std::string, int> buttonBindings_;

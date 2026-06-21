@@ -10,6 +10,7 @@
 #include "collision/CollisionObserver.h"
 #include "collision/Collider.h"
 
+#include "enemy/EnemyUtility.h"
 #include "EventBus.h"
 
 class Player : public ICollisionObserver
@@ -30,10 +31,15 @@ public:
 
 	void Damage(int damage);
 
+	void UpdateLockOn();              // 追加: 最近接の敵を探して保持する
+	void ClearLockOn() { lockOnEnemyID_ = 0; }
+	EnemyID GetLockOnEnemyID() const { return lockOnEnemyID_; } // 追加
+
 public:	// Command
 
 	void MoveHorizontal(const float& directionX, const float& directionY);
 	void Decelerate();
+	void LockOn();
 	void Shot();
 	void Avoid(const Vector2& direction);
 
@@ -86,6 +92,8 @@ private:
 
 	// イベント
 	EventBus* eventBus_ = nullptr;
+	EventSubscriber eventSubscriber_;
+
 	
 	float deltaTime_ = 0.0f;
 
@@ -122,4 +130,11 @@ private:
 	bool isDead_ = false;
 
 	bool isHPChanged_ = false;
+
+	EnemyID cachedNearestEnemyID_ = 0;
+	Vector3 cachedNearestEnemyPosition_{};
+	bool hasNearestEnemy_ = false;
+
+	bool isLockOnHeld_ = false;
+	EnemyID lockOnEnemyID_ = 0;
 };

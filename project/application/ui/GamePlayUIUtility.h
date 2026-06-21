@@ -2,8 +2,7 @@
 #include <cstdint>
 #include <vector>
 #include "myMath.h"
-
-using EnemyID = std::uint32_t;
+#include "enemy/EnemyUtility.h"
 
 struct HPViewModel
 {
@@ -43,6 +42,7 @@ struct EnemyHPViewModel
     HPViewModel hitPoint;
 
     Vector2 screenPosition{};
+    Vector3 worldPosition{};
     bool isVisible = true;
 
     EnemyHPGageDisplayType displayType = EnemyHPGageDisplayType::None;
@@ -54,7 +54,10 @@ struct GameUIViewModel
 {
     HPViewModel playerHitPoint;
 
-    HPViewModel bossHitPoint;
+    Vector3 playerWorldPosition;
 
     std::vector<EnemyHPViewModel> enemyHitPoints;
+
+
+
 };

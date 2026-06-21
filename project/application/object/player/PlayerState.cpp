@@ -16,14 +16,16 @@ void PlayerIdleState::Update(Player * player, const float& deltaTime)
 	IInputHandler* handler = player->GetInputHandlerSelector()->GetHandler();
 
 	moveCommand_->Execute(player);
-	if (handler->IsActionPressed("shot"))
+	
+	if (handler->IsActionTriggerd("shot"))
 	{
 		shotCommand_->Execute(player);
+		return; // ★ 追加: Shot()内部でChangeStateされる
 	}
-
-	if (handler->IsActionPressed("avoid"))
+	if (handler->IsActionTriggerd("avoid"))
 	{
 		avoidCommand_->Execute(player);
+		return; // ★ 追加: Avoid()内部でChangeStateされる
 	}
 }
 
@@ -45,11 +47,14 @@ void PlayerShotState::Initialize(Player* player)
 
 void PlayerShotState::Update(Player* player, const float& deltaTime)
 {
+	IInputHandler* handler = player->GetInputHandlerSelector()->GetHandler();
+
 	moveCommand_->Execute(player);
 
 	timer_ += deltaTime;
 	if (timer_ >= duration_)
 	{
+		player->ClearLockOn();
 		player->ChangeState(std::make_unique<PlayerIdleState>());
 	}
 }
@@ -104,6 +109,8 @@ void PlayerAvoidState::Initialize(Player* player)
 
 void PlayerAvoidState::Update(Player* player, const float& deltaTime)
 {
+	IInputHandler* handler = player->GetInputHandlerSelector()->GetHandler();
+
 	timer_ += deltaTime;
 
 	float progress = timer_ / duration_;
@@ -139,7 +146,10 @@ void PlayerAvoidState::Update(Player* player, const float& deltaTime)
 	if (timer_ >= duration_)
 	{
 		player->SetRotate(Vector3(0.0f, 0.0f, 0.0f));
+		
+		player->ClearLockOn();
 		player->ChangeState(std::make_unique<PlayerIdleState>());
+		
 	}
 }
 
@@ -153,3 +163,4 @@ void PlayerAvoidState::Finalize(Player * player)
 	/*player->SetTargetRoll({0.0f, 0.0f, 0.0f});*/
 	
 }
+

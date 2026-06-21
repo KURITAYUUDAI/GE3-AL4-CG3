@@ -6,6 +6,7 @@
 #include "BulletManager.h"
 #include "DebugDrawManager.h"
 #include "EnemyEvent.h"
+#include "PlayerEvent.h"
 
 void Enemy::Initialize()
 {
@@ -13,11 +14,11 @@ void Enemy::Initialize()
 
 	PSOManager::GetInstance()->RegisterEnvironmentPSO();
 
-	ModelManager::GetInstance()->LoadModel("", "axis.obj");
+	ModelManager::GetInstance()->LoadModel("", "sphere.obj");
 
 	object3d_ = std::make_unique<Object3d>();
 	object3d_->Initialize();
-	object3d_->SetModel("axis.obj");
+	object3d_->SetModel("sphere.obj");
 	object3d_->GetModel()->SetEnvironmentCoefficient(0.2f, 0);
 
 	collider_ = std::make_unique<Collider>();
@@ -28,15 +29,28 @@ void Enemy::Initialize()
 
 	transform_.scale = { 1.0f, 1.0f, 1.0f };
 	transform_.rotate = { 0.0f, 0.0f, 0.0f };
-	transform_.translate = { 0.0f, 0.0f, 30.0f };
+	transform_.translate = { 0.0f, -2.0f, 30.0f };
 
 	hitPoint_ = kMaxHitPoint;
+
+	slashEmitter_ = std::make_unique<ParticleEmitter>();
+	slashEmitter_->Initialize("slash",
+		{ {1.0f, 1.0f, 1.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f} }, 3, 0.2f);
 
 	ChangeState(std::make_unique<EnemyIdleState>());
 }
 
 void Enemy::EventDispatch()
 {
+	eventSubscriber_.Initialize(eventBus_);
+
+	eventSubscriber_.Subscribe<PlayerWorldPositionEvent>(
+		[this](const PlayerWorldPositionEvent& event)
+		{
+			playerWorldPosition_ = event.worldPosition;
+		}
+	);
+
 	eventBus_->Publish(EnemyAppierEvent
 		{
 			 .enemyID = enemyID_,
@@ -76,6 +90,7 @@ void Enemy::Update(const float& deltaTime)
 	ImGui::InputInt("HitPoint", &hitPoint_);
 	Vector2 screenPos = GetScreenPosition();
 	ImGui::InputFloat2("ScreenPos", &screenPos.x);
+	ImGui::InputFloat3("PlayerPos", &playerWorldPosition_.x);
 
 	ImGui::End();
 #endif
@@ -94,6 +109,10 @@ void Enemy::Update(const float& deltaTime)
 	}
 
 	collider_->SetWorldPosition(GetWorldPosition());
+
+	Vector3 world = GetWorldPosition();
+	world.z -= 1.5f;
+	slashEmitter_->SetTranslate(world);
 
 	eventBus_->Publish(EnemyScreenPositionEvent
 		{
@@ -128,13 +147,15 @@ void Enemy::Draw()
 		}
 	}
 
+#ifdef _DEBUG
 	DebugDrawManager::GetInstance()->AddSphere(GetWorldPosition(),
 		collider_->GetRadius(), {1.0f, 0.0f, 1.0f, 1.0f}, 8);
+#endif
 }
 
 void Enemy::Finalize()
 {
-
+	eventSubscriber_.Finalize();
 }
 
 void Enemy::ChangeState(std::unique_ptr<IEnemyState> newState)
@@ -168,6 +189,8 @@ void Enemy::Damage(int damage)
 	const int previousHP = hitPoint_;
 
 	hitPoint_ -= damage;
+	slashEmitter_->EmitSlash();
+
 	if (hitPoint_ < 0)
 	{
 		hitPoint_ = 0;
@@ -208,7 +231,14 @@ void Enemy::Decelerate()
 void Enemy::Shot()
 {
 	Vector3 bulletDirection = { 0.0f, 0.0f, -1.0f };
-	bulletDirection = Normalize(TransformNormal(bulletDirection, object3d_->GetWorldTransform()->worldMatrix_));
+	Vector3 toPlayer = playerWorldPosition_ - GetWorldPosition();
+	if (Length(toPlayer) > 0.0001f)
+	{
+		bulletDirection = Normalize(toPlayer);
+	}
+
+	/*bulletDirection = Normalize(TransformNormal(bulletDirection, object3d_->GetWorldTransform()->worldMatrix_));
+	*/
 	BulletManager::GetInstance()->CreateEnemyBullet(GetWorldPosition(), bulletDirection * bulletSpeed_);
 	ChangeState(std::make_unique<EnemyShotState>());
 }

@@ -187,11 +187,6 @@ void GamePlayScene::Initialize()
 	player_->SetEnvironmentTextureIndex(skyBox_->GetEnvironmentTextureIndex());
 	player_->SetParent(cameraManager_->GetActiveCameraController()->GetWorldTransform());
 
-	enemy_ = std::make_unique<Enemy>();
-	enemy_->Initialize();
-	enemy_->SetEnvironmentTextureIndex(skyBox_->GetEnvironmentTextureIndex());
-	enemy_->SetParent(cameraManager_->GetActiveCameraController()->GetWorldTransform());
-
 	BulletManager::GetInstance()->Initialize();
 
 	slashEmitter_ = std::make_unique<ParticleEmitter>();
@@ -225,18 +220,26 @@ void GamePlayScene::Initialize()
 	player_->SetEventBus(eventBus_.get());
 	player_->EventDispatch();
 
-	enemy_->SetEventBus(eventBus_.get());
-	enemy_->SetHPGageDisplayType(EnemyHPGageDisplayType::ScreenBoss |
-		EnemyHPGageDisplayType::OverHead);
-	enemy_->SetScreenBossPriority(50);
-	enemy_->EventDispatch();
-
+	enemyManager_->Initialize(eventBus_.get());
+	enemyIDs_.push_back(enemyManager_->AddEnemy());
+	for (EnemyID id : enemyIDs_)
+	{
+		Enemy* enemy = enemyManager_->FindEnemy(id);
+		enemy->SetEnvironmentTextureIndex(skyBox_->GetEnvironmentTextureIndex());
+		enemy->SetParent(cameraManager_->GetActiveCameraController()->GetWorldTransform());
+		enemy->SetEventBus(eventBus_.get());
+		enemy->SetHPGageDisplayType(EnemyHPGageDisplayType::ScreenBoss |
+			EnemyHPGageDisplayType::OverHead);
+		enemy->SetScreenBossPriority(50);
+		enemy->EventDispatch();
+	}
+	
 	eventBus_->Dispatch();
 }
 
 void GamePlayScene::Finalize()
 {
-	enemy_->Finalize();
+	enemyManager_->Finalize();
 	player_->Finalize();
 	
 	debugManager_->Finalize();
@@ -682,7 +685,8 @@ void GamePlayScene::Update(const float& deltaTime)
 
 	player_->Update(deltaTime);
 
-	enemy_->Update(deltaTime);
+	/*enemy_->Update(deltaTime);*/
+	enemyManager_->Update(deltaTime);
 
 	BulletManager::GetInstance()->Update(deltaTime);
 
@@ -704,7 +708,12 @@ void GamePlayScene::Update(const float& deltaTime)
 
 	collisionManager_->Clear();
 	collisionManager_->AddCollider(player_->GetCollider());
-	collisionManager_->AddCollider(enemy_->GetCollider());
+
+	for (EnemyID id : enemyIDs_)
+	{
+		collisionManager_->AddCollider(enemyManager_->FindEnemy(id)->GetCollider());
+	}
+	
 	for (auto& bullet : BulletManager::GetInstance()->GetBullets())
 	{
 		collisionManager_->AddCollider(bullet->GetCollider());
@@ -718,10 +727,18 @@ void GamePlayScene::Update(const float& deltaTime)
 	eventBus_->Dispatch();
 	sceneUI_->Update(deltaTime);
 
-	if (enemy_->GetIsDead())
+	for (EnemyID id : enemyIDs_)
 	{
-		SceneManager::GetInstance()->SetSceneRequest("TITLE");
+		if (enemyManager_->GetIsDead(id))
+		{
+			SceneManager::GetInstance()->SetSceneRequest("TITLE");
+		}
 	}
+
+	enemyIDs_.erase(
+	std::remove_if(enemyIDs_.begin(), enemyIDs_.end(),
+		[this](EnemyID id){ return enemyManager_->FindEnemy(id) == nullptr; }),
+	enemyIDs_.end());
 
 	if (player_->GetIsDead())
 	{
@@ -743,7 +760,8 @@ void GamePlayScene::Draw()
 
 		terrain_->Draw();
 		player_->Draw();
-		enemy_->Draw();
+		/*enemy_->Draw();*/
+		enemyManager_->Draw();
 		BulletManager::GetInstance()->Draw();
 	}
 
@@ -787,8 +805,9 @@ void GamePlayScene::Draw()
 
 	cameraManager_->DrawDebugUI();
 
+#ifdef _DEBUG
 	debugManager_->DrawAll(cameraManager_->GetMainCamera()->GetViewProjectionMatrix());
-
+#endif
 
 	if (inputManager_->TriggerKey(DIK_0))
 	{

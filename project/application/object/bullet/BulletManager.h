@@ -4,7 +4,6 @@
 #include <list>
 #include <memory>
 #include "Bullet.h"
-#include "BulletManager.h"
 
 class BulletManager
 {

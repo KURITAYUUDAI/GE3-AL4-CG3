@@ -13,7 +13,7 @@
 #include "SkyBox.h"
 #include "Terrain.h"
 #include "Player.h"
-#include "Enemy/Enemy.h"
+#include "Enemy/EnemyManager.h"
 
 #include "EventBus.h"
 #include "GamePlaySceneUI.h"
@@ -77,6 +77,10 @@ private:
 	// 衝突マネージャー
 	CollisionManager* collisionManager_ = CollisionManager::GetInstance();
 
+	// 敵マネージャー
+	EnemyManager* enemyManager_ = EnemyManager::GetInstance();
+
+
 private:
 
 	bool isDrawSprite_ = false;
@@ -103,6 +107,7 @@ private:
 	std::unique_ptr<Player> player_ = nullptr;
 
 	std::unique_ptr<Enemy> enemy_ = nullptr;
+	std::vector<EnemyID> enemyIDs_;
 
 	std::unique_ptr<ParticleEmitter> slashEmitter_ = nullptr;
 

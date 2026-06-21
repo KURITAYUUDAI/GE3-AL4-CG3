@@ -16,11 +16,6 @@ public:
 protected:
     virtual void RegisterEvents() = 0;
 
-    void AddSubscription(EventBus::SubscriptionID id);
-
-    void UnregisterEvents();
-
 protected:
-    EventBus* eventBus_ = nullptr;
-    std::vector<EventBus::SubscriptionID> subscriptionIDs_;
+    EventSubscriber eventSubscriber_;
 };

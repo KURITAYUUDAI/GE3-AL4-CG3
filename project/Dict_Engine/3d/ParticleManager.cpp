@@ -178,11 +178,11 @@ void ParticleManager::Update(const float& deltaTime)
 					particle.transform.rotate, particle.transform.translate);
 			}
 			
-			particle.uvTransform.translate.x += 0.01f;
+			/*particle.uvTransform.translate.x += 0.01f;
 			if (particle.uvTransform.translate.x > 1.0f)
 			{
 				particle.uvTransform.translate.x -= 1.0f;
-			}
+			}*/
 
 			Matrix4x4 uvTransformMatrix;
 			uvTransformMatrix = MakeAffineMatrix(

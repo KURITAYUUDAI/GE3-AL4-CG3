@@ -63,4 +63,5 @@ private:
 	Vector3 avoidDirection_ = { 0.0f, 0.0f, 0.0f };
 	Vector2 inputDirection_ = { 0.0f, 0.0f };
 	float avoidSpeed_ = 25.0f; // 回避の速度
+
 };

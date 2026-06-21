@@ -12,6 +12,11 @@ BulletManager* BulletManager::GetInstance()
 	{
 		instance_ = std::make_unique<BulletManager>(ConstructorKey());
 	}
+
+	if (instance_ && reinterpret_cast<uintptr_t>(instance_.get()) == UINTPTR_MAX) 
+	{
+		OutputDebugStringA("BulletManager::instance_ corrupted: 0xFF...\n");
+	}
 	return instance_.get();
 }
 
@@ -127,6 +132,7 @@ void BulletManager::Initialize()
 
 void BulletManager::Update(const float& deltaTime)
 {
+#ifdef _DEBUG
 	ImGui::Begin("Bullet Manager");
 
 	// 現在の弾の総数を表示
@@ -137,8 +143,10 @@ void BulletManager::Update(const float& deltaTime)
 	for (auto& bullet : bullets_)
 	{
 		// 弾の種類（Player / Enemy）を判定
-		std::string bulletType = (bullet->GetCollider()->GetAttribute() == static_cast<uint32_t>(CollisionAttribute::Player) ? "Player" : "Enemy");
-
+		std::string bulletType = 
+			((bullet->GetCollider()->GetAttribute() & static_cast<uint32_t>(CollisionAttribute::PlayerAttack)) 
+				!= 0 ? "PlayerAttack" : "EnemyAttack");
+		
 		// 折りたたみヘッダー（クリックで開閉）
 		std::string label = "Bullet [" + std::to_string(index) + "] (" + bulletType + ")";
 		if (ImGui::CollapsingHeader(label.c_str()))
@@ -164,6 +172,7 @@ void BulletManager::Update(const float& deltaTime)
 	}
 
 	ImGui::End();
+#endif
 
 	for (auto& bullet : bullets_)
 	{

@@ -10,6 +10,8 @@
 #include "collision/CollisionObserver.h"
 #include "collision/Collider.h"
 
+#include "ParticleEmitter.h"
+
 #include "EventBus.h"
 
 #include "GamePlayUIUtility.h"
@@ -106,6 +108,8 @@ private:
 
 	// イベント
 	EventBus* eventBus_ = nullptr;
+	EventSubscriber eventSubscriber_;
+	std::vector<EventBus::SubscriptionID> subscriptionIDs_;
 
 	float deltaTime_ = 0.0f;
 
@@ -128,7 +132,7 @@ private:
 
 	bool isDraw_ = true;
 
-	float bulletSpeed_ = 10.0f;
+	float bulletSpeed_ = 30.0f;
 
 	// HP
 	int hitPoint_;
@@ -142,4 +146,8 @@ private:
 	bool isDead_ = false;
 
 	bool isHPChanged_ = false;
+
+	Vector3 playerWorldPosition_{};
+
+	std::unique_ptr<ParticleEmitter> slashEmitter_ = nullptr;
 };

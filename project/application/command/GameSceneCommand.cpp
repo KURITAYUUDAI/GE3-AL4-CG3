@@ -25,3 +25,5 @@ void AvoidCommand::Execute(Player* player)
     Vector2 direction = inputHandler_->GetDirection();
     player->Avoid(direction);
 }
+
+

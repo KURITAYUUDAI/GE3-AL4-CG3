@@ -2,6 +2,8 @@
 
 void EventBus::Unsubscribe(SubscriptionID id)
 {
+    if (id == 0) return;
+
     for (auto& [type, handlerList] : handlers_)
     {
         handlerList.erase(

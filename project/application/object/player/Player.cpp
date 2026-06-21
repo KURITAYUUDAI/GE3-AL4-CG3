@@ -8,6 +8,7 @@
 #include "CameraManager.h"
 #include "DebugDrawManager.h"
 #include "PlayerEvent.h"
+#include "enemy/EnemyEvent.h"
 
 void Player::Initialize()
 {
@@ -17,9 +18,11 @@ void Player::Initialize()
 
 	selector_.GetKeyboardHandler()->AssignKey("shot", DIK_SPACE);
 	selector_.GetKeyboardHandler()->AssignKey("avoid", DIK_E);
+	selector_.GetKeyboardHandler()->AssignKey("lockOn", DIK_LSHIFT);   // 追加
 
 	selector_.GetGamepadHandler()->AssignKey("shot", XINPUT_GAMEPAD_RIGHT_SHOULDER);
 	selector_.GetGamepadHandler()->AssignKey("avoid", XINPUT_GAMEPAD_X);
+	selector_.GetGamepadHandler()->AssignKey("lockOn", XINPUT_GAMEPAD_LEFT_SHOULDER); // 追加
 
 	ModelManager::GetInstance()->LoadModel("", "sphere.obj");
 
@@ -44,6 +47,22 @@ void Player::Initialize()
 
 void Player::EventDispatch()
 {
+	eventSubscriber_.Initialize(eventBus_);
+
+	eventSubscriber_.Subscribe<NearestEnemyInfoEvent>(
+		[this](const NearestEnemyInfoEvent& event){
+			hasNearestEnemy_ = event.isValid;
+			cachedNearestEnemyID_ = event.enemyID;
+			cachedNearestEnemyPosition_ = event.worldPosition;
+		}
+	);
+
+	eventBus_->Publish(PlayerWorldPositionEvent
+		{
+			.worldPosition = GetWorldPosition(),
+		}
+	);
+
 	eventBus_->Publish(PlayerHPChangeEvent
 		{
 			.currentHitPoint = hitPoint_,
@@ -58,6 +77,17 @@ void Player::EventDispatch()
 void Player::Update(const float& deltaTime)
 {
 	deltaTime_ = deltaTime;
+
+	IInputHandler* handler = selector_.GetHandler();
+	if (handler->IsActionPressed("lockOn"))
+	{
+		LockOn(); // 毎フレーム最近接を再評価（敵の入れ替わり・死亡に追従)
+		isLockOnHeld_ = true;
+	} else
+	{
+		ClearLockOn();
+		isLockOnHeld_ = false;
+	}
 
 	state_->Update(this, deltaTime);
 
@@ -101,6 +131,8 @@ void Player::Update(const float& deltaTime)
 
 	ImGui::Text("PlayerState: %s", typeid(*state_).name());
 
+	ImGui::Text("LockOnEnemyID: %d", static_cast<int>(lockOnEnemyID_));
+
 	/*Vector2 leftStick =
 	{
 		InputManager::GetInstance()->GetLeftStickX(),
@@ -121,6 +153,12 @@ void Player::Update(const float& deltaTime)
 
 	object3d_->SetTransform(transform_);
 	object3d_->Update();
+
+	eventBus_->Publish(PlayerWorldPositionEvent
+		{
+			.worldPosition = GetWorldPosition(),
+		}
+	);
 
 	if (damageTimer_ > 0.0f)
 	{
@@ -159,13 +197,15 @@ void Player::Draw()
 		}
 	}
 
+#ifdef _DEBUG
 	DebugDrawManager::GetInstance()->AddSphere(GetWorldPosition(),
 		collider_->GetRadius(), { 1.0f, 1.0f, 1.0f, 1.0f }, 8);
+#endif
 }
 
 void Player::Finalize()
 {
-
+	eventSubscriber_.Finalize();
 }
 
 void Player::ChangeState(std::unique_ptr<IPlayerState> newState)
@@ -220,6 +260,11 @@ void Player::Damage(int damage)
 	}
 }
 
+void Player::UpdateLockOn()
+{
+	
+}
+
 void Player::MoveHorizontal(const float& directionX, const float& directionY)
 {
 	float targetVelocityX = maxSpeed_.x * directionX;
@@ -237,10 +282,36 @@ void Player::Decelerate()
 	velocity_.y += (0.0f - velocity_.y) * lerpFactor_;
 }
 
+void Player::LockOn()
+{
+	if (!hasNearestEnemy_)
+	{
+		lockOnEnemyID_ = 0;
+		return;
+	}
+	lockOnEnemyID_ = cachedNearestEnemyID_;
+}
+
 void Player::Shot()
 {
 	Vector3 bulletDirection = { 0.0f, 0.0f, 1.0f };
-	bulletDirection = Normalize(TransformNormal(bulletDirection, object3d_->GetWorldTransform()->worldMatrix_));
+	if (lockOnEnemyID_ != 0 && lockOnEnemyID_ == cachedNearestEnemyID_)
+	{
+		Vector3 toTarget = cachedNearestEnemyPosition_ - GetWorldPosition();
+		if (Length(toTarget) > 0.0001f)
+		{
+			bulletDirection = Normalize(toTarget);
+		}
+	} 
+	else
+	{
+		bulletDirection = Normalize(TransformNormal(bulletDirection, object3d_->GetWorldTransform()->worldMatrix_));
+	}
+
+	if (BulletManager::GetInstance() == nullptr)
+	{
+		assert(false);
+	}
 	BulletManager::GetInstance()->CreatePlayerBullet(GetWorldPosition(), bulletDirection * bulletSpeed_);
 	ChangeState(std::make_unique<PlayerShotState>());
 }

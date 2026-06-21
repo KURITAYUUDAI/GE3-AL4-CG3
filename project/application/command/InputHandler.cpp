@@ -29,6 +29,13 @@ bool KeyboardInputHandler::IsActionPressed(const std::string& actionName)
 {
     auto it = keyBindings_.find(actionName);
     if (it == keyBindings_.end()) return false;
+    return InputManager::GetInstance()->PushKey(it->second);
+}
+
+bool KeyboardInputHandler::IsActionTriggerd(const std::string& actionName)
+{
+    auto it = keyBindings_.find(actionName);
+    if (it == keyBindings_.end()) return false;
     return InputManager::GetInstance()->TriggerKey(it->second);
 }
 
@@ -54,6 +61,16 @@ bool GamepadInputHandler::IsActionPressed(const std::string& actionName)
 {
     auto it = buttonBindings_.find(actionName);
     if (it == buttonBindings_.end()) return false;
+    return InputManager::GetInstance()->PushButton(it->second);
+}
+
+bool GamepadInputHandler::IsActionTriggerd(const std::string& actionName)
+{
+    auto it = buttonBindings_.find(actionName);
+    if (it == buttonBindings_.end()) return false;
     return InputManager::GetInstance()->TriggerButton(it->second);
 }
+
+
+
 

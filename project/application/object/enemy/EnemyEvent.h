@@ -19,6 +19,13 @@ struct EnemyAppierEvent
     int screenBossPriority = 0;
 };
 
+struct NearestEnemyInfoEvent
+{
+    EnemyID enemyID;
+    Vector3 worldPosition;
+    bool isValid; // 敵が1体もいない場合 false
+};
+
 struct EnemyScreenPositionEvent
 {
     EnemyID enemyID = 0;

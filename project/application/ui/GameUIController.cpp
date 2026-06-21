@@ -8,45 +8,34 @@ void GameUIController::Update(float deltaTime)
 
 void GameUIController::RegisterEvents()
 {
-    if (!eventBus_)
+    if (!eventSubscriber_.GetEventBus())
     {
         return;
     }
 
-    subscriptionIDs_.push_back(
-        eventBus_->Subscribe<PlayerHPChangeEvent>(
-            [this](const PlayerHPChangeEvent& event)
-            {
-                OnPlayerHPChanged(event);
-            }
-        )
+    eventSubscriber_.Subscribe<PlayerHPChangeEvent>(
+        [this](const PlayerHPChangeEvent& event)
+        {
+            OnPlayerHPChanged(event);
+        }
     );
 
-    subscriptionIDs_.push_back(
-         eventBus_->Subscribe<EnemyAppierEvent>(
-             [this](const EnemyAppierEvent& event)
-             {
-                 OnEnemyAppier(event);
-             }
-         )
+    eventSubscriber_.Subscribe<EnemyAppierEvent>(
+        [this](const EnemyAppierEvent& event){
+            OnEnemyAppier(event);
+        }
     );
 
-    subscriptionIDs_.push_back(
-        eventBus_->Subscribe<EnemyScreenPositionEvent>(
-            [this](const EnemyScreenPositionEvent& event)
-            {
-                OnEnemyScreenPosition(event);
-            }
-        )
+    eventSubscriber_.Subscribe<EnemyScreenPositionEvent>(
+        [this](const EnemyScreenPositionEvent& event){
+            OnEnemyScreenPosition(event);
+        }
     );
 
-    subscriptionIDs_.push_back(
-        eventBus_->Subscribe<EnemyHPChangeEvent>(
-            [this](const EnemyHPChangeEvent& event)
-            {
-                OnEnemyHPChanged(event);
-            }
-        )
+    eventSubscriber_.Subscribe<EnemyHPChangeEvent>(
+        [this](const EnemyHPChangeEvent& event){
+            OnEnemyHPChanged(event);
+        }
     );
 }
 

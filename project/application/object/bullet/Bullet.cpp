@@ -89,8 +89,10 @@ void Bullet::Draw()
 {
 	object3d_->Draw();
 
+#ifdef _DEBUG
 	DebugDrawManager::GetInstance()->AddSphere(GetWorldPosition(),
 		collider_->GetRadius(), { 0.0f, 0.0f, 0.0f, 1.0f }, 6);
+#endif
 }
 
 void Bullet::Finalize()

@@ -39,8 +39,8 @@ public:
     EventBus(const EventBus&) = delete;
     EventBus& operator=(const EventBus&) = delete;
 
-    template<class EventType>
-    SubscriptionID Subscribe(std::function<void(const EventType&)> callback);
+    template<class EventType, class Callback>
+    SubscriptionID Subscribe(Callback&& callback);
 
     void Unsubscribe(SubscriptionID id);
 
@@ -58,8 +58,8 @@ private:
     SubscriptionID nextSubscriptionID_ = 1;
 };
 
-template<class EventType>
-EventBus::SubscriptionID EventBus::Subscribe(std::function<void(const EventType&)> callback)
+template<class EventType, class Callback>
+EventBus::SubscriptionID EventBus::Subscribe(Callback&& callback)
 {
     const std::type_index type = std::type_index(typeid(EventType));
 
@@ -68,7 +68,8 @@ EventBus::SubscriptionID EventBus::Subscribe(std::function<void(const EventType&
     HandlerData handler{};
     handler.id = id;
 
-    handler.callback = [callback](const std::any& event){
+    handler.callback =
+        [callback = std::forward<Callback>(callback)](const std::any& event){
         callback(std::any_cast<const EventType&>(event));
         };
 
@@ -88,3 +89,67 @@ void EventBus::Publish(const EventType& event)
     eventQueue_.push(std::move(queuedEvent));
 }
 
+class EventSubscriber
+{
+public:
+    EventSubscriber() = default;
+    ~EventSubscriber()
+    {
+        Finalize();
+    }
+
+    EventSubscriber(const EventSubscriber&) = delete;
+    EventSubscriber& operator=(const EventSubscriber&) = delete;
+
+    void Initialize(EventBus* eventBus)
+    {
+        eventBus_ = eventBus;
+    }
+
+    void Finalize()
+    {
+        UnregisterEvents();
+        eventBus_ = nullptr;
+    }
+
+public:
+
+    template<class EventType, class Callback>
+    void Subscribe(Callback&& callback)
+    {
+        if (!eventBus_)
+        {
+            return;
+        }
+
+        EventBus::SubscriptionID id =
+            eventBus_->Subscribe<EventType>(
+                std::forward<Callback>(callback)
+            );
+
+        subscriptionIDs_.push_back(id);
+    }
+
+    void UnregisterEvents()
+    {
+        if (!eventBus_)
+        {
+            return;
+        }
+
+        for (EventBus::SubscriptionID id : subscriptionIDs_)
+        {
+            eventBus_->Unsubscribe(id);
+        }
+
+        subscriptionIDs_.clear();
+    }
+
+public:
+
+    EventBus* GetEventBus() { return eventBus_; }
+
+private:
+    EventBus* eventBus_ = nullptr;
+    std::vector<EventBus::SubscriptionID> subscriptionIDs_;
+};
