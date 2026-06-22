@@ -57,5 +57,6 @@ private:
 
 	Vector2 mousePosition_ = { 0.0f, 0.0f };
 
+	std::unique_ptr<Sprite> enterSprite_;
 };
 

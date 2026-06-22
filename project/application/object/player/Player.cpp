@@ -226,7 +226,6 @@ void Player::OnCollision(Collider* self, Collider* other)
 	if (damageTimer_ == 0.0f)
 	{
 		Damage(1);
-		damageTimer_ = kDamageInvincible_;
 		//PlaySEHit();
 	}
 	if (hitPoint_ <= 0)
@@ -245,10 +244,14 @@ void Player::Damage(int damage)
 {
 	const int previousHP = hitPoint_;
 
-	hitPoint_ -= damage;
-	if (hitPoint_ < 0)
+	if (state_->GetType() != PlayerStateType::Avoid)
 	{
-		hitPoint_ = 0;
+		hitPoint_ -= damage;
+		damageTimer_ = kDamageInvincible_;
+		if (hitPoint_ < 0)
+		{
+			hitPoint_ = 0;
+		}
 	}
 
 	if (hitPoint_ == previousHP)

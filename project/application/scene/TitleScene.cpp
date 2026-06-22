@@ -85,6 +85,10 @@ void TitleScene::Initialize()
 		emitters_.push_back(std::move(emitter));
 	}
 
+	enterSprite_ = std::make_unique<Sprite>();
+	enterSprite_->Initialize("ENTER.png");
+	enterSprite_->SetPosition({ 20.0f, 540.0f });
+
 	// シーン初期化終わり
 
 	SoundManager::GetInstance()->SoundLoadFile("", "Alarm01.wav");
@@ -245,6 +249,8 @@ void TitleScene::Update(const float& deltaTime)
 		emitter->Update(deltaTime);
 	}
 
+	enterSprite_->Update();
+
 	particleManager_->Update(deltaTime);
 
 	//// ImGuiの内部コマンドを生成する
@@ -283,7 +289,7 @@ void TitleScene::Draw()
 		}
 	}
 
-
+	enterSprite_->Draw();
 
 	if (inputManager_->TriggerKey(DIK_0))
 	{

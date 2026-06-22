@@ -6,9 +6,18 @@
 
 class Player;
 
+enum class PlayerStateType
+{
+	Idle,
+	Shot,
+	Avoid
+};
+
 class IPlayerState
 {
 public:
+	virtual PlayerStateType GetType() const = 0;
+
 	virtual void Initialize(Player* player) = 0;
 	virtual void Update(Player* player, const float& deltaTime) = 0;
 	virtual void Draw(Player* player) = 0;
@@ -18,6 +27,11 @@ public:
 class PlayerIdleState : public IPlayerState
 {
 public:
+	PlayerStateType GetType() const override
+	{
+		return PlayerStateType::Idle;
+	}
+
 	void Initialize(Player* player) override;
 	void Update(Player* player, const float& deltaTime) override;
 	void Draw(Player* player) override;
@@ -33,6 +47,11 @@ private:
 class PlayerShotState : public IPlayerState
 {
 public:
+	PlayerStateType GetType() const override
+	{
+		return PlayerStateType::Shot;
+	}
+
 	void Initialize(Player* player) override;
 	void Update(Player* player, const float& deltaTime) override;
 	void Draw(Player* player) override;
@@ -50,6 +69,11 @@ class PlayerAvoidState : public IPlayerState
 public:
 
 	PlayerAvoidState(const Vector2& direction) : inputDirection_(direction) {}
+
+	PlayerStateType GetType() const override
+	{
+		return PlayerStateType::Avoid;
+	}
 	
 	void Initialize(Player* player) override;
 	void Update(Player* player, const float& deltaTime) override;

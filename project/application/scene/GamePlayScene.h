@@ -118,5 +118,7 @@ private:
 	std::unique_ptr<EventBus> eventBus_;
 
 	std::unique_ptr<GamePlaySceneUI> sceneUI_;
+
+	std::unique_ptr<Sprite> controlSprite_;
 };
 

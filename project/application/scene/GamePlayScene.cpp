@@ -235,6 +235,10 @@ void GamePlayScene::Initialize()
 	}
 	
 	eventBus_->Dispatch();
+
+	controlSprite_ = std::make_unique<Sprite>();
+	controlSprite_->Initialize("Control.png");
+	controlSprite_->SetPosition({20.0f, 540.0f});
 }
 
 void GamePlayScene::Finalize()
@@ -285,11 +289,11 @@ void GamePlayScene::Finalize()
 
 void GamePlayScene::Update(const float& deltaTime)
 {
-	if (inputManager_->TriggerKey(DIK_RETURN))
-	{
-		// シーン切り替え
-		SceneManager::GetInstance()->SetSceneRequest("TITLE");
-	}
+	//if (inputManager_->TriggerKey(DIK_RETURN))
+	//{
+	//	// シーン切り替え
+	//	SceneManager::GetInstance()->SetSceneRequest("TITLE");
+	//}
 
 	WorldTransform::AdvanceFrame();
 
@@ -706,6 +710,8 @@ void GamePlayScene::Update(const float& deltaTime)
 	}
 
 
+	controlSprite_->Update();
+
 	collisionManager_->Clear();
 	collisionManager_->AddCollider(player_->GetCollider());
 
@@ -802,6 +808,8 @@ void GamePlayScene::Draw()
 			sprites_[i]->Draw();
 		}
 	}
+
+	controlSprite_->Draw();
 
 	cameraManager_->DrawDebugUI();
 
