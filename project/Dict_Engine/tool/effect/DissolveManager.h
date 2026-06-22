@@ -70,7 +70,7 @@ private:
 	uint8_t* dissolveDataBegin_ = nullptr;
 
 	std::vector<std::string> maskTextureFilePasses_;
-	uint32_t nextMaskTextureIndex_ = 0;
+	uint32_t nextMaskTextureIndex_ = -1;
 
 };
 

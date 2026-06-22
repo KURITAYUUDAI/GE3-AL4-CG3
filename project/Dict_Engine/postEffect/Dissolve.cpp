@@ -75,6 +75,7 @@ void Dissolve::RegisterPSOs()
         srvRange1.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
         srvRange1.NumDescriptors = 1;
         srvRange1.BaseShaderRegister = 1; // t1
+        srvRange1.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND; // 追加
 
         D3D12_ROOT_PARAMETER rootParameters[3]{};
         // [0] t0 : 入力テクスチャ
@@ -86,6 +87,7 @@ void Dissolve::RegisterPSOs()
         rootParameters[1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
         rootParameters[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
         rootParameters[1].Descriptor.ShaderRegister = 0; // b0
+        rootParameters[1].Descriptor.RegisterSpace = 0;
         // [2] t1 : マスクテクスチャ
         rootParameters[2].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
         rootParameters[2].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;

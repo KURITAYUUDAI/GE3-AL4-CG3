@@ -69,7 +69,7 @@ struct Camera
 };
 ConstantBuffer<Camera> gCamera : register(b2);
 
-Texture2D<float4> gMaskTexture : register(t2);
+Texture2D<float> gMaskTexture : register(t2);
 ConstantBuffer<DissolveParams> gDissolve : register(b3);
 
 struct PixelShaderOutput

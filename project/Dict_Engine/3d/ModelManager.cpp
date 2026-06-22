@@ -49,8 +49,6 @@ Model* ModelManager::FindModel(const std::string& filename)
 		return models_.at(filename).get();
 	}
 
-	assert(false);
-
 	// ファイル名一致無し
 	return nullptr;
 }

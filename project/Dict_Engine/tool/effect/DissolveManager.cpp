@@ -82,7 +82,7 @@ const uint32_t& DissolveManager::AddMaskTexture(const std::string& textureFilePa
 {
     maskTextureFilePasses_.push_back(textureFilePath);
     nextMaskTextureIndex_++;
-    return nextMaskTextureIndex_--;
+    return nextMaskTextureIndex_;
 }
 
 void DissolveManager::CreateDissolveResource()

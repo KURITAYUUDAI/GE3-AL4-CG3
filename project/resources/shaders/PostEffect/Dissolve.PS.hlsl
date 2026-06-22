@@ -2,7 +2,7 @@
 #include "../tool/Dissolve.hlsli"
 
 Texture2D<float4> gTexture : register(t0); // 直前のパスのテクスチャ（横ボケ画像）
-Texture2D<float4> gMaskTexture : register(t1); // 【追加】最初のメインHDRテクスチャ
+Texture2D<float> gMaskTexture : register(t1); // 【追加】最初のメインHDRテクスチャ
 SamplerState gSampler : register(s0);
 
 ConstantBuffer<DissolveParams> gDissolve : register(b0);
