@@ -1,4 +1,5 @@
 #include "Environment.hlsli"
+#include "../tool/Dissolve.hlsli"
 
 Texture2D<float4> gTexture : register(t0);
 SamplerState gSampler : register(s0);
@@ -67,6 +68,9 @@ struct Camera
     float3 worldPosition;
 };
 ConstantBuffer<Camera> gCamera : register(b2);
+
+Texture2D<float4> gMaskTexture : register(t2);
+ConstantBuffer<DissolveParams> gDissolve : register(b3);
 
 struct PixelShaderOutput
 {
@@ -205,7 +209,9 @@ PixelShaderOutput main(VertexShaderOutput input)
         output.color = gMaterial.color * textureColor;
     }
     
-  
+    
+    float mask = gMaskTexture.Sample(gSampler, input.texcoord);
+    ApplyDissolve(mask, gDissolve.threshold, gDissolve.edgeColor, output.color);
     
     //float3 N = normalize(input.normal);
     

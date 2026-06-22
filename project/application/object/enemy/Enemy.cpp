@@ -8,6 +8,8 @@
 #include "EnemyEvent.h"
 #include "PlayerEvent.h"
 
+#include "Dict_Engine/tool/effect/DissolveManager.h"
+
 void Enemy::Initialize()
 {
 	deltaTime_ = 1.0f / 60.0f; // 仮の値。実際のゲームループで更新されるべ
@@ -36,6 +38,9 @@ void Enemy::Initialize()
 	slashEmitter_ = std::make_unique<ParticleEmitter>();
 	slashEmitter_->Initialize("slash",
 		{ {1.0f, 1.0f, 1.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f} }, 3, 0.2f);
+
+	dissolveParams_.threshold = 0.0f;
+	dissolveParams_.edgeColor = { 2.0f, 0.3f, 0.3f, 1.0f };
 
 	ChangeState(std::make_unique<EnemyIdleState>());
 }
@@ -92,6 +97,17 @@ void Enemy::Update(const float& deltaTime)
 	ImGui::InputFloat2("ScreenPos", &screenPos.x);
 	ImGui::InputFloat3("PlayerPos", &playerWorldPosition_.x);
 
+	float dissolveThreshold = dissolveParams_.threshold;
+	Vector4 dissolveEdgeColor = dissolveParams_.edgeColor;
+	if (ImGui::SliderFloat("threshold", &dissolveThreshold, 0.0f, 1.0f))
+	{
+		SetThreshold(dissolveThreshold);
+	}
+	if (ImGui::DragFloat4("EdgeColor", &dissolveEdgeColor.x, 0.1f, 0.0f, 10.0f))
+	{
+		SetEdgeColor(dissolveEdgeColor);
+	}
+
 	ImGui::End();
 #endif
 
@@ -138,6 +154,9 @@ void Enemy::Draw()
 	DirectXBase::GetInstance()->GetCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	SrvManager::GetInstance()->SetGraphicsRootDescriptorTable(5, environmentTextureIndex_);
+
+	DissolveManager::GetInstance()->SetCbufferDissolveResource(6, dissolveParams_);
+	DissolveManager::GetInstance()->SetCbufferMaskTexture(7, 0);
 
 	if (isDraw_)
 	{

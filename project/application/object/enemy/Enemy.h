@@ -16,6 +16,8 @@
 
 #include "GamePlayUIUtility.h"
 
+#include "Dict_Engine/tool/effect/DissolveUtility.h"
+
 class Enemy : public ICollisionObserver
 {
 public:
@@ -72,6 +74,8 @@ public:	//外部入出力
 	int GetScreenBossPriority() const { return screenBossPriority_; }
 	EnemyID GetEnemyID() const { return enemyID_; }
 
+	const float& GetThreshold() { return dissolveParams_.threshold; }
+	const Vector4& GetEdgeColor() { return dissolveParams_.edgeColor; }
 
 
 	void SetScale(const Vector3& scale) { transform_.scale = scale; }
@@ -90,6 +94,9 @@ public:	//外部入出力
 	void SetEnemyID(EnemyID id) { enemyID_ = id; }
 	void SetHPGageDisplayType(EnemyHPGageDisplayType type) { hpGageDisplayType_ = type; }
 	void SetScreenBossPriority(int priority) { screenBossPriority_ = priority; }
+
+	void SetThreshold(const float threshold) { dissolveParams_.threshold = threshold; }
+	void SetEdgeColor(const Vector4 edgeColor) { dissolveParams_.edgeColor = edgeColor; }
 
 private:
 
@@ -150,4 +157,6 @@ private:
 	Vector3 playerWorldPosition_{};
 
 	std::unique_ptr<ParticleEmitter> slashEmitter_ = nullptr;
+
+	DissolveParams dissolveParams_;
 };

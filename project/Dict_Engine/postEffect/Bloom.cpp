@@ -49,8 +49,8 @@ void Bloom::PassExtract(uint32_t srcSRVIndex, D3D12_CPU_DESCRIPTOR_HANDLE destRT
     mainSceneSRVIndex_ = srcSRVIndex;
 
     mainSceneSRVIndex_ = srcSRVIndex;
-    OutputDebugStringA(("Bloom mainSceneSRVIndex_ = "
-        + std::to_string(mainSceneSRVIndex_) + "\n").c_str());
+    /*OutputDebugStringA(("Bloom mainSceneSRVIndex_ = "
+        + std::to_string(mainSceneSRVIndex_) + "\n").c_str());*/
 
     float clearColor[4] = {
         kClearColor_.x, kClearColor_.y, kClearColor_.z, kClearColor_.w };
@@ -120,9 +120,9 @@ void Bloom::PassComposite(uint32_t srcSRVIndex, D3D12_CPU_DESCRIPTOR_HANDLE dest
 
 void Bloom::CreateConstantBuffer()
 {
-    // 定数バッファの作成 (BlurParams用)
+    // 定数バッファの作成
     auto* dxBase = DirectXBase::GetInstance();
-    constantBufferResource_ = dxBase->CreateConstantBufferResource(sizeof(BlurParams)); // ※自作のバッファ生成関数
+    constantBufferResource_ = dxBase->CreateConstantBufferResource(sizeof(BlurParams));
     constantBufferResource_->Map(0, nullptr, reinterpret_cast<void**>(&constantBufferMappedData_));
 
     // 定数バッファの初期値を設定

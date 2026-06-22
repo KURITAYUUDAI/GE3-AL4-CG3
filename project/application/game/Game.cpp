@@ -5,6 +5,7 @@
 #include "Outline.h"
 #include "Bloom.h"
 #include "RadialBlur.h"
+#include "Dissolve.h"
 
 void Game::Initialize()
 {
@@ -19,6 +20,8 @@ void Game::Initialize()
 		[]{ return std::make_unique<Bloom>(); });
 	postEffectManager_->RegisterFactory("RadialBlur",
 		[]{ return std::make_unique<RadialBlur>(); });
+	postEffectManager_->RegisterFactory("Dissolve",
+		[]{ return std::make_unique<Dissolve>(); });
 
 
 	// シーンマネージャーに最初のシーンをセット
@@ -61,6 +64,8 @@ void Game::Draw()
 
 	srvManager_->PreDraw();
 	
+	dissolveManager_->BeginFrame();
+
 	sceneManager_->Draw();
 
 	DirectXBase::GetInstance()->DrawSwapChain();

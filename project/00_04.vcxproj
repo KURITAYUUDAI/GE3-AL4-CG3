@@ -201,6 +201,8 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="application\ui\GamePlaySceneUI.cpp" />
     <ClCompile Include="application\object\enemy\EnemyManager.cpp" />
     <ClCompile Include="application\ui\LockOnUI.cpp" />
+    <ClCompile Include="Dict_Engine\postEffect\Dissolve.cpp" />
+    <ClCompile Include="Dict_Engine\tool\effect\DissolveManager.cpp" />
     <ClCompile Include="main.cpp">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Development|x64'">MaxSpeed</Optimization>
       <WholeProgramOptimization Condition="'$(Configuration)|$(Platform)'=='Development|x64'">true</WholeProgramOptimization>
@@ -268,6 +270,11 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <FxCompile Include="resources\shaders\Environment\Environment.VS.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Development|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="resources\shaders\PostEffect\Dissolve.PS.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Development|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </FxCompile>
     <FxCompile Include="resources\shaders\PostEffect\RadialBlur.PS.hlsl">
@@ -413,6 +420,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Dict_Engine\3d\Model.h" />
     <ClInclude Include="Dict_Engine\3d\ModelManager.h" />
     <ClInclude Include="Dict_Engine\base\SrvManager.h" />
+    <ClInclude Include="Dict_Engine\tool\effect\DissolveUtility.h" />
     <ClInclude Include="Dict_Engine\tool\random\SeedManager.h" />
     <ClInclude Include="Dict_Engine\3d\ParticleEmitter.h" />
     <ClInclude Include="Dict_Engine\io\ImGuiManager.h" />
@@ -456,6 +464,8 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="application\object\enemy\EnemyManager.h" />
     <ClInclude Include="application\ui\LockOnUI.h" />
     <ClInclude Include="Dict_Engine\postEffect\RadialBlur.h" />
+    <ClInclude Include="Dict_Engine\postEffect\Dissolve.h" />
+    <ClInclude Include="Dict_Engine\tool\effect\DissolveManager.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="externals\DirectXTex\DirectXTex_Desktop_2022_Win10.vcxproj">
@@ -469,6 +479,11 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <None Include="resources\shaders\Object3d\Object3d.hlsli" />
     <None Include="resources\shaders\Particle\Particle.hlsli" />
     <None Include="resources\shaders\PostEffect\Fullscreen.hlsli" />
+    <None Include="resources\shaders\tool\Dissolve.hlsli">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Development|x64'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
+    </None>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

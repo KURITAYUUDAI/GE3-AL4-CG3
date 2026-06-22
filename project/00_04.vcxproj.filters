@@ -309,6 +309,12 @@
     <ClCompile Include="Dict_Engine\postEffect\RadialBlur.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
+    <ClCompile Include="Dict_Engine\postEffect\Dissolve.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Dict_Engine\tool\effect\DissolveManager.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="resources\shaders\Object3d\Object3d.PS.hlsl">
@@ -339,6 +345,7 @@
     <FxCompile Include="resources\shaders\DebugDraw\DebugDraw.VS.hlsl" />
     <FxCompile Include="resources\shaders\DebugDraw\DebugDraw.GS.hlsl" />
     <FxCompile Include="resources\shaders\PostEffect\RadialBlur.PS.hlsl" />
+    <FxCompile Include="resources\shaders\PostEffect\Dissolve.PS.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Dict_Engine\camera\DebugCamera.h">
@@ -590,6 +597,15 @@
     <ClInclude Include="Dict_Engine\postEffect\RadialBlur.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
+    <ClInclude Include="Dict_Engine\postEffect\Dissolve.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Dict_Engine\tool\effect\DissolveManager.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Dict_Engine\tool\effect\DissolveUtility.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="resources\shaders\Object3d\Object3d.hlsli">
@@ -600,5 +616,6 @@
     <None Include="resources\shaders\Environment\Environment.hlsli" />
     <None Include="resources\shaders\PostEffect\Fullscreen.hlsli" />
     <None Include="resources\shaders\DebugDraw\DebugDraw.hlsli" />
+    <None Include="resources\shaders\tool\Dissolve.hlsli" />
   </ItemGroup>
 </Project>
