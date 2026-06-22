@@ -306,6 +306,9 @@
     <ClCompile Include="application\ui\LockOnUI.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
+    <ClCompile Include="Dict_Engine\postEffect\RadialBlur.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="resources\shaders\Object3d\Object3d.PS.hlsl">
@@ -335,6 +338,7 @@
     <FxCompile Include="resources\shaders\DebugDraw\DebugDraw.PS.hlsl" />
     <FxCompile Include="resources\shaders\DebugDraw\DebugDraw.VS.hlsl" />
     <FxCompile Include="resources\shaders\DebugDraw\DebugDraw.GS.hlsl" />
+    <FxCompile Include="resources\shaders\PostEffect\RadialBlur.PS.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Dict_Engine\camera\DebugCamera.h">
@@ -581,6 +585,9 @@
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="application\ui\LockOnUI.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Dict_Engine\postEffect\RadialBlur.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
   </ItemGroup>

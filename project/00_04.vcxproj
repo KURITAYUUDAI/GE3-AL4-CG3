@@ -236,6 +236,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="Dict_Engine\ui\UIBase.cpp" />
     <ClCompile Include="Dict_Engine\io\ResourcePath.cpp" />
     <ClCompile Include="Dict_Engine\ui\SceneUIBase.cpp" />
+    <ClCompile Include="Dict_Engine\postEffect\RadialBlur.cpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="resources\shaders\DebugDraw\DebugDraw.GS.hlsl">
@@ -267,6 +268,11 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <FxCompile Include="resources\shaders\Environment\Environment.VS.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Development|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="resources\shaders\PostEffect\RadialBlur.PS.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Development|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </FxCompile>
     <FxCompile Include="resources\shaders\PostEffect\BloomComposite.PS.hlsl">
@@ -449,6 +455,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="application\ui\GamePlaySceneUI.h" />
     <ClInclude Include="application\object\enemy\EnemyManager.h" />
     <ClInclude Include="application\ui\LockOnUI.h" />
+    <ClInclude Include="Dict_Engine\postEffect\RadialBlur.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="externals\DirectXTex\DirectXTex_Desktop_2022_Win10.vcxproj">

@@ -73,6 +73,8 @@ void Bloom::PassBlurH(uint32_t srcSRVIndex, D3D12_CPU_DESCRIPTOR_HANDLE destRTV)
     auto* cmdList = DirectXBase::GetInstance()->GetCommandList();
     auto* srvManager = SrvManager::GetInstance();
 
+    UpdateConstantBuffer();
+
     float clearColor[4] = {
         kClearColor_.x, kClearColor_.y, kClearColor_.z, kClearColor_.w };
     cmdList->ClearRenderTargetView(destRTV, clearColor, 0, nullptr);
