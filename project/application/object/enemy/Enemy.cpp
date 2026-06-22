@@ -156,7 +156,7 @@ void Enemy::Draw()
 	SrvManager::GetInstance()->SetGraphicsRootDescriptorTable(5, environmentTextureIndex_);
 
 	DissolveManager::GetInstance()->SetCbufferDissolveResource(6, dissolveParams_);
-	DissolveManager::GetInstance()->SetCbufferMaskTexture(7, 0);
+	DissolveManager::GetInstance()->SetCbufferMaskTexture(7, 1);
 
 	if (isDraw_)
 	{
