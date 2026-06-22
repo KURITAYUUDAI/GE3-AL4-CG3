@@ -97,7 +97,7 @@ protected:
     static const DXGI_FORMAT    kFormat_ = DXGI_FORMAT_R16G16B16A16_FLOAT;
 
     // クリアカラー
-    static constexpr Vector4      kClearColor_ = { 0.0f, 0.0f, 0.0f, 1.0f };
+    static constexpr Vector4      kClearColor_ = { 1.0f, 0.0f, 0.0f, 1.0f };
 
 private:
     std::string name_;

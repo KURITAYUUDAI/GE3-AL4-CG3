@@ -59,11 +59,17 @@ void PSOManager::RegisterEnvironmentPSO()
 		descriptorRangeE[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
 		descriptorRangeE[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
-		rootParameters.resize(6);
+		D3D12_DESCRIPTOR_RANGE descriptorRangeM[1]{};
+		descriptorRangeM[0].BaseShaderRegister = 2; // t1
+		descriptorRangeM[0].NumDescriptors = 1;
+		descriptorRangeM[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+		descriptorRangeM[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+
+		rootParameters.resize(8);
 
 		// Enum定義 (可読性のため)
 		enum {
-			kMaterial, kTransform, kTexture, kLight, kCamera, kEnvironment
+			kMaterial, kTransform, kTexture, kLight, kCamera, kEnvironment, kDissolve, kMask
 		};
 
 		rootParameters[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;	// CBVを使う
@@ -92,7 +98,14 @@ void PSOManager::RegisterEnvironmentPSO()
 		rootParameters[5].DescriptorTable.pDescriptorRanges = descriptorRangeE;	// Tableの中身の配列を指定
 		rootParameters[5].DescriptorTable.NumDescriptorRanges = _countof(descriptorRangeE);	// Tableで利用する数
 
+		rootParameters[6].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;	// CBVを使う
+		rootParameters[6].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;	// PixelShaderで使う
+		rootParameters[6].Descriptor.ShaderRegister = 3;	// レジスタ番号3を使う
 
+		rootParameters[7].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE; // DescriptorTableを使う
+		rootParameters[7].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL; // PixelShaderで使う
+		rootParameters[7].DescriptorTable.pDescriptorRanges = descriptorRangeM;	// Tableの中身の配列を指定
+		rootParameters[7].DescriptorTable.NumDescriptorRanges = _countof(descriptorRangeM);	// Tableで利用する数
 
 		// シリアライズ
 		static D3D12_ROOT_SIGNATURE_DESC descriptionRootSignature{};

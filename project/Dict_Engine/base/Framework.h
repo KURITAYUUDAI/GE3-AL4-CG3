@@ -81,6 +81,7 @@ using namespace DirectX;
 #include "OffscreenRender.h"
 
 #include "PostEffectManager.h"
+#include "../tool/effect/DissolveManager.h"
 
 // ゲーム全体
 class Dict_Framework
@@ -164,6 +165,9 @@ protected:
 
 	// シーンマネージャー
 	SceneManager* sceneManager_ = SceneManager::GetInstance();
+
+	// ディゾルブマネージャー
+	DissolveManager* dissolveManager_ = DissolveManager::GetInstance();
 
 	float deltaTime_ = 0.0f;
 

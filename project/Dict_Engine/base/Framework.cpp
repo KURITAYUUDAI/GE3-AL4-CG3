@@ -39,6 +39,8 @@ void Dict_Framework::Initialize()
 
 	textureManager_->SetDxBase(dxBase_);
 
+	dissolveManager_->Initialize();
+
 	ModelManager::GetInstance()->Initialize(dxBase_);
 	SeedManager::GetInstance()->Initialize();
 	SoundManager::GetInstance()->InitializeMF();
@@ -99,6 +101,8 @@ void Dict_Framework::Finalize()
 	object3dManager_->Finalize();
 	// ポインタ解放
 	spriteManager_->Finalize();
+
+	dissolveManager_->Finalize();
 
 	// PSOManager終了処理
 	PSOManager::GetInstance()->Finalize();

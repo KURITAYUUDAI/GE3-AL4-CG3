@@ -13,6 +13,8 @@
 #include "enemy/EnemyUtility.h"
 #include "EventBus.h"
 
+#include "Dict_Engine/tool/effect/DissolveUtility.h"
+
 class Player : public ICollisionObserver
 {
 public:
@@ -69,6 +71,9 @@ public:	//外部入出力
 	// デスフラグ
 	bool GetIsDead() const { return isDead_; }
 
+	const float& GetThreshold() { return dissolveParams_.threshold; }
+	const Vector4& GetEdgeColor() { return dissolveParams_.edgeColor; }
+
 	void SetScale(const Vector3& scale) { transform_.scale = scale; }
 	void SetRotate(const Vector3& rotate) { transform_.rotate = rotate; }
 	void SetTranslate(const Vector3& translate) { transform_.translate = translate; }
@@ -81,6 +86,11 @@ public:	//外部入出力
 	void SetParent(WorldTransform* worldTransform);
 
 	void SetIsHPChanged(const int isHPChanged){ isHPChanged_ = isHPChanged; }
+
+
+	void SetThreshold(const float threshold) { dissolveParams_.threshold = threshold; }
+	void SetEdgeColor(const Vector4 edgeColor) { dissolveParams_.edgeColor = edgeColor; }
+
 
 private:
 
@@ -137,4 +147,6 @@ private:
 
 	bool isLockOnHeld_ = false;
 	EnemyID lockOnEnemyID_ = 0;
+
+	DissolveParams dissolveParams_;
 };

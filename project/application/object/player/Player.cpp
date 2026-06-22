@@ -10,6 +10,8 @@
 #include "PlayerEvent.h"
 #include "enemy/EnemyEvent.h"
 
+#include "Dict_Engine/tool/effect/DissolveManager.h"
+
 void Player::Initialize()
 {
 	deltaTime_ = 1.0f / 60.0f; // 仮の値。実際のゲームループで更新されるべ
@@ -41,6 +43,9 @@ void Player::Initialize()
 	transform_.translate = { 0.0f, 0.0f, 15.0f };
 
 	hitPoint_ = kMaxHitPoint;
+
+	dissolveParams_.threshold = 0.0f;
+	dissolveParams_.edgeColor = { 0.5f, 0.5f, 2.0f, 1.0f };
 
 	ChangeState(std::make_unique<PlayerIdleState>());
 }
@@ -133,18 +138,16 @@ void Player::Update(const float& deltaTime)
 
 	ImGui::Text("LockOnEnemyID: %d", static_cast<int>(lockOnEnemyID_));
 
-	/*Vector2 leftStick =
+	float dissolveThreshold = dissolveParams_.threshold;
+	Vector4 dissolveEdgeColor = dissolveParams_.edgeColor;
+	if (ImGui::SliderFloat("threshold", &dissolveThreshold, 0.0f, 1.0f))
 	{
-		InputManager::GetInstance()->GetLeftStickX(),
-		InputManager::GetInstance()->GetLeftStickY()
-	};
-	ImGui::InputFloat2("Left Stick", &leftStick.x, "%.3f", ImGuiInputTextFlags_ReadOnly);
-
-	bool isAPressed = InputManager::GetInstance()->PushButton(XINPUT_GAMEPAD_A);
-	ImGui::Text("A Button: %s", isAPressed ? "Pressed" : "Released");
-	
-	float triggerRight = InputManager::GetInstance()->GetRightTrigger();
-	ImGui::InputFloat("Right Trigger", &triggerRight, 0.1f, 0.1f, "%.3f", ImGuiInputTextFlags_ReadOnly);*/
+		SetThreshold(dissolveThreshold);
+	}
+	if (ImGui::DragFloat4("EdgeColor", &dissolveEdgeColor.x, 0.1f, 0.0f, 10.0f))
+	{
+		SetEdgeColor(dissolveEdgeColor);
+	}
 
 	ImGui::End();
 #endif
@@ -195,6 +198,9 @@ void Player::Draw()
 	DirectXBase::GetInstance()->GetCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	SrvManager::GetInstance()->SetGraphicsRootDescriptorTable(5, environmentTextureIndex_);
+
+	DissolveManager::GetInstance()->SetCbufferDissolveResource(6, dissolveParams_);
+	DissolveManager::GetInstance()->SetCbufferMaskTexture(7, 0);
 
 	if (isDraw_)
 	{

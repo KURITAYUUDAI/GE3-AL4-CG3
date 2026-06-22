@@ -6,6 +6,7 @@
 #include "PostEffectManager.h"
 #include "GaussianBlur.h"
 #include "RadialBlur.h"
+#include "Dissolve.h"
 #include "BulletManager.h"
 #include "SplineCurve.h"
 #include "HPGageUI.h"
@@ -205,8 +206,9 @@ void GamePlayScene::Initialize()
 	PostEffectManager::GetInstance()->Clear();
 	//PostEffectManager::GetInstance()->Add("Outline");
 	//PostEffectManager::GetInstance()->Add("GaussianBlur");
-	PostEffectManager::GetInstance()->Add("RadialBlur");
+	//PostEffectManager::GetInstance()->Add("RadialBlur");
 	//PostEffectManager::GetInstance()->Add("Bloom");
+	PostEffectManager::GetInstance()->Add("Dissolve");
 
 	debugManager_->Initialize();
 
@@ -331,7 +333,7 @@ void GamePlayScene::Update(const float& deltaTime)
 
 	ImGui::End();*/
 
-	ImGui::Begin("RadialBlur");
+	/*ImGui::Begin("RadialBlur");
 	auto* blur = PostEffectManager::GetInstance()->Get<RadialBlur>("RadialBlur");
 	Vector2 center = blur->GetCenter();
 	float blurWidth = blur->GetBlurWidth();
@@ -342,6 +344,21 @@ void GamePlayScene::Update(const float& deltaTime)
 	if (ImGui::SliderFloat("BlurWidth", &blurWidth, 0.0f, 0.01f))
 	{
 		blur->SetBlurWidth(blurWidth);
+	}
+
+	ImGui::End();*/
+
+	ImGui::Begin("Dissolve");
+	auto* dissolve = PostEffectManager::GetInstance()->Get<Dissolve>("Dissolve");
+	Vector4 edgeColor = dissolve->GetEdgeColor();
+	float threshold = dissolve->GetThreshold();
+	if (ImGui::ColorEdit4("##colorSprite", &edgeColor.x))
+	{
+		dissolve->SetEdgeColor(edgeColor);
+	}
+	if (ImGui::SliderFloat("threshold", &threshold, 0.0f, 1.0f))
+	{
+		dissolve->SetThreshold(threshold);
 	}
 
 	ImGui::End();
