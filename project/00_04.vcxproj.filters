@@ -315,6 +315,12 @@
     <ClCompile Include="Dict_Engine\tool\effect\DissolveManager.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
+    <ClCompile Include="Dict_Engine\postEffect\Random.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Dict_Engine\tool\random\ChronoManager.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="resources\shaders\Object3d\Object3d.PS.hlsl">
@@ -346,6 +352,7 @@
     <FxCompile Include="resources\shaders\DebugDraw\DebugDraw.GS.hlsl" />
     <FxCompile Include="resources\shaders\PostEffect\RadialBlur.PS.hlsl" />
     <FxCompile Include="resources\shaders\PostEffect\Dissolve.PS.hlsl" />
+    <FxCompile Include="resources\shaders\PostEffect\Random.PS.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Dict_Engine\camera\DebugCamera.h">
@@ -604,6 +611,12 @@
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="Dict_Engine\tool\effect\DissolveUtility.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Dict_Engine\postEffect\Random.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Dict_Engine\tool\random\ChronoManager.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
   </ItemGroup>

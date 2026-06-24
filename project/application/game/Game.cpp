@@ -6,6 +6,7 @@
 #include "Bloom.h"
 #include "RadialBlur.h"
 #include "Dissolve.h"
+#include "Random.h"
 
 void Game::Initialize()
 {
@@ -22,7 +23,8 @@ void Game::Initialize()
 		[]{ return std::make_unique<RadialBlur>(); });
 	postEffectManager_->RegisterFactory("Dissolve",
 		[]{ return std::make_unique<Dissolve>(); });
-
+	postEffectManager_->RegisterFactory("Random",
+		[]{ return std::make_unique<Random>(); });
 
 	// シーンマネージャーに最初のシーンをセット
 	sceneManager_->Initialize("TITLE");
@@ -47,7 +49,7 @@ void Game::Finalize()
 
 void Game::Update()
 {
-	// 規定クラスの往診処理
+	// 規定クラスの更新処理
 	Dict_Framework::Update();
 
 	imguiManager_->Begin();

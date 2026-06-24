@@ -92,7 +92,6 @@ void Dict_Framework::Initialize()
 
 	// インプットマネージャーを初期化
 	inputManager_->Initialize(winAPI_.get());
-	
 }
 
 void Dict_Framework::Finalize()
@@ -137,6 +136,9 @@ void Dict_Framework::Finalize()
 	// OffscreenRender終了処理
 	offscreenRender_->Finalize();
 
+	// 経過時間マネージャー終了処理
+	chronoManager_->Finalize();
+
 	// DirectXBase終了処理
 	dxBase_->Finalize();
 
@@ -171,6 +173,8 @@ void Dict_Framework::Run()
 
 	while (true) // ゲームループ
 	{
+		chronoManager_->Start();
+
 		// 毎フレーム更新
 		Update();
 		// 終了リクエストが来たら抜ける
@@ -181,6 +185,8 @@ void Dict_Framework::Run()
 
 		// 描画
 		Draw();
+
+		chronoManager_->End();
 	}
 
 	// ゲームの終了
