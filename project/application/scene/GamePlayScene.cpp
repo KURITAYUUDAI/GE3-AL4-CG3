@@ -7,6 +7,7 @@
 #include "GaussianBlur.h"
 #include "RadialBlur.h"
 #include "Dissolve.h"
+#include "Random.h"
 #include "BulletManager.h"
 #include "SplineCurve.h"
 #include "HPGageUI.h"
@@ -208,7 +209,8 @@ void GamePlayScene::Initialize()
 	//PostEffectManager::GetInstance()->Add("GaussianBlur");
 	//PostEffectManager::GetInstance()->Add("RadialBlur");
 	//PostEffectManager::GetInstance()->Add("Bloom");
-	PostEffectManager::GetInstance()->Add("Dissolve");
+	/*PostEffectManager::GetInstance()->Add("Dissolve");*/
+	PostEffectManager::GetInstance()->Add("Random");
 
 	debugManager_->Initialize();
 
@@ -301,6 +303,8 @@ void GamePlayScene::Update(const float& deltaTime)
 
 	WorldTransform::AdvanceFrame();
 
+	
+
 #ifdef _DEBUG
 
 	// デモウィンドウ表示
@@ -348,7 +352,7 @@ void GamePlayScene::Update(const float& deltaTime)
 
 	ImGui::End();*/
 
-	ImGui::Begin("Dissolve");
+	/*ImGui::Begin("Dissolve");
 	auto* dissolve = PostEffectManager::GetInstance()->Get<Dissolve>("Dissolve");
 	Vector4 edgeColor = dissolve->GetEdgeColor();
 	float threshold = dissolve->GetThreshold();
@@ -361,7 +365,10 @@ void GamePlayScene::Update(const float& deltaTime)
 		dissolve->SetThreshold(threshold);
 	}
 
-	ImGui::End();
+	ImGui::End();*/
+
+	//auto* random = PostEffectManager::GetInstance()->Get<Random>("Random");
+	//random->SetTime()
 
 	//ImGui_ImplDX12_NewFrame();
 	//ImGui_ImplWin32_NewFrame();

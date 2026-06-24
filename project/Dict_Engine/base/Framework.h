@@ -83,6 +83,8 @@ using namespace DirectX;
 #include "PostEffectManager.h"
 #include "../tool/effect/DissolveManager.h"
 
+#include "random/ChronoManager.h"
+
 // ゲーム全体
 class Dict_Framework
 {
@@ -168,6 +170,9 @@ protected:
 
 	// ディゾルブマネージャー
 	DissolveManager* dissolveManager_ = DissolveManager::GetInstance();
+
+	// 経過時間マネージャー
+	ChronoManager* chronoManager_ = ChronoManager::GetInstance();
 
 	float deltaTime_ = 0.0f;
 

@@ -160,6 +160,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="application\command\GameSceneCommand.cpp" />
     <ClCompile Include="application\object\bullet\BulletManager.cpp" />
     <ClCompile Include="application\object\bullet\Bullet.cpp" />
+    <ClCompile Include="Dict_Engine\tool\random\ChronoManager.cpp" />
     <ClCompile Include="Dict_Engine\tool\collision\CollisionObserver.cpp" />
     <ClCompile Include="Dict_Engine\tool\collision\Collider.cpp" />
     <ClCompile Include="Dict_Engine\tool\collision\CollisionManager.cpp" />
@@ -239,6 +240,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="Dict_Engine\io\ResourcePath.cpp" />
     <ClCompile Include="Dict_Engine\ui\SceneUIBase.cpp" />
     <ClCompile Include="Dict_Engine\postEffect\RadialBlur.cpp" />
+    <ClCompile Include="Dict_Engine\postEffect\Random.cpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="resources\shaders\DebugDraw\DebugDraw.GS.hlsl">
@@ -271,6 +273,14 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Development|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="resources\shaders\PostEffect\Random.PS.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Development|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Development|x64'">6.8</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">6.8</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">6.8</ShaderModel>
     </FxCompile>
     <FxCompile Include="resources\shaders\PostEffect\Dissolve.PS.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Development|x64'">true</ExcludedFromBuild>
@@ -388,6 +398,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="application\object\enemy\EnemyUtility.h" />
     <ClInclude Include="application\object\player\PlayerEvent.h" />
     <ClInclude Include="application\ui\GamePlayUIUtility.h" />
+    <ClInclude Include="Dict_Engine\tool\random\ChronoManager.h" />
     <ClInclude Include="Dict_Engine\tool\collision\CollisionObserver.h" />
     <ClInclude Include="Dict_Engine\tool\collision\Collider.h" />
     <ClInclude Include="Dict_Engine\tool\collision\CollisionManager.h" />
@@ -466,6 +477,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Dict_Engine\postEffect\RadialBlur.h" />
     <ClInclude Include="Dict_Engine\postEffect\Dissolve.h" />
     <ClInclude Include="Dict_Engine\tool\effect\DissolveManager.h" />
+    <ClInclude Include="Dict_Engine\postEffect\Random.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="externals\DirectXTex\DirectXTex_Desktop_2022_Win10.vcxproj">
