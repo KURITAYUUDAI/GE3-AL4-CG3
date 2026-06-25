@@ -1,6 +1,7 @@
 #include "CameraManager.h"
 //#include "Camera.h"
 #include "ICameraController.h"
+#include "time/DeltaTimeManager.h"
 
 std::unique_ptr<CameraManager> CameraManager::instance_ = nullptr;
 
@@ -45,6 +46,8 @@ void CameraManager::Initialize()
 
 void CameraManager::Update(const float& deltaTime)
 {
+	deltaTime_ = DeltaTimeManager::GetInstance()->GetDeltaTime(DeltaTimeGroup::UI);
+
 	if (activeCameraController_ && mainCamera_)
 	{
 	#ifdef _DEBUG
@@ -67,7 +70,7 @@ void CameraManager::Update(const float& deltaTime)
 
 	#endif
 
-		activeCameraController_->Update(mainCamera_.get(), deltaTime);
+		activeCameraController_->Update(mainCamera_.get(), deltaTime_);
 
 		if (isDebugCamera_ && debugCamera_)
 		{

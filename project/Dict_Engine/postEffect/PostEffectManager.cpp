@@ -82,6 +82,26 @@ void PostEffectManager::Remove(uint32_t index)
     effectChain_.erase(effectChain_.begin() + index);
 }
 
+void PostEffectManager::Remove(const std::string& name)
+{
+   auto it =  std::find_if(effectChain_.begin(), effectChain_.end(), 
+       [&name](const std::unique_ptr<PostEffect>& effect){
+            return effect->GetName() == name;
+       });
+
+   // 見つかった場合は削除
+   if (it != effectChain_.end())
+   {
+       (*it)->Finalize(); // エフェクト側の終了処理を呼び出す
+       effectChain_.erase(it);
+   } 
+   else
+   {
+       // デバッグ用にログを出したり、アサートをかける場合はここに記述
+       Logger::Log("PostEffectManager: Remove 対象のエフェクトが見つかりませんでした: " + name + "\n");
+   }
+}
+
 void PostEffectManager::Swap(uint32_t indexA, uint32_t indexB)
 {
     assert(indexA < effectChain_.size() && "PostEffectManager: Swap indexA が範囲外です");

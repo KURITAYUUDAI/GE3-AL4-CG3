@@ -2,26 +2,10 @@
 #include <memory>
 #include "BaseScene.h"
 #include "AbstractSceneFactory.h"
+#include "effect/FadeManager.h"
 
 class SceneManager
 {
-
-public:
-
-	void Initialize(const std::string& sceneName);
-
-	void Update(const float& deltaTime);
-
-	void Draw();
-
-	void ChangeScene(const std::string& sceneName);
-
-public:	// 外部入出力
-
-	const std::string GetNextScene() const;
-
-	void SetSceneRequest(const std::string& sceneRequest){ sceneRequest_ = sceneRequest; }
-
 public:
 
 	// シングルトンインスタンスの取得
@@ -51,6 +35,26 @@ private:
 
 	friend struct std::default_delete<SceneManager>;
 
+public:
+
+	void Initialize(const std::string& sceneName);
+
+	void Update(const float& deltaTime);
+
+	void Draw();
+
+	void ChangeScene(const std::string& sceneName);
+
+
+public:	// 外部入出力
+
+	const std::string GetNextScene() const;
+
+	const FadeManager::Status& GetFadeStatus() const { return fadeStatus_; }
+
+	void SetSceneRequest(const std::string& sceneRequest);
+
+
 
 private:
 
@@ -63,5 +67,6 @@ private:
 
 	std::unique_ptr<BaseScene> currentScene_;
 
+	FadeManager::Status fadeStatus_ = FadeManager::Status::None;
 };
 

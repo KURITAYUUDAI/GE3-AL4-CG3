@@ -25,6 +25,10 @@ void Dict_Framework::Initialize()
 	winAPI_ = std::make_unique<WindowsAPI>();
 	winAPI_->Initialize();
 
+	chronoManager_->Initialize(60.0f);
+
+	deltaTimeManager_->Initialize();
+
 	dxBase_->Initialize(winAPI_.get());
 
 	srvManager_->Initialize(dxBase_);
@@ -34,6 +38,8 @@ void Dict_Framework::Initialize()
 	offscreenRender_->Initialize();
 
 	postEffectManager_->Initialize(winAPI_->kClientWidth, winAPI_->kClientHeight);
+
+	fadeManager_->Initialize();
 
 	imguiManager_->Initialize(winAPI_.get(), dxBase_);
 
@@ -133,8 +139,13 @@ void Dict_Framework::Finalize()
 
 	delete sceneFactory_;
 
+	fadeManager_->Finalize();
+
 	// OffscreenRender終了処理
 	offscreenRender_->Finalize();
+
+	// 
+	deltaTimeManager_->Finalize();
 
 	// 経過時間マネージャー終了処理
 	chronoManager_->Finalize();
@@ -161,7 +172,8 @@ void Dict_Framework::Update()
 		return;
 	} 
 
-	deltaTime_ = dxBase_->GetDeltaTime();
+	deltaTime_ = chronoManager_->GetDeltaTime();
+	deltaTimeManager_->Update(chronoManager_->GetDeltaTime());
 
 	inputManager_->Update();
 }
@@ -187,6 +199,8 @@ void Dict_Framework::Run()
 		Draw();
 
 		chronoManager_->End();
+
+		chronoManager_->Update();
 	}
 
 	// ゲームの終了

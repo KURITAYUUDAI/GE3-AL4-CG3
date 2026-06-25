@@ -1,5 +1,6 @@
 #include "ParticleEmitter.h"
 #include "ParticleManager.h"
+#include "time/DeltaTimeManager.h"
 
 void ParticleEmitter::Initialize(const std::string& name, const Transform& transform, 
 	const uint32_t& count, const float& frequency)
@@ -13,7 +14,9 @@ void ParticleEmitter::Initialize(const std::string& name, const Transform& trans
 
 void ParticleEmitter::Update(const float& deltaTime)
 {
-	frequencyTime_ += deltaTime;
+	deltaTime_ = DeltaTimeManager::GetInstance()->GetDeltaTime(DeltaTimeGroup::Effect);
+
+	frequencyTime_ += deltaTime_;
 	if (frequency_ <= frequencyTime_)
 	{
 		ParticleManager::GetInstance()->RandomEmit(name_, transform_.translate, count_);
@@ -28,7 +31,9 @@ void ParticleEmitter::Emit()
 
 void ParticleEmitter::RandomEmit(const float& deltaTime)
 {
-	frequencyTime_ += deltaTime;
+	deltaTime_ = DeltaTimeManager::GetInstance()->GetDeltaTime(DeltaTimeGroup::Effect);
+
+	frequencyTime_ += deltaTime_;
 	if (frequency_ <= frequencyTime_)
 	{
 		ParticleManager::GetInstance()->RandomEmit(name_, transform_.translate, count_);

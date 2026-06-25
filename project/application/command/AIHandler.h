@@ -15,6 +15,6 @@ public:
 private:
 
 	float timer_ = 0.0f;
-	float duration_ = 1.5f;
+	float duration_ = 5.0f;
 };
 

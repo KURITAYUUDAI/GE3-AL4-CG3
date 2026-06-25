@@ -105,9 +105,6 @@
     <ClCompile Include="Dict_Engine\base\D3DResourceLeakChecker.cpp">
       <Filter>ソース ファイル\engine\base</Filter>
     </ClCompile>
-    <ClCompile Include="Dict_Engine\base\FixFPS.cpp">
-      <Filter>ソース ファイル\engine\base</Filter>
-    </ClCompile>
     <ClCompile Include="Dict_Engine\base\TextureManager.cpp">
       <Filter>ソース ファイル\engine\base</Filter>
     </ClCompile>
@@ -318,7 +315,13 @@
     <ClCompile Include="Dict_Engine\postEffect\Random.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Dict_Engine\tool\random\ChronoManager.cpp">
+    <ClCompile Include="Dict_Engine\base\ChronoManager.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Dict_Engine\tool\time\DeltaTimeManager.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Dict_Engine\tool\effect\FadeManager.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
   </ItemGroup>
@@ -377,9 +380,6 @@
       <Filter>ヘッダー ファイル\engine\base</Filter>
     </ClInclude>
     <ClInclude Include="Dict_Engine\base\D3DResourceLeakChecker.h">
-      <Filter>ヘッダー ファイル\engine\base</Filter>
-    </ClInclude>
-    <ClInclude Include="Dict_Engine\base\FixFPS.h">
       <Filter>ヘッダー ファイル\engine\base</Filter>
     </ClInclude>
     <ClInclude Include="Dict_Engine\2d\SpriteManager.h">
@@ -616,7 +616,13 @@
     <ClInclude Include="Dict_Engine\postEffect\Random.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Dict_Engine\tool\random\ChronoManager.h">
+    <ClInclude Include="Dict_Engine\base\ChronoManager.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Dict_Engine\tool\time\DeltaTimeManager.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Dict_Engine\tool\effect\FadeManager.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
   </ItemGroup>

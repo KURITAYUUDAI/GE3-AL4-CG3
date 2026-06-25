@@ -125,6 +125,8 @@ public:
     /// </summary>
     void Remove(uint32_t index);
 
+    void Remove(const std::string& name);
+
     /// <summary>
     /// エフェクトの順番を入れ替える。
     /// </summary>

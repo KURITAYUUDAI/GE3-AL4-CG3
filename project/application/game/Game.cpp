@@ -54,6 +54,8 @@ void Game::Update()
 
 	imguiManager_->Begin();
 
+	deltaTimeManager_->ImGuiDebug();
+
 	sceneManager_->Update(deltaTime_);
 
 	imguiManager_->End();

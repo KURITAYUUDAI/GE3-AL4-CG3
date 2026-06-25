@@ -1,6 +1,22 @@
-#include "FixFPS.h"
+#include "ChronoManager.h"
 
-void FixFPS::Initialize(const float& frameNum)
+std::unique_ptr<ChronoManager> ChronoManager::instance_ = nullptr;
+
+ChronoManager* ChronoManager::GetInstance()
+{
+	if (instance_ == nullptr)
+	{
+		instance_ = std::make_unique<ChronoManager>(ConstructorKey());
+	}
+	return instance_.get();
+}
+
+void ChronoManager::Finalize()
+{
+	instance_.reset();
+}
+
+void ChronoManager::Initialize(const float& frameNum)
 {
 	frameNum_ = frameNum;
 
@@ -9,7 +25,7 @@ void FixFPS::Initialize(const float& frameNum)
 	deltaTime_ = 1.0f / frameNum_;
 }
 
-void FixFPS::Update()
+void ChronoManager::Update()
 {
 	// 1/60秒ぴったりの時間
 	const std::chrono::microseconds kMinTime(uint64_t(1.0e+6f / frameNum_));
@@ -65,5 +81,15 @@ void FixFPS::Update()
 	{
 		reference_ += kMinTime; // 通常時は理想時間を足していく
 	}
+}
 
+void ChronoManager::Start()
+{
+	start_ = std::chrono::high_resolution_clock::now();
+}
+
+void ChronoManager::End()
+{
+	end_ = std::chrono::high_resolution_clock::now();
+	duratetionMiliSec_ += std::chrono::duration_cast<std::chrono::milliseconds>(end_ - start_).count();
 }

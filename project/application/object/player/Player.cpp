@@ -11,6 +11,7 @@
 #include "enemy/EnemyEvent.h"
 
 #include "Dict_Engine/tool/effect/DissolveManager.h"
+#include "time/DeltaTimeManager.h"
 
 void Player::Initialize()
 {
@@ -81,7 +82,7 @@ void Player::EventDispatch()
 
 void Player::Update(const float& deltaTime)
 {
-	deltaTime_ = deltaTime;
+	deltaTime_ = DeltaTimeManager::GetInstance()->GetDeltaTime(DeltaTimeGroup::Player);
 
 	IInputHandler* handler = selector_.GetHandler();
 	if (handler->IsActionPressed("lockOn"))
@@ -94,9 +95,9 @@ void Player::Update(const float& deltaTime)
 		isLockOnHeld_ = false;
 	}
 
-	state_->Update(this, deltaTime);
+	state_->Update(this, deltaTime_);
 
-	transform_.translate += velocity_ * deltaTime;
+	transform_.translate += velocity_ * deltaTime_;
 	/*transform_.rotate += (targetRoll_ - transform_.rotate) * 0.1f;*/
 
 	
@@ -149,6 +150,9 @@ void Player::Update(const float& deltaTime)
 		SetEdgeColor(dissolveEdgeColor);
 	}
 
+	ImGui::Text("isHit: %d", GetIsHit());
+	ImGui::Text("justAvoidAccept : %d", justAvoidAccept_);
+
 	ImGui::End();
 #endif
 
@@ -172,7 +176,7 @@ void Player::Update(const float& deltaTime)
 
 	if (damageTimer_ > 0.0f)
 	{
-		damageTimer_ -= kDeltaTime;
+		damageTimer_ -= deltaTime_;
 	}
 	if (damageTimer_ < 0.0f)
 	{
@@ -223,21 +227,38 @@ void Player::Finalize()
 
 void Player::ChangeState(std::unique_ptr<IPlayerState> newState)
 {
+	if (state_)
+	{
+		state_->Finalize(this);
+	}
 	state_ = std::move(newState);
 	state_->Initialize(this);
 }
 
 void Player::OnCollision(Collider* self, Collider* other)
 {
-	if (damageTimer_ == 0.0f)
+	if (justAvoidAccept_ && other->GetOwner()->GetIsHit())
 	{
-		Damage(1);
-		//PlaySEHit();
+		JustAvoid(avoidDirection_);
+		return;
 	}
-	if (hitPoint_ <= 0)
+
+	if (GetIsHit() && other->GetOwner()->GetIsHit())
 	{
-		isDead_ = true;
-		//PlaySEDead();
+		if (damageTimer_ == 0.0f)
+		{
+			Damage(1);
+			//PlaySEHit();
+		}
+		if (hitPoint_ <= 0)
+		{
+			isDead_ = true;
+			//PlaySEDead();
+		}
+	}
+	else if(!GetIsHit() && other->GetOwner()->GetIsHit())
+	{
+		other->GetOwner()->SetIsHit(false);
 	}
 
 	/*if (other->GetAttribute() == static_cast<uint32_t>(CollisionAttribute::Enemy))
@@ -250,14 +271,16 @@ void Player::Damage(int damage)
 {
 	const int previousHP = hitPoint_;
 
-	if (state_->GetType() != PlayerStateType::Avoid)
+	//if (state_->GetType() != PlayerStateType::Avoid)
+	//{
+	//	
+	//}
+
+	hitPoint_ -= damage;
+	damageTimer_ = kDamageInvincible_;
+	if (hitPoint_ < 0)
 	{
-		hitPoint_ -= damage;
-		damageTimer_ = kDamageInvincible_;
-		if (hitPoint_ < 0)
-		{
-			hitPoint_ = 0;
-		}
+		hitPoint_ = 0;
 	}
 
 	if (hitPoint_ == previousHP)
@@ -328,13 +351,29 @@ void Player::Shot()
 	{
 		assert(false);
 	}
-	BulletManager::GetInstance()->CreatePlayerBullet(GetWorldPosition(), bulletDirection * bulletSpeed_);
-	ChangeState(std::make_unique<PlayerShotState>());
+
+	if (state_->GetType() == PlayerStateType::JustAvoid)
+	{
+		BulletManager::GetInstance()->CreateCounterBullet(GetWorldPosition(), bulletDirection * bulletSpeed_);
+	}
+	else
+	{
+		BulletManager::GetInstance()->CreatePlayerBullet(GetWorldPosition(), bulletDirection * bulletSpeed_);
+		ChangeState(std::make_unique<PlayerShotState>());
+	}
 }
 
 void Player::Avoid(const Vector2& direction)
 {
 	ChangeState(std::make_unique<PlayerAvoidState>(direction));
+}
+
+void Player::JustAvoid(const Vector3& avoidDirection)
+{
+	DeltaTimeManager::GetInstance()->RequestOtherSlowMotion(DeltaTimeGroup::Player,
+		0.5f, 0.05f, 1.0f, 0.05f);
+
+	ChangeState(std::make_unique<PlayerJustAvoidState>(avoidDirection));
 }
 
 void Player::MoveAvoid(const Vector3 direction, float speed)
@@ -348,6 +387,11 @@ void Player::MoveAvoid(const Vector3 direction, float speed)
 void Player::SetTargetRoll(const Vector3 rollRadian)
 {
 	targetRoll_ = rollRadian;
+}
+
+void Player::MoveJustAvoid(const Vector3 direction, float speed)
+{
+	velocity_ = direction * speed;
 }
 
 const Vector3 Player::GetWorldPosition() const

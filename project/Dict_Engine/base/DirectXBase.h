@@ -19,7 +19,6 @@ using namespace DirectX;
 #include "imgui_impl_win32.h"
 
 #include "WindowsAPI.h"
-#include "FixFPS.h"
 
 #include "externals/DirectXTex/d3dx12.h"
 #include <vector>
@@ -172,8 +171,6 @@ public: // ゲッター
 
 	ID3D12Resource* GetDepthResource() { return depthResource_.Get(); }
 
-	float GetDeltaTime() { return fixFPS_->GetDeltaTime(); }
-
 	const DXGI_FORMAT GetRtvFormat() { return kRtvFormat; }
 
 	const Matrix4x4 GetViewportMatrix() { return viewportMatrix_; }
@@ -216,9 +213,6 @@ private:
 
 	// WindowsAPI
 	WindowsAPI* winAPI_ = nullptr;
-
-	// FixFPS
-	std::unique_ptr<FixFPS> fixFPS_ = std::make_unique<FixFPS>();
 
 	// DXCIファクトリー
 	ComPtr<IDXGIFactory7> dxgiFactory_ = nullptr;

@@ -102,8 +102,16 @@ void Bullet::Finalize()
 
 void Bullet::OnCollision(Collider* self, Collider* other)
 {
-	isDead_ = true;
-	return;
+	/*if (other->GetOwner()->GetIsHit() == false)
+	{
+	}*/
+
+
+	if (GetIsHit() && other->GetOwner()->GetIsHit())
+	{
+		isDead_ = true;
+		return;
+	}
 
 	//if (self->GetAttribute() == static_cast<uint32_t>(CollisionAttribute::PlayerAttack) 
 	//	&& other->GetAttribute() == static_cast<uint32_t>(CollisionAttribute::Enemy))

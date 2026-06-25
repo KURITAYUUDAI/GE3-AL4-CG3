@@ -25,6 +25,8 @@ private:
 
 private:
 
+    float deltaTime_ = 0.0f;
+
     std::unique_ptr<UIManager<GameUIViewModel>> uiManager_;
     std::unique_ptr<GameUIController> gameUIController_;
 

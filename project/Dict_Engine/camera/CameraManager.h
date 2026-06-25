@@ -118,6 +118,8 @@ private:
 
 private:
 
+	float deltaTime_ = 0.0f;
+
 	std::unique_ptr<Camera> mainCamera_;
 	std::unordered_map<std::string, ICameraController*> cameraControllers_;
 	ICameraController* activeCameraController_ = nullptr;

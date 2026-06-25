@@ -3,6 +3,7 @@
 #include "LockOnUI.h"
 #include "DirectXBase.h"
 #include "CameraManager.h"
+#include "time/DeltaTimeManager.h"
 
 void GamePlaySceneUI::Initialize(EventBus* eventBus)
 {
@@ -75,13 +76,15 @@ void GamePlaySceneUI::Finalize()
 
 void GamePlaySceneUI::Update(float deltaTime)
 {
-    gameUIController_->Update(deltaTime);
+    deltaTime_ = DeltaTimeManager::GetInstance()->GetDeltaTime(DeltaTimeGroup::UI);
+
+    gameUIController_->Update(deltaTime_);
 
     SyncScreenBossHPGage();
     SyncOverHeadEnemyHPGages();
     SyncLockOnUI();
 
-    uiManager_->Update(gameUIController_->GetViewModel(), deltaTime);
+    uiManager_->Update(gameUIController_->GetViewModel(), deltaTime_);
 }
 
 void GamePlaySceneUI::DrawLayer(const UILayer& layer)

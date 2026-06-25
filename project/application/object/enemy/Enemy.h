@@ -139,12 +139,12 @@ private:
 
 	bool isDraw_ = true;
 
-	float bulletSpeed_ = 30.0f;
+	float bulletSpeed_ = 15.0f;
 
 	// HP
 	int hitPoint_;
 	// 最大HP
-	static inline const int kMaxHitPoint = 100;
+	static inline const int kMaxHitPoint = 10;
 
 	float damageTimer_;
 	const float kDamageInvincible_ = 0.1f;

@@ -8,6 +8,7 @@
 #include "CameraManager.h"
 #include "Camera.h"
 #include "ResourcePath.h"
+#include "time/DeltaTimeManager.h"
 
 std::unique_ptr<ParticleManager> ParticleManager::instance_ = nullptr;
 
@@ -131,6 +132,8 @@ void ParticleManager::Finalize()
 
 void ParticleManager::Update(const float& deltaTime)
 {
+	deltaTime_ = DeltaTimeManager::GetInstance()->GetDeltaTime(DeltaTimeGroup::Effect);
+
 	viewProjectionMatrix_ = CameraManager::GetInstance()->GetMainCamera()->GetViewProjectionMatrix();
 
 	for (auto& particleGroup : particleGroups_)
@@ -152,16 +155,16 @@ void ParticleManager::Update(const float& deltaTime)
 				if (IsCollision(accelerationField.area, particle.transform.translate) 
 					&& particleGroup.second.isMoveAccelerationField)
 				{
-					particle.velocity += accelerationField.acceleration * deltaTime;
+					particle.velocity += accelerationField.acceleration * deltaTime_;
 				}
 			}
 
-			particle.transform.translate += particle.velocity * deltaTime;
+			particle.transform.translate += particle.velocity * deltaTime_;
 
 			particle.color.w =
 				1.0f - (particle.currentTime / particle.lifeTime);
 
-			particle.currentTime += deltaTime;
+			particle.currentTime += deltaTime_;
 
 			Matrix4x4 worldMatrix;
 

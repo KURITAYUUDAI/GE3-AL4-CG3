@@ -33,9 +33,6 @@ void DirectXBase::Initialize(WindowsAPI* winAPI)
 	assert(winAPI);
 
 	this->winAPI_ = winAPI;
-	
-	// FPS固定初期化
-	fixFPS_->Initialize(60.0f);
 
 	// デバイス初期化
 	InitializeDevice();
@@ -85,8 +82,6 @@ void DirectXBase::Finalize()
 {
 	// オブジェクトの解放処理
 	CloseHandle(fenceEvent_);
-
-	fixFPS_.reset();
 
 	instance_.reset();
 }
@@ -209,8 +204,6 @@ void DirectXBase::PostDraw()
 		// イベント待つ
 		WaitForSingleObject(fenceEvent_, INFINITE);
 	}
-
-	fixFPS_->Update();
 
 	// 次のフレーム用のコマンドリストを準備
 	hr = commandAllocator_->Reset();

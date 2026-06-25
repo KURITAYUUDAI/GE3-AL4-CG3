@@ -44,11 +44,13 @@ public:	// Command
 	void LockOn();
 	void Shot();
 	void Avoid(const Vector2& direction);
+	void JustAvoid(const Vector3& avoidDirection);
 
 public: // Command対応
 
 	void MoveAvoid(const Vector3 direction, float speed);
 	void SetTargetRoll(const Vector3 rollRadian);
+	void MoveJustAvoid(const Vector3 direction, float speed);
 
 public:	//外部入出力
 
@@ -74,6 +76,8 @@ public:	//外部入出力
 	const float& GetThreshold() { return dissolveParams_.threshold; }
 	const Vector4& GetEdgeColor() { return dissolveParams_.edgeColor; }
 
+	const bool GetJustAvoidAccept() { return justAvoidAccept_; }
+
 	void SetScale(const Vector3& scale) { transform_.scale = scale; }
 	void SetRotate(const Vector3& rotate) { transform_.rotate = rotate; }
 	void SetTranslate(const Vector3& translate) { transform_.translate = translate; }
@@ -91,6 +95,8 @@ public:	//外部入出力
 	void SetThreshold(const float threshold) { dissolveParams_.threshold = threshold; }
 	void SetEdgeColor(const Vector4 edgeColor) { dissolveParams_.edgeColor = edgeColor; }
 
+	void SetAvoidDirection(const Vector3& avoidDirection){ avoidDirection_ = avoidDirection; }
+	void SetJustAvoidAccept(const bool justAvoidAccept) { justAvoidAccept_ = justAvoidAccept; }
 
 private:
 
@@ -149,4 +155,7 @@ private:
 	EnemyID lockOnEnemyID_ = 0;
 
 	DissolveParams dissolveParams_;
+
+	Vector3 avoidDirection_ = {};
+	bool justAvoidAccept_ = false;
 };

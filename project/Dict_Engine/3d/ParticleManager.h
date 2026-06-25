@@ -173,6 +173,8 @@ private:
 
 private:
 
+	float deltaTime_ = 0.0f;
+
 	std::string psoName_ = "ParticleDefault";
 	PSOManager::BlendMode blendMode_ = PSOManager::BlendMode::Normal;
 	PSOManager::FillMode fillMode_ = PSOManager::FillMode::kSolid;

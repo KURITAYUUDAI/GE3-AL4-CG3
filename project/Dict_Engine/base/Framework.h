@@ -83,7 +83,9 @@ using namespace DirectX;
 #include "PostEffectManager.h"
 #include "../tool/effect/DissolveManager.h"
 
-#include "random/ChronoManager.h"
+#include "ChronoManager.h"
+#include "time/DeltaTimeManager.h"
+#include "effect/FadeManager.h"
 
 // ゲーム全体
 class Dict_Framework
@@ -173,6 +175,12 @@ protected:
 
 	// 経過時間マネージャー
 	ChronoManager* chronoManager_ = ChronoManager::GetInstance();
+
+	// 各オブジェクトのフレーム時間マネージャー
+	DeltaTimeManager* deltaTimeManager_ = DeltaTimeManager::GetInstance();
+
+	// フェードマネージャー
+	FadeManager* fadeManager_ = FadeManager::GetInstance();
 
 	float deltaTime_ = 0.0f;
 

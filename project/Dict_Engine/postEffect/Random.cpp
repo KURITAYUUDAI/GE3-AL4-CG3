@@ -4,7 +4,7 @@
 #include "SrvManager.h"
 #include "Logger.h"
 #include <cassert>
-#include "random/ChronoManager.h"
+#include "ChronoManager.h"
 
 void Random::Initialize(uint32_t width, uint32_t height)
 {

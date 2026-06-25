@@ -20,6 +20,8 @@ public:
 	const float& GetRadius(){ return radius_; }
 	uint32_t GetAttribute() const { return attribute_; }
 	uint32_t GetMask() const {return mask_; }
+
+	ICollisionObserver* GetOwner() { return owner_; }
 	
 	void SetWorldPosition(const Vector3& position) { worldPosition_ = position; }
 	void SetRadius(const float& radius){ radius_ = radius; }

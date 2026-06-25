@@ -1,6 +1,7 @@
 #include "EnemyManager.h"
 #include "PlayerEvent.h"
 #include "EnemyEvent.h"
+#include "time/DeltaTimeManager.h"
 
 std::unique_ptr<EnemyManager> EnemyManager::instance_ = nullptr;
 
@@ -41,9 +42,11 @@ void EnemyManager::Initialize(EventBus* eventBus)
 
 void EnemyManager::Update(const float& deltaTime)
 {
+	deltaTime_ = DeltaTimeManager::GetInstance()->GetDeltaTime(DeltaTimeGroup::Enemy);
+
 	for (auto& enemy : enemies_)
 	{
-		enemy->Update(deltaTime);
+		enemy->Update(deltaTime_);
 	}
 
 	if (!enemies_.empty())
