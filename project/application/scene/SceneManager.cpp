@@ -1,6 +1,6 @@
 #include "SceneManager.h"
 #include "GamePlayScene.h"
-#include "effect/FadeManager.h"
+#include "DissolveTransition.h"
 
 std::unique_ptr<SceneManager> SceneManager::instance_ = nullptr;
 
@@ -28,6 +28,8 @@ void SceneManager::Initialize(const std::string& sceneName)
 {
 	sceneFactory_ = std::make_unique<SceneFactory>();
 
+	postEffectController_ = std::make_unique<PostEffectController>();
+
 	scene_ = sceneName;
 	sceneRequest_ = sceneName;
 	ChangeScene(sceneName);
@@ -35,41 +37,14 @@ void SceneManager::Initialize(const std::string& sceneName)
 
 void SceneManager::Update(const float& deltaTime)
 {
-	using enum FadeManager::Status;
-	using enum FadeManager::FadeType;
-	switch (fadeStatus_)
-	{
-	case None:
-
-		break;
-
-	case FadeIn:
-
-		if (FadeManager::GetInstance()->IsFinished(Dissolve))
-		{
-			fadeStatus_ = None;
-		}
-
-		break;
-
-	case FadeOut:
-
-		if (FadeManager::GetInstance()->IsFinished(Dissolve))
-		{
-			// シーン変更
-			ChangeScene(sceneRequest_);
-		}
-
-		break;
-	}
-
 	//if (sceneRequest_ != scene_)
 	//{
 	//	// シーン変更
 	//	ChangeScene(sceneRequest_);
 	//}
 
-	FadeManager::GetInstance()->Update();
+	sceneTransition_.Update(deltaTime);
+	postEffectController_->Update(deltaTime);
 
 	if (currentScene_)
 	{
@@ -107,10 +82,6 @@ void SceneManager::ChangeScene(const std::string& sceneName)
 
 	scene_ = sceneName;
 	currentScene_->Initialize();
-
-	fadeStatus_ = FadeManager::Status::FadeIn;
-	FadeManager::GetInstance()->Start(FadeManager::FadeType::Dissolve,
-		fadeStatus_, 0.5f);
 }
 
 const std::string SceneManager::GetNextScene() const
@@ -131,14 +102,34 @@ const std::string SceneManager::GetNextScene() const
 
 void SceneManager::SetSceneRequest(const std::string& sceneRequest)
 {
-	if (fadeStatus_ != FadeManager::Status::None) return;
+	if (sceneTransition_.IsRunning())
+	{
+		return;
+	}
+
+	if (sceneRequest == scene_)
+	{
+		return;
+	}
 
 	sceneRequest_ = sceneRequest;
 
-	if (sceneRequest_ != scene_)
-	{
-		fadeStatus_ = FadeManager::Status::FadeOut;
-		FadeManager::GetInstance()->Start(FadeManager::FadeType::Dissolve, 
-			FadeManager::Status::FadeOut, 0.5f);
-	}
+	auto dissolveTransition =
+		std::make_unique<DissolveTransition>(postEffectController_.get());
+
+	DissolveTransition::Setting setting;
+	setting.edgeWidth = 0.08f;
+	setting.noiseScale = 45.0f;
+	setting.fadeColor = { 0, 0, 0, 1 };
+	setting.edgeColor = { 1, 0.8f, 0.2f, 1 };
+
+	dissolveTransition->SetSetting(setting);
+
+	sceneTransition_.Start(
+		0.5f,
+		0.5f,
+		[this](){
+			ChangeScene(sceneRequest_);
+		},
+		std::move(dissolveTransition));
 }

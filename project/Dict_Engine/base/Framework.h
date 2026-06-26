@@ -85,7 +85,6 @@ using namespace DirectX;
 
 #include "ChronoManager.h"
 #include "time/DeltaTimeManager.h"
-#include "effect/FadeManager.h"
 
 // ゲーム全体
 class Dict_Framework
@@ -178,9 +177,6 @@ protected:
 
 	// 各オブジェクトのフレーム時間マネージャー
 	DeltaTimeManager* deltaTimeManager_ = DeltaTimeManager::GetInstance();
-
-	// フェードマネージャー
-	FadeManager* fadeManager_ = FadeManager::GetInstance();
 
 	float deltaTime_ = 0.0f;
 

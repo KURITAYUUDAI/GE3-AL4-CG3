@@ -12,6 +12,11 @@
 
 #include "Dict_Engine/tool/effect/DissolveManager.h"
 #include "time/DeltaTimeManager.h"
+#include "PostEffectManager.h"
+#include "SceneManager.h"
+
+#include "PrimitiveManager.h"
+#include "ParticleManager.h"
 
 void Player::Initialize()
 {
@@ -47,6 +52,32 @@ void Player::Initialize()
 
 	dissolveParams_.threshold = 0.0f;
 	dissolveParams_.edgeColor = { 0.5f, 0.5f, 2.0f, 1.0f };
+
+	justAvoidDarken_ = std::make_unique<JustAvoidDarken>(
+		SceneManager::GetInstance()->GetPostEffectController());
+
+	PrimitiveManager::RingConfig ringConfig;
+	ringConfig.segments = 32;
+	ringConfig.innerRadius = 1.5f;
+	ringConfig.outerRadius = 2.0f;
+	ringConfig.innerColor = { 0.0f, 1.0f, 1.0f, 0.2f };
+	ringConfig.outerColor = { 0.0f, 5.0f, 5.0f, 1.0f };
+	ringConfig.uvScaleU = 2.0f;
+	ringConfig.uvScaleV = 0.1f;
+	ringConfig.startAngle = 0.0f;
+	ringConfig.endAngle = 2.0f * pi;
+	ringConfig.alphaFade.startFadeRange = 0.1f;
+	ringConfig.alphaFade.endFadeRange = 0.1f;
+	PrimitiveManager::GetInstance()->CreateRing("ring_avoid", ringConfig);
+
+	ParticleManager::GetInstance()->CreateParticleGroup("ring_avoid", "gradationLine.png");
+	ParticleManager::GetInstance()->SetModel("ring_avoid", "ring_avoid");
+	ParticleManager::GetInstance()->SetIsMoveAccelerationField("ring_avoid", false);
+	ParticleManager::GetInstance()->SetIsBillboard("ring_avoid", true);
+
+	justAvoidEmitter_ = std::make_unique<ParticleEmitter>();
+	justAvoidEmitter_->Initialize("ring_avoid",
+		{ {1.0f, 2.0f, 1.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f} }, 1, 0.2f);
 
 	ChangeState(std::make_unique<PlayerIdleState>());
 }
@@ -100,7 +131,7 @@ void Player::Update(const float& deltaTime)
 	transform_.translate += velocity_ * deltaTime_;
 	/*transform_.rotate += (targetRoll_ - transform_.rotate) * 0.1f;*/
 
-	
+	justAvoidEmitter_->SetTranslate(GetWorldPosition());
 
 #ifdef _DEBUG
 	ImGui::Begin("PlayerSetting");
@@ -354,6 +385,7 @@ void Player::Shot()
 
 	if (state_->GetType() == PlayerStateType::JustAvoid)
 	{
+		justAvoidEmitter_->Emit();
 		BulletManager::GetInstance()->CreateCounterBullet(GetWorldPosition(), bulletDirection * bulletSpeed_);
 	}
 	else
@@ -372,8 +404,12 @@ void Player::JustAvoid(const Vector3& avoidDirection)
 {
 	DeltaTimeManager::GetInstance()->RequestOtherSlowMotion(DeltaTimeGroup::Player,
 		0.5f, 0.05f, 1.0f, 0.05f);
+	ChangeState(std::make_unique<PlayerJustAvoidState>(avoidDirection, justAvoidDarken_.get()));
+}
 
-	ChangeState(std::make_unique<PlayerJustAvoidState>(avoidDirection));
+void Player::StopJustAvoid(const float& returnRate)
+{
+	justAvoidDarken_->StartReturn(returnRate);
 }
 
 void Player::MoveAvoid(const Vector3 direction, float speed)

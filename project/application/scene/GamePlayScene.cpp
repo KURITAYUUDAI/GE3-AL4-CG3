@@ -8,10 +8,10 @@
 #include "RadialBlur.h"
 #include "Dissolve.h"
 #include "Random.h"
+#include "Darken.h"
 #include "BulletManager.h"
 #include "SplineCurve.h"
 #include "HPGageUI.h"
-#include "effect/FadeManager.h"
 
 void GamePlayScene::Initialize()
 {
@@ -208,7 +208,7 @@ void GamePlayScene::Initialize()
 	//PostEffectManager::GetInstance()->Add("Outline");
 	//PostEffectManager::GetInstance()->Add("GaussianBlur");
 	//PostEffectManager::GetInstance()->Add("RadialBlur");
-	PostEffectManager::GetInstance()->Add("Bloom");
+	//PostEffectManager::GetInstance()->Add("Bloom");
 	/*PostEffectManager::GetInstance()->Add("Dissolve");*/
 	/*PostEffectManager::GetInstance()->Add("Random");*/
 
@@ -254,7 +254,7 @@ void GamePlayScene::Finalize()
 	
 	debugManager_->Finalize();
 
-	PostEffectManager::GetInstance()->Clear();
+	//PostEffectManager::GetInstance()->Clear();
 
 	/*for (auto it = emitters_.begin(); it != emitters_.end(); ++it)
 	{
@@ -291,7 +291,7 @@ void GamePlayScene::Finalize()
 
 	lightManager_->Finalize();
 	cameraManager_->Finalize();
-	PostEffectManager::GetInstance()->Clear();
+	//PostEffectManager::GetInstance()->Clear();
 }
 
 void GamePlayScene::Update(const float& deltaTime)
@@ -514,25 +514,20 @@ void GamePlayScene::Update(const float& deltaTime)
 	eventBus_->Dispatch();
 	sceneUI_->Update(deltaTime);
 
-	if (SceneManager::GetInstance()->GetFadeStatus() == FadeManager::Status::None)
+	if (SceneManager::GetInstance()->GetSceneTransition().GetState() == SceneTransition::SceneTransitionState::Idle)
 	{
-
-
-
 		for (EnemyID id : enemyIDs_)
 		{
 			if (enemyManager_->GetIsDead(id))
 			{
 				SceneManager::GetInstance()->SetSceneRequest("TITLE");
 			}
-
-			if (player_->GetIsDead())
-			{
-				SceneManager::GetInstance()->SetSceneRequest("TITLE");
-			}
 		}
 
-
+		if (player_->GetIsDead())
+		{
+			SceneManager::GetInstance()->SetSceneRequest("TITLE");
+		}
 	}
 
 	enemyIDs_.erase(

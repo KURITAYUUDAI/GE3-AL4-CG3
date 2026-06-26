@@ -3,6 +3,7 @@
 #include <memory>
 #include "InputHandlerSelector.h"
 #include "GameSceneCommand.h"
+#include "JustAvoidDarken.h"
 
 class Player;
 
@@ -95,7 +96,9 @@ private:
 class PlayerJustAvoidState : public IPlayerState
 {
 public:
-	PlayerJustAvoidState(const Vector3& direction) : avoidDirection_(direction) {}
+	PlayerJustAvoidState(
+		const Vector3& direction, JustAvoidDarken* justAvoidDarken) 
+		: avoidDirection_(direction), justAvoidDarken_(justAvoidDarken) {}
 
 	PlayerStateType GetType() const override
 	{
@@ -118,4 +121,15 @@ private:
 	bool isCounter_ = false;
 
 	std::unique_ptr<IPlayerCommand> shotCommand_;
+
+	JustAvoidDarken* justAvoidDarken_;
+
+	JustAvoidDarken::Setting setting
+	{
+		.duration = 1.0f,
+		.maxIntensity = 0.55f,
+		.attackRate = 0.05f,
+		.returnRate = 0.05f,
+		.darkColor = { 0.0f, 0.0f, 0.0f, 1.0f }
+	};
 };

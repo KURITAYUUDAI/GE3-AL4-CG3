@@ -1,3 +1,4 @@
+#define NOMINMAX
 #include "Framework.h"
 
 void Dict_Framework::Initialize()
@@ -38,8 +39,6 @@ void Dict_Framework::Initialize()
 	offscreenRender_->Initialize();
 
 	postEffectManager_->Initialize(winAPI_->kClientWidth, winAPI_->kClientHeight);
-
-	fadeManager_->Initialize();
 
 	imguiManager_->Initialize(winAPI_.get(), dxBase_);
 
@@ -139,8 +138,6 @@ void Dict_Framework::Finalize()
 
 	delete sceneFactory_;
 
-	fadeManager_->Finalize();
-
 	// OffscreenRender終了処理
 	offscreenRender_->Finalize();
 
@@ -172,8 +169,10 @@ void Dict_Framework::Update()
 		return;
 	} 
 
-	deltaTime_ = chronoManager_->GetDeltaTime();
-	deltaTimeManager_->Update(chronoManager_->GetDeltaTime());
+	float rawDelta = chronoManager_->GetDeltaTime();
+	rawDelta = std::min(rawDelta, 1.0f / 10.0f);
+	deltaTimeManager_->Update(rawDelta);
+	deltaTime_ = deltaTimeManager_->GetDeltaTime(DeltaTimeGroup::World);
 
 	inputManager_->Update();
 }

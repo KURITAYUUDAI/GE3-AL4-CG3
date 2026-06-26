@@ -93,6 +93,10 @@ void PlayerAvoidState::Initialize(Player* player)
 	{
 		avoidDirection_ = Normalize(avoidDirection_);
 	}
+	else
+	{
+		avoidDirection_ = Normalize(Vector3{1.0f, 0.0f, 0.0f});
+	}
 
 	//float maxAvoidRoll = 2.0f * pi; // 最大で傾ける角度（ラジアン。0.5f は約30度）
 
@@ -182,6 +186,9 @@ void PlayerJustAvoidState::Initialize(Player* player)
 	shotCommand_ = std::make_unique<ShotCommand>(
 		player->GetInputHandlerSelector()->GetHandler());
 
+	justAvoidDarken_->SetSetting(setting);
+	justAvoidDarken_->Play();
+
 	player->SetRotate(Vector3(0.0f, 0.0f, 0.0f));
 	player->SetIsHit(false);
 	player->SetJustAvoidAccept(false);
@@ -234,7 +241,7 @@ void PlayerJustAvoidState::Update(Player* player, const float& deltaTime)
 	if (timer_ >= waitDuration_ || isCounter_)
 	{
 		player->SetRotate(Vector3(0.0f, 0.0f, 0.0f));
-
+		//player->StopJustAvoid(0.05f);
 		/*player->ClearLockOn();*/
 		player->ChangeState(std::make_unique<PlayerIdleState>());
 	}

@@ -207,16 +207,16 @@
     <ClCompile Include="application\command\InputHandlerSelector.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Dict_Engine\postEffect\PostEffectManager.cpp">
+    <ClCompile Include="Dict_Engine\tool\postEffect\PostEffectManager.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Dict_Engine\postEffect\PostEffect.cpp">
+    <ClCompile Include="Dict_Engine\tool\postEffect\PostEffect.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Dict_Engine\postEffect\GaussianBlur.cpp">
+    <ClCompile Include="application\tool\postEffect\GaussianBlur.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Dict_Engine\postEffect\Outline.cpp">
+    <ClCompile Include="application\tool\postEffect\Outline.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="Dict_Engine\camera\ICameraController.cpp">
@@ -240,7 +240,7 @@
     <ClCompile Include="Dict_Engine\math\Quaternion.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Dict_Engine\postEffect\Bloom.cpp">
+    <ClCompile Include="application\tool\postEffect\Bloom.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="Dict_Engine\math\DebugDrawManager.cpp">
@@ -303,16 +303,16 @@
     <ClCompile Include="application\ui\LockOnUI.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Dict_Engine\postEffect\RadialBlur.cpp">
+    <ClCompile Include="application\tool\postEffect\RadialBlur.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Dict_Engine\postEffect\Dissolve.cpp">
+    <ClCompile Include="application\tool\postEffect\Dissolve.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="Dict_Engine\tool\effect\DissolveManager.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Dict_Engine\postEffect\Random.cpp">
+    <ClCompile Include="application\tool\postEffect\Random.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="Dict_Engine\base\ChronoManager.cpp">
@@ -321,7 +321,22 @@
     <ClCompile Include="Dict_Engine\tool\time\DeltaTimeManager.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Dict_Engine\tool\effect\FadeManager.cpp">
+    <ClCompile Include="Dict_Engine\scene\SceneTransition.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Dict_Engine\scene\TransitionTrack.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Dict_Engine\scene\DissolveTransition.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Dict_Engine\tool\postEffect\PostEffectController.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="application\tool\postEffect\Darken.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="application\object\player\JustAvoidDarken.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
   </ItemGroup>
@@ -356,6 +371,7 @@
     <FxCompile Include="resources\shaders\PostEffect\RadialBlur.PS.hlsl" />
     <FxCompile Include="resources\shaders\PostEffect\Dissolve.PS.hlsl" />
     <FxCompile Include="resources\shaders\PostEffect\Random.PS.hlsl" />
+    <FxCompile Include="resources\shaders\PostEffect\Darken.PS.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Dict_Engine\camera\DebugCamera.h">
@@ -490,16 +506,16 @@
     <ClInclude Include="application\command\InputHandlerSelector.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Dict_Engine\postEffect\PostEffectManager.h">
+    <ClInclude Include="Dict_Engine\tool\postEffect\PostEffectManager.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Dict_Engine\postEffect\PostEffect.h">
+    <ClInclude Include="Dict_Engine\tool\postEffect\PostEffect.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Dict_Engine\postEffect\GaussianBlur.h">
+    <ClInclude Include="application\tool\postEffect\GaussianBlur.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Dict_Engine\postEffect\Outline.h">
+    <ClInclude Include="application\tool\postEffect\Outline.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="Dict_Engine\camera\ICameraController.h">
@@ -523,7 +539,7 @@
     <ClInclude Include="Dict_Engine\math\Quaternion.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Dict_Engine\postEffect\Bloom.h">
+    <ClInclude Include="application\tool\postEffect\Bloom.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="Dict_Engine\math\DebugDrawManager.h">
@@ -601,10 +617,10 @@
     <ClInclude Include="application\ui\LockOnUI.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Dict_Engine\postEffect\RadialBlur.h">
+    <ClInclude Include="application\tool\postEffect\RadialBlur.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Dict_Engine\postEffect\Dissolve.h">
+    <ClInclude Include="application\tool\postEffect\Dissolve.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="Dict_Engine\tool\effect\DissolveManager.h">
@@ -613,7 +629,7 @@
     <ClInclude Include="Dict_Engine\tool\effect\DissolveUtility.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Dict_Engine\postEffect\Random.h">
+    <ClInclude Include="application\tool\postEffect\Random.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="Dict_Engine\base\ChronoManager.h">
@@ -622,7 +638,22 @@
     <ClInclude Include="Dict_Engine\tool\time\DeltaTimeManager.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Dict_Engine\tool\effect\FadeManager.h">
+    <ClInclude Include="Dict_Engine\scene\SceneTransition.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Dict_Engine\scene\TransitionTrack.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Dict_Engine\scene\DissolveTransition.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Dict_Engine\tool\postEffect\PostEffectController.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="application\tool\postEffect\Darken.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="application\object\player\JustAvoidDarken.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
   </ItemGroup>

@@ -2,7 +2,8 @@
 #include <memory>
 #include "BaseScene.h"
 #include "AbstractSceneFactory.h"
-#include "effect/FadeManager.h"
+#include "SceneTransition.h"
+#include "PostEffectController.h"
 
 class SceneManager
 {
@@ -43,14 +44,16 @@ public:
 
 	void Draw();
 
+private:
 	void ChangeScene(const std::string& sceneName);
 
 
 public:	// 外部入出力
 
 	const std::string GetNextScene() const;
+	const SceneTransition& GetSceneTransition() const { return sceneTransition_; }
+	PostEffectController* GetPostEffectController() { return postEffectController_.get(); }
 
-	const FadeManager::Status& GetFadeStatus() const { return fadeStatus_; }
 
 	void SetSceneRequest(const std::string& sceneRequest);
 
@@ -67,6 +70,7 @@ private:
 
 	std::unique_ptr<BaseScene> currentScene_;
 
-	FadeManager::Status fadeStatus_ = FadeManager::Status::None;
+	SceneTransition sceneTransition_;
+	std::unique_ptr<PostEffectController> postEffectController_;
 };
 

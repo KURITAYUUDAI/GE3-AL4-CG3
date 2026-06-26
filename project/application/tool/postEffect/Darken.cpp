@@ -1,12 +1,11 @@
-#include "Random.h"
+#include "Darken.h"
 #include "DirectXBase.h"
 #include "PSOManager.h"
 #include "SrvManager.h"
 #include "Logger.h"
 #include <cassert>
-#include "ChronoManager.h"
 
-void Random::Initialize(uint32_t width, uint32_t height)
+void Darken::Initialize(uint32_t width, uint32_t height)
 {
     (void)width;
     (void)height;
@@ -15,27 +14,28 @@ void Random::Initialize(uint32_t width, uint32_t height)
     RegisterPSOs();
 }
 
-void Random::Finalize()
+void Darken::Finalize()
 {
-
+   
 }
 
-std::vector<PostEffect::PassFunc> Random::GetPasses()
+std::vector<PostEffect::PassFunc> Darken::GetPasses()
 {
     return
     {
-        [this](D3D12_CPU_DESCRIPTOR_HANDLE destRTV, uint32_t srcSRVIndex){
+        [this](D3D12_CPU_DESCRIPTOR_HANDLE destRTV, uint32_t srcSRVIndex)
+        {
             Pass(srcSRVIndex, destRTV);
         }
     };
 }
 
-std::vector<std::vector<PostEffect::PassBarrier>> Random::GetBarriers()
+std::vector<std::vector<PostEffect::PassBarrier>> Darken::GetBarriers()
 {
     return {};
 }
 
-void Random::Pass(uint32_t srcSRVIndex, D3D12_CPU_DESCRIPTOR_HANDLE destRTV)
+void Darken::Pass(uint32_t srcSRVIndex, D3D12_CPU_DESCRIPTOR_HANDLE destRTV)
 {
     auto* cmdList = DirectXBase::GetInstance()->GetCommandList();
     auto* srvManager = SrvManager::GetInstance();
@@ -60,19 +60,19 @@ void Random::Pass(uint32_t srcSRVIndex, D3D12_CPU_DESCRIPTOR_HANDLE destRTV)
     cmdList->DrawInstanced(3, 1, 0, 0);
 }
 
-void Random::CreateConstantBuffer()
+void Darken::CreateConstantBuffer()
 {
     constantBufferResource_ =
-        DirectXBase::GetInstance()->CreateConstantBufferResource(sizeof(LONGLONG));
+        DirectXBase::GetInstance()->CreateConstantBufferResource(sizeof(DarkenParam));
 
     HRESULT hr = constantBufferResource_->Map(
         0, nullptr, reinterpret_cast<void**>(&constantBufferMappedData_));
     assert(SUCCEEDED(hr));
 
-    *constantBufferMappedData_ = time_;
+    *constantBufferMappedData_ = param_;
 }
 
-void Random::RegisterPSOs()
+void Darken::RegisterPSOs()
 {
     auto makeRootSignature = []() -> ComPtr<ID3D12RootSignature>{
         D3D12_DESCRIPTOR_RANGE srvRange{};
@@ -129,15 +129,14 @@ void Random::RegisterPSOs()
 
     PSOManager::PSOConfig config{};
     config.vertexShaderPath = L"resources/shaders/PostEffect/Fullscreen.VS.hlsl";
-    config.pixelShaderPath = L"resources/shaders/PostEffect/Random.PS.hlsl";
+    config.pixelShaderPath = L"resources/shaders/PostEffect/Darken.PS.hlsl";
     config.rootSignatureGenerator = makeRootSignature;
     config.inputLayoutGenerator = makeInputLayout;
     config.depthEnable = false;
     PSOManager::GetInstance()->RegisterPSOConfig(kPsoName_, config);
 }
 
-void Random::UpdateConstantBuffer()
+void Darken::UpdateConstantBuffer()
 {
-    time_ = ChronoManager::GetInstance()->GetTime();
-    *constantBufferMappedData_ = time_;
+    *constantBufferMappedData_ = param_;
 }

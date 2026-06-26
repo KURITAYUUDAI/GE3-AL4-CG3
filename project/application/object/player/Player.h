@@ -15,6 +15,9 @@
 
 #include "Dict_Engine/tool/effect/DissolveUtility.h"
 
+#include "ParticleEmitter.h"
+#include "JustAvoidDarken.h"
+
 class Player : public ICollisionObserver
 {
 public:
@@ -45,6 +48,7 @@ public:	// Command
 	void Shot();
 	void Avoid(const Vector2& direction);
 	void JustAvoid(const Vector3& avoidDirection);
+	void StopJustAvoid(const float& returnRate);
 
 public: // Command対応
 
@@ -158,4 +162,9 @@ private:
 
 	Vector3 avoidDirection_ = {};
 	bool justAvoidAccept_ = false;
+
+	std::unique_ptr<ParticleEmitter> justAvoidEmitter_;
+
+
+	std::unique_ptr<JustAvoidDarken> justAvoidDarken_;
 };
