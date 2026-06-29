@@ -56,6 +56,10 @@ void PostEffectManager::RegisterFactory(const std::string& name, FactoryFunc fac
 // ---------------------------------------------------------------
 void PostEffectManager::Clear()
 {
+#ifdef _DEBUG
+    Logger::Log("PostEffectManager::Clear - clearing " + std::to_string(effectChain_.size()) + " effects\n");
+#endif
+
 	for (auto& chainEffect : effectChain_)
 	{
 		chainEffect->Finalize();
@@ -63,7 +67,7 @@ void PostEffectManager::Clear()
     effectChain_.clear();
 }
 
-void PostEffectManager::Add(const std::string& name)
+PostEffect* PostEffectManager::Add(const std::string& name)
 {
     auto it = factories_.find(name);
     assert(it != factories_.end()
@@ -73,13 +77,73 @@ void PostEffectManager::Add(const std::string& name)
     auto effect = it->second();
     effect->SetName(name);
     effect->Initialize(width_, height_);
+
+    PostEffect* raw = effect.get();
     effectChain_.push_back(std::move(effect));
+
+#ifdef _DEBUG
+    // Add の最後に
+    Logger::Log("PostEffectManager::Add -> ptr=" + std::to_string(reinterpret_cast<uintptr_t>(raw)) + " name=" + name + "\n");
+#endif
+
+    return raw;
 }
 
 void PostEffectManager::Remove(uint32_t index)
 {
     assert(index < effectChain_.size() && "PostEffectManager: Remove インデックスが範囲外です");
+    effectChain_[index]->Finalize();
     effectChain_.erase(effectChain_.begin() + index);
+}
+
+void PostEffectManager::Remove(const std::string& name)
+{
+   auto it =  std::find_if(effectChain_.begin(), effectChain_.end(), 
+       [&name](const std::unique_ptr<PostEffect>& effect){
+            return effect->GetName() == name;
+       });
+
+   // 見つかった場合は削除
+   if (it != effectChain_.end())
+   {
+       (*it)->Finalize(); // エフェクト側の終了処理を呼び出す
+       effectChain_.erase(it);
+   } 
+   else
+   {
+       // デバッグ用にログを出したり、アサートをかける場合はここに記述
+       Logger::Log("PostEffectManager: Remove 対象のエフェクトが見つかりませんでした: " + name + "\n");
+   }
+}
+
+void PostEffectManager::Remove(PostEffect* target)
+{
+#ifdef _DEBUG
+    // Add の最後に
+    Logger::Log("PostEffectManager::Remove(target) called ptr=" + std::to_string(reinterpret_cast<uintptr_t>(target)) + "\n");
+#endif
+
+
+    if (!target)
+    {
+        Logger::Log("PostEffectManager: Remove 対象のエフェクトが見つかりませんでした\n");
+        return;
+    }
+
+    effectChain_.erase(
+        std::remove_if(
+            effectChain_.begin(),
+            effectChain_.end(),
+            [target](std::unique_ptr<PostEffect>& effect){
+                if (effect.get() == target)
+                {
+                    effect->Finalize();
+                    return true;
+                }
+
+                return false;
+            }),
+        effectChain_.end());
 }
 
 void PostEffectManager::Swap(uint32_t indexA, uint32_t indexB)
@@ -87,6 +151,27 @@ void PostEffectManager::Swap(uint32_t indexA, uint32_t indexB)
     assert(indexA < effectChain_.size() && "PostEffectManager: Swap indexA が範囲外です");
     assert(indexB < effectChain_.size() && "PostEffectManager: Swap indexB が範囲外です");
     std::swap(effectChain_[indexA], effectChain_[indexB]);
+}
+
+bool PostEffectManager::HasEffect(const PostEffect* target) const
+{
+    for (const auto& e : effectChain_)
+    {
+        if (e.get() == target) return true;
+    }
+    return false;
+}
+
+void PostEffectManager::DebugPrintChain() const
+{
+    Logger::Log("PostEffectManager: effectChain start\n");
+    for (size_t i = 0; i < effectChain_.size(); ++i)
+    {
+        auto* p = effectChain_[i].get();
+        Logger::Log("  idx=" + std::to_string(i) + " ptr=" +
+            std::to_string(reinterpret_cast<uintptr_t>(p)) + " name=" + p->GetName() + "\n");
+    }
+    Logger::Log("PostEffectManager: effectChain end\n");
 }
 
 // ---------------------------------------------------------------

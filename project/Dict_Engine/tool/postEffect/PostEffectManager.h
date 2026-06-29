@@ -107,28 +107,31 @@ public:
     //  エフェクトチェーンの構築（Scene::Initialize等から呼ぶ）
     // -------------------------------------------------------
 
-    /// <summary>
-    /// 現在のエフェクトチェーンをすべてクリアする。
-    /// シーン遷移時に呼ぶ。
-    /// </summary>
-    void Clear();
+   
 
     /// <summary>
     /// エフェクトをチェーンの末尾に追加する。
     /// 追加した順番がそのまま適用順になる。
     /// </summary>
     /// <param name="name">RegisterFactory()で登録した名前</param>
-    void Add(const std::string& name);
+    PostEffect* Add(const std::string& name);
 
     /// <summary>
     /// 指定インデックスのエフェクトをチェーンから取り除く。
     /// </summary>
     void Remove(uint32_t index);
 
+    void Remove(const std::string& name);
+
+    void Remove(PostEffect* target);
+
     /// <summary>
     /// エフェクトの順番を入れ替える。
     /// </summary>
     void Swap(uint32_t indexA, uint32_t indexB);
+
+    bool HasEffect(const PostEffect* target) const;
+    void DebugPrintChain() const;
 
     // -------------------------------------------------------
     //  毎フレームの描画
@@ -166,6 +169,12 @@ private:
     void CreatePingPongBuffers(uint32_t width, uint32_t height);
     void RegisterPassthroughPSO();
 
+
+    /// <summary>
+   /// 現在のエフェクトチェーンをすべてクリアする。
+   /// シーン遷移時に呼ぶ。
+   /// </summary>
+    void Clear();
 
 public: // 外部入出力
 

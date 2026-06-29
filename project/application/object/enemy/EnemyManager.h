@@ -76,6 +76,8 @@ public:
 
 private:
 
+	float deltaTime_ = 0.0f;
+
 	// 敵のコンテナ
 	std::list<std::unique_ptr<Enemy>> enemies_;
 

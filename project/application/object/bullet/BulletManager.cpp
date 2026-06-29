@@ -3,6 +3,7 @@
 #include "Model.h"
 #include "ImGuiManager.h"
 #include "Logger.h"
+#include "time/DeltaTimeManager.h"
 
 std::unique_ptr<BulletManager> BulletManager::instance_ = nullptr;
 
@@ -132,6 +133,8 @@ void BulletManager::Initialize()
 
 void BulletManager::Update(const float& deltaTime)
 {
+	deltaTime_ = DeltaTimeManager::GetInstance()->GetDeltaTime(DeltaTimeGroup::World);
+
 #ifdef _DEBUG
 	ImGui::Begin("Bullet Manager");
 
@@ -177,7 +180,7 @@ void BulletManager::Update(const float& deltaTime)
 	for (auto& bullet : bullets_)
 	{
 
-		bullet->Update(deltaTime);
+		bullet->Update(deltaTime_);
 	}
 
 	bullets_.remove_if([](const std::unique_ptr<Bullet>& bullet){
@@ -211,11 +214,26 @@ void BulletManager::CreatePlayerBullet(const Vector3& position, const Vector3& v
 	}
 	std::unique_ptr<Bullet> newBullet = std::make_unique<Bullet>();
 	newBullet->Initialize(position, velocity, Bullet::ID::kPlayer, "playerBullet.obj");
+	newBullet->SetSize({ 0.4f, 0.4f, 0.4f });
+	newBullet->GetCollider()->SetRadius(0.4f);
 	bullets_.push_back(std::move(newBullet));
 
 	/*PlaySEShot();
 	isPlayShotSE_ = false;
 	*/
+}
+
+void BulletManager::CreateCounterBullet(const Vector3& position, const Vector3& velocity)
+{
+	if (bullets_.size() >= kMaxBullet)
+	{
+		return;
+	}
+	std::unique_ptr<Bullet> newBullet = std::make_unique<Bullet>();
+	newBullet->Initialize(position, velocity, Bullet::ID::kPlayer, "playerBullet.obj");
+	newBullet->SetSize({ 2.0f, 2.0f, 2.0f });
+	newBullet->GetCollider()->SetRadius(2.0f);
+	bullets_.push_back(std::move(newBullet));
 }
 
 void BulletManager::CreateEnemyBullet(const Vector3& position, const Vector3& velocity)
@@ -226,6 +244,8 @@ void BulletManager::CreateEnemyBullet(const Vector3& position, const Vector3& ve
 	}
 	std::unique_ptr<Bullet> newBullet = std::make_unique<Bullet>();
 	newBullet->Initialize(position, velocity, Bullet::ID::kEnemy, "enemyBullet.obj");
+	newBullet->SetSize({2.0f, 2.0f, 2.0f});
+	newBullet->GetCollider()->SetRadius(2.0f);
 	bullets_.push_back(std::move(newBullet));
 
 	/*PlaySEShot();

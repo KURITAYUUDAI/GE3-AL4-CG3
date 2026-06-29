@@ -59,8 +59,8 @@ public: // 外部入出力
 
 	Collider* GetCollider() { return collider_.get(); }
 
-	void SetScale(const Vector3& scale) { transform_.scale = scale; }
 	void SetRotation(const Vector3& rotation) { transform_.rotate = rotation; }
+	void SetSize(const Vector3& size) { size_ = size; }
 	void SetTranslation(const Vector3& translation) { transform_.translate = translation; }
 	void SetVelocity(const Vector3& velocity) { velocity_ = velocity; }
 
@@ -90,5 +90,7 @@ private:
 	int32_t deathTimer_ = kLifeTime;
 	// デスフラグ
 	bool isDead_ = false;
+
+	bool isJustAvoid_ = false;
 };
 

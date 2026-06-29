@@ -48,6 +48,9 @@ public:
 	// 味方弾の生成
 	void CreatePlayerBullet(const Vector3& position, const Vector3& velocity);
 
+	// カウンター弾の生成
+	void CreateCounterBullet(const Vector3& position, const Vector3& velocity);
+
 	// 敵弾の生成
 	void CreateEnemyBullet(const Vector3& position, const Vector3& velocity);
 
@@ -60,6 +63,8 @@ public:
 	/*void PlaySEShot();*/
 
 private:
+
+	float deltaTime_ = 0.0f;
 
 	// モデル
 	Model* modelPlayerBullet_ = nullptr;

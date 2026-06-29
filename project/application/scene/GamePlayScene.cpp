@@ -8,6 +8,7 @@
 #include "RadialBlur.h"
 #include "Dissolve.h"
 #include "Random.h"
+#include "Darken.h"
 #include "BulletManager.h"
 #include "SplineCurve.h"
 #include "HPGageUI.h"
@@ -204,13 +205,12 @@ void GamePlayScene::Initialize()
 	cylinderEmitter_->Initialize("cylinder",
 		{ {1.0f, 0.0f, 1.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f} }, 1, 0.2f);
 
-	PostEffectManager::GetInstance()->Clear();
 	//PostEffectManager::GetInstance()->Add("Outline");
 	//PostEffectManager::GetInstance()->Add("GaussianBlur");
 	//PostEffectManager::GetInstance()->Add("RadialBlur");
 	//PostEffectManager::GetInstance()->Add("Bloom");
 	/*PostEffectManager::GetInstance()->Add("Dissolve");*/
-	PostEffectManager::GetInstance()->Add("Random");
+	/*PostEffectManager::GetInstance()->Add("Random");*/
 
 	debugManager_->Initialize();
 
@@ -254,7 +254,7 @@ void GamePlayScene::Finalize()
 	
 	debugManager_->Finalize();
 
-	PostEffectManager::GetInstance()->Clear();
+	//PostEffectManager::GetInstance()->Clear();
 
 	/*for (auto it = emitters_.begin(); it != emitters_.end(); ++it)
 	{
@@ -291,6 +291,7 @@ void GamePlayScene::Finalize()
 
 	lightManager_->Finalize();
 	cameraManager_->Finalize();
+	//PostEffectManager::GetInstance()->Clear();
 }
 
 void GamePlayScene::Update(const float& deltaTime)
@@ -374,140 +375,7 @@ void GamePlayScene::Update(const float& deltaTime)
 	//ImGui_ImplWin32_NewFrame();
 	//ImGui::NewFrame();
 
-	//// ゲームの処理
-
-	////// 開発用ImGuiの処理。実際に開発用のUIを出す場合はここをゲーム固有の処理に置き換えること。
-	////ImGui::ShowDemoWindow();
-
-	//ImGui::Begin("SpriteSetting");
-
-	//ImGui::Checkbox("DrawSprite", &isDrawSprite);
-
-	//if (ImGui::BeginTable("ItemsTable", 7, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg))
-	//{
-	//	ImGui::TableSetupScrollFreeze(1, 1);
-	//	ImGui::TableSetupColumn("position", ImGuiTableColumnFlags_WidthFixed, 80.0f);
-	//	ImGui::TableSetupColumn("rotation", ImGuiTableColumnFlags_WidthFixed, 80.0f);
-	//	ImGui::TableSetupColumn("size", ImGuiTableColumnFlags_WidthFixed, 80.0f);
-	//	ImGui::TableSetupColumn("color", ImGuiTableColumnFlags_WidthFixed, 180.0f);
-	//	ImGui::TableSetupColumn("uvTransform", ImGuiTableColumnFlags_WidthFixed, 160.0f);
-	//	ImGui::TableSetupColumn("texture", ImGuiTableColumnFlags_WidthFixed, 80.0f);
-	//	ImGui::TableSetupColumn("Ops", ImGuiTableColumnFlags_WidthFixed, 50.0f);
-	//	ImGui::TableHeadersRow();
-
-	//	int to_delete = -1;
-	//	size_t i = 0;
-
-	//	for (auto it = sprites.begin(); it != sprites.end(); ++it, ++i)
-	//	{
-	//		Sprite* sprite = *it;
-	//		if (!sprite) continue;
-	//	
-	//		ImGui::TableNextRow();
-
-	//		// 要素ごとにIDスタックを分ける
-	//		ImGui::PushID((void*)sprite);
-	//		
-	//		ImGui::TableSetColumnIndex(0);
-	//		Vector2 positionSprite = sprite->GetPosition();
-	//		if (ImGui::DragFloat2("##positionSprite", &positionSprite.x, 1.0f, 0.0f, 1280.0f))
-	//		{
-	//			sprite->SetPosition(positionSprite);
-	//		}
-
-	//		ImGui::TableSetColumnIndex(1);
-	//		float rotationSprite = sprite->GetRotation();
-	//		if (ImGui::SliderAngle("##rotationSprite", &rotationSprite))
-	//		{
-	//			sprite->SetRotation(rotationSprite);
-	//		}
-
-	//		ImGui::TableSetColumnIndex(2);
-	//		Vector2 sizeSprite = sprite->GetSize();
-	//		if (ImGui::DragFloat2("##sizeSprite", &sizeSprite.x, 1.0f, 0.0f, 1280.0f))
-	//		{
-	//			sprite->SetSize(sizeSprite);
-	//		}
-
-	//		ImGui::TableSetColumnIndex(3);
-	//		Vector4 colorSprite = sprite->GetColor();
-	//		if (ImGui::ColorEdit4("##colorSprite", &colorSprite.x))
-	//		{
-	//			sprite->SetColor(colorSprite);
-	//		}
-
-	//		ImGui::TableSetColumnIndex(4);
-	//		Transform uvTransformSprite = sprite->GetUVTransform();
-	//		if (ImGui::DragFloat2("##UVScale", &uvTransformSprite.scale.x, 0.01f, -10.0f, 10.0f))
-	//		{
-	//			sprite->SetUVScale(uvTransformSprite.scale);
-	//		}
-	//		if (ImGui::DragFloat2("##UVTranslate", &uvTransformSprite.translate.x, 0.01f, -10.0f, 10.0f))
-	//		{
-	//			sprite->SetUVTranslate(uvTransformSprite.translate);
-	//		}
-	//		if (ImGui::SliderAngle("##UVRotate", &uvTransformSprite.rotate.z))
-	//		{
-	//			sprite->SetUVRotate(uvTransformSprite.rotate);
-	//		}
-	//		Vector2 textureLeftTopSprite = sprite->GetTextureLeftTop();
-	//		if(ImGui::DragFloat2("##LeftTop", &textureLeftTopSprite.x))
-	//		{
-	//			sprite->SetTextureLeftTop(textureLeftTopSprite);
-	//		}
-	//		Vector2 textureSizeSprite = sprite->GetTextureSize();
-	//		if (ImGui::DragFloat2("##Size", &textureSizeSprite.x))
-	//		{
-	//			sprite->SetTextureSize(textureSizeSprite);
-	//		}
-
-	//		ImGui::TableSetColumnIndex(5);
-	//		if (ImGui::SmallButton("UV"))
-	//		{
-	//			sprite->SetTexture("uvChecker.png");
-	//		}
-	//		if (ImGui::SmallButton("MB"))
-	//		{
-	//			sprite->SetTexture("monsterBall.png");
-	//		}
-	//		bool isFlipXSprite = sprite->GetIsFlipX();
-	//		if (ImGui::Checkbox("FlipX", &isFlipXSprite))
-	//		{
-	//			sprite->SetFlipX(isFlipXSprite);
-	//		}
-	//		bool isFlipYSprite = sprite->GetIsFlipY();
-	//		if (ImGui::Checkbox("FlipY", &isFlipYSprite))
-	//		{
-	//			sprite->SetFlipY(isFlipYSprite);
-	//		}
-
-
-	//		ImGui::TableSetColumnIndex(6);
-	//		if (ImGui::SmallButton("Delete##del")) 
-	//		{
-	//			to_delete = int(i);
-	//		}
-
-	//		ImGui::PopID();
-	//	}
-
-	//	ImGui::EndTable();
-
-	//	if (to_delete >= 0 && to_delete < (int) sprites.size()) 
-	//	{
-	//		delete sprites[to_delete];
-	//		sprites.erase(sprites.begin() + to_delete);
-	//	}
-
-	//	if (ImGui::SmallButton("Add##del"))
-	//	{
-	//		Sprite* sprite = new Sprite();
-	//		sprite->Initialize(spriteBase, "uvChecker.png");
-	//		sprites.push_back(sprite);
-	//	}
-	//}
-
-	//ImGui::End();
+	
 	ImGui::Begin("LightSetting");
 
 	int32_t enableLighting = object3ds_[0]->GetEnableLighting();
@@ -528,147 +396,6 @@ void GamePlayScene::Update(const float& deltaTime)
 
 	ImGui::End();
 
-	//if (ImGui::BeginTable("ItemsTable", 3, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg))
-	//{
-	//	ImGui::TableSetupScrollFreeze(1, 1);
-	//	ImGui::TableSetupColumn("transform", ImGuiTableColumnFlags_WidthFixed, 180.0f);
-	//	/*ImGui::TableSetupColumn("color", ImGuiTableColumnFlags_WidthFixed, 180.0f);*/
-	//	ImGui::TableSetupColumn("model", ImGuiTableColumnFlags_WidthFixed, 80.0f);
-	//	ImGui::TableSetupColumn("Ops", ImGuiTableColumnFlags_WidthFixed, 50.0f);
-	//	ImGui::TableHeadersRow();
-
-	//	int to_delete = -1;
-	//	size_t i = 0;
-
-	//	for (auto it = object3ds.begin(); it != object3ds.end(); ++it, ++i)
-	//	{
-	//		Object3d* object3d = *it;
-	//		if (!object3d) continue;
-
-	//		ImGui::TableNextRow();
-
-	//		// 要素ごとにIDスタックを分ける
-	//		ImGui::PushID((void*)object3d);
-
-	//		ImGui::TableSetColumnIndex(0);
-	//		Vector3 scaleModel = object3d->GetScale();
-	//		if (ImGui::DragFloat3("##scaleModel", &scaleModel.x, 0.01f, 0.0f, 10.0f))
-	//		{
-	//			object3d->SetScale(scaleModel);
-	//		}
-	//		Vector3 rotateModel = object3d->GetRotate();
-	//		if (ImGui::DragFloat3("##rotateModel", &rotateModel.x, (1.0f / 180.0f) * pi, -2.0f * pi, 2.0f * pi))
-	//		{
-	//			object3d->SetRotate(rotateModel);
-	//		}
-	//		Vector3 translateModel = object3d->GetTranslate();
-	//		if (ImGui::DragFloat3("##positionModel", &translateModel.x, 0.01f, 0.0f, 1280.0f))
-	//		{
-	//			object3d->SetTranslate(translateModel);
-	//		}
-
-	//		/*ImGui::TableSetColumnIndex(1);
-	//		Vector4 colorModel = object3d->GetColor();
-	//		if (ImGui::ColorEdit4("##colorModel", &colorModel.x))
-	//		{
-	//			sprite->SetColor(colorModel);
-	//		}*/
-
-	//		ImGui::TableSetColumnIndex(1);
-	//		if (ImGui::SmallButton("plane"))
-	//		{
-	//			object3d->SetModel("plane.obj");
-	//		}
-	//		if (ImGui::SmallButton("axis"))
-	//		{
-	//			object3d->SetModel("axis.obj");
-	//		}
-
-
-	//		ImGui::TableSetColumnIndex(2);
-	//		if (ImGui::SmallButton("Delete##del"))
-	//		{
-	//			to_delete = int(i);
-	//		}
-
-	//		ImGui::PopID();
-	//	}
-
-	//	ImGui::EndTable();
-
-	//	if (to_delete >= 0 && to_delete < (int)object3ds.size())
-	//	{
-	//		delete object3ds[to_delete];
-	//		object3ds.erase(object3ds.begin() + to_delete);
-	//	}
-
-	//	if (ImGui::SmallButton("Add##del"))
-	//	{
-	//		Object3d* newObject3d = new Object3d();
-	//		newObject3d->Initialize(object3dBase);
-	//		newObject3d->SetModel("plane.obj");
-	//		object3ds.push_back(newObject3d);
-	//	}
-	//}
-
-	//ImGui::End();
-
-
-
-
-	//ImGui::Begin("Window");
-
-	//ImGui::Checkbox("DebugCamera", &isDebugCamera);
-
-	//ImGui::Combo("Texture", &textureIndex, textureOptions, IM_ARRAYSIZE(textureOptions));
-
-
-
-
-	//for (size_t i = 0; i < modelData.size(); ++i)
-	//{
-	//	std::string label = "##Color" + std::to_string(i);
-	//	if (ImGui::ColorEdit4(label.c_str(), materialColor[i].data()))
-	//	{
-	//		// materialColorを上書きする
-	//		materialData[i]->color = Vector4(materialColor[i][0], materialColor[i][1], materialColor[i][2], materialColor[i][3]);
-	//		// （＝GPU 側で使われるマテリアル色を更新）
-	//	}
-	//}
-
-	//ImGui::DragFloat3("DirectionalLightDirection", &directionLightDirection.x, 0.01f);
-
-
-	//ImGui::DragFloat("DirectionLightIntensity", &directionalLightData->intensity, 0.01f);
-
-	//if (ImGui::ColorEdit4("DirectionalLightColor", directionalLightColor))
-	//{
-	//	// directionalLightColorを上書きする
-	//	directionalLightData->color = Vector4(directionalLightColor[0], directionalLightColor[1], directionalLightColor[2], directionalLightColor[3]);
-	//	// （＝GPU 側で使われるマテリアル色を更新）
-	//}
-
-	//Transform cameraTransform = 
-	//	Transform{ camera->GetScale(), camera->GetRotate(), camera->GetTranslate() };
-	//if (ImGui::DragFloat3("CameraScale", &cameraTransform.scale.x, 0.01f))
-	//{
-	//	camera->SetScale(cameraTransform.scale);
-	//}
-	//if (ImGui::DragFloat3("CameraRotate", &cameraTransform.rotate.x, 1.0f / 180.0f * pi))
-	//{
-	//	camera->SetRotate(cameraTransform.rotate);
-	//}
-	//if (ImGui::DragFloat3("CameraTranslate", &cameraTransform.translate.x, 0.01f))
-	//{
-	//	camera->SetTranslate(cameraTransform.translate);
-	//}
-
-	//ImGui::Text("MouseX: %.2f, MouseY: %.2f", mousePosition.x, mousePosition.y);
-
-	//ImGui::Text("Press 0 to play the sound");
-
-	//ImGui::End();
-
 #endif
 
 
@@ -684,6 +411,8 @@ void GamePlayScene::Update(const float& deltaTime)
 	wvpMatrixSphere = Multiply(worldMatrixSphere, Multiply(viewMatrix, projectionMatrix));
 	transformationMatrixDataSphere->World = worldMatrixSphere;
 	transformationMatrixDataSphere->WVP = wvpMatrixSphere;*/
+
+
 
 	lightManager_->Update();
 
@@ -754,13 +483,24 @@ void GamePlayScene::Update(const float& deltaTime)
 	controlSprite_->Update();
 
 	collisionManager_->Clear();
-	collisionManager_->AddCollider(player_->GetCollider());
-
-	for (EnemyID id : enemyIDs_)
+	if (!player_->GetIsDead())
 	{
-		collisionManager_->AddCollider(enemyManager_->FindEnemy(id)->GetCollider());
+		collisionManager_->AddCollider(player_->GetCollider());
 	}
 	
+	for (EnemyID id : enemyIDs_)
+	{
+		if (enemyManager_->FindEnemy(id))
+		{
+			collisionManager_->AddCollider(enemyManager_->FindEnemy(id)->GetCollider());
+		}
+	}
+	
+	/*for (auto& enemy : EnemyManager::GetInstance()->GetEnemies())
+	{
+		collisionManager_->AddCollider(enemy->GetCollider());
+	}*/
+
 	for (auto& bullet : BulletManager::GetInstance()->GetBullets())
 	{
 		collisionManager_->AddCollider(bullet->GetCollider());
@@ -774,9 +514,17 @@ void GamePlayScene::Update(const float& deltaTime)
 	eventBus_->Dispatch();
 	sceneUI_->Update(deltaTime);
 
-	for (EnemyID id : enemyIDs_)
+	if (SceneManager::GetInstance()->GetSceneTransition().GetState() == SceneTransition::SceneTransitionState::Idle)
 	{
-		if (enemyManager_->GetIsDead(id))
+		for (EnemyID id : enemyIDs_)
+		{
+			if (enemyManager_->GetIsDead(id))
+			{
+				SceneManager::GetInstance()->SetSceneRequest("TITLE");
+			}
+		}
+
+		if (player_->GetIsDead())
 		{
 			SceneManager::GetInstance()->SetSceneRequest("TITLE");
 		}
@@ -787,10 +535,7 @@ void GamePlayScene::Update(const float& deltaTime)
 		[this](EnemyID id){ return enemyManager_->FindEnemy(id) == nullptr; }),
 	enemyIDs_.end());
 
-	if (player_->GetIsDead())
-	{
-		SceneManager::GetInstance()->SetSceneRequest("TITLE");
-	}
+	
 }
 
 void GamePlayScene::Draw()

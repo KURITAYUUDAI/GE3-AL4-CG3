@@ -127,6 +127,7 @@ void TitleScene::Finalize()
 
 	LightManager::GetInstance()->Finalize();
 	CameraManager::GetInstance()->Finalize();
+	//PostEffectManager::GetInstance()->Clear();
 }
 
 void TitleScene::Update(const float& deltaTime)

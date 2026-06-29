@@ -30,6 +30,8 @@ public: // 外部入出力
 
 private:
 
+	float deltaTime_ = 0.0f;
+
 	std::string name_;
 
 	Transform transform_;

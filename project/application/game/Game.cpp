@@ -7,6 +7,7 @@
 #include "RadialBlur.h"
 #include "Dissolve.h"
 #include "Random.h"
+#include "Darken.h"
 
 void Game::Initialize()
 {
@@ -25,6 +26,8 @@ void Game::Initialize()
 		[]{ return std::make_unique<Dissolve>(); });
 	postEffectManager_->RegisterFactory("Random",
 		[]{ return std::make_unique<Random>(); });
+	postEffectManager_->RegisterFactory("Darken",
+		[]{ return std::make_unique<Darken>(); });
 
 	// シーンマネージャーに最初のシーンをセット
 	sceneManager_->Initialize("TITLE");
@@ -53,6 +56,8 @@ void Game::Update()
 	Dict_Framework::Update();
 
 	imguiManager_->Begin();
+
+	deltaTimeManager_->ImGuiDebug();
 
 	sceneManager_->Update(deltaTime_);
 

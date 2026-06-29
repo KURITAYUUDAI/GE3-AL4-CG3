@@ -1,3 +1,4 @@
+#define NOMINMAX
 #include "Framework.h"
 
 void Dict_Framework::Initialize()
@@ -24,6 +25,10 @@ void Dict_Framework::Initialize()
 
 	winAPI_ = std::make_unique<WindowsAPI>();
 	winAPI_->Initialize();
+
+	chronoManager_->Initialize(60.0f);
+
+	deltaTimeManager_->Initialize();
 
 	dxBase_->Initialize(winAPI_.get());
 
@@ -136,6 +141,9 @@ void Dict_Framework::Finalize()
 	// OffscreenRender終了処理
 	offscreenRender_->Finalize();
 
+	// 
+	deltaTimeManager_->Finalize();
+
 	// 経過時間マネージャー終了処理
 	chronoManager_->Finalize();
 
@@ -161,7 +169,10 @@ void Dict_Framework::Update()
 		return;
 	} 
 
-	deltaTime_ = dxBase_->GetDeltaTime();
+	float rawDelta = chronoManager_->GetDeltaTime();
+	rawDelta = std::min(rawDelta, 1.0f / 10.0f);
+	deltaTimeManager_->Update(rawDelta);
+	deltaTime_ = deltaTimeManager_->GetDeltaTime(DeltaTimeGroup::World);
 
 	inputManager_->Update();
 }
@@ -187,6 +198,8 @@ void Dict_Framework::Run()
 		Draw();
 
 		chronoManager_->End();
+
+		chronoManager_->Update();
 	}
 
 	// ゲームの終了

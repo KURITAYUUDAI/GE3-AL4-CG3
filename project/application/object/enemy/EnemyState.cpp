@@ -17,7 +17,7 @@ void EnemyIdleState::Update(Enemy* enemy, const float& deltaTime)
 	moveCommand_->Execute(enemy);
 	if (handler->IsShot(deltaTime))
 	{
-		//shotCommand_->Execute(enemy);
+		shotCommand_->Execute(enemy);
 	}
 }
 

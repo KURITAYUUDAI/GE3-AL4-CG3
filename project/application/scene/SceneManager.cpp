@@ -1,5 +1,6 @@
 #include "SceneManager.h"
 #include "GamePlayScene.h"
+#include "DissolveTransition.h"
 
 std::unique_ptr<SceneManager> SceneManager::instance_ = nullptr;
 
@@ -27,6 +28,8 @@ void SceneManager::Initialize(const std::string& sceneName)
 {
 	sceneFactory_ = std::make_unique<SceneFactory>();
 
+	postEffectController_ = std::make_unique<PostEffectController>();
+
 	scene_ = sceneName;
 	sceneRequest_ = sceneName;
 	ChangeScene(sceneName);
@@ -34,11 +37,14 @@ void SceneManager::Initialize(const std::string& sceneName)
 
 void SceneManager::Update(const float& deltaTime)
 {
-	if (sceneRequest_ != scene_)
-	{
-		// シーン変更
-		ChangeScene(sceneRequest_);
-	}
+	//if (sceneRequest_ != scene_)
+	//{
+	//	// シーン変更
+	//	ChangeScene(sceneRequest_);
+	//}
+
+	sceneTransition_.Update(deltaTime);
+	postEffectController_->Update(deltaTime);
 
 	if (currentScene_)
 	{
@@ -92,4 +98,38 @@ const std::string SceneManager::GetNextScene() const
 	{
 		return "UNKNOWN";
 	}
+}
+
+void SceneManager::SetSceneRequest(const std::string& sceneRequest)
+{
+	if (sceneTransition_.IsRunning())
+	{
+		return;
+	}
+
+	if (sceneRequest == scene_)
+	{
+		return;
+	}
+
+	sceneRequest_ = sceneRequest;
+
+	auto dissolveTransition =
+		std::make_unique<DissolveTransition>(postEffectController_.get());
+
+	DissolveTransition::Setting setting;
+	setting.edgeWidth = 0.08f;
+	setting.noiseScale = 45.0f;
+	setting.fadeColor = { 0, 0, 0, 1 };
+	setting.edgeColor = { 1, 0.8f, 0.2f, 1 };
+
+	dissolveTransition->SetSetting(setting);
+
+	sceneTransition_.Start(
+		0.5f,
+		0.5f,
+		[this](){
+			ChangeScene(sceneRequest_);
+		},
+		std::move(dissolveTransition));
 }

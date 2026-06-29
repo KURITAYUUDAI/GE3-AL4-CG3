@@ -18,6 +18,8 @@
 #include "EventBus.h"
 #include "GamePlaySceneUI.h"
 
+#include "PostEffectController.h"
+
 class GamePlayScene : public BaseScene
 {
 public:
@@ -120,5 +122,7 @@ private:
 	std::unique_ptr<GamePlaySceneUI> sceneUI_;
 
 	std::unique_ptr<Sprite> controlSprite_;
+
+	PostEffectHandle handle_;
 };
 

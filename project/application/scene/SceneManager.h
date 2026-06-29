@@ -2,26 +2,11 @@
 #include <memory>
 #include "BaseScene.h"
 #include "AbstractSceneFactory.h"
+#include "SceneTransition.h"
+#include "PostEffectController.h"
 
 class SceneManager
 {
-
-public:
-
-	void Initialize(const std::string& sceneName);
-
-	void Update(const float& deltaTime);
-
-	void Draw();
-
-	void ChangeScene(const std::string& sceneName);
-
-public:	// 外部入出力
-
-	const std::string GetNextScene() const;
-
-	void SetSceneRequest(const std::string& sceneRequest){ sceneRequest_ = sceneRequest; }
-
 public:
 
 	// シングルトンインスタンスの取得
@@ -51,6 +36,28 @@ private:
 
 	friend struct std::default_delete<SceneManager>;
 
+public:
+
+	void Initialize(const std::string& sceneName);
+
+	void Update(const float& deltaTime);
+
+	void Draw();
+
+private:
+	void ChangeScene(const std::string& sceneName);
+
+
+public:	// 外部入出力
+
+	const std::string GetNextScene() const;
+	const SceneTransition& GetSceneTransition() const { return sceneTransition_; }
+	PostEffectController* GetPostEffectController() { return postEffectController_.get(); }
+
+
+	void SetSceneRequest(const std::string& sceneRequest);
+
+
 
 private:
 
@@ -63,5 +70,7 @@ private:
 
 	std::unique_ptr<BaseScene> currentScene_;
 
+	SceneTransition sceneTransition_;
+	std::unique_ptr<PostEffectController> postEffectController_;
 };
 
