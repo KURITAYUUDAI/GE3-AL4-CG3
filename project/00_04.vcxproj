@@ -247,6 +247,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="Dict_Engine\scene\SceneTransition.cpp" />
     <ClCompile Include="Dict_Engine\scene\TransitionTrack.cpp" />
     <ClCompile Include="Dict_Engine\tool\postEffect\PostEffectController.cpp" />
+    <ClCompile Include="application\scene\ResultScene.cpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="resources\shaders\DebugDraw\DebugDraw.GS.hlsl">
@@ -495,6 +496,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Dict_Engine\scene\DissolveTransition.h" />
     <ClInclude Include="Dict_Engine\tool\postEffect\PostEffectController.h" />
     <ClInclude Include="application\object\player\JustAvoidDarken.h" />
+    <ClInclude Include="application\scene\ResultScene.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="externals\DirectXTex\DirectXTex_Desktop_2022_Win10.vcxproj">

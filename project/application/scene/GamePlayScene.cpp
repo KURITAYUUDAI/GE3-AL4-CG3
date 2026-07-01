@@ -520,13 +520,13 @@ void GamePlayScene::Update(const float& deltaTime)
 		{
 			if (enemyManager_->GetIsDead(id))
 			{
-				SceneManager::GetInstance()->SetSceneRequest("TITLE");
+				SceneManager::GetInstance()->SetSceneRequest("RESULT");
 			}
 		}
 
 		if (player_->GetIsDead())
 		{
-			SceneManager::GetInstance()->SetSceneRequest("TITLE");
+			SceneManager::GetInstance()->SetSceneRequest("RESULT");
 		}
 	}
 

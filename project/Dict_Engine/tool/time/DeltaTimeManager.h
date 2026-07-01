@@ -68,6 +68,9 @@ public:
     void RequestOtherSlowMotion(DeltaTimeGroup group, float scale,
                            float blendInTime, float holdTime, float blendOutTime);
 
+	/*void RequestStopMotion(DeltaTimeGroup group, float holdTime);
+*/
+
     void ResetAll();
 
 private:

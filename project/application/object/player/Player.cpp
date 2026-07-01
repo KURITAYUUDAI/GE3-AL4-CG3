@@ -77,7 +77,7 @@ void Player::Initialize()
 
 	justAvoidEmitter_ = std::make_unique<ParticleEmitter>();
 	justAvoidEmitter_->Initialize("ring_avoid",
-		{ {1.0f, 2.0f, 1.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f} }, 1, 0.2f);
+		{ {1.0f, 2.0f, 1.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f} }, 1, 0.1f);
 
 	ChangeState(std::make_unique<PlayerIdleState>());
 }
@@ -403,7 +403,7 @@ void Player::Avoid(const Vector2& direction)
 void Player::JustAvoid(const Vector3& avoidDirection)
 {
 	DeltaTimeManager::GetInstance()->RequestOtherSlowMotion(DeltaTimeGroup::Player,
-		0.5f, 0.05f, 1.0f, 0.05f);
+		0.0f, 0.05f, 1.0f, 0.05f);
 	ChangeState(std::make_unique<PlayerJustAvoidState>(avoidDirection, justAvoidDarken_.get()));
 }
 

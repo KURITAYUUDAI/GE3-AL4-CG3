@@ -94,6 +94,10 @@ const std::string SceneManager::GetNextScene() const
 	{
 		return "GAMEPLAY";
 	}
+	else if(scene_ == "RESULT")
+	{
+		return "RESULT";
+	}
 	else
 	{
 		return "UNKNOWN";
