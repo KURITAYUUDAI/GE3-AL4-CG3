@@ -84,14 +84,14 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <TreatWarningAsError>true</TreatWarningAsError>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)Dict_Engine\2d;$(ProjectDir)Dict_Engine\3d;$(ProjectDir)Dict_Engine\audio;$(ProjectDir)Dict_Engine\base;$(ProjectDir)Dict_Engine\io;$(ProjectDir)Dict_Engine\math;$(ProjectDir)Dict_Engine\scene;$(ProjectDir)Dict_Engine\tool;$(ProjectDir)application\game;$(ProjectDir)application\scene;$(ProjectDir)application\object;$(SolutionDir)externals\DirectXTex;$(SolutionDir)externals\imgui;$(SolutionDir)externals\assimp\include;$(ProjectDir)application\object\player;$(ProjectDir)application\command;$(ProjectDir)Dict_Engine\tool\postEffect;$(ProjectDir)Dict_Engine\camera;$(ProjectDir)application\object\bullet;$(ProjectDir)application\camera;$(ProjectDir)Dict_Engine\ui;$(ProjectDir)application\ui;$(ProjectDir)application\tool\postEffect</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)Dict_Engine\2d;$(ProjectDir)Dict_Engine\3d;$(ProjectDir)Dict_Engine\audio;$(ProjectDir)Dict_Engine\base;$(ProjectDir)Dict_Engine\io;$(ProjectDir)Dict_Engine\math;$(ProjectDir)Dict_Engine\scene;$(ProjectDir)Dict_Engine\tool;$(ProjectDir)application\game;$(ProjectDir)application\scene;$(ProjectDir)application\object;$(SolutionDir)externals\DirectXTex;$(SolutionDir)externals\imgui;$(SolutionDir)externals\assimp\include;$(ProjectDir)application\object\player;$(ProjectDir)application\command;$(ProjectDir)Dict_Engine\tool\postEffect;$(ProjectDir)Dict_Engine\camera;$(ProjectDir)application\object\bullet;$(ProjectDir)application\camera;$(ProjectDir)Dict_Engine\ui;$(ProjectDir)application\ui;$(ProjectDir)application\tool\postEffect;$(SolutionDir)externals\freetype\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <TreatLinkerWarningAsErrors>true</TreatLinkerWarningAsErrors>
       <AdditionalOptions>/ignore:4049 %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalDependencies>imgui.lib;assimp-vc143-mtd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>imgui.lib;freetype.lib;assimp-vc143-mtd.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)..\generated\outputs\$(Configuration)\;$(ProjectDir)externals\assimp\lib\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
@@ -111,14 +111,14 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)Dict_Engine\2d;$(ProjectDir)Dict_Engine\3d;$(ProjectDir)Dict_Engine\audio;$(ProjectDir)Dict_Engine\base;$(ProjectDir)Dict_Engine\io;$(ProjectDir)Dict_Engine\math;$(ProjectDir)Dict_Engine\scene;$(ProjectDir)Dict_Engine\tool;$(ProjectDir)application\game;$(ProjectDir)application\scene;$(ProjectDir)application\object;$(SolutionDir)externals\DirectXTex;$(SolutionDir)externals\imgui;$(SolutionDir)externals\assimp\include;$(ProjectDir)application\object\player;$(ProjectDir)application\command;$(ProjectDir)Dict_Engine\tool\postEffect;$(ProjectDir)Dict_Engine\camera;$(ProjectDir)application\object\bullet;$(ProjectDir)application\camera;$(ProjectDir)Dict_Engine\ui;$(ProjectDir)application\ui;$(ProjectDir)application\tool\postEffect</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)Dict_Engine\2d;$(ProjectDir)Dict_Engine\3d;$(ProjectDir)Dict_Engine\audio;$(ProjectDir)Dict_Engine\base;$(ProjectDir)Dict_Engine\io;$(ProjectDir)Dict_Engine\math;$(ProjectDir)Dict_Engine\scene;$(ProjectDir)Dict_Engine\tool;$(ProjectDir)application\game;$(ProjectDir)application\scene;$(ProjectDir)application\object;$(SolutionDir)externals\DirectXTex;$(SolutionDir)externals\imgui;$(SolutionDir)externals\assimp\include;$(ProjectDir)application\object\player;$(ProjectDir)application\command;$(ProjectDir)Dict_Engine\tool\postEffect;$(ProjectDir)Dict_Engine\camera;$(ProjectDir)application\object\bullet;$(ProjectDir)application\camera;$(ProjectDir)Dict_Engine\ui;$(ProjectDir)application\ui;$(ProjectDir)application\tool\postEffect;$(SolutionDir)externals\freetype\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>imgui.lib;assimp-vc143-mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>imgui.lib;freetype.lib;assimp-vc143-mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)..\generated\outputs\$(Configuration)\;$(ProjectDir)externals\assimp\lib\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
@@ -140,14 +140,14 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <Optimization>Disabled</Optimization>
       <WholeProgramOptimization>false</WholeProgramOptimization>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)Dict_Engine\2d;$(ProjectDir)Dict_Engine\3d;$(ProjectDir)Dict_Engine\audio;$(ProjectDir)Dict_Engine\base;$(ProjectDir)Dict_Engine\io;$(ProjectDir)Dict_Engine\math;$(ProjectDir)Dict_Engine\scene;$(ProjectDir)Dict_Engine\tool;$(ProjectDir)application\game;$(ProjectDir)application\scene;$(ProjectDir)application\object;$(SolutionDir)externals\DirectXTex;$(SolutionDir)externals\imgui;$(SolutionDir)externals\assimp\include;$(ProjectDir)application\object\player;$(ProjectDir)application\command;$(ProjectDir)Dict_Engine\tool\postEffect;$(ProjectDir)Dict_Engine\camera;$(ProjectDir)application\object\bullet;$(ProjectDir)application\camera;$(ProjectDir)Dict_Engine\ui;$(ProjectDir)application\ui;$(ProjectDir)application\tool\postEffect</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)Dict_Engine\2d;$(ProjectDir)Dict_Engine\3d;$(ProjectDir)Dict_Engine\audio;$(ProjectDir)Dict_Engine\base;$(ProjectDir)Dict_Engine\io;$(ProjectDir)Dict_Engine\math;$(ProjectDir)Dict_Engine\scene;$(ProjectDir)Dict_Engine\tool;$(ProjectDir)application\game;$(ProjectDir)application\scene;$(ProjectDir)application\object;$(SolutionDir)externals\DirectXTex;$(SolutionDir)externals\imgui;$(SolutionDir)externals\assimp\include;$(ProjectDir)application\object\player;$(ProjectDir)application\command;$(ProjectDir)Dict_Engine\tool\postEffect;$(ProjectDir)Dict_Engine\camera;$(ProjectDir)application\object\bullet;$(ProjectDir)application\camera;$(ProjectDir)Dict_Engine\ui;$(ProjectDir)application\ui;$(ProjectDir)application\tool\postEffect;$(SolutionDir)externals\freetype\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>imgui.lib;assimp-vc143-mtd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>imgui.lib;freetype.lib;assimp-vc143-mtd.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)..\generated\outputs\$(Configuration)\;$(ProjectDir)externals\assimp\lib\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
@@ -206,6 +206,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="Dict_Engine\tool\effect\DissolveManager.cpp" />
     <ClCompile Include="Dict_Engine\scene\DissolveTransition.cpp" />
     <ClCompile Include="application\object\player\JustAvoidDarken.cpp" />
+    <ClCompile Include="Dict_Engine\io\freetype\FreeTypeManager.cpp" />
     <ClCompile Include="main.cpp">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Development|x64'">MaxSpeed</Optimization>
       <WholeProgramOptimization Condition="'$(Configuration)|$(Platform)'=='Development|x64'">true</WholeProgramOptimization>
@@ -497,6 +498,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Dict_Engine\tool\postEffect\PostEffectController.h" />
     <ClInclude Include="application\object\player\JustAvoidDarken.h" />
     <ClInclude Include="application\scene\ResultScene.h" />
+    <ClInclude Include="Dict_Engine\io\freetype\FreeTypeManager.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="externals\DirectXTex\DirectXTex_Desktop_2022_Win10.vcxproj">

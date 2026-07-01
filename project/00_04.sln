@@ -1,11 +1,12 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 18
-VisualStudioVersion = 18.6.11709.129 insiders
+VisualStudioVersion = 18.6.11709.129
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CG3", "00_04.vcxproj", "{E6D58BEE-441C-49C4-89CE-2A8DF1C5020E}"
 	ProjectSection(ProjectDependencies) = postProject
 		{588D97BE-61C9-4E95-8298-C609E4C15CB0} = {588D97BE-61C9-4E95-8298-C609E4C15CB0}
+		{ECAFB61C-7D51-42DB-BCA9-7ACDCB33119B} = {ECAFB61C-7D51-42DB-BCA9-7ACDCB33119B}
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ソリューション項目", "ソリューション項目", "{2022CB0F-8BAF-F49E-0C48-8EF4C96EC109}"
@@ -18,6 +19,8 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "externals", "externals", "{DDB4EF12-CC4E-5E88-E6FC-71A802F4DE97}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "imgui", "externals\imgui\imgui.vcxproj", "{588D97BE-61C9-4E95-8298-C609E4C15CB0}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "freetype", "externals\freetype\freetype.vcxproj", "{ECAFB61C-7D51-42DB-BCA9-7ACDCB33119B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -44,6 +47,12 @@ Global
 		{588D97BE-61C9-4E95-8298-C609E4C15CB0}.Development|x64.Build.0 = Development|x64
 		{588D97BE-61C9-4E95-8298-C609E4C15CB0}.Release|x64.ActiveCfg = Release|x64
 		{588D97BE-61C9-4E95-8298-C609E4C15CB0}.Release|x64.Build.0 = Release|x64
+		{ECAFB61C-7D51-42DB-BCA9-7ACDCB33119B}.Debug|x64.ActiveCfg = Debug|x64
+		{ECAFB61C-7D51-42DB-BCA9-7ACDCB33119B}.Debug|x64.Build.0 = Debug|x64
+		{ECAFB61C-7D51-42DB-BCA9-7ACDCB33119B}.Development|x64.ActiveCfg = Development|x64
+		{ECAFB61C-7D51-42DB-BCA9-7ACDCB33119B}.Development|x64.Build.0 = Development|x64
+		{ECAFB61C-7D51-42DB-BCA9-7ACDCB33119B}.Release|x64.ActiveCfg = Release|x64
+		{ECAFB61C-7D51-42DB-BCA9-7ACDCB33119B}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -51,6 +60,7 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{371B9FA9-4C90-4AC6-A123-ACED756D6C77} = {DDB4EF12-CC4E-5E88-E6FC-71A802F4DE97}
 		{588D97BE-61C9-4E95-8298-C609E4C15CB0} = {DDB4EF12-CC4E-5E88-E6FC-71A802F4DE97}
+		{ECAFB61C-7D51-42DB-BCA9-7ACDCB33119B} = {DDB4EF12-CC4E-5E88-E6FC-71A802F4DE97}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {EDE894B0-FC85-44F8-B01D-1DD12AE5BDF6}

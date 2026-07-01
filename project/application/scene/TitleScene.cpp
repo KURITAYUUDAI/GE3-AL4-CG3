@@ -3,6 +3,8 @@
 #include "LightManager.h"
 #include "CameraManager.h"
 
+#include "freetype/FreeTypeManager.h"
+
 void TitleScene::Initialize()
 {
 	// Textureを読んで転送する
@@ -94,6 +96,9 @@ void TitleScene::Initialize()
 	SoundManager::GetInstance()->SoundLoadFile("", "Alarm01.wav");
 	SoundManager::GetInstance()->SoundLoadFile("", "test.mp3");
 
+
+	FreeTypeManager freeTypeManager;
+	freeTypeManager.TestFreeType();
 }
 
 void TitleScene::Finalize()
