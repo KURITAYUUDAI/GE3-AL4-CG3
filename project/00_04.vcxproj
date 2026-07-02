@@ -206,7 +206,8 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="Dict_Engine\tool\effect\DissolveManager.cpp" />
     <ClCompile Include="Dict_Engine\scene\DissolveTransition.cpp" />
     <ClCompile Include="application\object\player\JustAvoidDarken.cpp" />
-    <ClCompile Include="Dict_Engine\io\freetype\FreeTypeManager.cpp" />
+    <ClCompile Include="Dict_Engine\tool\freetype\FreeTypeManager.cpp" />
+    <ClCompile Include="Dict_Engine\2d\FontManager.cpp" />
     <ClCompile Include="main.cpp">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Development|x64'">MaxSpeed</Optimization>
       <WholeProgramOptimization Condition="'$(Configuration)|$(Platform)'=='Development|x64'">true</WholeProgramOptimization>
@@ -249,6 +250,8 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="Dict_Engine\scene\TransitionTrack.cpp" />
     <ClCompile Include="Dict_Engine\tool\postEffect\PostEffectController.cpp" />
     <ClCompile Include="application\scene\ResultScene.cpp" />
+    <ClCompile Include="Dict_Engine\2d\TextManager.cpp" />
+    <ClCompile Include="Dict_Engine\2d\Text.cpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="resources\shaders\DebugDraw\DebugDraw.GS.hlsl">
@@ -280,6 +283,16 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <FxCompile Include="resources\shaders\Environment\Environment.VS.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Development|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="resources\shaders\Font\FreetypeFont.PS.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Development|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="resources\shaders\Font\FreetypeFont.VS.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Development|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </FxCompile>
     <FxCompile Include="resources\shaders\PostEffect\Darken.PS.hlsl">
@@ -498,7 +511,10 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Dict_Engine\tool\postEffect\PostEffectController.h" />
     <ClInclude Include="application\object\player\JustAvoidDarken.h" />
     <ClInclude Include="application\scene\ResultScene.h" />
-    <ClInclude Include="Dict_Engine\io\freetype\FreeTypeManager.h" />
+    <ClInclude Include="Dict_Engine\tool\freetype\FreeTypeManager.h" />
+    <ClInclude Include="Dict_Engine\2d\FontManager.h" />
+    <ClInclude Include="Dict_Engine\2d\TextManager.h" />
+    <ClInclude Include="Dict_Engine\2d\Text.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="externals\DirectXTex\DirectXTex_Desktop_2022_Win10.vcxproj">
@@ -508,6 +524,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
   <ItemGroup>
     <None Include="resources\shaders\DebugDraw\DebugDraw.hlsli" />
     <None Include="resources\shaders\Environment\Environment.hlsli" />
+    <None Include="resources\shaders\Font\FreetypeFont.hlsli" />
     <None Include="resources\shaders\SkyBox\SkyBox.hlsli" />
     <None Include="resources\shaders\Object3d\Object3d.hlsli" />
     <None Include="resources\shaders\Particle\Particle.hlsli" />

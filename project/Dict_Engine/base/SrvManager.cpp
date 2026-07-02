@@ -60,6 +60,22 @@ void SrvManager::CreateSRVforTexture2D(uint32_t srvIndex, ID3D12Resource* pResou
 	DirectXBase::GetInstance()->GetDevice()->CreateShaderResourceView(pResource, &srvDesc, GetCPUDescriptorHandle(srvIndex));
 }
 
+void SrvManager::CreateSRVforFontAtlas(uint32_t srvIndex, ID3D12Resource* pResource, int mipLevels, int mostDetailedMip)
+{
+	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc{};
+	srvDesc.Format = DXGI_FORMAT_R8_UNORM;
+	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+	srvDesc.Texture2D.MipLevels = mipLevels;
+	srvDesc.Texture2D.MostDetailedMip = mostDetailedMip;
+
+	DirectXBase::GetInstance()->GetDevice()->CreateShaderResourceView(
+		pResource,
+		&srvDesc,
+		GetCPUDescriptorHandle(srvIndex)
+	);
+}
+
 void SrvManager::CreateSRVforStructuredBuffer(uint32_t srvIndex, ID3D12Resource* pResource, UINT numElements, UINT structureByteStride)
 {
 	assert(pResource);

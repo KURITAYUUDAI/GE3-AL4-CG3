@@ -9,14 +9,6 @@ std::unique_ptr<TextureManager> TextureManager::instance_ = nullptr;
 // ImGuiで0番を使用するため、1番から使用
 uint32_t TextureManager::kSRVIndexTop = 1;
 
-void TextureManager::Initialize(DirectXBase* dxBase, SrvManager* srvManager)
-{
-	// SRVの数と同数
-	textureDatas_.reserve(SrvManager::kMaxSRVCount);
-
-	dxBase_ = dxBase;
-}
-
 TextureManager* TextureManager::GetInstance()
 {
 	if (instance_ == nullptr)
@@ -30,6 +22,14 @@ TextureManager* TextureManager::GetInstance()
 void TextureManager::Finalize()
 {
 	instance_.reset();
+}
+
+void TextureManager::Initialize(DirectXBase* dxBase, SrvManager* srvManager)
+{
+	// SRVの数と同数
+	textureDatas_.reserve(SrvManager::kMaxSRVCount);
+
+	dxBase_ = dxBase;
 }
 
 void TextureManager::LoadTexture(const std::string& filePath)

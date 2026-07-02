@@ -4,6 +4,8 @@
 #include "CameraManager.h"
 
 #include "freetype/FreeTypeManager.h"
+#include "FontManager.h"
+#include "TextManager.h"
 
 void TitleScene::Initialize()
 {
@@ -96,9 +98,13 @@ void TitleScene::Initialize()
 	SoundManager::GetInstance()->SoundLoadFile("", "Alarm01.wav");
 	SoundManager::GetInstance()->SoundLoadFile("", "test.mp3");
 
+	FreeTypeManager::GetInstance()->Initialize();
+	TextManager::GetInstance()->Initialize();
 
-	FreeTypeManager freeTypeManager;
-	freeTypeManager.TestFreeType();
+	titleText_ = std::make_unique<Text>();
+	titleText_->Initialize("fonts/x8y12pxTheStrongGamer.ttf", 32, U"TITLE SCENE");
+	titleText_->SetPosition({ 640.0f, 360.0f });
+
 }
 
 void TitleScene::Finalize()
@@ -132,6 +138,10 @@ void TitleScene::Finalize()
 
 	LightManager::GetInstance()->Finalize();
 	CameraManager::GetInstance()->Finalize();
+
+	FreeTypeManager::GetInstance()->Finalize();
+	FontManager::GetInstance()->Finalize();
+	TextManager::GetInstance()->Finalize();
 	//PostEffectManager::GetInstance()->Clear();
 }
 
@@ -262,7 +272,7 @@ void TitleScene::Update(const float& deltaTime)
 	//// ImGuiの内部コマンドを生成する
 	//ImGui::Render();
 
-
+	titleText_->Update();
 }
 
 void TitleScene::Draw()
@@ -306,4 +316,7 @@ void TitleScene::Draw()
 		SoundManager::GetInstance()->SoundPlayWave("test.mp3");
 
 	}
+
+	titleText_->Draw();
+
 }

@@ -36,6 +36,8 @@ public:
 
 	// SRV生成（テクスチャ用）
 	void CreateSRVforTexture2D(uint32_t srvIndex, ID3D12Resource* pResource, DirectX::TexMetadata metadata);
+	// SRV生成（フォント用）
+	void CreateSRVforFontAtlas(uint32_t srvIndex, ID3D12Resource* pResource, int mipLevels, int mostDetailedMip);
 	// SRV生成（Structured Buffer用）
 	void CreateSRVforStructuredBuffer(uint32_t srvIndex, ID3D12Resource* pResource, 
 		UINT numElements, UINT structureByteStride);

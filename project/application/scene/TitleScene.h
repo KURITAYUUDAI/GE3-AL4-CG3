@@ -2,6 +2,8 @@
 #include "BaseScene.h"
 #include "Framework.h"
 
+#include "Text.h"
+
 class TitleScene : public BaseScene
 {
 public:
@@ -58,5 +60,7 @@ private:
 	Vector2 mousePosition_ = { 0.0f, 0.0f };
 
 	std::unique_ptr<Sprite> enterSprite_;
+
+	std::unique_ptr<Text> titleText_;
 };
 
