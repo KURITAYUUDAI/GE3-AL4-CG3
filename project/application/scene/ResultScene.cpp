@@ -256,6 +256,9 @@ void ResultScene::Update(const float& deltaTime)
 	//ImGui::Render();
 }
 
+void ResultScene::FinishFadeIn()
+{}
+
 void ResultScene::Draw()
 {
 	if (isDrawObject3d_)

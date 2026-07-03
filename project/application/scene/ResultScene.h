@@ -16,6 +16,8 @@ public:
 
 	void Update(const float& deltaTime) override;
 
+	void FinishFadeIn() override;
+
 	void Draw() override;
 
 private:

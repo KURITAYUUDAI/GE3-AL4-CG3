@@ -275,6 +275,11 @@ void TitleScene::Update(const float& deltaTime)
 	titleText_->Update();
 }
 
+void TitleScene::FinishFadeIn()
+{
+	
+}
+
 void TitleScene::Draw()
 {
 

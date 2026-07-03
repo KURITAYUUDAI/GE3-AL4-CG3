@@ -28,6 +28,8 @@ public:
     bool IsRunning() const;
     bool IsSceneChangeTiming() const;
 
+	void SetOnFinish(std::function<void()> onFinish) { onFinish_ = std::move(onFinish); }
+
 private:
     void BeginFadeOut();
     void BeginFadeIn();
@@ -44,5 +46,7 @@ private:
     std::function<void()> onSwitchScene_;
 
     std::unique_ptr<ITransitionTrack> track_;
+
+	std::function<void()> onFinish_;
 };
 
