@@ -23,6 +23,29 @@ public:
 	// 終了
 	void Finalize();
 
+	// コンストラクタに渡すための鍵
+	class ConstructorKey
+	{
+	private:
+		ConstructorKey() = default;
+		friend class TextureManager;
+	};
+
+	// PassKeyを受け取るコンストラクタ
+	explicit TextureManager(ConstructorKey){}
+
+private:	// シングルトン化
+
+	static std::unique_ptr<TextureManager> instance_;
+
+	~TextureManager() = default;
+	TextureManager(TextureManager&) = delete;
+	TextureManager& operator=(TextureManager&) = delete;
+
+	friend struct std::default_delete<TextureManager>;
+
+public:
+
 	/// <summary>
 	/// テクスチャファイルの読み込み
 	/// </summary>
@@ -78,27 +101,6 @@ private:
 	//};
 
 
-public:
-	// コンストラクタに渡すための鍵
-	class ConstructorKey
-	{
-	private:
-		ConstructorKey() = default;
-		friend class TextureManager;
-	};
-
-	// PassKeyを受け取るコンストラクタ
-	explicit TextureManager(ConstructorKey){}
-
-private:	// シングルトン化
-
-	static std::unique_ptr<TextureManager> instance_;
-
-	~TextureManager() = default;
-	TextureManager(TextureManager&) = delete;
-	TextureManager& operator=(TextureManager&) = delete;
-
-	friend struct std::default_delete<TextureManager>;
 
 private:	// 静的関数
 

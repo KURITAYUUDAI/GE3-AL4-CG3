@@ -82,6 +82,11 @@ void SceneManager::ChangeScene(const std::string& sceneName)
 
 	scene_ = sceneName;
 	currentScene_->Initialize();
+
+	sceneTransition_.SetOnFinish([this]()
+	{
+		currentScene_->FinishFadeIn();
+	});
 }
 
 const std::string SceneManager::GetNextScene() const

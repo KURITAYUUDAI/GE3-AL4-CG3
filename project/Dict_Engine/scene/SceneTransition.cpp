@@ -127,8 +127,14 @@ void SceneTransition::BeginFadeIn()
 
 void SceneTransition::Finish()
 {
+    if (onFinish_)
+    {
+        onFinish_();
+    }
+
     state_ = SceneTransitionState::Idle;
     timer_ = 0.0f;
     onSwitchScene_ = nullptr;
+	onFinish_ = nullptr;
     track_.reset();
 }

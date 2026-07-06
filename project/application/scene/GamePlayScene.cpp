@@ -8,7 +8,7 @@
 #include "RadialBlur.h"
 #include "Dissolve.h"
 #include "Random.h"
-#include "Darken.h"
+#include "Bloom.h"
 #include "BulletManager.h"
 #include "SplineCurve.h"
 #include "HPGageUI.h"
@@ -212,6 +212,7 @@ void GamePlayScene::Initialize()
 	/*PostEffectManager::GetInstance()->Add("Dissolve");*/
 	/*PostEffectManager::GetInstance()->Add("Random");*/
 
+	
 	debugManager_->Initialize();
 
 	// シーン初期化終わり
@@ -249,6 +250,8 @@ void GamePlayScene::Initialize()
 
 void GamePlayScene::Finalize()
 {
+	SceneManager::GetInstance()->GetPostEffectController()->Cancel(handle_);
+
 	enemyManager_->Finalize();
 	player_->Finalize();
 	
@@ -303,8 +306,6 @@ void GamePlayScene::Update(const float& deltaTime)
 	//}
 
 	WorldTransform::AdvanceFrame();
-
-	
 
 #ifdef _DEBUG
 
@@ -536,6 +537,11 @@ void GamePlayScene::Update(const float& deltaTime)
 	enemyIDs_.end());
 
 	
+}
+
+void GamePlayScene::FinishFadeIn()
+{
+	handle_ = SceneManager::GetInstance()->GetPostEffectController()->Emit<Bloom>("Bloom", std::nullopt);
 }
 
 void GamePlayScene::Draw()

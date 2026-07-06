@@ -2,6 +2,8 @@
 #include "BaseScene.h"
 #include "Framework.h"
 
+#include "Text.h"
+
 class TitleScene : public BaseScene
 {
 public:
@@ -15,6 +17,8 @@ public:
 	void Finalize() override;
 
 	void Update(const float& deltaTime) override;
+
+	void FinishFadeIn() override;
 
 	void Draw() override;
 
@@ -58,5 +62,7 @@ private:
 	Vector2 mousePosition_ = { 0.0f, 0.0f };
 
 	std::unique_ptr<Sprite> enterSprite_;
+
+	std::unique_ptr<Text> titleText_;
 };
 

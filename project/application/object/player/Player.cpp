@@ -403,7 +403,7 @@ void Player::Avoid(const Vector2& direction)
 void Player::JustAvoid(const Vector3& avoidDirection)
 {
 	DeltaTimeManager::GetInstance()->RequestOtherSlowMotion(DeltaTimeGroup::Player,
-		0.0f, 0.05f, 1.0f, 0.05f);
+		0.3f, 0.05f, 1.0f, 0.05f);
 	ChangeState(std::make_unique<PlayerJustAvoidState>(avoidDirection, justAvoidDarken_.get()));
 }
 

@@ -12,6 +12,8 @@ public:
 
 	virtual void Update(const float& deltaTime) = 0;
 
+	virtual void FinishFadeIn() = 0;
+
 	virtual void Draw() = 0;
 
 };

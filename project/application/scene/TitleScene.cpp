@@ -3,6 +3,10 @@
 #include "LightManager.h"
 #include "CameraManager.h"
 
+#include "freetype/FreeTypeManager.h"
+#include "FontManager.h"
+#include "TextManager.h"
+
 void TitleScene::Initialize()
 {
 	// Textureを読んで転送する
@@ -94,6 +98,18 @@ void TitleScene::Initialize()
 	SoundManager::GetInstance()->SoundLoadFile("", "Alarm01.wav");
 	SoundManager::GetInstance()->SoundLoadFile("", "test.mp3");
 
+	FreeTypeManager::GetInstance()->Initialize();
+	TextManager::GetInstance()->Initialize();
+
+	titleText_ = std::make_unique<Text>();
+	titleText_->InitializeRichText(
+		"fonts/x8y12pxTheStrongGamer.ttf",
+		32,
+		U"TITLE <b><color=#ff4040>SCENE</color></b>\n"
+		U"<i><color=#40a0ff>ITALIC</color></i> <u><color=#40ff80>UNDER</color></u> "
+		U"<b><i><u><color=#ffd040cc>BOTH</color></u></i></b>");
+	titleText_->SetPosition({ 120.0f, 320.0f });
+
 }
 
 void TitleScene::Finalize()
@@ -127,6 +143,10 @@ void TitleScene::Finalize()
 
 	LightManager::GetInstance()->Finalize();
 	CameraManager::GetInstance()->Finalize();
+
+	FreeTypeManager::GetInstance()->Finalize();
+	FontManager::GetInstance()->Finalize();
+	TextManager::GetInstance()->Finalize();
 	//PostEffectManager::GetInstance()->Clear();
 }
 
@@ -257,7 +277,12 @@ void TitleScene::Update(const float& deltaTime)
 	//// ImGuiの内部コマンドを生成する
 	//ImGui::Render();
 
+	titleText_->Update();
+}
 
+void TitleScene::FinishFadeIn()
+{
+	
 }
 
 void TitleScene::Draw()
@@ -301,4 +326,7 @@ void TitleScene::Draw()
 		SoundManager::GetInstance()->SoundPlayWave("test.mp3");
 
 	}
+
+	titleText_->Draw();
+
 }
