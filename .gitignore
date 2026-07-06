@@ -368,5 +368,5 @@ Dumps/
 
 *.blend
 
-project/externals/assimp/lib/
-project/externals/assimp/lib/**
+!project/externals/assimp/lib/
+!project/externals/assimp/lib/**
