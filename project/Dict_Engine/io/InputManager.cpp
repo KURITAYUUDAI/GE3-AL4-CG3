@@ -1,6 +1,35 @@
 #include "InputManager.h"
 
+#ifdef USE_IMGUI
+#include "imgui.h"
+#endif
+
 std::unique_ptr<InputManager> InputManager::instance_ = nullptr;
+
+namespace
+{
+	bool IsImGuiCapturingKeyboard()
+	{
+#ifdef USE_IMGUI
+		if (ImGui::GetCurrentContext())
+		{
+			return ImGui::GetIO().WantCaptureKeyboard;
+		}
+#endif
+		return false;
+	}
+
+	bool IsImGuiCapturingMouse()
+	{
+#ifdef USE_IMGUI
+		if (ImGui::GetCurrentContext())
+		{
+			return ImGui::GetIO().WantCaptureMouse;
+		}
+#endif
+		return false;
+	}
+}
 
 InputManager* InputManager::GetInstance()
 {
@@ -86,6 +115,11 @@ void InputManager::Update()
 
 bool InputManager::PushKey(BYTE keyNum)
 {
+	if (IsImGuiCapturingKeyboard())
+	{
+		return false;
+	}
+
 	if (key_[keyNum])
 	{
 		return true;
@@ -96,6 +130,11 @@ bool InputManager::PushKey(BYTE keyNum)
 
 bool InputManager::TriggerKey(BYTE keyNum)
 {
+	if (IsImGuiCapturingKeyboard())
+	{
+		return false;
+	}
+
 	if(!keyPre_[keyNum] && key_[keyNum])
 	{
 		return true;
@@ -106,6 +145,11 @@ bool InputManager::TriggerKey(BYTE keyNum)
 
 bool InputManager::PushMouse(BYTE mouseButton)
 {
+	if (IsImGuiCapturingMouse())
+	{
+		return false;
+	}
+
 	if (mouseState_.rgbButtons[mouseButton] & 0x80)
 	{
 		return true;
@@ -115,6 +159,11 @@ bool InputManager::PushMouse(BYTE mouseButton)
 
 bool InputManager::TriggerMouse(BYTE mouseButton)
 {
+	if (IsImGuiCapturingMouse())
+	{
+		return false;
+	}
+
 	if (!(mouseStatePre_.rgbButtons[mouseButton] & 0x80) 
 		 && (mouseState_.rgbButtons[mouseButton] & 0x80))
 	{

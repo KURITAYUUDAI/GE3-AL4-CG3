@@ -41,7 +41,7 @@ public:
 
     void Initialize(const std::string& fontPath, uint32_t pixelSize, const std::u32string& text);
     void InitializeRichText(const std::string& fontPath, uint32_t pixelSize, const std::u32string& text);
-    void Update();
+    void Update(bool showDebugUi = true);
     void Draw();
     void Finalize();
 
@@ -50,6 +50,7 @@ public: // 外部入力＆出力
     void SetText(const std::u32string& text); // 変更時のみレイアウト再構築
     
     void SetRichText(const std::u32string& text);
+    void SetFont(const std::string& fontPath, uint32_t pixelSize);
     void SetFontStylePaths(const FontStylePaths& paths);
     void SetFontStylePaths(
         const std::string& regularPath,
@@ -88,8 +89,10 @@ private:
 
 private:
 
-    void CreateVertexResource(); // kMaxTextLength分を確保
+    void CreateVertexResource();
+    void CreateVertexResource(uint32_t quadCapacity);
     void CreateMaterialResource();
+    void EnsureQuadCapacity(uint32_t requiredQuadCount);
     void RebuildMesh(); // text_からvertexData_を再構築、indexCount_を更新
 
     void BuildPlainStyledText(const std::u32string& text);
@@ -117,8 +120,7 @@ private:
         const Vector4& color,
         uint32_t& quadCount);
 
-    static constexpr uint32_t kMaxTextLength = 256;
-    static constexpr uint32_t kMaxQuadCount = kMaxTextLength * 2;
+    static constexpr uint32_t kMinQuadCapacity = 32;
 
 private:
 
@@ -129,6 +131,7 @@ private:
     Microsoft::WRL::ComPtr<ID3D12Resource> indexResource_;
     uint32_t* indexData_ = nullptr;
     D3D12_INDEX_BUFFER_VIEW indexBufferView_{};
+    uint32_t quadCapacity_ = 0;
 
     uint32_t currentIndexCount_ = 0; // 実際の文字数×6
 

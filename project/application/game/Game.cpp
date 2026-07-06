@@ -8,10 +8,13 @@
 #include "Dissolve.h"
 #include "Random.h"
 #include "Darken.h"
+#include "TextEditorManager.h"
 
 void Game::Initialize()
 {
 	Dict_Framework::Initialize();
+
+	TextEditorManager::GetInstance()->Initialize();
 
 	// 使えるエフェクトの種類を登録
 	postEffectManager_->RegisterFactory("GaussianBlur",
@@ -43,6 +46,8 @@ void Game::Initialize()
 
 void Game::Finalize()
 {
+	TextEditorManager::GetInstance()->Finalize();
+
 	sceneManager_->Finalize();
 
 	postEffectManager_->Finalize();
@@ -59,6 +64,8 @@ void Game::Update()
 
 	deltaTimeManager_->ImGuiDebug();
 
+	TextEditorManager::GetInstance()->Update(sceneManager_->GetCurrentSceneName());
+
 	sceneManager_->Update(deltaTime_);
 
 	imguiManager_->End();
@@ -74,6 +81,8 @@ void Game::Draw()
 	dissolveManager_->BeginFrame();
 
 	sceneManager_->Draw();
+
+	TextEditorManager::GetInstance()->Draw(sceneManager_->GetCurrentSceneName());
 
 	DirectXBase::GetInstance()->DrawSwapChain();
 

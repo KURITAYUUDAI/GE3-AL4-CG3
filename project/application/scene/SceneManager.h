@@ -51,6 +51,7 @@ private:
 public:	// 外部入出力
 
 	const std::string GetNextScene() const;
+	const std::string& GetCurrentSceneName() const { return scene_; }
 	const SceneTransition& GetSceneTransition() const { return sceneTransition_; }
 	PostEffectController* GetPostEffectController() { return postEffectController_.get(); }
 

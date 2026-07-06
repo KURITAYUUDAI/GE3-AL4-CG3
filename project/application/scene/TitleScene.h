@@ -2,8 +2,6 @@
 #include "BaseScene.h"
 #include "Framework.h"
 
-#include "Text.h"
-
 class TitleScene : public BaseScene
 {
 public:
@@ -63,6 +61,5 @@ private:
 
 	std::unique_ptr<Sprite> enterSprite_;
 
-	std::unique_ptr<Text> titleText_;
 };
 

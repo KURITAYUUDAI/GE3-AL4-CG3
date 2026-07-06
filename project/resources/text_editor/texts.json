@@ -1,0 +1,27 @@
+{
+    "texts": [
+        {
+            "boldFontPath": "",
+            "boldItalicFontPath": "",
+            "color": {
+                "w": 1.0,
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            },
+            "fontPath": "fonts/x8y12pxTheStrongGamer.ttf",
+            "id": 1,
+            "italicFontPath": "",
+            "name": "Text 1",
+            "pixelSize": 50,
+            "position": {
+                "x": 120.0,
+                "y": 320.0
+            },
+            "richTextUtf8": "TITLE <b><color=#ff4040>Scene</color></b>\n<i><color=#40a0ff>ITALIC</color></i> <u><color=#40ff80>UNDER</color></u> <b><i><u><color=#ffd040cc>ALL</color></u></i></b>",
+            "sceneName": "TITLE",
+            "visible": true
+        }
+    ],
+    "version": 1
+}

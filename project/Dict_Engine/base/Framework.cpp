@@ -1,5 +1,8 @@
 #define NOMINMAX
 #include "Framework.h"
+#include "FontManager.h"
+#include "TextManager.h"
+#include "freetype/FreeTypeManager.h"
 
 void Dict_Framework::Initialize()
 {
@@ -35,6 +38,9 @@ void Dict_Framework::Initialize()
 	srvManager_->Initialize(dxBase_);
 
 	psoManager_->Initialize();
+
+	FreeTypeManager::GetInstance()->Initialize();
+	TextManager::GetInstance()->Initialize();
 
 	offscreenRender_->Initialize();
 
@@ -107,6 +113,10 @@ void Dict_Framework::Finalize()
 	spriteManager_->Finalize();
 
 	dissolveManager_->Finalize();
+
+	TextManager::GetInstance()->Finalize();
+	FontManager::GetInstance()->Finalize();
+	FreeTypeManager::GetInstance()->Finalize();
 
 	// PSOManager終了処理
 	PSOManager::GetInstance()->Finalize();

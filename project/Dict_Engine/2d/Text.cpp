@@ -112,26 +112,29 @@ void Text::InitializeRichText(const std::string& fontPath, uint32_t pixelSize, c
     SetRichText(text);
 }
 
-void Text::Update()
+void Text::Update(bool showDebugUi)
 {
 #ifdef _DEBUG
 
-    ImGui::Begin("Text Setting");
-
-    Vector3 newTranslate = worldTransform_.translate_;
-    if (ImGui::DragFloat3("translate", &newTranslate.x, 0.1f))
+    if (showDebugUi)
     {
-        worldTransform_.translate_ = newTranslate;
-        position_ = { newTranslate.x, newTranslate.y };
-    }
+        ImGui::Begin("Text Setting");
 
-    Vector4 newColor = materialData_->color;
-    if (ImGui::ColorEdit4("color", &newColor.x))
-    {
-        materialData_->color = newColor;
-    }
+        Vector3 newTranslate = worldTransform_.translate_;
+        if (ImGui::DragFloat3("translate", &newTranslate.x, 1.0f))
+        {
+            worldTransform_.translate_ = newTranslate;
+            position_ = { newTranslate.x, newTranslate.y };
+        }
 
-    ImGui::End();
+        Vector4 newColor = materialData_->color;
+        if (ImGui::ColorEdit4("color", &newColor.x))
+        {
+            materialData_->color = newColor;
+        }
+
+        ImGui::End();
+    }
 
 #endif
 
@@ -207,6 +210,27 @@ void Text::SetRichText(const std::u32string& text)
     RebuildMesh();
 }
 
+void Text::SetFont(const std::string& fontPath, uint32_t pixelSize)
+{
+    if (fontPath.empty() || pixelSize == 0)
+    {
+        return;
+    }
+
+    fontKey_.path = fontPath;
+    fontKey_.pixelSize = pixelSize;
+    fontKey_.syntheticBold = false;
+    fontKey_.syntheticItalic = false;
+    fontStylePaths_.regular = fontPath;
+    lineHeight_ = static_cast<float>(pixelSize);
+    fontAtlas_ = FontManager::GetInstance()->LoadFont(fontKey_);
+
+    if (vertexData_ && indexData_)
+    {
+        RebuildMesh();
+    }
+}
+
 void Text::SetFontStylePaths(const FontStylePaths& paths)
 {
     fontStylePaths_ = paths;
@@ -255,8 +279,14 @@ void Text::SetPosition(const Vector2& position)
 
 void Text::CreateVertexResource()
 {
-    const uint32_t vertexCount = kMaxQuadCount * 4;
-    const uint32_t indexCount = kMaxQuadCount * 6;
+    CreateVertexResource(kMinQuadCapacity);
+}
+
+void Text::CreateVertexResource(uint32_t quadCapacity)
+{
+    quadCapacity_ = (std::max)(kMinQuadCapacity, quadCapacity);
+    const uint32_t vertexCount = quadCapacity_ * 4;
+    const uint32_t indexCount = quadCapacity_ * 6;
 
     vertexResource_ = DirectXBase::GetInstance()->CreateBufferResource(
         sizeof(VertexData) * vertexCount
@@ -278,6 +308,23 @@ void Text::CreateVertexResource()
     indexResource_->Map(0, nullptr, reinterpret_cast<void**>(&indexData_));
 }
 
+void Text::EnsureQuadCapacity(uint32_t requiredQuadCount)
+{
+    requiredQuadCount = (std::max)(kMinQuadCapacity, requiredQuadCount);
+    if (requiredQuadCount <= quadCapacity_ && vertexData_ && indexData_)
+    {
+        return;
+    }
+
+    uint32_t newCapacity = (std::max)(quadCapacity_, kMinQuadCapacity);
+    while (newCapacity < requiredQuadCount)
+    {
+        newCapacity *= 2;
+    }
+
+    CreateVertexResource(newCapacity);
+}
+
 void Text::CreateMaterialResource()
 {
     materialResource_ = DirectXBase::GetInstance()->CreateBufferResource(sizeof(Material));
@@ -289,6 +336,9 @@ void Text::CreateMaterialResource()
 void Text::RebuildMesh()
 {
     fontAtlas_ = FontManager::GetInstance()->LoadFont(fontKey_);
+    const uint32_t requiredQuadCount =
+        static_cast<uint32_t>((std::max<size_t>)(1, styledCharacters_.size()) * 2 + 2);
+    EnsureQuadCapacity(requiredQuadCount);
 
     if (!vertexData_ || !indexData_)
     {
@@ -331,11 +381,6 @@ void Text::RebuildMesh()
 
     for (const StyledCharacter& styledCharacter : styledCharacters_)
     {
-        if (displayCharacterCount >= kMaxTextLength)
-        {
-            break;
-        }
-
         const char32_t c = styledCharacter.codepoint;
 
         if (c == U'\n')
@@ -625,7 +670,7 @@ bool Text::AppendQuad(
     const Vector4& color,
     uint32_t& quadCount)
 {
-    if (quadCount >= kMaxQuadCount)
+    if (quadCount >= quadCapacity_)
     {
         return false;
     }
