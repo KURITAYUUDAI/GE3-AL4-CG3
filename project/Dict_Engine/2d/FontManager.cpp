@@ -1,6 +1,10 @@
 #define NOMINMAX
 #include "FontManager.h"
+#include FT_SYNTHESIS_H
 #include "SrvManager.h"
+
+#include <algorithm>
+#include <cmath>
 
 std::unique_ptr<FontManager> FontManager::instance_ = nullptr;
 
@@ -19,23 +23,30 @@ void FontManager::Finalize()
     instance_.reset();
 }
 
-FontAtlas* FontManager::LoadFont(const std::string& fontPath, uint32_t pixelSize)
+FontAtlas* FontManager::LoadFont(
+    const std::string& fontPath,
+    uint32_t pixelSize,
+    bool syntheticBold,
+    bool syntheticItalic)
 {
-	FontKey key{ fontPath, pixelSize };
+    return LoadFont(FontKey{ fontPath, pixelSize, syntheticBold, syntheticItalic });
+}
 
+FontAtlas* FontManager::LoadFont(const FontKey& key)
+{
 	if (atlases_.contains(key))
 	{
 		return atlases_[key].get();
 	}
 
-    FT_Face face = FreeTypeManager::GetInstance()->GetOrLoadFace(fontPath);
+    FT_Face face = FreeTypeManager::GetInstance()->GetOrLoadFace(key.path);
     if (!face)
     {
         return nullptr;
     }
 
     // ここが抜けていた
-    FT_Error error = FT_Set_Pixel_Sizes(face, 0, pixelSize);
+    FT_Error error = FT_Set_Pixel_Sizes(face, 0, key.pixelSize);
     if (error)
     {
         OutputDebugStringA("FT_Set_Pixel_Sizes failed\n");
@@ -44,7 +55,13 @@ FontAtlas* FontManager::LoadFont(const std::string& fontPath, uint32_t pixelSize
 
     std::unique_ptr<FontAtlas> newAtlas = std::make_unique<FontAtlas>();
 
-    if (!BuildAsciiFontAtlas(face, *newAtlas, 512, 512))
+    if (!BuildAsciiFontAtlas(
+        face,
+        *newAtlas,
+        512,
+        512,
+        key.syntheticBold,
+        key.syntheticItalic))
     {
         return nullptr;
     }
@@ -77,7 +94,13 @@ D3D12_GPU_DESCRIPTOR_HANDLE FontManager::GetSRVHandleGPU(const FontKey& key) con
 
 }
 
-bool FontManager::BuildAsciiFontAtlas(FT_Face face, FontAtlas& outAtlas, int atlasWidth, int atlasHeight)
+bool FontManager::BuildAsciiFontAtlas(
+    FT_Face face,
+    FontAtlas& outAtlas,
+    int atlasWidth,
+    int atlasHeight,
+    bool syntheticBold,
+    bool syntheticItalic)
 {
     if (!face)
     {
@@ -89,6 +112,27 @@ bool FontManager::BuildAsciiFontAtlas(FT_Face face, FontAtlas& outAtlas, int atl
     outAtlas.pixels.clear();
     outAtlas.pixels.resize(static_cast<size_t>(atlasWidth) * atlasHeight, 0);
     outAtlas.glyphs.clear();
+    outAtlas.solidUv = {
+        0.5f / static_cast<float>(atlasWidth),
+        0.5f / static_cast<float>(atlasHeight)
+    };
+    outAtlas.pixels[0] = 255;
+
+    const float pixelSize =
+        face->size ? static_cast<float>(face->size->metrics.y_ppem) : 32.0f;
+    float underlinePosition = 0.0f;
+    float underlineThickness = 0.0f;
+    if (face->size)
+    {
+        underlinePosition =
+            static_cast<float>(FT_MulFix(face->underline_position, face->size->metrics.y_scale)) / 64.0f;
+        underlineThickness =
+            std::abs(static_cast<float>(FT_MulFix(face->underline_thickness, face->size->metrics.y_scale)) / 64.0f);
+    }
+    outAtlas.underlineOffset =
+        underlinePosition < 0.0f ? -underlinePosition : std::max(1.0f, pixelSize * 0.1f);
+    outAtlas.underlineThickness =
+        underlineThickness >= 1.0f ? underlineThickness : std::max(1.0f, pixelSize * 0.06f);
 
     const int padding = 1;
 
@@ -101,9 +145,24 @@ bool FontManager::BuildAsciiFontAtlas(FT_Face face, FontAtlas& outAtlas, int atl
         FT_Error error = FT_Load_Char(
             face,
             static_cast<FT_ULong>(c),
-            FT_LOAD_RENDER
+            FT_LOAD_DEFAULT
         );
 
+        if (error)
+        {
+            continue;
+        }
+
+        if (syntheticItalic)
+        {
+            FT_GlyphSlot_Oblique(face->glyph);
+        }
+        if (syntheticBold)
+        {
+            FT_GlyphSlot_Embolden(face->glyph);
+        }
+
+        error = FT_Render_Glyph(face->glyph, FT_RENDER_MODE_NORMAL);
         if (error)
         {
             continue;

@@ -102,8 +102,13 @@ void TitleScene::Initialize()
 	TextManager::GetInstance()->Initialize();
 
 	titleText_ = std::make_unique<Text>();
-	titleText_->Initialize("fonts/x8y12pxTheStrongGamer.ttf", 32, U"TITLE SCENE");
-	titleText_->SetPosition({ 640.0f, 360.0f });
+	titleText_->InitializeRichText(
+		"fonts/x8y12pxTheStrongGamer.ttf",
+		32,
+		U"TITLE <b><color=#ff4040>SCENE</color></b>\n"
+		U"<i><color=#40a0ff>ITALIC</color></i> <u><color=#40ff80>UNDER</color></u> "
+		U"<b><i><u><color=#ffd040cc>BOTH</color></u></i></b>");
+	titleText_->SetPosition({ 120.0f, 320.0f });
 
 }
 

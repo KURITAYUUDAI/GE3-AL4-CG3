@@ -362,6 +362,9 @@
     <ClCompile Include="src\base\ftbitmap.c">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
+    <ClCompile Include="src\base\ftsynth.c">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
     <ClCompile Include="src\smooth\smooth.c">
       <Filter>ソース ファイル</Filter>
     </ClCompile>

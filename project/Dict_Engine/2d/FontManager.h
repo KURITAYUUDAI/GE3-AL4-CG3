@@ -4,13 +4,17 @@
 #include <ft2build.h>
 #include FT_FREETYPE_H
 
+#include <string>
 #include <unordered_map>
+#include <vector>
 #include "freetype/FreeTypeManager.h"
 
 struct FontKey
 {
     std::string path;
     uint32_t pixelSize;
+    bool syntheticBold = false;
+    bool syntheticItalic = false;
     bool operator==(const FontKey&) const = default;
 };
 
@@ -18,7 +22,11 @@ struct FontKeyHash
 {
     size_t operator()(const FontKey& key) const
     {
-        return std::hash<std::string>()(key.path) ^ (std::hash<uint32_t>()(key.pixelSize) << 1);
+        size_t result = std::hash<std::string>()(key.path);
+        result ^= std::hash<uint32_t>()(key.pixelSize) << 1;
+        result ^= std::hash<bool>()(key.syntheticBold) << 2;
+        result ^= std::hash<bool>()(key.syntheticItalic) << 3;
+        return result;
     }
 };
 
@@ -49,6 +57,10 @@ struct FontAtlas
     std::vector<uint8_t> pixels;
 
     std::unordered_map<char32_t, GlyphInfo> glyphs;
+
+    Vector2 solidUv{};
+    float underlineOffset = 0.0f;
+    float underlineThickness = 1.0f;
 
     Microsoft::WRL::ComPtr<ID3D12Resource> textureResource;
     Microsoft::WRL::ComPtr<ID3D12Resource> uploadResource;
@@ -90,13 +102,24 @@ private:	// シングルトン化
 public:
 
     // フォントを読み込み、アトラスを構築済みなら参照を返すだけ
-    FontAtlas* LoadFont(const std::string& fontPath, uint32_t pixelSize = 32);
+    FontAtlas* LoadFont(
+        const std::string& fontPath,
+        uint32_t pixelSize = 32,
+        bool syntheticBold = false,
+        bool syntheticItalic = false);
+    FontAtlas* LoadFont(const FontKey& key);
 
     // Sprite側のGetSRVHandleGPU(textureFilePath)相当
     D3D12_GPU_DESCRIPTOR_HANDLE GetSRVHandleGPU(const FontKey& key) const;
 
 private:
-    bool BuildAsciiFontAtlas(FT_Face face, FontAtlas& outAtlas, int atlasW, int atlasH);
+    bool BuildAsciiFontAtlas(
+        FT_Face face,
+        FontAtlas& outAtlas,
+        int atlasW,
+        int atlasH,
+        bool syntheticBold,
+        bool syntheticItalic);
     bool CreateFontAtlasTexture(FontAtlas& atlas);
     bool CreateFontAtlasSRV(FontAtlas& atlas);
 

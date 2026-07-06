@@ -173,6 +173,7 @@
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <AdditionalIncludeDirectories>myConfig;include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
       <DisableSpecificWarnings>4267;4244;4018</DisableSpecificWarnings>
@@ -196,6 +197,7 @@
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <AdditionalIncludeDirectories>myConfig;include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
       <DisableSpecificWarnings>4267;4244;4018</DisableSpecificWarnings>
@@ -348,6 +350,7 @@
     <ClCompile Include="src\base\ftdebug.c" />
     <ClCompile Include="src\base\ftinit.c" />
     <ClCompile Include="src\base\ftmm.c" />
+    <ClCompile Include="src\base\ftsynth.c" />
     <ClCompile Include="src\base\ftsystem.c" />
     <ClCompile Include="src\psnames\psnames.c" />
     <ClCompile Include="src\raster\raster.c" />
