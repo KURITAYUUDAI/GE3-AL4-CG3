@@ -64,6 +64,7 @@ public:	//外部入出力
 	const Vector3 GetWorldRotate() const;
 
 	Collider* GetCollider() { return collider_.get(); }
+	Collider* GetAttackCollider() { return colliderAttack_.get(); }
 
 	// HP
 	const int& GetHitPoint() const { return hitPoint_; }
@@ -83,6 +84,8 @@ public:	//外部入出力
 	void SetTranslate(const Vector3& translate) { transform_.translate = translate; }
 	void SetTransform(const Transform& transform) { transform_ = transform; }
 	void SetVelocity(const Vector3& velocity) { velocity_ = velocity; }
+
+	bool GetIsAttackColliderActive() const { return isAttackColliderActive_; }
 
 	void SetEnvironmentTextureIndex(const uint32_t& srvIndex){ environmentTextureIndex_ = srvIndex; }
 	void SetEventBus(EventBus* eventBus) { eventBus_ = eventBus; }
@@ -140,6 +143,12 @@ private:
 	bool isDraw_ = true;
 
 	float bulletSpeed_ = 15.0f;
+
+	std::unique_ptr<Object3d> objectRightHand_;
+	Transform rightHandTransform_;
+
+	std::unique_ptr<Collider> colliderAttack_;
+	bool isAttackColliderActive_ = false;
 
 	// HP
 	int hitPoint_;

@@ -494,6 +494,7 @@ void GamePlayScene::Update(const float& deltaTime)
 		if (enemyManager_->FindEnemy(id))
 		{
 			collisionManager_->AddCollider(enemyManager_->FindEnemy(id)->GetCollider());
+			collisionManager_->AddCollider(enemyManager_->FindEnemy(id)->GetAttackCollider());
 		}
 	}
 	
