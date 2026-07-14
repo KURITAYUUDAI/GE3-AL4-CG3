@@ -17,6 +17,8 @@ void Enemy::Initialize()
 	PSOManager::GetInstance()->RegisterEnvironmentPSO();
 
 	ModelManager::GetInstance()->LoadModel("", "sphere.obj");
+	ModelManager::GetInstance()->LoadModel("RightHand", "RightHand.obj");
+	ModelManager::GetInstance()->LoadModel("LeftHand", "LeftHand.obj");
 
 	object3d_ = std::make_unique<Object3d>();
 	object3d_->Initialize();
@@ -29,9 +31,33 @@ void Enemy::Initialize()
 	collider_->SetAttribute(CollisionAttribute::Enemy);
 	collider_->SetMask(CollisionAttribute::Enemy);
 
+	objectRightHand_ = std::make_unique<Object3d>();
+	objectRightHand_->Initialize();
+	objectRightHand_->SetModel("RightHand.obj");
+	objectRightHand_->GetModel()->SetEnvironmentCoefficient(0.2f, 0);
+	objectRightHand_->SetParent(object3d_->GetWorldTransform());
+
+	colliderAttack_ = std::make_unique<Collider>();
+	colliderAttack_->SetOwner(this);
+	colliderAttack_->SetOnCollision(
+		[this](Collider* self, Collider* other)
+		{
+			this->OnCollision(self, other);
+		}
+	);
+	colliderAttack_->SetRadius(2.0f);
+	colliderAttack_->SetAttribute(CollisionAttribute::EnemyAttack);
+	colliderAttack_->SetMask(CollisionAttribute::Enemy);
+	colliderAttack_->SetParent(objectRightHand_->GetWorldTransform());
+	colliderAttack_->SetLocalPosition({ 0.0f, 0.0f, -3.0f });
+
 	transform_.scale = { 1.0f, 1.0f, 1.0f };
 	transform_.rotate = { 0.0f, 0.0f, 0.0f };
 	transform_.translate = { 0.0f, -2.0f, 30.0f };
+
+	rightHandTransform_.scale = { 1.0f, 1.0f, 1.0f };
+	rightHandTransform_.rotate = { -40.0f / 180.0f * pi, 0.0f, 0.0f };
+	rightHandTransform_.translate = { -2.5f, 0.0, 0.0f };
 
 	hitPoint_ = kMaxHitPoint;
 
@@ -108,11 +134,26 @@ void Enemy::Update(const float& deltaTime)
 		SetEdgeColor(dissolveEdgeColor);
 	}
 
+	Transform transformRightHand = rightHandTransform_;
+	if(ImGui::DragFloat3("Right Hand Position", &transformRightHand.translate.x, 0.1f))
+	{
+		rightHandTransform_.translate = transformRightHand.translate;
+	}
+	if(ImGui::DragFloat3("Right Hand Rotation", &transformRightHand.rotate.x, 0.1f))
+	{
+		rightHandTransform_.rotate = transformRightHand.rotate;
+	}
+
+	
+
 	ImGui::End();
 #endif
 
 	object3d_->SetTransform(transform_);
 	object3d_->Update();
+
+	objectRightHand_->SetTransform(rightHandTransform_);
+	objectRightHand_->Update();
 
 	if (damageTimer_ > 0.0f)
 	{
@@ -124,11 +165,13 @@ void Enemy::Update(const float& deltaTime)
 		// isPlayHitSE_ = false;
 	}
 
-	collider_->SetWorldPosition(GetWorldPosition());
-
 	Vector3 world = GetWorldPosition();
 	world.z -= 1.5f;
 	slashEmitter_->SetTranslate(world);
+
+	collider_->SetWorldPosition(GetWorldPosition());
+
+	colliderAttack_->UpdateWorldPosition();
 
 	eventBus_->Publish(EnemyScreenPositionEvent
 		{
@@ -163,12 +206,16 @@ void Enemy::Draw()
 		if (static_cast<int>(damageTimer_ * 60.0f) % 5 == 0)
 		{
 			object3d_->Draw();
+			objectRightHand_->Draw();
 		}
 	}
 
 #ifdef _DEBUG
 	DebugDrawManager::GetInstance()->AddSphere(GetWorldPosition(),
 		collider_->GetRadius(), {1.0f, 0.0f, 1.0f, 1.0f}, 8);
+
+	DebugDrawManager::GetInstance()->AddSphere(colliderAttack_->GetWorldPosition(),
+		colliderAttack_->GetRadius(), { 1.0f, 0.0f, 1.0f, 1.0f }, 8);
 #endif
 }
 
@@ -185,6 +232,12 @@ void Enemy::ChangeState(std::unique_ptr<IEnemyState> newState)
 
 void Enemy::OnCollision(Collider* self, Collider* other)
 {
+	if (other->GetAttribute() == static_cast<uint32_t>(CollisionAttribute::Player))
+	{
+		isAttackColliderActive_ = false;
+		return;
+	}
+
 	if (damageTimer_ == 0.0f)
 	{
 		Damage(1);
@@ -196,11 +249,6 @@ void Enemy::OnCollision(Collider* self, Collider* other)
 		isDead_ = true;
 		//PlaySEDead();
 	}
-
-	/*if (other->GetAttribute() == static_cast<uint32_t>(CollisionAttribute::Player))
-	{
-		
-	}*/
 }
 
 void Enemy::Damage(int damage)
@@ -263,7 +311,9 @@ void Enemy::Shot()
 }
 
 void Enemy::Attack()
-{}
+{
+	ChangeState(std::make_unique<EnemyAttackState>());
+}
 
 const Vector3 Enemy::GetWorldPosition() const
 {

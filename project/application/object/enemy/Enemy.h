@@ -49,52 +49,78 @@ public: // Command対応
 
 public:	//外部入出力
 
-	AIHandler* GetAIHandler() { return &handler_; }
+// Getter
 
+	AIHandler* GetAIHandler() { return &handler_; }
+	const float& GetDeltaTime() const { return deltaTime_; }
+
+	// transform設定
 	const Vector3& GetScale() const { return transform_.scale; }
 	const Vector3& GetRotate() const { return transform_.rotate; }
 	const Vector3& GetTranslate() const { return transform_.translate; }
 	const Transform& GetTransform() const { return transform_; }
 	const Vector3& GetVelocity() const { return velocity_; }
 
-	const float& GetDeltaTime() const { return deltaTime_; }
-
 	const Vector3 GetWorldPosition() const;
 	const Vector2 GetScreenPosition() const;
 	const Vector3 GetWorldRotate() const;
 
+	const Transform& GetRightHandTransform() const { return rightHandTransform_; }
+	
+	// Collider設定
 	Collider* GetCollider() { return collider_.get(); }
+	Collider* GetAttackCollider() { return colliderAttack_.get(); }
+	bool GetIsAttackColliderActive() const { return isAttackColliderActive_; }
 
 	// HP
 	const int& GetHitPoint() const { return hitPoint_; }
 	// デスフラグ
 	bool GetIsDead() const { return isDead_; }
 
+	// HPゲージUI設定
+	EnemyID GetEnemyID() const { return enemyID_; }
 	EnemyHPGageDisplayType GetHPGageDisplayType() const { return hpGageDisplayType_; }
 	int GetScreenBossPriority() const { return screenBossPriority_; }
-	EnemyID GetEnemyID() const { return enemyID_; }
-
+	
+	// Dissolve設定
 	const float& GetThreshold() { return dissolveParams_.threshold; }
 	const Vector4& GetEdgeColor() { return dissolveParams_.edgeColor; }
 
+	const Vector3& GetPlayerWorldPosition() const { return playerWorldPosition_; }
 
+// Setter
+
+	// transform設定
 	void SetScale(const Vector3& scale) { transform_.scale = scale; }
 	void SetRotate(const Vector3& rotate) { transform_.rotate = rotate; }
 	void SetTranslate(const Vector3& translate) { transform_.translate = translate; }
 	void SetTransform(const Transform& transform) { transform_ = transform; }
-	void SetVelocity(const Vector3& velocity) { velocity_ = velocity; }
-
-	void SetEnvironmentTextureIndex(const uint32_t& srvIndex){ environmentTextureIndex_ = srvIndex; }
-	void SetEventBus(EventBus* eventBus) { eventBus_ = eventBus; }
-
 	void SetParent(WorldTransform* worldTransform);
 
+	// 右腕transform設定
+	void SetRightHandScale(const Vector3& scale) { rightHandTransform_.scale = scale; }
+	void SetRightHandRotate(const Vector3& rotate) { rightHandTransform_.rotate = rotate; }
+	void SetRightHandTranslate(const Vector3& translate) { rightHandTransform_.translate = translate; }
+	void SetRightHandTransform(const Transform& transform) { rightHandTransform_ = transform; }
+
+	// Collider設定
+	void SetAttackColliderActive(bool isActive) { isAttackColliderActive_ = isActive; }
+	
+	// 描画設定
+	void SetEnvironmentTextureIndex(const uint32_t& srvIndex){ environmentTextureIndex_ = srvIndex; }
+	// イベント設定
+	void SetEventBus(EventBus* eventBus) { eventBus_ = eventBus; }
+
+	// その他変数設定
+	void SetVelocity(const Vector3& velocity) { velocity_ = velocity; }
 	void SetIsHPChanged(const int isHPChanged){ isHPChanged_ = isHPChanged; }
 
+	// HPゲージUI設定
 	void SetEnemyID(EnemyID id) { enemyID_ = id; }
 	void SetHPGageDisplayType(EnemyHPGageDisplayType type) { hpGageDisplayType_ = type; }
 	void SetScreenBossPriority(int priority) { screenBossPriority_ = priority; }
 
+	// Dissolve設定
 	void SetThreshold(const float threshold) { dissolveParams_.threshold = threshold; }
 	void SetEdgeColor(const Vector4 edgeColor) { dissolveParams_.edgeColor = edgeColor; }
 
@@ -140,6 +166,12 @@ private:
 	bool isDraw_ = true;
 
 	float bulletSpeed_ = 15.0f;
+
+	std::unique_ptr<Object3d> objectRightHand_;
+	Transform rightHandTransform_;
+
+	std::unique_ptr<Collider> colliderAttack_;
+	bool isAttackColliderActive_ = false;
 
 	// HP
 	int hitPoint_;
