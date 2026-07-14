@@ -3,6 +3,11 @@
 #include "Framework.h"
 
 #include "Text.h"
+#include "CameraManager.h"
+#include "DefaultCameraController.h"
+
+#include "LightManager.h"
+#include "DebugDrawManager.h"
 
 class TitleScene : public BaseScene
 {
@@ -44,8 +49,24 @@ private:
 	// スプライトマネージャー
 	SpriteManager* spriteManager_ = SpriteManager::GetInstance();
 
+	// モデルマネージャー
+	ModelManager* modelManager_ = ModelManager::GetInstance();
+
 	// 3Dオブジェクトマネージャー
 	Object3dManager* object3dManager_ = Object3dManager::GetInstance();
+
+	// サウンドマネージャー
+	SoundManager* soundManager_ = SoundManager::GetInstance();
+
+	// ライトマネージャー
+	LightManager* lightManager_ = LightManager::GetInstance();
+
+	// カメラマネージャー
+	CameraManager* cameraManager_ = CameraManager::GetInstance();
+
+	// デバッグ描画マネージャー
+	DebugDrawManager* debugManager_ = DebugDrawManager::GetInstance();
+
 
 private:
 
@@ -55,14 +76,18 @@ private:
 
 	// カメラ
 	std::unique_ptr<Camera> camera_ = nullptr;
-	// デバッグカメラ
-	std::unique_ptr<DebugCamera> debugCamera_ = nullptr;
+
+	/*std::unique_ptr<DebugCamera> debugCamera_;*/
 	bool isDebugCamera_ = false;
+
+	std::unique_ptr<DefaultCameraController> defaultCameraController_ = nullptr;
 
 	Vector2 mousePosition_ = { 0.0f, 0.0f };
 
 	std::unique_ptr<Sprite> enterSprite_;
 
 	std::unique_ptr<Text> titleText_;
+
+	std::unique_ptr<Object3d> glTFObject_;
 };
 

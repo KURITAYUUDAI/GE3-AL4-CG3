@@ -4,6 +4,8 @@
 #include "ModelManager.h"
 #include "ModelUtility.h"
 
+#include <assimp/scene.h>
+
 // 3Dモデル
 class Model
 {
@@ -34,7 +36,7 @@ public:
 	// 箱作成
 	void CreateBox();
 
-	void LoadObjFile(const std::string& directoryPath, const std::string& filename);
+	void LoadFromFile(const std::string& directoryPath, const std::string& filename);
 
 	void InsertMesh(Mesh mesh);
 
@@ -43,6 +45,8 @@ public:
 	void ResetTexture(uint32_t meshIndex);
 
 private:
+
+	Node ReadNode(aiNode* node);
 
 	// VertexResourceを作成
 	void CreateVertexResource();
@@ -74,6 +78,8 @@ public:	// 外部入出力
 	const float& GetShininess(uint32_t meshIndex) const { return modelData_.meshes[meshIndex].materialData_->shininess; }
 	const float& GetEnvironmentCoefficient(uint32_t meshIndex) const { return modelData_.meshes[meshIndex].materialData_->environmentCoefficient; }
 	const float& GetAlphaReference(uint32_t meshIndex) const { return modelData_.meshes[meshIndex].materialData_->alphaReference; }
+
+	const Node& GetRootNode(uint32_t meshIndex) { return modelData_.meshes[meshIndex].rootNode; }
 
 private:
 

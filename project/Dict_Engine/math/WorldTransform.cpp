@@ -22,8 +22,15 @@ void WorldTransform::UpdateMatrix(const Matrix4x4* worldMatrix)
 	worldMatrix_ = MakeAffineMatrix(scale_, rotateQuat_, translate_);
 }
 
-void WorldTransform::TransferMatrix(const Matrix4x4& viewProjection)
+void WorldTransform::TransferMatrix(const Matrix4x4& viewProjection, const Matrix4x4* worldMatrixMultiply)
 {
+	if (worldMatrixMultiply)
+	{
+		transformationMatrixData_->World = *worldMatrixMultiply * worldMatrix_;
+		transformationMatrixData_->WVP = *worldMatrixMultiply * Multiply(worldMatrix_, viewProjection);
+		return;
+	}
+	
 	transformationMatrixData_->World = worldMatrix_;
 	transformationMatrixData_->WVP = Multiply(worldMatrix_, viewProjection);
 }

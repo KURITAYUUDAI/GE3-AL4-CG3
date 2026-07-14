@@ -9,6 +9,9 @@
 
 void TitleScene::Initialize()
 {
+	camera_ = std::make_unique<Camera>();
+	camera_->Initialize();
+
 	// Textureを読んで転送する
 	textureManager_->LoadTexture("uvChecker.png");
 	textureManager_->LoadTexture("monsterBall.png");
@@ -18,8 +21,6 @@ void TitleScene::Initialize()
 	const char* textureOptions[] = { "Checker", "monsterBall" };
 
 	// シーン初期化始め
-	camera_ = std::make_unique<Camera>();
-	camera_->Initialize();
 	/*camera_->SetRotate({ pi / 3.0f, pi, 0.0f });
 	camera_->SetTranslate({ 0.0f, 9.0f, 5.0f });*/
 	camera_->SetRotate({ 0.0f, pi, 0.0f });
@@ -29,17 +30,26 @@ void TitleScene::Initialize()
 	/*object3dManager_->SetDefaultCamera(camera_.get());
 	particleManager_->SetDefaultCamera(camera_.get());*/
 
-	debugCamera_ = std::make_unique<DebugCamera>();
-	debugCamera_->Initialize();
-	debugCamera_->SetRotate(camera_->GetRotate());
-	debugCamera_->SetTranslate(camera_->GetTranslate());
+	//debugCamera_ = std::make_unique<DebugCamera>();
+	//debugCamera_->Initialize();
+	//debugCamera_->SetRotate(camera_->GetRotate());
+	//debugCamera_->SetTranslate(camera_->GetTranslate());
 
-	CameraManager::GetInstance()->Initialize();
-	CameraManager::GetInstance()->AddCamera("Default", camera_.get());
-	CameraManager::GetInstance()->AddCamera("Debug", debugCamera_.get());
-	CameraManager::GetInstance()->SetActiveCamera("Default");
+	cameraManager_->Initialize();
+	cameraManager_->AddCamera("Default", camera_.get());
+	/*cameraManager_->AddCamera("Debug", debugCamera_.get());*/
+	cameraManager_->SetActiveCamera("Default");
 
-	LightManager::GetInstance()->Initialize();
+	defaultCameraController_ = std::make_unique<DefaultCameraController>();
+	defaultCameraController_->Initialize();
+
+	cameraManager_->AddCameraController("Default", defaultCameraController_.get());
+	cameraManager_->SetActiveCameraController("Default");
+
+	lightManager_->Initialize();
+	lightManager_->SetDirectionalLightColor({ 1.0f, 1.0f, 1.0f, 1.0f });
+	lightManager_->SetDirectionalLightDirection({ 0.0f, -1.0f, 0.0f });
+	lightManager_->SetDirectionalLightIntensity(1.0f);
 
 	for (size_t i = 0; i < 1; i++)
 	{
@@ -55,9 +65,9 @@ void TitleScene::Initialize()
 
 
 
-	ModelManager::GetInstance()->LoadModel("", "plane.obj");
-	ModelManager::GetInstance()->LoadModel("", "axis.obj");
-	ModelManager::GetInstance()->LoadModel("", "sphere.obj");
+	modelManager_->LoadModel("", "plane.obj");
+	modelManager_->LoadModel("", "axis.obj");
+	modelManager_->LoadModel("", "sphere.obj");
 
 	for (size_t i = 0; i < 1; i++)
 	{
@@ -92,6 +102,14 @@ void TitleScene::Initialize()
 	enterSprite_ = std::make_unique<Sprite>();
 	enterSprite_->Initialize("ENTER.png");
 	enterSprite_->SetPosition({ 20.0f, 540.0f });
+
+
+	ModelManager::GetInstance()->LoadModel("", "plane.glTF");
+
+	glTFObject_ = std::make_unique<Object3d>();
+	glTFObject_->Initialize();
+	glTFObject_->SetModel("plane.glTF");
+	glTFObject_->SetEnableLighting(false);
 
 	// シーン初期化終わり
 
@@ -137,12 +155,14 @@ void TitleScene::Finalize()
 	}
 	sprites_.clear();
 
+	camera_->Finalize();
+	camera_.reset();
 
 	camera_->Finalize();
 	camera_.reset();
 
-	LightManager::GetInstance()->Finalize();
-	CameraManager::GetInstance()->Finalize();
+	lightManager_->Finalize();
+	cameraManager_->Finalize();
 
 	FreeTypeManager::GetInstance()->Finalize();
 	FontManager::GetInstance()->Finalize();
@@ -221,6 +241,16 @@ void TitleScene::Update(const float& deltaTime)
 
 	ImGui::End();
 
+	ImGui::Begin("glTFObject Setting");
+
+	Vector3 glTFTanslate = glTFObject_->GetTranslate();
+	if (ImGui::DragFloat3("translate", &glTFTanslate.x, 0.1f))
+	{
+		glTFObject_->SetTranslate(glTFTanslate);
+	}
+
+	ImGui::End();
+
 #endif
 
 
@@ -242,14 +272,15 @@ void TitleScene::Update(const float& deltaTime)
 
 	if (isDebugCamera_)
 	{
-		CameraManager::GetInstance()->SetActiveCamera("Debug");
-	}
+		/*cameraManager_->SetActiveCamera("Debug");*/
+	} 
 	else
 	{
-		CameraManager::GetInstance()->SetActiveCamera("Default");
+		cameraManager_->SetActiveCamera("Default");
 	}
 
-	CameraManager::GetInstance()->Update(deltaTime);
+	cameraManager_->Update(deltaTime);
+
 
 
 	for (auto it = sprites_.begin(); it != sprites_.end(); ++it)
@@ -269,6 +300,8 @@ void TitleScene::Update(const float& deltaTime)
 		ParticleEmitter* emitter = it->get();
 		emitter->Update(deltaTime);
 	}
+
+	glTFObject_->Update();
 
 	enterSprite_->Update();
 
@@ -296,8 +329,10 @@ void TitleScene::Draw()
 		{
 			object3ds_[i]->Draw();
 		}
+
 	}
 
+	glTFObject_->Draw();
 
 	/*particleManager_->Draw();*/
 
@@ -328,5 +363,11 @@ void TitleScene::Draw()
 	}
 
 	titleText_->Draw();
+
+	cameraManager_->DrawDebugUI();
+
+#ifdef _DEBUG
+	debugManager_->DrawAll(cameraManager_->GetMainCamera()->GetViewProjectionMatrix());
+#endif
 
 }
