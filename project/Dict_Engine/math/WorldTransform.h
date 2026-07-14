@@ -18,7 +18,7 @@ public:
 	void Initialize();
 
 	void UpdateMatrix(const Matrix4x4* worldMatrix = nullptr);
-	void TransferMatrix(const Matrix4x4& viewProjection);
+	void TransferMatrix(const Matrix4x4& viewProjection, const Matrix4x4* worldMatrixMultiply = nullptr);
 
 	void Finalize();
 

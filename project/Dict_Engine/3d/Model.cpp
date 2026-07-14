@@ -7,7 +7,6 @@
 #include "SrvManager.h"
 
 #include <assimp/Importer.hpp>
-#include <assimp/scene.h>
 #include <assimp/postprocess.h>
 
 #include "ResourcePath.h"
@@ -109,7 +108,7 @@ MaterialData Model::LoadMaterialTemplateFile(const std::string& directoryPath, c
 	return materialData;
 }
 
-void Model::LoadObjFile(const std::string& directoryPath, const std::string& filename)
+void Model::LoadFromFile(const std::string& directoryPath, const std::string& filename)
 {
 	Assimp::Importer importer;
 	std::string relativePath = directoryPath + "/" + filename;
@@ -125,8 +124,6 @@ void Model::LoadObjFile(const std::string& directoryPath, const std::string& fil
 	//{
 	//	objDirectory = directoryPath + "/" + filename.substr(0, slashPos);
 	//}
-
-	modelData_.meshes.clear();
 
 	for (uint32_t meshIndex = 0; meshIndex < scene->mNumMeshes; ++meshIndex)
 	{
@@ -159,19 +156,20 @@ void Model::LoadObjFile(const std::string& directoryPath, const std::string& fil
 				vertex.normal.x *= -1.0f;
 				newMesh.vertices.push_back(vertex);
 			}
-
-			
 		}
 
-		aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
-		aiColor4D diffuseColor(1.0f, 1.0f, 1.0f, 1.0f);
+		newMesh.rootNode = ReadNode(scene->mRootNode);
 
-		if (AI_SUCCESS == material->Get(AI_MATKEY_COLOR_DIFFUSE, diffuseColor))
+		aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
+		aiColor4D materialColor(1.0f, 1.0f, 1.0f, 1.0f);
+
+		if (AI_SUCCESS == material->Get(AI_MATKEY_BASE_COLOR, materialColor) ||
+			AI_SUCCESS == material->Get(AI_MATKEY_COLOR_DIFFUSE, materialColor))
 		{
-			newMesh.material.color.x = diffuseColor.r;
-			newMesh.material.color.y = diffuseColor.g;
-			newMesh.material.color.z = diffuseColor.b;
-			newMesh.material.color.w = diffuseColor.a;
+			newMesh.material.color.x = materialColor.r;
+			newMesh.material.color.y = materialColor.g;
+			newMesh.material.color.z = materialColor.b;
+			newMesh.material.color.w = materialColor.a;
 		}
 		else
 		{
@@ -179,19 +177,57 @@ void Model::LoadObjFile(const std::string& directoryPath, const std::string& fil
 			newMesh.material.color = { 1.0f, 1.0f, 1.0f, 1.0f };
 		}
 
-		if (material->GetTextureCount(aiTextureType_DIFFUSE) != 0)
+		aiTextureType textureType = aiTextureType_NONE;
+
+		if (material->GetTextureCount(aiTextureType_BASE_COLOR) > 0)
+		{
+			textureType = aiTextureType_BASE_COLOR;
+		}
+		else if (material->GetTextureCount(aiTextureType_DIFFUSE) > 0)
+		{
+			textureType = aiTextureType_DIFFUSE;
+		}
+
+		std::filesystem::path texturePath = "white1x1.png";
+
+		if (textureType != aiTextureType_NONE)
 		{
 			aiString textureFilePath;
-			material->GetTexture(aiTextureType_DIFFUSE, 0, &textureFilePath);
-			newMesh.material.textureFilePath = directoryPath + "/" + textureFilePath.C_Str();
 
-			// .objの参照しているテクスチャファイル読み込み
-			TextureManager::GetInstance()->LoadTexture(newMesh.material.textureFilePath);
-			// 読み込んだテクスチャの番号を取得
-			newMesh.material.textureIndex =
-				TextureManager::GetInstance()->GetTextureIndexByFilePath(newMesh.material.textureFilePath);
-			materialTextureIndex_ = newMesh.material.textureIndex;
+			if (material->GetTexture(
+			textureType, 0, &textureFilePath) == AI_SUCCESS)
+			{
+				texturePath =
+					std::filesystem::path(directoryPath) /
+					std::filesystem::path(textureFilePath.C_Str());
+			}
 		}
+
+		newMesh.material.textureFilePath =
+		texturePath.lexically_normal().generic_string();
+		
+		TextureManager::GetInstance()->LoadTexture(
+		newMesh.material.textureFilePath);
+		
+		newMesh.material.textureIndex =
+		TextureManager::GetInstance()->GetTextureIndexByFilePath(
+		newMesh.material.textureFilePath);
+		
+		materialTextureIndex_ = newMesh.material.textureIndex;
+
+		//if (material->GetTextureCount(aiTextureType_DIFFUSE) != 0)
+		//{
+		//	aiString textureFilePath;
+		//	material->GetTexture(aiTextureType_DIFFUSE, 0, &textureFilePath);
+		//	newMesh.material.textureFilePath = directoryPath + "/" + textureFilePath.C_Str();
+
+		//	// .objの参照しているテクスチャファイル読み込み
+		//	TextureManager::GetInstance()->LoadTexture(newMesh.material.textureFilePath);
+		//	// 読み込んだテクスチャの番号を取得
+		//	newMesh.material.textureIndex =
+		//		TextureManager::GetInstance()->GetTextureIndexByFilePath(newMesh.material.textureFilePath);
+		//	materialTextureIndex_ = newMesh.material.textureIndex;
+		//}
 
 		modelData_.meshes.push_back(newMesh);
 
@@ -373,6 +409,30 @@ void Model::ResetTexture(uint32_t meshIndex)
 {
 	modelData_.meshes[meshIndex].material.textureFilePath = materialTextureFilePath_;
 	modelData_.meshes[meshIndex].material.textureIndex = materialTextureIndex_;
+}
+
+Node Model::ReadNode(aiNode* node)
+{
+	Node result;
+	aiMatrix4x4 aiLocalMatrix = node->mTransformation;	// nodeのlocalMatrixを取得
+	aiLocalMatrix.Transpose();	// 列ベクトル形式を行ベクトル形式に転置
+	
+	for (uint32_t i = 0; i < 4; i++)
+	{
+		for (uint32_t j = 0; j < 4; j++)
+		{
+			result.localMatrix.m[i][j] = aiLocalMatrix[i][j];	// 他の要素も同様に
+		}
+	}
+
+	result.name = node->mName.C_Str();	// Node名を格納
+	result.children.resize(node->mNumChildren);	// 子供の数だけ確保
+	for (uint32_t childIndex = 0; childIndex < node->mNumChildren; ++childIndex)
+	{
+		// 再帰的に読んで階層構造を作っていく
+		result.children[childIndex] = ReadNode(node->mChildren[childIndex]);
+	}
+	return result;
 }
 
 void Model::CreateVertexResource()

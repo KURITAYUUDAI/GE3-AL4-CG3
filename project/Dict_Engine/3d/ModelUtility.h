@@ -31,10 +31,18 @@ struct Material
 	Matrix4x4 uvTransform;
 };
 
+struct Node
+{
+	Matrix4x4 localMatrix;
+	std::string name;
+	std::vector<Node> children;
+};
+
 struct Mesh
 {
 	std::vector<VertexData> vertices;	//!< 頂点データ
 	MaterialData material;
+	Node rootNode;
 
 	// バッファリソース
 	Microsoft::WRL::ComPtr<ID3D12Resource> vertexResource_ = nullptr;
@@ -53,3 +61,4 @@ struct ModelData
 {
 	std::vector<Mesh> meshes;
 };
+

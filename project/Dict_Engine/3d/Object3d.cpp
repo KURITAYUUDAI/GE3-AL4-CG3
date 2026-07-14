@@ -35,7 +35,10 @@ void Object3d::Update(const Matrix4x4* worldMatrix)
 	{
 		worldTransform_.worldMatrix_ *= worldTransform_.parent_->worldMatrix_;			
 	}
-	worldTransform_.TransferMatrix(CameraManager::GetInstance()->GetMainCamera()->GetViewProjectionMatrix());
+
+	worldTransform_.TransferMatrix(
+		CameraManager::GetInstance()->GetMainCamera()->GetViewProjectionMatrix(),
+		&model_->GetRootNode(0).localMatrix);
 
 	/*Matrix4x4 worldMatrix = MakeAffineMatrix(transform_.scale, transform_.rotate, transform_.translate);
 	Matrix4x4 worldViewProjectionMatrix;
