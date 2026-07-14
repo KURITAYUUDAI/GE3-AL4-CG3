@@ -21,6 +21,7 @@ void Object3dManager::Initialize(DirectXBase* dxBase)
 	// PSOの設定
 	PSOManager::PSOConfig config{};
 	config.vertexShaderPath = L"resources/shaders/Object3d/Object3d.VS.hlsl";
+	config.geometryShaderPath = L"resources/shaders/Object3d/Object3d.GS.hlsl";
 	config.pixelShaderPath = L"resources/shaders/Object3d/Object3d.PS.hlsl";
 
 	// RootSignatureの設定
