@@ -38,6 +38,7 @@ void Enemy::Initialize()
 	objectRightHand_->SetParent(object3d_->GetWorldTransform());
 
 	colliderAttack_ = std::make_unique<Collider>();
+	colliderAttack_->SetOwner(this);
 	colliderAttack_->SetOnCollision(
 		[this](Collider* self, Collider* other)
 		{
@@ -310,7 +311,9 @@ void Enemy::Shot()
 }
 
 void Enemy::Attack()
-{}
+{
+	ChangeState(std::make_unique<EnemyAttackState>());
+}
 
 const Vector3 Enemy::GetWorldPosition() const
 {

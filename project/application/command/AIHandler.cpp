@@ -7,14 +7,25 @@ Vector2 AIHandler::GetDirection()
 
 bool AIHandler::IsShot(const float& deltaTime)
 {
-	timer_ += deltaTime;
+	shotTimer_ += deltaTime;
 
-	if (timer_ >= duration_)
+	if (shotTimer_ >= shotDuration_)
 	{
-		timer_ = 0.0f;
+		shotTimer_ = 0.0f;
 		return true;
 	}
 
+	return false;
+}
+
+bool AIHandler::IsAttack(const float& deltaTime)
+{
+	attackTimer_ += deltaTime;
+	if (attackTimer_ >= attackDuration_)
+	{
+		attackTimer_ = 0.0f;
+		return true;
+	}
 	return false;
 }
 
