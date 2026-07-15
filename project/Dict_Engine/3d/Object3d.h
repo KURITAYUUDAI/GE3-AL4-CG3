@@ -24,7 +24,7 @@ public:	// メンバ関数
 	
 	void Initialize();
 
-	void Update(const Matrix4x4* worldMatrix = nullptr);
+	void Update(const Matrix4x4* worldMatrix = nullptr, const Matrix4x4* multiplyMatrix = nullptr);
 
 	void DrawingCommon();
 

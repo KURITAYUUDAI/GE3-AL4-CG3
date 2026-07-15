@@ -24,7 +24,7 @@ void Object3d::Initialize()
 	
 }
 
-void Object3d::Update(const Matrix4x4* worldMatrix)
+void Object3d::Update(const Matrix4x4* worldMatrix, const Matrix4x4* multiplyMatrix)
 {
 	/*worldTransform_.scale_ = transform_.scale;
 	worldTransform_.rotate_ = transform_.rotate;
@@ -33,20 +33,32 @@ void Object3d::Update(const Matrix4x4* worldMatrix)
 	worldTransform_.UpdateMatrix(worldMatrix);
 	if (worldTransform_.parent_)
 	{
-		worldTransform_.worldMatrix_ *= worldTransform_.parent_->worldMatrix_;			
+		worldTransform_.worldMatrix_ *= worldTransform_.parent_->worldMatrix_;
 	}
 
-	worldTransform_.TransferMatrix(
-		CameraManager::GetInstance()->GetMainCamera()->GetViewProjectionMatrix(),
-		&model_->GetRootNode(0).localMatrix);
+	if (multiplyMatrix)
+	{
+		Matrix4x4 multipliedMatrix = Multiply(model_->GetRootNode(0).localMatrix, *multiplyMatrix);
 
+		worldTransform_.TransferMatrix(
+			CameraManager::GetInstance()->GetMainCamera()->GetViewProjectionMatrix(),
+			&multipliedMatrix);
+	}
+	else
+	{
+		worldTransform_.TransferMatrix(
+			CameraManager::GetInstance()->GetMainCamera()->GetViewProjectionMatrix(),
+			&model_->GetRootNode(0).localMatrix);
+	}
+
+	
 	/*Matrix4x4 worldMatrix = MakeAffineMatrix(transform_.scale, transform_.rotate, transform_.translate);
 	Matrix4x4 worldViewProjectionMatrix;
 
 	const Matrix4x4& viewProjectionMatrix = CameraManager::GetInstance()->GetActiveCamera()->GetViewProjectionMatrix();
 	worldViewProjectionMatrix = Multiply(worldMatrix, viewProjectionMatrix);
 	CameraManager::GetInstance()->SetCameraWorldPosition(CameraManager::GetInstance()->GetActiveCamera()->GetTranslate());
-	
+
 	transformationMatrixData_->World = worldMatrix;
 	transformationMatrixData_->WVP = worldViewProjectionMatrix;*/
 }
