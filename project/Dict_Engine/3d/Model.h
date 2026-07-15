@@ -79,6 +79,7 @@ public:	// 外部入出力
 	const float& GetEnvironmentCoefficient(uint32_t meshIndex) const { return modelData_.meshes[meshIndex].materialData_->environmentCoefficient; }
 	const float& GetAlphaReference(uint32_t meshIndex) const { return modelData_.meshes[meshIndex].materialData_->alphaReference; }
 
+	Mesh& GetMesh(uint32_t meshIndex) { return modelData_.meshes[meshIndex]; }
 	const Node& GetRootNode(uint32_t meshIndex) { return modelData_.meshes[meshIndex].rootNode; }
 
 private:

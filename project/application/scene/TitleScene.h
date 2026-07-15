@@ -9,6 +9,8 @@
 #include "LightManager.h"
 #include "DebugDrawManager.h"
 
+#include "AnimationUtility.h"
+
 class TitleScene : public BaseScene
 {
 public:
@@ -89,5 +91,8 @@ private:
 	std::unique_ptr<Text> titleText_;
 
 	std::unique_ptr<Object3d> glTFObject_;
+
+	Animation glTFAnimation_;
+	float animationTime = 0.0f;
 };
 

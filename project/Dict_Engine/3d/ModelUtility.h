@@ -1,6 +1,7 @@
 #pragma once
 #include "DirectXBase.h"
 #include "myMath.h"
+#include "Quaternion.h"
 
 struct VertexData
 {
@@ -61,4 +62,5 @@ struct ModelData
 {
 	std::vector<Mesh> meshes;
 };
+
 

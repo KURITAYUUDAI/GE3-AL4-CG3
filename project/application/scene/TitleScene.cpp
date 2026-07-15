@@ -104,12 +104,15 @@ void TitleScene::Initialize()
 	enterSprite_->SetPosition({ 20.0f, 540.0f });
 
 
-	ModelManager::GetInstance()->LoadModel("", "plane.glTF");
+	ModelManager::GetInstance()->LoadModel("AnimatedCube", "AnimatedCube.gltf");
 
 	glTFObject_ = std::make_unique<Object3d>();
 	glTFObject_->Initialize();
-	glTFObject_->SetModel("plane.glTF");
+	glTFObject_->SetModel("AnimatedCube.gltf");
 	glTFObject_->SetEnableLighting(false);
+
+	glTFAnimation_ = LoadAnimationFile("AnimatedCube", "AnimatedCube.gltf");
+	animationTime = 0.0f;
 
 	// シーン初期化終わり
 
@@ -301,7 +304,8 @@ void TitleScene::Update(const float& deltaTime)
 		emitter->Update(deltaTime);
 	}
 
-	glTFObject_->Update();
+	Matrix4x4 animationMatrix = PlayAnimation(glTFObject_->GetModel()->GetMesh(0), glTFAnimation_, animationTime, deltaTime);
+	glTFObject_->Update(nullptr, &animationMatrix);
 
 	enterSprite_->Update();
 
