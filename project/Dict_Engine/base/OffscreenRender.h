@@ -60,7 +60,7 @@ private:
 	bool isReady_ = false;
 
 	// RenderTextureのClearColor
-	const Vector4 kRenderTargetClearValue_{ 1.0f, 0.0f, 0.0f, 1.0f };
+	const Vector4 kRenderTargetClearValue_{ 0.1f, 0.25f, 0.5f, 1.0f };
 	// RenderTextureのpsoName
 	std::string psoNameRenderTexture_ = "Fullscreen";
 	// RTVのインデックス
