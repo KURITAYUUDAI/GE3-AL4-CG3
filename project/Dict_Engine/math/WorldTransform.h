@@ -34,6 +34,7 @@ public:
 	
 	const Vector3& GetRotate() const { return rotate_; }
 	const Quaternion& GetRotateQuat() const { return rotateQuat_; }
+	const Matrix4x4& GetWorldMatrix() const { return worldMatrix_; }
 
 private:
 

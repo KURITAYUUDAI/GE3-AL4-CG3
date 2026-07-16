@@ -141,7 +141,7 @@ void Player::Update(const float& deltaTime)
 		isDraw_ = isDraw;
 	}
 
-	Transform transform = transform_;
+	EulerTransform transform = transform_;
 	if (ImGui::DragFloat3("Scale", &transform.scale.x, 0.1f))
 	{
 		transform_ = transform;

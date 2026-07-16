@@ -63,7 +63,7 @@ public:	// 外部入出力
 	
 	void SetColor(const Vector4& color, uint32_t meshIndex){ modelData_.meshes[meshIndex].materialData_->color = color; }
 	void SetEnableLighting(const int32_t& enableLighting, uint32_t meshIndex) { modelData_.meshes[meshIndex].materialData_->enableLighting = enableLighting; }
-	void SetUVTransform(const Transform& uvTransform, uint32_t meshIndex);
+	void SetUVTransform(const EulerTransform& uvTransform, uint32_t meshIndex);
 	void SetEnvironmentCoefficient(const float& environmentCoefficient, uint32_t meshIndex) { modelData_.meshes[meshIndex].materialData_->environmentCoefficient = environmentCoefficient; }
 	void SetAlphaReference(const float alphaReference, uint32_t meshIndex){modelData_.meshes[meshIndex].materialData_->alphaReference = alphaReference; }
 	

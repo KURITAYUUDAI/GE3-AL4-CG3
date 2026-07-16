@@ -71,7 +71,7 @@ private:
 	std::unique_ptr<Object3d> object3d_;
 	std::unique_ptr<Collider> collider_;
 
-	Transform transform_;
+	EulerTransform transform_;
 
 	Vector3 size_ = { 0.4f, 0.4f, 0.4f };
 

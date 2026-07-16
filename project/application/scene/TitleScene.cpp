@@ -94,7 +94,7 @@ void TitleScene::Initialize()
 	for (size_t i = 0; i < 1; i++)
 	{
 		std::unique_ptr<ParticleEmitter> emitter = std::make_unique<ParticleEmitter>();
-		Transform transform = { {1.0f, 1.0f, 1.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f} };
+		EulerTransform transform = { {1.0f, 1.0f, 1.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f} };
 		emitter->Initialize("circle", transform, 3, 0.2f);
 		emitters_.push_back(std::move(emitter));
 	}
@@ -104,15 +104,17 @@ void TitleScene::Initialize()
 	enterSprite_->SetPosition({ 20.0f, 540.0f });
 
 
-	ModelManager::GetInstance()->LoadModel("AnimatedCube", "AnimatedCube.gltf");
+	ModelManager::GetInstance()->LoadModel("Animation", "walk.gltf");
 
 	glTFObject_ = std::make_unique<Object3d>();
 	glTFObject_->Initialize();
-	glTFObject_->SetModel("AnimatedCube.gltf");
+	glTFObject_->SetModel("walk.gltf");
 	glTFObject_->SetEnableLighting(false);
 
-	glTFAnimation_ = LoadAnimationFile("AnimatedCube", "AnimatedCube.gltf");
+	glTFAnimation_ = LoadAnimationFile("Animation", "walk.gltf");
 	animationTime = 0.0f;
+
+	glTFSkeleton_ = CreateSkeleton(glTFObject_->GetModel()->GetRootNode(0));
 
 	// シーン初期化終わり
 
@@ -131,6 +133,8 @@ void TitleScene::Initialize()
 		U"<b><i><u><color=#ffd040cc>BOTH</color></u></i></b>");
 	titleText_->SetPosition({ 120.0f, 320.0f });
 
+
+	debugManager_->Initialize();
 }
 
 void TitleScene::Finalize()
@@ -166,6 +170,7 @@ void TitleScene::Finalize()
 
 	lightManager_->Finalize();
 	cameraManager_->Finalize();
+	debugManager_->Finalize();
 
 	FreeTypeManager::GetInstance()->Finalize();
 	FontManager::GetInstance()->Finalize();
@@ -199,21 +204,6 @@ void TitleScene::Update(const float& deltaTime)
 	ImGui::Checkbox("DrawSprite", &isDrawSprite_);
 	ImGui::Checkbox("DrawObject3d", &isDrawObject3d_);
 	ImGui::Checkbox("DebugCamera", &isDebugCamera_);
-	ImGui::End();
-
-
-	ImGui::Begin("CameraSetting");
-	Vector3 cameraRotate = camera_->GetRotate();
-	Vector3 cameraTranslate = camera_->GetTranslate();
-	if (ImGui::DragFloat3("CameraRotate", &cameraRotate.x, (1.0f / 180.0f) * pi))
-	{
-		camera_->SetRotate(cameraRotate);
-	}
-	if (ImGui::DragFloat3("CameraTranslate", &cameraTranslate.x, 0.1f))
-	{
-		camera_->SetTranslate(cameraTranslate);
-	}
-
 	ImGui::End();
 
 	ImGui::Begin("LightSetting");
@@ -304,8 +294,24 @@ void TitleScene::Update(const float& deltaTime)
 		emitter->Update(deltaTime);
 	}
 
-	Matrix4x4 animationMatrix = PlayAnimation(glTFObject_->GetModel()->GetMesh(0), glTFAnimation_, animationTime, deltaTime);
-	glTFObject_->Update(nullptr, &animationMatrix);
+	animationTime += deltaTime;
+	animationTime = std::fmod(animationTime, glTFAnimation_.duration);
+
+	ApplyAnimation(glTFSkeleton_, glTFAnimation_, animationTime);
+	UpdateSkeleton(glTFSkeleton_);
+
+#ifdef USE_IMGUI
+	skeletonImGuiDebug_.Draw(
+		glTFSkeleton_,
+		glTFObject_->GetWorldTransform()->GetWorldMatrix(),
+		cameraManager_->GetMainCamera()->GetViewProjectionMatrix());
+#endif
+
+	/*Matrix4x4 animationMatrix = PlayAnimation(glTFObject_->GetModel()->GetMesh(0), glTFAnimation_, animationTime, deltaTime);
+	
+	*/
+	
+	glTFObject_->Update(nullptr);
 
 	enterSprite_->Update();
 
@@ -336,6 +342,7 @@ void TitleScene::Draw()
 
 	}
 
+	DrawDebug(glTFSkeleton_, glTFObject_->GetWorldTransform()->GetWorldMatrix());
 	glTFObject_->Draw();
 
 	/*particleManager_->Draw();*/

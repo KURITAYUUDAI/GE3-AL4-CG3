@@ -134,7 +134,7 @@ void Enemy::Update(const float& deltaTime)
 		SetEdgeColor(dissolveEdgeColor);
 	}
 
-	Transform transformRightHand = rightHandTransform_;
+	EulerTransform transformRightHand = rightHandTransform_;
 	if(ImGui::DragFloat3("Right Hand Position", &transformRightHand.translate.x, 0.1f))
 	{
 		rightHandTransform_.translate = transformRightHand.translate;

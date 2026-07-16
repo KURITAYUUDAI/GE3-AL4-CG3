@@ -10,6 +10,7 @@
 #include "DebugDrawManager.h"
 
 #include "AnimationUtility.h"
+#include "debug/SkeletonImGuiDebug.h"
 
 class TitleScene : public BaseScene
 {
@@ -94,5 +95,8 @@ private:
 
 	Animation glTFAnimation_;
 	float animationTime = 0.0f;
+
+	Skeleton glTFSkeleton_;
+	SkeletonImGuiDebug skeletonImGuiDebug_;
 };
 

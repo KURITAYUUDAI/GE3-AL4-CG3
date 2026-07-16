@@ -31,7 +31,7 @@ struct Matrix4x4
 	float m[4][4];
 };
 
-struct Transform
+struct EulerTransform
 {
 	Vector3 scale;
 	Vector3 rotate;
@@ -338,3 +338,5 @@ Matrix4x4 MakeLookAtMatrix(const Vector3& eye, const Vector3& target, const Vect
 
 // YXZ回転
 Vector3 MatrixToEulerYXZ(const Matrix4x4& m);
+
+Vector3 GetWorldPosition(const Matrix4x4& m);

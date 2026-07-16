@@ -18,7 +18,7 @@ private:
 
 	std::unique_ptr<Object3d> object3d_;
 
-	Transform transform_;
+	EulerTransform transform_;
 
 	bool isDraw_ = true;
 };

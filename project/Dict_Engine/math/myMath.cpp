@@ -959,3 +959,15 @@ Vector3 MatrixToEulerYXZ(const Matrix4x4& m)
 	return euler;
 }
 
+Vector3 GetWorldPosition(const Matrix4x4& m)
+{
+	// ワールド座標を入れる変数
+	Vector3 worldPos;
+	// ワールド行列の平行移動成分を取得（ワールド座標）
+	worldPos.x = m.m[3][0];
+	worldPos.y = m.m[3][1];
+	worldPos.z = m.m[3][2];
+
+	return worldPos;
+}
+

@@ -58,14 +58,14 @@ public:	//外部入出力
 	const Vector3& GetScale() const { return transform_.scale; }
 	const Vector3& GetRotate() const { return transform_.rotate; }
 	const Vector3& GetTranslate() const { return transform_.translate; }
-	const Transform& GetTransform() const { return transform_; }
+	const EulerTransform& GetTransform() const { return transform_; }
 	const Vector3& GetVelocity() const { return velocity_; }
 
 	const Vector3 GetWorldPosition() const;
 	const Vector2 GetScreenPosition() const;
 	const Vector3 GetWorldRotate() const;
 
-	const Transform& GetRightHandTransform() const { return rightHandTransform_; }
+	const EulerTransform& GetRightHandTransform() const { return rightHandTransform_; }
 	
 	// Collider設定
 	Collider* GetCollider() { return collider_.get(); }
@@ -94,14 +94,14 @@ public:	//外部入出力
 	void SetScale(const Vector3& scale) { transform_.scale = scale; }
 	void SetRotate(const Vector3& rotate) { transform_.rotate = rotate; }
 	void SetTranslate(const Vector3& translate) { transform_.translate = translate; }
-	void SetTransform(const Transform& transform) { transform_ = transform; }
+	void SetTransform(const EulerTransform& transform) { transform_ = transform; }
 	void SetParent(WorldTransform* worldTransform);
 
 	// 右腕transform設定
 	void SetRightHandScale(const Vector3& scale) { rightHandTransform_.scale = scale; }
 	void SetRightHandRotate(const Vector3& rotate) { rightHandTransform_.rotate = rotate; }
 	void SetRightHandTranslate(const Vector3& translate) { rightHandTransform_.translate = translate; }
-	void SetRightHandTransform(const Transform& transform) { rightHandTransform_ = transform; }
+	void SetRightHandTransform(const EulerTransform& transform) { rightHandTransform_ = transform; }
 
 	// Collider設定
 	void SetAttackColliderActive(bool isActive) { isAttackColliderActive_ = isActive; }
@@ -153,7 +153,7 @@ private:
 	std::unique_ptr<Object3d> object3d_;
 	std::unique_ptr<Collider> collider_;
 
-	Transform transform_;
+	EulerTransform transform_;
 
 	Vector3 velocity_ = { 0.0f, 0.0f, 0.0f };
 	Vector3 maxSpeed_ = { 12.0f, 12.0f, 12.0f }; // スティック全倒し時の最高速度
@@ -168,7 +168,7 @@ private:
 	float bulletSpeed_ = 15.0f;
 
 	std::unique_ptr<Object3d> objectRightHand_;
-	Transform rightHandTransform_;
+	EulerTransform rightHandTransform_;
 
 	std::unique_ptr<Collider> colliderAttack_;
 	bool isAttackColliderActive_ = false;

@@ -9,6 +9,14 @@ struct Quaternion
 	float x, y, z, w;
 };
 
+struct QuaternionTransform
+{
+	Vector3 scale;
+	Quaternion rotate;
+	Vector3 translate;
+};
+
+
 // Quaternionの積
 Quaternion Multiply(const Quaternion& lhs, const Quaternion& rhs);
 
