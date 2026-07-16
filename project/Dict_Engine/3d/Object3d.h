@@ -46,7 +46,7 @@ public:	// 外部入出力
 	void SetScale(const Vector3& scale){ worldTransform_.scale_ = scale; }
 	void SetRotate(const Vector3& rotate){ worldTransform_.SetRotate(rotate); }
 	void SetTranslate(const Vector3& translate){ worldTransform_.translate_ = translate; }
-	void SetTransform(const Transform& transform)
+	void SetTransform(const EulerTransform& transform)
 	{ 
 		worldTransform_.scale_ = transform.scale;
 		worldTransform_.SetRotate(transform.rotate);
@@ -66,9 +66,9 @@ public:	// 外部入出力
 	const Vector3& GetScale() const { return worldTransform_.scale_; }
 	const Vector3& GetRotate() const { return worldTransform_.GetRotate(); }
 	const Vector3& GetTranslate() const { return worldTransform_.translate_; }
-	const Transform& GetTransform() const 
+	const EulerTransform& GetTransform() const 
 	{ 
-		return Transform(worldTransform_.scale_, worldTransform_.GetRotate(), worldTransform_.translate_);
+		return EulerTransform(worldTransform_.scale_, worldTransform_.GetRotate(), worldTransform_.translate_);
 	}
 	WorldTransform* GetWorldTransform() { return &worldTransform_; }
 

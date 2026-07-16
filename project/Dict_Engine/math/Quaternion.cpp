@@ -127,20 +127,29 @@ float Dot(const Quaternion& q1, const Quaternion& q2)
 // 球面線形補間　使う前に必ず正規化を掛けること
 Quaternion Slerp(const Quaternion& q0, const Quaternion& q1, float t)
 {
-	Quaternion q = q0;
-	float dot = Dot(q0, q1);
+	Quaternion start = Normalize(q0);
+	Quaternion end = Normalize(q1);
+
+	float dot = std::clamp(Dot(start, end), -1.0f, 1.0f);
+
 	if (dot < 0.0f)
 	{
-		q = { -q0.x, -q0.y, -q0.z, -q0.w };
+		end = { -end.x, -end.y, -end.z, -end.w };
 		dot = -dot;
 	}
 
-	float theta = std::acosf(dot);
+	constexpr float kNearlyIdentical = 0.9995f;
+	if (dot > kNearlyIdentical)
+	{
+		return Normalize((1.0f - t) * start + t * end);
+	}
 
-	float scale0 = std::sinf((1.0f - t) * theta) / std::sinf(theta);
-	float scale1 = std::sinf(t * theta) / std::sinf(theta);
+	const float theta = std::acosf(dot);
+	const float sinTheta = std::sinf(theta);
 
-	return scale0 * q + scale1 * q1;
+	return Normalize(
+		(std::sinf((1.0f - t) * theta) / sinTheta) * start +
+		(std::sinf(t * theta) / sinTheta) * end);
 }
 
 Quaternion MakeFromEuler(const Vector3& euler) 

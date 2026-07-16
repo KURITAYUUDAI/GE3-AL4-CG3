@@ -357,6 +357,9 @@
     <ClCompile Include="Dict_Engine\3d\AnimationUtility.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
+	<ClCompile Include="Dict_Engine\tool\debug\SkeletonImGuiDebug.cpp">
+	  <Filter>ソース ファイル</Filter>
+	</ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="resources\shaders\Object3d\Object3d.PS.hlsl">
@@ -695,6 +698,9 @@
     <ClInclude Include="Dict_Engine\3d\AnimationUtility.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
+	<ClInclude Include="Dict_Engine\tool\debug\SkeletonImGuiDebug.h">
+	  <Filter>ヘッダー ファイル</Filter>
+	</ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="resources\shaders\Object3d\Object3d.hlsli">

@@ -307,7 +307,8 @@ void DebugDrawManager::RegisterPSO()
 	PSOManager::PSOConfig config{};
 	config.vertexShaderPath = L"resources/shaders/DebugDraw/DebugDraw.VS.hlsl";
 	config.pixelShaderPath = L"resources/shaders/DebugDraw/DebugDraw.PS.hlsl";
-	config.geometryShaderPath = L"resources/shaders/DebugDraw/DebugDraw.GS.hlsl";
+	// Let the rasterizer perform the standard line clipping.
+	config.geometryShaderPath = L"";
 
 	// RootSignatureの設定
 	config.rootSignatureGenerator = []()
@@ -363,8 +364,8 @@ void DebugDrawManager::RegisterPSO()
 
 	// 深度設定
 	config.depth.DepthFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
-	config.depthEnable = true;
-	config.depthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
+	config.depthEnable = false;
+	config.depthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO;
 	config.depthFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
 
     config.toporogyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_LINE;

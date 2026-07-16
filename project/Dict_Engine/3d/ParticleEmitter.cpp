@@ -2,7 +2,7 @@
 #include "ParticleManager.h"
 #include "time/DeltaTimeManager.h"
 
-void ParticleEmitter::Initialize(const std::string& name, const Transform& transform, 
+void ParticleEmitter::Initialize(const std::string& name, const EulerTransform& transform, 
 	const uint32_t& count, const float& frequency)
 {
 	name_ = name;

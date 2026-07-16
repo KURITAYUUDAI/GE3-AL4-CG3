@@ -44,9 +44,9 @@ public:	// 外部入出力
 	const float& GetNearClip() const { return nearClip_; }
 	const float& GetFarClip() const { return farClip_; }
 
-	const Transform& GetTransform() const 
+	const EulerTransform& GetTransform() const 
 	{ 
-		return Transform({{0.0f, 0.0f, 0.0f}, rotate_, translate_ });
+		return EulerTransform({{0.0f, 0.0f, 0.0f}, rotate_, translate_ });
 	}
 
 	const Matrix4x4& GetWorldMatrix() const { return worldMatrix_; }

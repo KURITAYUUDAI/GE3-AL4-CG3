@@ -85,7 +85,7 @@ public:		// 外部入出力
 	const bool& GetIsFlipX(){ return isFlipX_; }
 	const bool& GetIsFlipY(){ return isFlipY_; }
 
-	Transform GetUVTransform() { return uvTransform_; }
+	EulerTransform GetUVTransform() { return uvTransform_; }
 
 	
 
@@ -151,7 +151,7 @@ private:	// 静的変数
 	bool isFlipY_ = false;
 
 	// UVトランスフォーム
-	Transform uvTransform_ = { {1.0f, 1.0f, 1.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f} };
+	EulerTransform uvTransform_ = { {1.0f, 1.0f, 1.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f} };
 	// UVトランスフォーム行列
 	Matrix4x4 uvTransformMatrix_ = {};
 

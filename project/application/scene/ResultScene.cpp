@@ -80,7 +80,7 @@ void ResultScene::Initialize()
 	for (size_t i = 0; i < 1; i++)
 	{
 		std::unique_ptr<ParticleEmitter> emitter = std::make_unique<ParticleEmitter>();
-		Transform transform = { {1.0f, 1.0f, 1.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f} };
+		EulerTransform transform = { {1.0f, 1.0f, 1.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f} };
 		emitter->Initialize("circle", transform, 3, 0.2f);
 		emitters_.push_back(std::move(emitter));
 	}
