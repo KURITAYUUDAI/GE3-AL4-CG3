@@ -154,7 +154,7 @@ void DrawDebug(Skeleton& skeleton, const Matrix4x4& worldMatrix)
 		Vector3 worldTranslate;
 		worldTranslate = GetWorldPosition(joint.skeletonSpaceMatrix * worldMatrix);
 
-		debugDrawManager->AddSphere(worldTranslate, 0.03f, {1.0f, 1.0f, 1.0f, 1.0f}, 5, 5);
+		debugDrawManager->AddSphere(worldTranslate, 0.01f, {1.0f, 1.0f, 1.0f, 1.0f}, 5, 5);
 
 		if (joint.parent)
 		{
