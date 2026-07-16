@@ -10,7 +10,7 @@
 #include "DebugDrawManager.h"
 
 #include "AnimationUtility.h"
-#include "debug/SkeletonImGuiDebug.h"
+#include "SkeletonImGuiDebug.h"
 
 class TitleScene : public BaseScene
 {

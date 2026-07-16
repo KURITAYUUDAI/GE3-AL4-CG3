@@ -162,7 +162,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="application\object\bullet\Bullet.cpp" />
     <ClCompile Include="application\tool\postEffect\Darken.cpp" />
     <ClCompile Include="Dict_Engine\3d\AnimationUtility.cpp" />
-	<ClCompile Include="Dict_Engine\tool\debug\SkeletonImGuiDebug.cpp" />
+    <ClCompile Include="Dict_Engine\io\SkeletonImGuiDebug.cpp" />
     <ClCompile Include="Dict_Engine\base\ChronoManager.cpp" />
     <ClCompile Include="Dict_Engine\tool\collision\CollisionObserver.cpp" />
     <ClCompile Include="Dict_Engine\tool\collision\Collider.cpp" />
@@ -445,7 +445,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="application\ui\GamePlayUIUtility.h" />
     <ClInclude Include="application\tool\postEffect\Darken.h" />
     <ClInclude Include="Dict_Engine\3d\AnimationUtility.h" />
-	<ClInclude Include="Dict_Engine\tool\debug\SkeletonImGuiDebug.h" />
+    <ClInclude Include="Dict_Engine\io\SkeletonImGuiDebug.h" />
     <ClInclude Include="Dict_Engine\base\ChronoManager.h" />
     <ClInclude Include="Dict_Engine\tool\collision\CollisionObserver.h" />
     <ClInclude Include="Dict_Engine\tool\collision\Collider.h" />
