@@ -4,6 +4,7 @@
 #include "Object3dManager.h"
 #include "PSOManager.h"
 #include "WorldTransform.h"
+#include "MaterialInstance.h"
 
 class Model;
 
@@ -76,6 +77,7 @@ public:	// 外部入出力
 	const Vector4& GetColor() const { return color_; }
 	
 	Model* GetModel() const { return model_; }
+	MaterialInstance* GetMaterial() const { return material_.get(); }
 
 private: // 静的関数
 
@@ -93,6 +95,9 @@ private:
 
 	// モデル
 	Model* model_ = nullptr;
+
+	// マテリアル
+	std::unique_ptr<MaterialInstance> material_ = nullptr;
 
 	// カメラ
 	Camera* camera_ = nullptr;

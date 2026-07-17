@@ -20,6 +20,9 @@ void Object3d::Initialize()
 	worldTransform_.SetRotate({0.0f, pi, 0.0f}); 
 	worldTransform_.translate_ = {0.0f, 0.0f, 0.0f} ;
 
+	material_ = std::make_unique<MaterialInstance>();
+	material_->Initialize();
+
 	psoName_ = Object3dManager::GetInstance()->GetDefaultPsoName();
 	
 }
@@ -78,7 +81,8 @@ void Object3d::Draw()
 	// wvp用のCBufferの場所を設定
 	worldTransform_.SetCBufferTransformationResource(1);
 	
-	//DirectXBase::GetInstance()->GetCommandList()->SetGraphicsRootConstantBufferView(1, transformationMatrixResource_->GetGPUVirtualAddress());
+	// マテリアルとSRVをバインド
+	material_->Draw(0, 2);
 
 	// 平行光源用のCBufferをバインド（rootParameter[3] = b1）
 	LightManager::GetInstance()->SetCBufferLightsResource(3);
@@ -102,24 +106,24 @@ void Object3d::Finalize()
 void Object3d::SetModel(const std::string& filePath)
 {
 	model_ = ModelManager::GetInstance()->FindModel(filePath);
-	enableLighting_ = model_->GetEnableLighting(0);
+	material_->SetMaterialAsset(model_->GetMaterialAsset(model_->GetMesh(0).materialIndex));
 }
 
 void Object3d::SetEnableLighting(const int32_t& enableLighting)
 {
 	enableLighting_ = enableLighting;
-	if (model_)
+	if (material_)
 	{
-		model_->SetEnableLighting(enableLighting_, 0);
+		material_->SetEnableLighting(enableLighting_);
 	}
 }
 
 void Object3d::SetColor(const Vector4& color)
 {
 	color_ = color;
-	if (model_)
+	if (material_)
 	{
-		model_->SetColor(color_, 0);
+		material_->SetColor(color_);
 	}
 }
 
