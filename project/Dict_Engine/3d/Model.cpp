@@ -20,7 +20,7 @@ void Model::Initialize()
 void Model::CreateResources()
 {
 	CreateVertexResource();
-
+	CreateIndexResource();
 	CreateMaterialResource();
 }
 
@@ -33,21 +33,20 @@ void Model::Draw(const UINT& instanceCount)
 
 	instanceCount_ = instanceCount;
 
+	ID3D12GraphicsCommandList* commandList = DirectXBase::GetInstance()->GetCommandList();
+
 	for (const auto& mesh : modelData_.meshes)
 	{
-		DirectXBase::GetInstance()->GetCommandList()->
-			IASetVertexBuffers(0, 1, &mesh.vertexBufferView_);	// VBVを設定
+		commandList->IASetVertexBuffers(0, 1, &mesh.vertexBufferView_);	// VBVを設定
+		commandList->IASetIndexBuffer(&mesh.indexBufferView_);	// IBVを設定
+
 		// マテリアルのCBufferの場所を設定
-		DirectXBase::GetInstance()->GetCommandList()->
-			SetGraphicsRootConstantBufferView(0, mesh.materialResource_->GetGPUVirtualAddress());
+		commandList->SetGraphicsRootConstantBufferView(0, mesh.materialResource_->GetGPUVirtualAddress());
 
-		/*TextureManager::GetInstance()->GetSRVHandleGPU(modelData_.material.textureFilePath);*/
-
-		SrvManager::GetInstance()->SetGraphicsRootDescriptorTable(
-			2, mesh.material.textureIndex);
+		SrvManager::GetInstance()->SetGraphicsRootDescriptorTable(2, mesh.material.textureIndex);
 
 		// 描画！（DrawCall/ドローコール）。
-		DirectXBase::GetInstance()->GetCommandList()->DrawInstanced(UINT(mesh.vertices.size()), instanceCount_, 0, 0);
+		commandList->DrawIndexedInstanced(UINT(mesh.indices.size()), instanceCount_, 0, 0, 0);
 
 	}
 }
@@ -108,7 +107,7 @@ MaterialData Model::LoadMaterialTemplateFile(const std::string& directoryPath, c
 	return materialData;
 }
 
-void Model::LoadFromFile(const std::string& directoryPath, const std::string& filename)
+void Model::LoadModelFile(const std::string& directoryPath, const std::string& filename)
 {
 	Assimp::Importer importer;
 	std::string relativePath = directoryPath + "/" + filename;
@@ -132,8 +131,20 @@ void Model::LoadFromFile(const std::string& directoryPath, const std::string& fi
 		assert(mesh->HasTextureCoords(0)); // TexcoordがないMeshは今回は非対応
 		Mesh newMesh;
 
-		// ここからMeshの中身(Face)の解析を行っていく
+		newMesh.vertices.resize(mesh->mNumVertices);	// 最初に頂点数分のメモリを確保しておく
+		for (uint32_t vertexIndex = 0; vertexIndex < mesh->mNumVertices; ++vertexIndex)
+		{
+			aiVector3D& position = mesh->mVertices[vertexIndex];
+			aiVector3D& normal = mesh->mNormals[vertexIndex];
+			aiVector3D& texcoord = mesh->mTextureCoords[0][vertexIndex];
+			
+			newMesh.vertices[vertexIndex].position = { -position.x, position.y, position.z, 1.0f };
+			newMesh.vertices[vertexIndex].normal = { -normal.x, normal.y, normal.z };
+			newMesh.vertices[vertexIndex].texcoord = { texcoord.x, texcoord.y };
+			newMesh.vertices[vertexIndex].color = {1.0f, 1.0f, 1.0f, 1.0f};
+		}
 
+		// Indexの解析
 		for (uint32_t faceIndex = 0; faceIndex < mesh->mNumFaces; ++faceIndex)
 		{
 			aiFace& face = mesh->mFaces[faceIndex];
@@ -143,18 +154,7 @@ void Model::LoadFromFile(const std::string& directoryPath, const std::string& fi
 			for (uint32_t element = 0; element < face.mNumIndices; ++element)
 			{
 				uint32_t vertexIndex = face.mIndices[element];
-				aiVector3D& position = mesh->mVertices[vertexIndex];
-				aiVector3D& normal = mesh->mNormals[vertexIndex];
-				aiVector3D& texcoord = mesh->mTextureCoords[0][vertexIndex];
-				VertexData vertex;
-				vertex.position = { position.x, position.y, position.z, 1.0f };
-				vertex.normal = { normal.x, normal.y, normal.z };
-				vertex.texcoord = { texcoord.x, texcoord.y };
-				vertex.color = { 1.0f, 1.0f, 1.0f, 1.0f };
-				// aiProcess_MakeLeftHandedはz*=-1で、右手->左手に変換するので手動で対処
-				vertex.position.x *= -1.0f;
-				vertex.normal.x *= -1.0f;
-				newMesh.vertices.push_back(vertex);
+				newMesh.indices.push_back(vertexIndex);
 			}
 		}
 
@@ -472,6 +472,34 @@ void Model::CreateVertexResource()
 		// 頂点データをコピーする
 		std::memcpy(mesh.vertexData_, modelData_.meshes[meshIndex].vertices.data(), 
 			sizeof(VertexData) * modelData_.meshes[meshIndex].vertices.size());
+	}
+}
+
+void Model::CreateIndexResource()
+{
+	for (uint32_t meshIndex = 0; meshIndex < modelData_.meshes.size(); ++meshIndex)
+	{
+		Mesh& mesh = modelData_.meshes[meshIndex];
+
+		// IndexResourceを作成する。
+		mesh.indexResource_ = modelManager_->GetDxBase()->
+			CreateBufferResource(sizeof(uint32_t) * modelData_.meshes[meshIndex].indices.size());
+
+		assert(mesh.indexResource_ && "CreateBufferResource failed");
+
+		// IIndexBufferViewの設定
+		// リソースの先頭のアドレスから使う
+		mesh.indexBufferView_.BufferLocation = mesh.indexResource_->GetGPUVirtualAddress();
+		// 使用するリソースのサイズは頂点のサイズ
+		mesh.indexBufferView_.SizeInBytes = UINT(sizeof(uint32_t) * modelData_.meshes[meshIndex].indices.size());
+		// 1頂点当たりのサイズ
+		mesh.indexBufferView_.Format = DXGI_FORMAT_R32_UINT;
+
+		// IndexResourceにデータを書き込むためのアドレスを取得してVertexDataに割り当てる
+		mesh.indexResource_->Map(0, nullptr, reinterpret_cast<void**>(&mesh.indexData_));
+		// インデックスデータをコピーする
+		std::memcpy(mesh.indexData_, modelData_.meshes[meshIndex].indices.data(),
+			sizeof(uint32_t) * modelData_.meshes[meshIndex].indices.size());
 	}
 }
 

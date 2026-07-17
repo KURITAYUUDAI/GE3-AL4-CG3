@@ -8,6 +8,7 @@
 
 #include "LightManager.h"
 #include "DebugDrawManager.h"
+#include "PrimitiveManager.h"
 
 #include "AnimationUtility.h"
 #include "SkeletonImGuiDebug.h"
@@ -70,6 +71,8 @@ private:
 	// デバッグ描画マネージャー
 	DebugDrawManager* debugManager_ = DebugDrawManager::GetInstance();
 
+	// プリミティブマネージャー
+	PrimitiveManager* primitiveManager_ = PrimitiveManager::GetInstance();
 
 private:
 
@@ -90,6 +93,10 @@ private:
 	std::unique_ptr<Sprite> enterSprite_;
 
 	std::unique_ptr<Text> titleText_;
+
+	std::unique_ptr<ParticleEmitter> ringEmitter_;
+
+	std::unique_ptr<ParticleEmitter> cylinderEmitter_;
 
 	std::unique_ptr<Object3d> glTFObject_;
 
