@@ -11,7 +11,6 @@ struct VertexData
 	Vector4 color;
 };
 
-
 struct MaterialData
 {
 	std::string textureFilePath;
@@ -37,12 +36,14 @@ struct Node
 	QuaternionTransform transform;
 	Matrix4x4 localMatrix;
 	std::string name;
+
 	std::vector<Node> children;
 };
 
 struct Mesh
 {
 	std::vector<VertexData> vertices;	//!< 頂点データ
+	std::vector<uint32_t> indices;	//!< インデックスデータ
 	MaterialData material;
 	Node rootNode;
 
@@ -52,6 +53,13 @@ struct Mesh
 	VertexData* vertexData_ = nullptr;
 	// バッファリソースの使い道を補足するバッファビュー
 	D3D12_VERTEX_BUFFER_VIEW vertexBufferView_{};
+
+	// インデックスリソース
+	Microsoft::WRL::ComPtr<ID3D12Resource> indexResource_ = nullptr;
+	// バッファリソース内のデータを指すポインタ
+	uint32_t* indexData_ = nullptr;
+	// バッファリソースの使い道を補足するバッファビュー
+	D3D12_INDEX_BUFFER_VIEW indexBufferView_{};
 
 	// マテリアル用バッファリソース
 	Microsoft::WRL::ComPtr<ID3D12Resource> materialResource_ = nullptr;
@@ -63,5 +71,3 @@ struct ModelData
 {
 	std::vector<Mesh> meshes;
 };
-
-

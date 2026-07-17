@@ -36,7 +36,7 @@ public:
 	// 箱作成
 	void CreateBox();
 
-	void LoadFromFile(const std::string& directoryPath, const std::string& filename);
+	void LoadModelFile(const std::string& directoryPath, const std::string& filename);
 
 	void InsertMesh(Mesh mesh);
 
@@ -50,6 +50,9 @@ private:
 
 	// VertexResourceを作成
 	void CreateVertexResource();
+
+	// IndexResourceを作成
+	void CreateIndexResource();
 
 	// MaterialResourceを作成
 	void CreateMaterialResource();

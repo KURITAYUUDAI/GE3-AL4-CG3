@@ -82,26 +82,91 @@ void TitleScene::Initialize()
 
 
 	particleManager_->SetModel("plane.obj");
-	particleManager_->CreateParticleGroup("circle", "circle.png");
+	//particleManager_->CreateParticleGroup("circle", "circle.png");
 
 
-	AABB  aabb;
+	/*AABB  aabb;
 	aabb.max = { 1.0f, 1.0f, 1.0f };
 	aabb.min = { -1.0f, -1.0f, -1.0f };
-	particleManager_->CreateAccelerationField({ 5.0f, 0.0f, 0.0f }, aabb);
+	particleManager_->CreateAccelerationField({ 5.0f, 0.0f, 0.0f }, aabb);*/
 
 
-	for (size_t i = 0; i < 1; i++)
+	/*for (size_t i = 0; i < 1; i++)
 	{
 		std::unique_ptr<ParticleEmitter> emitter = std::make_unique<ParticleEmitter>();
 		EulerTransform transform = { {1.0f, 1.0f, 1.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f} };
 		emitter->Initialize("circle", transform, 3, 0.2f);
 		emitters_.push_back(std::move(emitter));
-	}
+	}*/
 
 	enterSprite_ = std::make_unique<Sprite>();
 	enterSprite_->Initialize("ENTER.png");
 	enterSprite_->SetPosition({ 20.0f, 540.0f });
+
+	PrimitiveManager::GetInstance()->Initialize();
+	PrimitiveManager::RingConfig ringConfig;
+	ringConfig.segments = 32;
+	ringConfig.innerRadius = 0.0f;
+	ringConfig.outerRadius = 1.5f;
+	ringConfig.innerColor = { 0.0f, 0.0f, 1.0f, 1.0f };
+	ringConfig.outerColor = { 0.0f, 0.5f, 0.0f, 1.0f };
+	ringConfig.uvScaleU = 2.0f;
+	ringConfig.uvScaleV = 0.1f;
+	ringConfig.startAngle = 1.0f / 5.0f * pi;
+	ringConfig.endAngle = 9.0f / 5.0f * pi;
+	ringConfig.radiusPoints =
+	{
+		{ 0.0f, 0.5f, 0.5f },   // 開始：inner=0.2, outer=1.0
+		{ 0.5f, 0.5f, 1.0f },   // 中間：inner=0.1, outer=0.6
+		{ 1.0f, 0.5f, 0.5f },   // 終了：inner=0.2, outer=0.2
+	};
+	ringConfig.alphaFade.startFadeRange = 0.15f;
+	ringConfig.alphaFade.endFadeRange = 0.15f;
+	PrimitiveManager::GetInstance()->CreateRing("ring_primitive", ringConfig);
+
+	particleManager_->CreateParticleGroup("ring", "gradationLine.png");
+	particleManager_->SetModel("ring", "ring_primitive");
+	particleManager_->SetIsMoveAccelerationField("ring", false);
+	particleManager_->SetIsBillboard("ring", false);
+
+	ringEmitter_ = std::make_unique<ParticleEmitter>();
+	ringEmitter_->Initialize("ring",
+		{ {1.0f, 2.0f, 1.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f} }, 1, 0.2f);
+
+	PrimitiveManager::CylinderConfig cylinderConfig;
+	cylinderConfig.segments = 32;
+	cylinderConfig.stacks = 32;
+	cylinderConfig.height = 3.0f;
+	cylinderConfig.topRadiusX = 1.0f;
+	cylinderConfig.topRadiusZ = 1.0f;
+	cylinderConfig.bottomRadiusX = 1.0f;
+	cylinderConfig.bottomRadiusZ = 1.0f;
+	cylinderConfig.radiusPoints =
+	{
+		{ 0.0f, 1.0f, 1.0f, false },  // ここから折れ線
+		{ 0.3f, 2.0f, 2.0f, true  },  // ここからなめらか
+		{ 0.7f, 2.0f, 2.0f, false },  // ここから折れ線
+		{ 1.0f, 1.0f, 1.0f },
+	};
+	cylinderConfig.topColor = { 0.0f, 0.0f, 1.0f, 1.0f };
+	cylinderConfig.bottomColor = { 0.0f, 0.5f, 0.0f, 1.0f };
+	cylinderConfig.uvScaleU = 2.0f;
+	cylinderConfig.uvScaleV = 1.0f;
+	cylinderConfig.startAngle = 0.0f;
+	cylinderConfig.endAngle = 2.0f * pi;
+	cylinderConfig.alphaFade.startFadeRange = 0.15f;
+	cylinderConfig.alphaFade.endFadeRange = 0.15f;
+	PrimitiveManager::GetInstance()->CreateCylinder("cylinder_primitive", cylinderConfig);
+
+	particleManager_->CreateParticleGroup("cylinder", "uvChecker.png");
+	particleManager_->SetModel("cylinder", "cylinder_primitive");
+	particleManager_->SetIsMoveAccelerationField("cylinder", false);
+	particleManager_->SetIsBillboard("cylinder", false);
+
+	cylinderEmitter_ = std::make_unique<ParticleEmitter>();
+	cylinderEmitter_->Initialize("cylinder",
+		{ {1.0f, 0.0f, 1.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f} }, 1, 0.2f);
+
 
 
 	ModelManager::GetInstance()->LoadModel("Animation", "walk.gltf");
@@ -288,10 +353,20 @@ void TitleScene::Update(const float& deltaTime)
 		object3d->Update();
 	}
 
-	for (auto it = emitters_.begin(); it != emitters_.end(); ++it)
+	/*for (auto it = emitters_.begin(); it != emitters_.end(); ++it)
 	{
 		ParticleEmitter* emitter = it->get();
 		emitter->Update(deltaTime);
+	}*/
+
+	if (inputManager_->TriggerKey(DIK_1))
+	{
+		ringEmitter_->Emit();
+	}
+
+	if (inputManager_->TriggerKey(DIK_2))
+	{
+		cylinderEmitter_->Emit();
 	}
 
 	animationTime += deltaTime;
@@ -362,6 +437,8 @@ void TitleScene::Draw()
 	}
 
 	enterSprite_->Draw();
+
+	particleManager_->Draw();
 
 	if (inputManager_->TriggerKey(DIK_0))
 	{

@@ -34,64 +34,89 @@ void PrimitiveManager::CreateRing(const std::string& name, const RingConfig& con
 	}
 
 	const uint32_t segments = config.segments;
-	/*const float kOuterRadius = config.outerRadius;
-	const float kInnerRadius = config.innerRadius;*/
 	const float angleRenge = config.endAngle - config.startAngle;
 	const float radianPerDivide = angleRenge / float(segments);
 
 	Mesh mesh;
 
-	for (uint32_t index = 0; index < segments; ++index)
+	mesh.vertices.reserve((segments + 1) * 2);
+	mesh.indices.reserve(segments * 6);
+
+	for (uint32_t index = 0; index <= segments; ++index)
 	{
-		float angle0 = config.startAngle + index * radianPerDivide;
-		float angle1 = config.startAngle + (index + 1) * radianPerDivide;
+		float angle = config.startAngle + index * radianPerDivide;
+		//float angle1 = config.startAngle + (index + 1) * radianPerDivide;
 
 		// 正規化位置
-		float t0 = float(index) / float(config.segments);
-		float t1 = float(index + 1) / float(config.segments);
+		float t = float(index) / float(config.segments);
+		//float t1 = float(index + 1) / float(config.segments);
 
 		// 半径をサンプリング
-		auto [innerRadius0, outerRadius0] = config.radiusPoints.empty()
+		auto [innerRadius, outerRadius] = config.radiusPoints.empty()
 			? std::make_pair(config.innerRadius, config.outerRadius)
-			: SampleRadius(config.radiusPoints, t0);
+			: SampleRadius(config.radiusPoints, t);
 
-		auto [innerRadius1, outerRadius1] = config.radiusPoints.empty()
+		/*auto [innerRadius1, outerRadius1] = config.radiusPoints.empty()
 			? std::make_pair(config.innerRadius, config.outerRadius)
-			: SampleRadius(config.radiusPoints, t1);
+			: SampleRadius(config.radiusPoints, t1);*/
 
-		float sin = std::sinf(angle0);
-		float cos = std::cosf(angle0);
-		float sinNext = std::sinf(angle1);
-		float cosNext = std::cosf(angle1);
+		float sin = std::sinf(angle);
+		float cos = std::cosf(angle);
+		//float sinNext = std::sinf(angle1);
+		//float cosNext = std::cosf(angle1);
 		float u = (float(index) / float(segments)) * config.uvScaleU;
-		float uNext = (float(index + 1) / float(segments)) * config.uvScaleU;
+		//float uNext = (float(index + 1) / float(segments)) * config.uvScaleU;
 		float vOuter = 0.0f * config.uvScaleV;
 		float vInner = 1.0f * config.uvScaleV;
 
-		VertexData outerA = { {-sin * outerRadius0, cos * outerRadius0, 0.0f, 1.0f}, {u, vOuter}, {} };
-		VertexData outerB = { {-sinNext * outerRadius1, cosNext * outerRadius1, 0.0f, 1.0f}, {uNext, vOuter}, {} };
-		VertexData innerA = { {-sin * innerRadius0, cos * innerRadius0, 0.0f, 1.0f}, {u, vInner}, {} };
-		VertexData innerB = { {-sinNext * innerRadius1, cosNext * innerRadius1, 0.0f, 1.0f}, {uNext, vInner}, {} };
+		VertexData outer = { {-sin * outerRadius, cos * outerRadius, 0.0f, 1.0f}, {u, vOuter}, {0.0f, 0.0f, 1.0f} };
+		//VertexData outerB = { {-sinNext * outerRadius1, cosNext * outerRadius1, 0.0f, 1.0f}, {uNext, vOuter}, {} };
+		VertexData inner = { {-sin * innerRadius, cos * innerRadius, 0.0f, 1.0f}, {u, vInner}, {0.0f, 0.0f, 1.0f} };
+		//VertexData innerB = { {-sinNext * innerRadius1, cosNext * innerRadius1, 0.0f, 1.0f}, {uNext, vInner}, {} };
 
-		float alpha0 = CalcAngleAlpha(config.alphaFade, t0);
-		float alpha1 = CalcAngleAlpha(config.alphaFade, t1);
+		float alpha = CalcAngleAlpha(config.alphaFade, t);
+		//float alpha1 = CalcAngleAlpha(config.alphaFade, t1);
 
-		outerA.color = { config.outerColor.x, config.outerColor.y, config.outerColor.z,
-					 config.outerColor.w * alpha0 };
-		outerB.color = { config.outerColor.x, config.outerColor.y, config.outerColor.z,
-						 config.outerColor.w * alpha1 };
-		innerA.color = { config.innerColor.x, config.innerColor.y, config.innerColor.z,
-						 config.innerColor.w * alpha0 };
-		innerB.color = { config.innerColor.x, config.innerColor.y, config.innerColor.z,
-						 config.innerColor.w * alpha1 };
+		outer.color = { config.outerColor.x, config.outerColor.y, config.outerColor.z,
+					 config.outerColor.w * alpha };
+		/*outerB.color = { config.outerColor.x, config.outerColor.y, config.outerColor.z,
+						 config.outerColor.w * alpha1 };*/
+		inner.color = { config.innerColor.x, config.innerColor.y, config.innerColor.z,
+						 config.innerColor.w * alpha };
+		/*innerB.color = { config.innerColor.x, config.innerColor.y, config.innerColor.z,
+						 config.innerColor.w * alpha1 };*/
 
-		mesh.vertices.push_back(outerA);
-		mesh.vertices.push_back(outerB);
-		mesh.vertices.push_back(innerA);
 
-		mesh.vertices.push_back(outerB);
-		mesh.vertices.push_back(innerB);
-		mesh.vertices.push_back(innerA);
+		mesh.vertices.push_back(outer);
+		//mesh.vertices.push_back(outerB);
+		mesh.vertices.push_back(inner);
+
+		//mesh.vertices.push_back(outerB);
+		//mesh.vertices.push_back(innerB);
+		//mesh.vertices.push_back(inner);
+	}
+
+	for (uint32_t index = 0; index < segments; ++index)
+	{
+		const uint32_t outerA = index * 2;
+		const uint32_t innerA = outerA + 1;
+
+		const uint32_t outerB = (index + 1) * 2;
+		const uint32_t innerB = outerB + 1;
+
+		mesh.indices.insert(
+			mesh.indices.end(),
+			{
+					// 三角形1
+					outerA,
+					outerB,
+					innerA,
+
+					// 三角形2
+					outerB,
+					innerB,
+					innerA
+			});
 	}
 
 	mesh.material.textureFilePath = "";
@@ -113,72 +138,113 @@ void PrimitiveManager::CreateCylinder(const std::string& name, const CylinderCon
 
 	const uint32_t segments = config.segments;
 	const uint32_t stacks = config.stacks;
+	
+	if (segments == 0 || stacks == 0)
+	{
+		assert(false && "Cylinder segments and stacks must be greater than 0");
+		return;
+	}
+	
 	const float    height = config.height;
 	const float    angleRenge = config.endAngle - config.startAngle;
 	const float    radianPerDivide = angleRenge / float(segments);
 
-	for (uint32_t stack = 0; stack < stacks; ++stack)
+	mesh.vertices.reserve(
+		static_cast<size_t>(stacks + 1) *
+		static_cast<size_t>(segments + 1));
+
+	mesh.indices.reserve(
+		static_cast<size_t>(stacks) *
+		static_cast<size_t>(segments) * 6);
+
+	for (uint32_t stack = 0; stack <= stacks; ++stack)
 	{
-		float vTop = float(stack) / float(stacks);
+		float v = float(stack) / float(stacks);
 		float vBottom = float(stack + 1) / float(stacks);
 
-		float yTop = height * (1.0f - vTop);
+		float y = height * (1.0f - v);
 		float yBottom = height * (1.0f - vBottom);
 
-		auto [rxTop, rzTop] = SampleCylinderRadius(config, vTop);
+		auto [rx, rz] = SampleCylinderRadius(config, v);
 		auto [rxBottom, rzBottom] = SampleCylinderRadius(config, vBottom);
 
-		Vector4 colorTop = LerpColor(config.topColor, config.bottomColor, vTop);
-		Vector4 colorBottom = LerpColor(config.topColor, config.bottomColor, vBottom);
+		Vector4 baseColor = LerpColor(config.topColor, config.bottomColor, v);
+		//Vector4 baseColorBottom = LerpColor(config.topColor, config.bottomColor, vBottom);
 
-		float uvVTop = ApplyFlipV(vTop, config.uvScaleV, config.flipV);
+		float uvV = ApplyFlipV(v, config.uvScaleV, config.flipV);
 		float uvVBottom = ApplyFlipV(vBottom, config.uvScaleV, config.flipV);
 
-		for (uint32_t index = 0; index < segments; ++index)
+		for (uint32_t index = 0; index <= segments; ++index)
 		{
-			float t0 = float(index) / float(segments);
-			float t1 = float(index + 1) / float(segments);
+			float t = float(index) / float(segments);
+			//float t1 = float(index + 1) / float(segments);
 
-			float angle0 = config.startAngle + index * radianPerDivide;
-			float angle1 = config.startAngle + (index + 1) * radianPerDivide;
+			float angle = config.startAngle + index * radianPerDivide;
+			//float angle1 = config.startAngle + (index + 1) * radianPerDivide;
 
-			float sinA = std::sinf(angle0);
-			float cosA = std::cosf(angle0);
-			float sinB = std::sinf(angle1);
-			float cosB = std::cosf(angle1);
+			float sin = std::sinf(angle);
+			float cos = std::cosf(angle);
+			//float sinB = std::sinf(angle1);
+			//float cosB = std::cosf(angle1);
 
-			float u = ApplyFlipU(t0, config.uvScaleU, config.flipU);
-			float uNext = ApplyFlipU(t1, config.uvScaleU, config.flipU);
+			float uvU = ApplyFlipU(t, config.uvScaleU, config.flipU);
+			//float uNext = ApplyFlipU(t1, config.uvScaleU, config.flipU);
 
-			float alphaA = CalcAngleAlpha(config.alphaFade, t0);
-			float alphaB = CalcAngleAlpha(config.alphaFade, t1);
+			float alpha = CalcAngleAlpha(config.alphaFade, t);
+			//float alphaB = CalcAngleAlpha(config.alphaFade, t1);
 
-			Vector4 colorTopA = colorTop;
-			Vector4 colorBottomA = colorBottom;
-			colorTopA.w *= alphaA;   // topA 用
-			colorBottomA.w *= alphaA;   // bottomA 用
+			Vector4 color = baseColor;
+			//Vector4 colorBottomA = baseColorBottom;
+			color.w *= alpha;   // topA 用
+			//colorBottomA.w *= alpha;   // bottomA 用
 
-			Vector4 colorTopB = colorTop;
-			Vector4 colorBottomB = colorBottom;
+			/*Vector4 colorTopB = baseColor;
+			Vector4 colorBottomB = baseColorBottom;
 			colorTopB.w *= alphaB;
-			colorBottomB.w *= alphaB;
+			colorBottomB.w *= alphaB;*/
 
-			VertexData topA =	 { {-sinA * rxTop,	  yTop,    cosA * rzTop,    1.0f}, {u,     uvVTop},	   {-sinA, 0.0f, cosA}, colorTopA };
-			VertexData topB =	 { {-sinB * rxTop,	  yTop,    cosB * rzTop,    1.0f}, {uNext, uvVTop},	   {-sinB, 0.0f, cosB}, colorTopB };
-			VertexData bottomA = { {-sinA * rxBottom, yBottom, cosA * rzBottom, 1.0f}, {u,     uvVBottom}, {-sinA, 0.0f, cosA}, colorBottomA };
-			VertexData bottomB = { {-sinB * rxBottom, yBottom, cosB * rzBottom, 1.0f}, {uNext, uvVBottom}, {-sinB, 0.0f, cosB}, colorBottomB };
+			VertexData vertex =	 { {-sin * rx,	  y,    cos * rz,    1.0f}, {uvU,     uvV},	   {-sin, 0.0f, cos}, color };
+			//VertexData topB =	 { {-sinB * rx,	  y,    cosB * rz,    1.0f}, {uNext, uvV},	   {-sinB, 0.0f, cosB}, colorTopB };
+			//VertexData bottomA = { {-sin * rxBottom, yBottom, cos * rzBottom, 1.0f}, {u,     uvVBottom}, {-sin, 0.0f, cos}, colorBottomA };
+			//VertexData bottomB = { {-sinB * rxBottom, yBottom, cosB * rzBottom, 1.0f}, {uNext, uvVBottom}, {-sinB, 0.0f, cosB}, colorBottomB };
 
-			mesh.vertices.push_back(topA);
-			mesh.vertices.push_back(topB);
-			mesh.vertices.push_back(bottomA);
+			mesh.vertices.push_back(vertex);
+			//mesh.vertices.push_back(topB);
+			//mesh.vertices.push_back(bottomA);
 
-			mesh.vertices.push_back(topB);
-			mesh.vertices.push_back(bottomB);
-			mesh.vertices.push_back(bottomA);
+			//mesh.vertices.push_back(topB);
+			//mesh.vertices.push_back(bottomB);
+			//mesh.vertices.push_back(bottomA);
 		}
 	}
 
-	
+	for (uint32_t stack = 0; stack < stacks; ++stack)
+	{
+		for (uint32_t segment = 0; segment < segments; ++segment)
+		{
+			const uint32_t topA = stack * (segments + 1) + segment;
+
+			const uint32_t topB = topA + 1;
+
+			const uint32_t bottomA = (stack + 1) * (segments + 1) + segment;
+
+			const uint32_t bottomB = bottomA + 1;
+
+			mesh.indices.insert(
+				mesh.indices.end(),
+				{
+						// 三角形1
+						topA,
+						topB,
+						bottomA,
+
+						// 三角形2
+						topB,
+						bottomB,
+						bottomA
+				});
+		}
+	}
 
 	mesh.material.textureFilePath = "";
 	mesh.material.color = Vector4{ 1.0f, 1.0f, 1.0f, 1.0f };
