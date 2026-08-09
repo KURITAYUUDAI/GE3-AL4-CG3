@@ -73,9 +73,4 @@ void AvoidCommand::Execute(Player* player)
     player->Avoid(direction);
 }
 
-void MeleeAttackCommand::Execute(Player* player)
-{
-	player->MeleeAttack();
-}
-
 
