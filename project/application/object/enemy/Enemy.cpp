@@ -57,7 +57,7 @@ void Enemy::Initialize()
 
 	transform_.scale = { 1.0f, 1.0f, 1.0f };
 	transform_.rotate = { 0.0f, 0.0f, 0.0f };
-	transform_.translate = { 0.0f, -2.0f, 30.0f };
+	transform_.translate = { 0.0f, -2.0f, 7.5f };
 
 	rightHandTransform_.scale = { 1.0f, 1.0f, 1.0f };
 	rightHandTransform_.rotate = { -40.0f / 180.0f * pi, 0.0f, 0.0f };
@@ -350,6 +350,16 @@ const Vector3 Enemy::GetWorldPosition() const
 	return worldPos;
 }
 
+Vector3 Enemy::GetPlayerLocalPosition() const
+{
+	WorldTransform* parent = object3d_->GetWorldTransform()->parent_;
+	if (!parent)
+	{
+		return playerWorldPosition_;
+	}
+	return TransformPosition(playerWorldPosition_, Inverse(parent->worldMatrix_));
+}
+
 const Vector2 Enemy::GetScreenPosition() const
 {
 	Matrix4x4 worldMatrix = object3d_->GetWorldTransform()->worldMatrix_;
@@ -369,10 +379,6 @@ const Vector2 Enemy::GetScreenPosition() const
 const Vector3 Enemy::GetWorldRotate() const
 {
 	Matrix4x4 worldMatrix = object3d_->GetWorldTransform()->worldMatrix_;
-	if (object3d_->GetWorldTransform()->parent_)
-	{
-		worldMatrix *= object3d_->GetWorldTransform()->parent_->worldMatrix_;
-	}
 
 	Vector3 worldRotEuler;
 	// 行列からエウラー角を計算する（一般的な公式に基づく抽出）

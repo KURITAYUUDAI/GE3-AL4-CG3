@@ -69,6 +69,13 @@ private:
 	AttackPhase phase_ = AttackPhase::Windup;
 	float timer_ = 0.0f;
 	Vector3 attackDirection_{ 0.0f, 0.0f, 1.0f };
+	Vector3 approachStartWorldPosition_{};
+	Vector3 approachTargetWorldPosition_{};
+	bool hasApproachTarget_ = false;
+
+	static constexpr float kWindupDuration_ = 0.15f;
+	static constexpr float kMeleeStopDistance_ = 1.5f;
+	static constexpr float kMaxApproachDistance_ = 6.0f;
 };
 
 class PlayerShotState : public IPlayerState

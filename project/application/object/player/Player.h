@@ -71,11 +71,13 @@ public:	//外部入出力
 	const Vector3& GetScale() const { return transform_.scale; }
 	const Vector3& GetRotate() const { return transform_.rotate; }
 	const Vector3& GetTranslate() const { return transform_.translate; }
+	Vector3& GetLocalPositionReference() { return transform_.translate; }
 	const EulerTransform& GetTransform() const { return transform_; }
 	const Vector3& GetVelocity() const { return velocity_; }
 
 	const Vector3 GetWorldPosition() const;
 	const Vector3 GetWorldRotate() const;
+	const Matrix4x4& GetWorldMatrix() const { return object3d_->GetWorldTransform()->worldMatrix_; }
 
 	Collider* GetCollider() { return collider_.get(); }
 	Collider* GetAttackCollider() { return colliderAttack_.get(); }
@@ -98,6 +100,7 @@ public:	//外部入出力
 	void SetScale(const Vector3& scale) { transform_.scale = scale; }
 	void SetRotate(const Vector3& rotate) { transform_.rotate = rotate; }
 	void SetTranslate(const Vector3& translate) { transform_.translate = translate; }
+	void SetWorldPosition(const Vector3& worldPosition);
 	void SetTransform(const EulerTransform& transform) { transform_ = transform; }
 	void SetVelocity(const Vector3& velocity) { velocity_ = velocity; }
 

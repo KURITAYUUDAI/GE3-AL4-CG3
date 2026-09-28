@@ -58,6 +58,7 @@ public:	//外部入出力
 	const Vector3& GetScale() const { return transform_.scale; }
 	const Vector3& GetRotate() const { return transform_.rotate; }
 	const Vector3& GetTranslate() const { return transform_.translate; }
+	Vector3& GetLocalPositionReference() { return transform_.translate; }
 	const EulerTransform& GetTransform() const { return transform_; }
 	const Vector3& GetVelocity() const { return velocity_; }
 
@@ -87,6 +88,7 @@ public:	//外部入出力
 	const Vector4& GetEdgeColor() { return dissolveParams_.edgeColor; }
 
 	const Vector3& GetPlayerWorldPosition() const { return playerWorldPosition_; }
+	Vector3 GetPlayerLocalPosition() const;
 
 // Setter
 

@@ -26,6 +26,13 @@ void RailCameraController::Initialize()
 	worldTransform_.scale_ = { 1.0f, 1.0f, 1.0f };
 	worldTransform_.SetRotate({ 0.0f, 0.0f, 0.0f });
 
+	battleWorldTransform_.Initialize();
+	battleWorldTransform_.scale_ = { 1.0f, 1.0f, 1.0f };
+	battleWorldTransform_.SetRotate({ 0.0f, 0.0f, 0.0f });
+	// Player(z=15) と Enemy(z=30) の初期中点。子側は +/-7.5 に移す。
+	battleWorldTransform_.translate_ = { 0.0f, 0.0f, 22.5f };
+	battleWorldTransform_.UpdateMatrix();
+
 	BuildLenghthTable();
 
 	worldTransform_.translate_ = GetLoopSplinePosition(controlPoints_, GetTFromDistance(currentDistance_));
@@ -95,9 +102,78 @@ void RailCameraController::Update(Camera* mainCamera, const float& deltaTime)
 	mainCamera->SetTranslate(worldTransform_.translate_);
 }
 
+void RailCameraController::SetBattleSpaceParent(WorldTransform* parent)
+{
+	if (battleWorldTransform_.parent_ == parent)
+	{
+		battleWorldTransform_.UpdateMatrix();
+		if (parent)
+		{
+			battleWorldTransform_.worldMatrix_ *= parent->worldMatrix_;
+		}
+		return;
+	}
+	if (battleWorldTransform_.parent_ == nullptr)
+	{
+		// 初回だけは z=22.5 の初期ローカル配置をそのまま親へ載せる。
+		battleWorldTransform_.parent_ = parent;
+		battleWorldTransform_.UpdateMatrix();
+		if (parent)
+		{
+			battleWorldTransform_.worldMatrix_ *= parent->worldMatrix_;
+		}
+		return;
+	}
+
+	// 親の切り替え前後で戦闘空間のワールド姿勢を維持する。
+	Matrix4x4 oldWorld = battleWorldTransform_.worldMatrix_;
+
+	battleWorldTransform_.parent_ = parent;
+	Matrix4x4 localMatrix = oldWorld;
+	if (parent)
+	{
+		localMatrix = oldWorld * Inverse(parent->worldMatrix_);
+	}
+
+	battleWorldTransform_.translate_ =
+	{
+		localMatrix.m[3][0], localMatrix.m[3][1], localMatrix.m[3][2]
+	};
+	battleWorldTransform_.scale_ = { 1.0f, 1.0f, 1.0f };
+	battleWorldTransform_.SetRotateQuat(MakeFromMatrix(localMatrix));
+	battleWorldTransform_.UpdateMatrix();
+	if (parent)
+	{
+		battleWorldTransform_.worldMatrix_ *= parent->worldMatrix_;
+	}
+}
+
+void RailCameraController::RecenterBattleSpace(
+	Vector3& playerLocalPosition, Vector3& enemyLocalPosition)
+{
+	const Vector3 localMidpoint = (playerLocalPosition + enemyLocalPosition) * 0.5f;
+	if (Length(localMidpoint) <= 0.00001f)
+	{
+		return;
+	}
+
+	// 原点を中点へ移し、同量を子から引くことでワールド位置を保存する。
+	const Matrix4x4 localRotation = MakeRotateMatrix(battleWorldTransform_.GetRotateQuat());
+	battleWorldTransform_.translate_ += TransformNormal(localMidpoint, localRotation);
+	playerLocalPosition -= localMidpoint;
+	enemyLocalPosition -= localMidpoint;
+
+	battleWorldTransform_.UpdateMatrix();
+	if (battleWorldTransform_.parent_)
+	{
+		battleWorldTransform_.worldMatrix_ *= battleWorldTransform_.parent_->worldMatrix_;
+	}
+}
+
 void RailCameraController::Finalize()
 {
-
+	battleWorldTransform_.Finalize();
+	worldTransform_.Finalize();
 }
 
 void RailCameraController::DrawDebugUI(const Camera* mainCamera, bool& isDebugCamera)

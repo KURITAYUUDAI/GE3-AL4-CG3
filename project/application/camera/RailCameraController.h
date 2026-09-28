@@ -14,6 +14,11 @@ public:
 	void BuildLenghthTable();
 	float GetTFromDistance(float distance);
 
+	WorldTransform* GetBattleWorldTransform() { return &battleWorldTransform_; }
+	const WorldTransform* GetBattleWorldTransform() const { return &battleWorldTransform_; }
+	void SetBattleSpaceParent(WorldTransform* parent);
+	void RecenterBattleSpace(Vector3& playerLocalPosition, Vector3& enemyLocalPosition);
+
 private:
 
 	std::vector<Vector3> controlPoints_;
@@ -30,5 +35,7 @@ private:
 	float targetRange_ = 0.5f;
 	
 	Vector2 offset_ = {1.0f, 1.0f};
+
+	WorldTransform battleWorldTransform_;
 };
 

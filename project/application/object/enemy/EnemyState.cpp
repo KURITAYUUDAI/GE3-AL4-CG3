@@ -92,9 +92,14 @@ void EnemyShotState::Finalize(Enemy * enemy)
 void EnemyAttackState::Initialize(Enemy* enemy)
 {
 	attackPhase_ = AttackPhase::Approach;
+	timer_ = 0.0f;
+	duration_ = 0.5f;
+	enemy->SetVelocity({ 0.0f, 0.0f, 0.0f });
+	enemy->SetAttackColliderActive(false);
 
-	approachPosition_ = { 0.0f, 0.0f, 20.0f };
-	beforePosition_ = enemy->GetTranslate();
+	// 動的に再中心化されても壊れないよう、Playerからの相対位置で軌道を持つ。
+	beforePosition_ = enemy->GetTranslate() - enemy->GetPlayerLocalPosition();
+	approachPosition_ = { 0.0f, 0.0f, 5.0f };
 }
 
 void EnemyAttackState::Update(Enemy * enemy, const float& deltaTime)
@@ -103,8 +108,8 @@ void EnemyAttackState::Update(Enemy * enemy, const float& deltaTime)
 	switch (attackPhase_)
 	{
 	case EnemyAttackState::AttackPhase::Approach:
-
-		enemy->SetTranslate(Lerp(beforePosition_, approachPosition_, timer_ / duration_));
+		enemy->SetTranslate(enemy->GetPlayerLocalPosition() +
+			Lerp(beforePosition_, approachPosition_, std::min(timer_ / duration_, 1.0f)));
 
 		if (timer_ >= duration_)
 		{
@@ -116,16 +121,15 @@ void EnemyAttackState::Update(Enemy * enemy, const float& deltaTime)
 		break;
 
 	case EnemyAttackState::AttackPhase::Homing:
-
-		enemy->SetTranslate({ enemy->GetPlayerWorldPosition().x, 0.0f, 20.0f });
-		enemy->SetRightHandTranslate(Lerp(handPosition_, {0.0f, 5.0f, 0.0f}, timer_ / duration_));
+		enemy->SetTranslate(enemy->GetPlayerLocalPosition() + approachPosition_);
+		enemy->SetRightHandTranslate(Lerp(
+			handPosition_, {0.0f, 5.0f, 0.0f}, std::min(timer_ / duration_, 1.0f)));
 
 		if (timer_ >= duration_)
 		{
 			attackPhase_ = AttackPhase::Attack;
 			timer_ = 0.0f;
 			duration_ = 0.4f;
-			homingPosition_ = enemy->GetTranslate();
 			handPosition_ = enemy->GetRightHandTransform().translate;
 			enemy->SetAttackColliderActive(true);
 		}
@@ -133,22 +137,26 @@ void EnemyAttackState::Update(Enemy * enemy, const float& deltaTime)
 
 	case EnemyAttackState::AttackPhase::Attack:
 
-		enemy->SetRightHandTranslate(Lerp(handPosition_, {0.0f, -5.0f, 0.0f}, timer_ / duration_));
+		enemy->SetTranslate(enemy->GetPlayerLocalPosition() + approachPosition_);
+		enemy->SetRightHandTranslate(Lerp(
+			handPosition_, {0.0f, -5.0f, 0.0f}, std::min(timer_ / duration_, 1.0f)));
 
 		if (timer_ >= duration_)
 		{
 			attackPhase_ = AttackPhase::Away;
+			enemy->SetAttackColliderActive(false);
 			timer_ = 0.0f;
 			duration_ = 1.0f;
-			approachPosition_ = enemy->GetTranslate();
 			handPosition_ = enemy->GetRightHandTransform().translate;
 		}
 		break;
 
 	case EnemyAttackState::AttackPhase::Away:
 
-		enemy->SetTranslate(Lerp(approachPosition_, beforePosition_, timer_ / duration_));
-		enemy->SetRightHandTranslate(Lerp(handPosition_, { -2.5f, 0.0f, 0.0f }, timer_ / duration_));
+		enemy->SetTranslate(enemy->GetPlayerLocalPosition() +
+			Lerp(approachPosition_, beforePosition_, std::min(timer_ / duration_, 1.0f)));
+		enemy->SetRightHandTranslate(Lerp(
+			handPosition_, { -2.5f, 0.0f, 0.0f }, std::min(timer_ / duration_, 1.0f)));
 
 		if (timer_ >= duration_)
 		{
@@ -168,5 +176,6 @@ void EnemyAttackState::Draw(Enemy * enemy)
 
 void EnemyAttackState::Finalize(Enemy * enemy)
 {
-	(void)enemy;
+	enemy->SetAttackColliderActive(false);
+	enemy->SetVelocity({ 0.0f, 0.0f, 0.0f });
 }

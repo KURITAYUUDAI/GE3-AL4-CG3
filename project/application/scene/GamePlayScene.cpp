@@ -52,7 +52,7 @@ void GamePlayScene::Initialize()
 
 	cameraManager_->AddCameraController("Default", defaultCameraController_.get());
 	cameraManager_->AddCameraController("Rail", railCameraController_.get());
-	cameraManager_->SetActiveCameraController("Default");
+	cameraManager_->SetActiveCameraController("Rail");
 
 	lightManager_->Initialize();
 	lightManager_->SetDirectionalLightColor({ 1.0f, 1.0f, 1.0f, 1.0f });
@@ -190,7 +190,9 @@ void GamePlayScene::Initialize()
 	player_ = std::make_unique<Player>();
 	player_->Initialize();
 	player_->SetEnvironmentTextureIndex(skyBox_->GetEnvironmentTextureIndex());
-	player_->SetParent(cameraManager_->GetActiveCameraController()->GetWorldTransform());
+	railCameraController_->SetBattleSpaceParent(
+		cameraManager_->GetActiveCameraController()->GetWorldTransform());
+	player_->SetParent(railCameraController_->GetBattleWorldTransform());
 
 	BulletManager::GetInstance()->Initialize();
 
@@ -236,7 +238,7 @@ void GamePlayScene::Initialize()
 	{
 		Enemy* enemy = enemyManager_->FindEnemy(id);
 		enemy->SetEnvironmentTextureIndex(skyBox_->GetEnvironmentTextureIndex());
-		enemy->SetParent(cameraManager_->GetActiveCameraController()->GetWorldTransform());
+		enemy->SetParent(railCameraController_->GetBattleWorldTransform());
 		enemy->SetEventBus(eventBus_.get());
 		enemy->SetHPGageDisplayType(EnemyHPGageDisplayType::ScreenBoss |
 			EnemyHPGageDisplayType::OverHead);
@@ -433,6 +435,8 @@ void GamePlayScene::Update(const float& deltaTime)
 	}
 
 	cameraManager_->Update(deltaTime);
+	railCameraController_->SetBattleSpaceParent(
+		cameraManager_->GetActiveCameraController()->GetWorldTransform());
 
 
 
@@ -465,6 +469,17 @@ void GamePlayScene::Update(const float& deltaTime)
 
 	/*enemy_->Update(deltaTime);*/
 	enemyManager_->Update(deltaTime);
+
+	if (!enemyIDs_.empty())
+	{
+		Enemy* battleEnemy = enemyManager_->FindEnemy(enemyIDs_.front());
+		if (battleEnemy && !battleEnemy->GetIsDead())
+		{
+			railCameraController_->RecenterBattleSpace(
+				player_->GetLocalPositionReference(),
+				battleEnemy->GetLocalPositionReference());
+		}
+	}
 
 	BulletManager::GetInstance()->Update(deltaTime);
 
@@ -500,8 +515,12 @@ void GamePlayScene::Update(const float& deltaTime)
 	{
 		if (enemyManager_->FindEnemy(id))
 		{
-			collisionManager_->AddCollider(enemyManager_->FindEnemy(id)->GetCollider());
-			collisionManager_->AddCollider(enemyManager_->FindEnemy(id)->GetAttackCollider());
+			Enemy* enemy = enemyManager_->FindEnemy(id);
+			collisionManager_->AddCollider(enemy->GetCollider());
+			if (enemy->GetIsAttackColliderActive())
+			{
+				collisionManager_->AddCollider(enemy->GetAttackCollider());
+			}
 		}
 	}
 	

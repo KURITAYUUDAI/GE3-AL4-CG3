@@ -106,7 +106,8 @@ public: // 外部入出力
 	void SetActiveCameraController(const std::string& name);
 
 
-	void LimitPlayerInFrustum(Vector3& playerLocalPos);
+	void LimitPlayerInFrustum(
+		Vector3& playerLocalPos, const Matrix4x4* playerParentWorldMatrix = nullptr);
 
 private:
 

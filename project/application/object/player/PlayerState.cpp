@@ -1,3 +1,4 @@
+#define NOMINMAX
 #include "PlayerState.h"
 #include "Player.h"
 
@@ -286,9 +287,33 @@ void PlayerMeleeAttackState::Initialize(Player* player)
 	player->SetMeleeHandVisible(true);
 	player->SetMeleeHandTranslate({ 0.8f, 0.0f, 0.5f });
 
-	attackDirection_ = Normalize(TransformNormal(
+	approachStartWorldPosition_ = player->GetWorldPosition();
+	approachTargetWorldPosition_ = approachStartWorldPosition_;
+	hasApproachTarget_ = false;
+
+	Vector3 currentForward = TransformNormal(
 		{ 0.0f, 0.0f, 1.0f }, player->GetParentWorldTransform()
-			? player->GetParentWorldTransform()->worldMatrix_ : MakeIdentity4x4()));
+			? player->GetParentWorldTransform()->worldMatrix_ : MakeIdentity4x4());
+	attackDirection_ = Length(currentForward) > 0.0001f
+		? Normalize(currentForward)
+		: Vector3{ 0.0f, 0.0f, 1.0f };
+
+	if (player->HasNearestEnemy())
+	{
+		const Vector3 toEnemy =
+			player->GetNearestEnemyPosition() - approachStartWorldPosition_;
+		const float distanceToEnemy = Length(toEnemy);
+		if (distanceToEnemy > 0.0001f)
+		{
+			attackDirection_ = Normalize(toEnemy);
+			const float approachDistance = std::min(
+				std::max(distanceToEnemy - kMeleeStopDistance_, 0.0f),
+				kMaxApproachDistance_);
+			approachTargetWorldPosition_ =
+				approachStartWorldPosition_ + attackDirection_ * approachDistance;
+			hasApproachTarget_ = approachDistance > 0.0001f;
+		}
+	}
 
 	player->SetMeleeAttackDirection(attackDirection_);
 }
@@ -300,9 +325,16 @@ void PlayerMeleeAttackState::Update(Player* player, const float& deltaTime)
 	switch (phase_)
 	{
 	case AttackPhase::Windup:
+		player->SetVelocity({ 0.0f, 0.0f, 0.0f });
+		if (hasApproachTarget_)
+		{
+			const float approachT = std::min(timer_ / kWindupDuration_, 1.0f);
+			player->SetWorldPosition(Lerp(
+				approachStartWorldPosition_, approachTargetWorldPosition_, approachT));
+		}
 		player->SetMeleeHandTranslate(Lerp({ 0.8f, 0.0f, 0.5f },
-			{ 0.8f, 0.0f, -0.2f }, std::min(timer_ / 0.15f, 1.0f)));
-		if (timer_ >= 0.15f)
+			{ 0.8f, 0.0f, -0.2f }, std::min(timer_ / kWindupDuration_, 1.0f)));
+		if (timer_ >= kWindupDuration_)
 		{
 			phase_ = AttackPhase::Attack;
 			timer_ = 0.0f;

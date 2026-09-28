@@ -76,7 +76,7 @@ void Player::Initialize()
 
 	transform_.scale = { 1.0f, 1.0f, 1.0f };
 	transform_.rotate = { 0.0f, 0.0f, 0.0f };
-	transform_.translate = { 0.0f, 0.0f, 15.0f };
+	transform_.translate = { 0.0f, 0.0f, -7.5f };
 
 	hitPoint_ = kMaxHitPoint;
 
@@ -238,7 +238,9 @@ void Player::Update(const float& deltaTime)
 	ImGui::End();
 #endif
 
-	CameraManager::GetInstance()->LimitPlayerInFrustum(transform_.translate);
+	const WorldTransform* playerParent = object3d_->GetWorldTransform()->parent_;
+	CameraManager::GetInstance()->LimitPlayerInFrustum(
+		transform_.translate, playerParent ? &playerParent->worldMatrix_ : nullptr);
 
 	animationTime += deltaTime;
 	animationTime = std::fmod(animationTime, animation_.duration);
@@ -488,7 +490,8 @@ void Player::Shot()
 	} 
 	else
 	{
-		bulletDirection = Normalize(TransformNormal(bulletDirection, object3d_->GetWorldTransform()->worldMatrix_));
+		bulletDirection = Normalize(TransformNormal(
+			bulletDirection, object3d_->GetWorldTransform()->worldMatrix_));
 	}
 
 	if (BulletManager::GetInstance() == nullptr)
@@ -611,10 +614,6 @@ const Vector3 Player::GetWorldPosition() const
 const Vector3 Player::GetWorldRotate() const
 {
 	Matrix4x4 worldMatrix = object3d_->GetWorldTransform()->worldMatrix_;
-	if (object3d_->GetWorldTransform()->parent_)
-	{
-		worldMatrix *= object3d_->GetWorldTransform()->parent_->worldMatrix_;
-	}
 
 	Vector3 worldRotEuler;
 	// 行列からエウラー角を計算する（一般的な公式に基づく抽出）
@@ -629,6 +628,18 @@ const Vector3 Player::GetWorldRotate() const
 	}
 
 	return worldRotEuler;
+}
+
+void Player::SetWorldPosition(const Vector3& worldPosition)
+{
+	if (parentTransform_)
+	{
+		transform_.translate = TransformPosition(
+			worldPosition, Inverse(parentTransform_->worldMatrix_));
+		return;
+	}
+
+	transform_.translate = worldPosition;
 }
 
 void Player::SetParent(WorldTransform* worldTransform)

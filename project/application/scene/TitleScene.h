@@ -99,6 +99,8 @@ private:
 	std::unique_ptr<ParticleEmitter> cylinderEmitter_;
 
 	std::unique_ptr<Object3d> glTFObject_;
+	float playerModelRotation_ = 0.0f;
+	static constexpr float kPlayerModelRotationSpeed_ = 0.5f;
 
 	Animation glTFAnimation_;
 	float animationTime = 0.0f;

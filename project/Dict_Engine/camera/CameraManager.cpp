@@ -71,6 +71,9 @@ void CameraManager::Update(const float& deltaTime)
 	#endif
 
 		activeCameraController_->Update(mainCamera_.get(), deltaTime_);
+		// DebugCamera の表示中も、ゲーム用カメラはプレイヤーの移動範囲の
+		// 基準として使うため、毎フレーム行列を更新しておく。
+		mainCamera_->Update();
 
 		if (isDebugCamera_ && debugCamera_)
 		{
@@ -84,8 +87,6 @@ void CameraManager::Update(const float& deltaTime)
 		}
 		else
 		{
-			mainCamera_->Update();
-
 			// カメラのワールド座標をGPU用構造体に転送
 			cameraData_->worldPosition = mainCamera_->GetTranslate();
 
@@ -160,14 +161,29 @@ void CameraManager::SetActiveCameraController(const std::string& name)
 	}
 }
 
-void CameraManager::LimitPlayerInFrustum(Vector3& playerLocalPos)
+void CameraManager::LimitPlayerInFrustum(
+	Vector3& playerLocalPos, const Matrix4x4* playerParentWorldMatrix)
 {
-	float distance = playerLocalPos.z;
-
-	// ニアクリップより手前、またはファークリップより奥にいる場合は処理しない（任意）
-	if (distance < mainCamera_->GetNearClip() || distance > mainCamera_->GetFarClip()) {
+	if (!mainCamera_)
+	{
 		return;
 	}
+
+	// プレイヤーの親子構造に依存せず、通常カメラのビュー空間で制限する。
+	// 表示が DebugCamera でも移動可能範囲は通常時と同一になる。
+	Vector3 playerWorldPos = playerLocalPos;
+	if (playerParentWorldMatrix)
+	{
+		playerWorldPos = TransformPosition(playerLocalPos, *playerParentWorldMatrix);
+	}
+	Vector3 playerViewPos = TransformPosition(playerWorldPos, mainCamera_->GetViewMatrix());
+
+	// プレイヤーの中心がクリップ面へ触れないよう、前後方向にも余白を設ける。
+	constexpr float kDepthMargin = 1.0f;
+	const float nearLimit = mainCamera_->GetNearClip() + kDepthMargin;
+	const float farLimit = mainCamera_->GetFarClip() - kDepthMargin;
+	playerViewPos.z = std::clamp(playerViewPos.z, nearLimit, farLimit);
+	const float distance = playerViewPos.z;
 
 	// 2. カメラのゲッターから視野角(fovY)とアスペクト比を取得
 	float fovY = mainCamera_->GetFovY();
@@ -184,9 +200,19 @@ void CameraManager::LimitPlayerInFrustum(Vector3& playerLocalPos)
 	float xLimit = frustumWidthHalf * marginFactor;
 	float yLimit = frustumHeightHalf * marginFactor;
 
-	// 5. 計算した限界値でローカルのXとYの座標をクランプ（制限）する
-	playerLocalPos.x = std::clamp(playerLocalPos.x, -xLimit, xLimit);
-	playerLocalPos.y = std::clamp(playerLocalPos.y, -yLimit, yLimit);
+	// 5. 計算した限界値でビュー空間のXとYをクランプ（制限）する
+	playerViewPos.x = std::clamp(playerViewPos.x, -xLimit, xLimit);
+	playerViewPos.y = std::clamp(playerViewPos.y, -yLimit, yLimit);
+
+	playerWorldPos = TransformPosition(playerViewPos, mainCamera_->GetWorldMatrix());
+	if (playerParentWorldMatrix)
+	{
+		playerLocalPos = TransformPosition(playerWorldPos, Inverse(*playerParentWorldMatrix));
+	}
+	else
+	{
+		playerLocalPos = playerWorldPos;
+	}
 }
 
 

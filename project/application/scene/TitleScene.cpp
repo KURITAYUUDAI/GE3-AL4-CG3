@@ -178,6 +178,9 @@ void TitleScene::Initialize()
 	glTFObject_->SetModel("walk.gltf");
 	glTFObject_->SetEnableLighting(false);
 	glTFObject_->SetPsoName("Skinning");
+	// モデルの高さ中心が画面中央に来るよう、足元基準の原点を少し下げる。
+	glTFObject_->SetTranslate({ 0.0f, -0.83f, 0.0f });
+	playerModelRotation_ = 0.0f;
 
 	glTFAnimation_ = LoadAnimationFile("Animation", "walk.gltf");
 	animationTime = 0.0f;
@@ -381,6 +384,10 @@ void TitleScene::Update(const float& deltaTime)
 	UpdateSkeleton(glTFSkeleton_);
 	UpdateSkinCluster(glTFSkinCluster_, glTFSkeleton_);
 
+	playerModelRotation_ = std::fmod(
+		playerModelRotation_ + kPlayerModelRotationSpeed_ * deltaTime, 2.0f * pi);
+	glTFObject_->SetRotate({ 0.0f, pi + playerModelRotation_, 0.0f });
+
 #ifdef USE_IMGUI
 	skeletonImGuiDebug_.Draw(
 		glTFSkeleton_,
@@ -423,8 +430,9 @@ void TitleScene::Draw()
 
 	}
 
-	/*DrawDebug(glTFSkeleton_, glTFObject_->GetWorldTransform()->GetWorldMatrix());
-	glTFObject_->Draw(&glTFSkinCluster_.influenceBufferView, &glTFSkinCluster_.paletteSrvHandle.second);*/
+	glTFObject_->Draw(
+		&glTFSkinCluster_.influenceBufferView,
+		&glTFSkinCluster_.paletteSrvHandle.second);
 
 	/*particleManager_->Draw();*/
 
