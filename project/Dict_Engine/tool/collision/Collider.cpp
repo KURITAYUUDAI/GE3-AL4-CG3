@@ -12,14 +12,30 @@ AABB Collider::GetAABB() const
 
 void Collider::UpdateWorldPosition()
 {
+	Vector3 position{};
 	if (parent_)
 	{
-		worldPosition_ = TransformPosition(localPosition_, parent_->worldMatrix_);
+		position = TransformPosition(localPosition_, parent_->worldMatrix_);
 	} 
     else
 	{
-		worldPosition_ = localPosition_;
+		position = localPosition_;
 	}
+	SetWorldPosition(position);
+}
+
+void Collider::SetWorldPosition(const Vector3& position)
+{
+	if (!hasWorldPosition_)
+	{
+		worldPosition_ = position;
+		previousWorldPosition_ = position;
+		hasWorldPosition_ = true;
+		return;
+	}
+
+	previousWorldPosition_ = worldPosition_;
+	worldPosition_ = position;
 }
 
 void Collider::OnCollision(Collider* other)

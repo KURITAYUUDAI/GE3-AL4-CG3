@@ -1,5 +1,33 @@
 #include "CollisionManager.h"
 #include "Logger.h"
+#include <algorithm>
+
+namespace
+{
+	bool IsContinuousSphereCollision(const Collider& a, const Collider& b)
+	{
+		const Vector3 relativeStart =
+			a.GetPreviousWorldPosition() - b.GetPreviousWorldPosition();
+		const Vector3 relativeEnd =
+			a.GetWorldPosition() - b.GetWorldPosition();
+		const Vector3 relativeMovement = relativeEnd - relativeStart;
+		const float movementLengthSquared = Dot(relativeMovement, relativeMovement);
+
+		if (movementLengthSquared <= 0.000001f)
+		{
+			return false;
+		}
+
+		const float t = std::clamp(
+			-Dot(relativeStart, relativeMovement) / movementLengthSquared,
+			0.0f, 1.0f);
+		const Vector3 closestRelativePosition =
+			relativeStart + relativeMovement * t;
+		const float radius = a.GetRadius() + b.GetRadius();
+
+		return Dot(closestRelativePosition, closestRelativePosition) <= radius * radius;
+	}
+}
 
 std::unique_ptr<CollisionManager> CollisionManager::instance_ = nullptr;
 
@@ -53,6 +81,12 @@ void CollisionManager::CheckAllCollisions()
                 const Sphere sphereA{ a->GetWorldPosition(), a->GetRadius() };
                 const Sphere sphereB{ b->GetWorldPosition(), b->GetRadius() };
                 isColliding = IsCollision(sphereA, sphereB);
+
+				if (!isColliding &&
+					(a->IsContinuousCollisionEnabled() || b->IsContinuousCollisionEnabled()))
+				{
+					isColliding = IsContinuousSphereCollision(*a, *b);
+				}
             }
             else if (a->GetShape() == ColliderShape::AABB &&
                      b->GetShape() == ColliderShape::AABB)

@@ -26,6 +26,13 @@ struct NearestEnemyInfoEvent
     bool isValid = false; // 敵が1体もいない場合 false
 };
 
+struct EnemyBattlePhaseEvent
+{
+	EnemyID enemyID = 0;
+	EnemyBattlePhase phase = EnemyBattlePhase::Ranged;
+	bool canReceiveMeleeApproach = false;
+};
+
 struct EnemyScreenPositionEvent
 {
     EnemyID enemyID = 0;

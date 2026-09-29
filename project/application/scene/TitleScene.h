@@ -9,6 +9,8 @@
 #include "LightManager.h"
 #include "DebugDrawManager.h"
 #include "PrimitiveManager.h"
+#include "SkyBox.h"
+#include "Terrain.h"
 
 #include "AnimationUtility.h"
 #include "SkeletonImGuiDebug.h"
@@ -32,6 +34,7 @@ public:
 	void Draw() override;
 
 private:
+	void UpdateOrbitCamera(float deltaTime);
 
 	std::vector<std::unique_ptr<Sprite>> sprites_;
 
@@ -87,6 +90,8 @@ private:
 	bool isDebugCamera_ = false;
 
 	std::unique_ptr<DefaultCameraController> defaultCameraController_ = nullptr;
+	std::unique_ptr<SkyBox> skyBox_ = nullptr;
+	std::unique_ptr<Terrain> terrain_ = nullptr;
 
 	Vector2 mousePosition_ = { 0.0f, 0.0f };
 
@@ -99,8 +104,11 @@ private:
 	std::unique_ptr<ParticleEmitter> cylinderEmitter_;
 
 	std::unique_ptr<Object3d> glTFObject_;
-	float playerModelRotation_ = 0.0f;
-	static constexpr float kPlayerModelRotationSpeed_ = 0.5f;
+	float cameraOrbitAngle_ = 0.0f;
+	static constexpr float kCameraOrbitSpeed_ = 0.25f;
+	static constexpr float kCameraOrbitRadius_ = 20.0f;
+	static constexpr float kCameraOrbitHeight_ = 2.0f;
+	static constexpr Vector3 kCameraLookTarget_ = { 0.0f, 0.0f, 0.0f };
 
 	Animation glTFAnimation_;
 	float animationTime = 0.0f;

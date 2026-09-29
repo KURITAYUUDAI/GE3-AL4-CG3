@@ -29,6 +29,7 @@ public:
 public:
 
 	const Vector3& GetWorldPosition() const { return worldPosition_; }
+	const Vector3& GetPreviousWorldPosition() const { return previousWorldPosition_; }
 	const float& GetRadius() const { return radius_; }
 	ColliderShape GetShape() const { return shape_; }
 	const Vector3& GetSize() const { return size_; }
@@ -36,6 +37,7 @@ public:
 	uint32_t GetAttribute() const { return attribute_; }
 	uint32_t GetMask() const {return mask_; }
 	int GetDamage() const { return damage_; }
+	bool IsContinuousCollisionEnabled() const { return continuousCollisionEnabled_; }
 
 	ICollisionObserver* GetOwner() { return owner_; }
 	
@@ -43,7 +45,7 @@ public:
 	void SetLocalPosition(const Vector3& localPosition) { localPosition_ = localPosition; }
 	void UpdateWorldPosition();
 	
-	void SetWorldPosition(const Vector3& position) { worldPosition_ = position; }
+	void SetWorldPosition(const Vector3& position);
 
 	void SetRadius(const float& radius){ radius_ = radius; }
 	void SetShape(ColliderShape shape) { shape_ = shape; }
@@ -54,6 +56,7 @@ public:
 	void SetMask(CollisionAttribute mask) { mask_ = ~static_cast<uint32_t>(mask); }
 	void SetMask(uint32_t mask) { mask_ = mask; }
 	void SetDamage(int damage) { damage_ = damage; }
+	void SetContinuousCollisionEnabled(bool enabled) { continuousCollisionEnabled_ = enabled; }
 
 	void SetOwner(ICollisionObserver* owner) { owner_ = owner; }
 	void SetOnCollision(CollisionCallback callback) { onCollision_ = std::move(callback); }
@@ -77,4 +80,7 @@ private:
 	WorldTransform* parent_ = nullptr;
 	Vector3 localPosition_{};
 	Vector3 worldPosition_{};
+	Vector3 previousWorldPosition_{};
+	bool hasWorldPosition_ = false;
+	bool continuousCollisionEnabled_ = false;
 };

@@ -38,6 +38,8 @@ void Bullet::Initialize(const Vector3& position, const Vector3& velocity, const 
 	collider_ = std::make_unique<Collider>();
 	collider_->SetOwner(this);
 	collider_->SetRadius(0.4f);
+	collider_->SetContinuousCollisionEnabled(true);
+	collider_->SetWorldPosition(position);
 	if (id == ID::kPlayer)
 	{
 		collider_->SetAttribute(CollisionAttribute::PlayerAttack);
@@ -91,6 +93,9 @@ void Bullet::Draw()
 	object3d_->Draw();
 
 #ifdef _DEBUG
+	DebugDrawManager::GetInstance()->AddLine(
+		collider_->GetPreviousWorldPosition(), collider_->GetWorldPosition(),
+		{ 1.0f, 0.5f, 0.0f, 1.0f });
 	if (collider_->GetShape() == ColliderShape::AABB)
 	{
 		DebugDrawManager::GetInstance()->AddBox(collider_->GetWorldPosition(),

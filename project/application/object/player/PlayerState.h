@@ -14,6 +14,7 @@ enum class PlayerStateType
 	Avoid,
 	JustAvoid,
 	MeleeAttack,
+	CounterMelee,
 };
 
 class IPlayerState
@@ -55,7 +56,8 @@ private:
 	{
 		Windup,
 		Attack,
-		Recovery,
+		FollowUpWindow,
+		ComboWindow,
 	};
 
 public:
@@ -66,16 +68,43 @@ public:
 	void Finalize(Player* player) override;
 
 private:
+	void BeginAttack(Player* player);
+	void UpdateAttackDirection(Player* player);
+	Vector3 GetWindupPosition() const;
+	Vector3 GetAttackEndPosition() const;
+
 	AttackPhase phase_ = AttackPhase::Windup;
 	float timer_ = 0.0f;
+	uint32_t comboIndex_ = 0;
 	Vector3 attackDirection_{ 0.0f, 0.0f, 1.0f };
-	Vector3 approachStartWorldPosition_{};
-	Vector3 approachTargetWorldPosition_{};
-	bool hasApproachTarget_ = false;
 
-	static constexpr float kWindupDuration_ = 0.15f;
-	static constexpr float kMeleeStopDistance_ = 1.5f;
-	static constexpr float kMaxApproachDistance_ = 6.0f;
+	static constexpr float kWindupDuration_ = 0.045f;
+	static constexpr float kAttackDuration_ = 0.075f;
+	// 近接終了直後の0.10秒だけ射撃追撃を受け付ける。
+	static constexpr float kFollowUpInputStart_ = 0.04f;
+	static constexpr float kFollowUpDuration_ = 0.24f;
+	static constexpr float kComboInputDuration_ = 0.60f;
+	static constexpr uint32_t kMaxComboCount_ = 3;
+	static constexpr Vector3 kRestPosition_ = { 0.8f, 0.0f, 0.5f };
+};
+
+class PlayerCounterMeleeState : public IPlayerState
+{
+public:
+	PlayerStateType GetType() const override { return PlayerStateType::CounterMelee; }
+	void Initialize(Player* player) override;
+	void Update(Player* player, const float& deltaTime) override;
+	void Draw(Player* player) override;
+	void Finalize(Player* player) override;
+
+private:
+	Vector3 GetTargetLocalPosition(Player* player) const;
+
+	float timer_ = 0.0f;
+	Vector3 startPosition_{};
+	bool isApproachFinished_ = false;
+
+	static constexpr float kApproachDuration_ = 0.22f;
 };
 
 class PlayerShotState : public IPlayerState

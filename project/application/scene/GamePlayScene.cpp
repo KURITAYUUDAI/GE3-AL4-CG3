@@ -466,20 +466,11 @@ void GamePlayScene::Update(const float& deltaTime)
 	terrain_->Update();
 
 	player_->Update(deltaTime);
+	// 敵の接近先計算で、同じフレームのPlayer位置を使えるよう先に配信する。
+	eventBus_->Dispatch();
 
 	/*enemy_->Update(deltaTime);*/
 	enemyManager_->Update(deltaTime);
-
-	if (!enemyIDs_.empty())
-	{
-		Enemy* battleEnemy = enemyManager_->FindEnemy(enemyIDs_.front());
-		if (battleEnemy && !battleEnemy->GetIsDead())
-		{
-			railCameraController_->RecenterBattleSpace(
-				player_->GetLocalPositionReference(),
-				battleEnemy->GetLocalPositionReference());
-		}
-	}
 
 	BulletManager::GetInstance()->Update(deltaTime);
 

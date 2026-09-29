@@ -49,6 +49,10 @@ void EnemyManager::Update(const float& deltaTime)
 		enemy->Update(deltaTime_);
 	}
 
+	enemies_.remove_if([](const std::unique_ptr<Enemy>& enemy){
+		return enemy->GetIsDead();
+	});
+
 	if (!enemies_.empty())
 	{
 		EnemyID nearestID = FindNearestEnemyID(lastPlayerPosition_);
@@ -72,10 +76,6 @@ void EnemyManager::Update(const float& deltaTime)
 			}
 		);
 	}
-
-	enemies_.remove_if([](const std::unique_ptr<Enemy>& enemy){
-		return enemy->GetIsDead();
-	});
 }
 
 void EnemyManager::Draw()

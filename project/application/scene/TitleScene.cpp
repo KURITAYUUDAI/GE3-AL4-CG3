@@ -42,6 +42,8 @@ void TitleScene::Initialize()
 
 	defaultCameraController_ = std::make_unique<DefaultCameraController>();
 	defaultCameraController_->Initialize();
+	cameraOrbitAngle_ = 0.0f;
+	UpdateOrbitCamera(0.0f);
 
 	cameraManager_->AddCameraController("Default", defaultCameraController_.get());
 	cameraManager_->SetActiveCameraController("Default");
@@ -50,6 +52,13 @@ void TitleScene::Initialize()
 	lightManager_->SetDirectionalLightColor({ 1.0f, 1.0f, 1.0f, 1.0f });
 	lightManager_->SetDirectionalLightDirection({ 0.0f, -1.0f, 0.0f });
 	lightManager_->SetDirectionalLightIntensity(1.0f);
+
+	skyBox_ = std::make_unique<SkyBox>();
+	skyBox_->Initialize();
+	skyBox_->SetCamera(camera_.get());
+
+	terrain_ = std::make_unique<Terrain>();
+	terrain_->Initialize();
 
 	for (size_t i = 0; i < 1; i++)
 	{
@@ -180,7 +189,8 @@ void TitleScene::Initialize()
 	glTFObject_->SetPsoName("Skinning");
 	// モデルの高さ中心が画面中央に来るよう、足元基準の原点を少し下げる。
 	glTFObject_->SetTranslate({ 0.0f, -0.83f, 0.0f });
-	playerModelRotation_ = 0.0f;
+	// モデル自身は回さず、タイトルカメラを周回させる。
+	glTFObject_->SetRotate({ 0.0f, pi, 0.0f });
 
 	glTFAnimation_ = LoadAnimationFile("Animation", "walk.gltf");
 	animationTime = 0.0f;
@@ -212,6 +222,17 @@ void TitleScene::Initialize()
 
 void TitleScene::Finalize()
 {
+	if (terrain_)
+	{
+		terrain_->Finalize();
+		terrain_.reset();
+	}
+	if (skyBox_)
+	{
+		skyBox_->Finalize();
+		skyBox_.reset();
+	}
+
 	for (auto it = emitters_.begin(); it != emitters_.end(); ++it)
 	{
 		std::unique_ptr<ParticleEmitter> emitter = std::move(*it);
@@ -234,9 +255,6 @@ void TitleScene::Finalize()
 		sprite.reset();
 	}
 	sprites_.clear();
-
-	camera_->Finalize();
-	camera_.reset();
 
 	camera_->Finalize();
 	camera_.reset();
@@ -345,7 +363,10 @@ void TitleScene::Update(const float& deltaTime)
 		cameraManager_->SetActiveCamera("Default");
 	}
 
+	UpdateOrbitCamera(deltaTime);
 	cameraManager_->Update(deltaTime);
+	skyBox_->Update();
+	terrain_->Update();
 
 
 
@@ -384,9 +405,7 @@ void TitleScene::Update(const float& deltaTime)
 	UpdateSkeleton(glTFSkeleton_);
 	UpdateSkinCluster(glTFSkinCluster_, glTFSkeleton_);
 
-	playerModelRotation_ = std::fmod(
-		playerModelRotation_ + kPlayerModelRotationSpeed_ * deltaTime, 2.0f * pi);
-	glTFObject_->SetRotate({ 0.0f, pi + playerModelRotation_, 0.0f });
+	glTFObject_->SetRotate({ 0.0f, pi, 0.0f });
 
 #ifdef USE_IMGUI
 	skeletonImGuiDebug_.Draw(
@@ -418,6 +437,8 @@ void TitleScene::FinishFadeIn()
 
 void TitleScene::Draw()
 {
+	skyBox_->Draw();
+	terrain_->Draw();
 
 	if (isDrawObject3d_)
 	{
@@ -472,4 +493,34 @@ void TitleScene::Draw()
 	debugManager_->DrawAll(cameraManager_->GetMainCamera()->GetViewProjectionMatrix());
 #endif
 
+}
+
+void TitleScene::UpdateOrbitCamera(float deltaTime)
+{
+	if (!defaultCameraController_)
+	{
+		return;
+	}
+
+	cameraOrbitAngle_ = std::fmod(
+		cameraOrbitAngle_ + kCameraOrbitSpeed_ * deltaTime, 2.0f * pi);
+
+	const Vector3 cameraPosition =
+	{
+		kCameraLookTarget_.x + std::sin(cameraOrbitAngle_) * kCameraOrbitRadius_,
+		kCameraLookTarget_.y + kCameraOrbitHeight_,
+		kCameraLookTarget_.z + std::cos(cameraOrbitAngle_) * kCameraOrbitRadius_,
+	};
+	const Vector3 forward = Normalize(kCameraLookTarget_ - cameraPosition);
+	const float horizontalLength = Length(Vector2{ forward.x, forward.z });
+	const Vector3 cameraRotate =
+	{
+		std::atan2(-forward.y, horizontalLength),
+		std::atan2(forward.x, forward.z),
+		0.0f,
+	};
+
+	WorldTransform* cameraTransform = defaultCameraController_->GetWorldTransform();
+	cameraTransform->translate_ = cameraPosition;
+	cameraTransform->SetRotate(cameraRotate);
 }

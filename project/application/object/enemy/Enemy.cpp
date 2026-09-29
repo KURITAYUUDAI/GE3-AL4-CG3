@@ -27,7 +27,7 @@ void Enemy::Initialize()
 
 	collider_ = std::make_unique<Collider>();
 	collider_->SetOwner(this);
-	collider_->SetRadius(1.0f);
+	collider_->SetRadius(2.0f);
 	collider_->SetAttribute(CollisionAttribute::Enemy);
 	collider_->SetMask(CollisionAttribute::Enemy);
 	collider_->SetDamage(1);
@@ -55,9 +55,9 @@ void Enemy::Initialize()
 	colliderAttack_->SetParent(objectRightHand_->GetWorldTransform());
 	colliderAttack_->SetLocalPosition({ 0.0f, 0.0f, -3.0f });
 
-	transform_.scale = { 1.0f, 1.0f, 1.0f };
+	transform_.scale = { 2.0f, 2.0f, 2.0f };
 	transform_.rotate = { 0.0f, 0.0f, 0.0f };
-	transform_.translate = { 0.0f, -2.0f, 7.5f };
+	transform_.translate = { 0.0f, 0.0f, 7.5f };
 
 	rightHandTransform_.scale = { 1.0f, 1.0f, 1.0f };
 	rightHandTransform_.rotate = { -40.0f / 180.0f * pi, 0.0f, 0.0f };
@@ -72,7 +72,7 @@ void Enemy::Initialize()
 	dissolveParams_.threshold = 0.0f;
 	dissolveParams_.edgeColor = { 2.0f, 0.3f, 0.3f, 1.0f };
 
-	ChangeState(std::make_unique<EnemyIdleState>());
+	ChangeState(std::make_unique<EnemyBossBattleState>());
 }
 
 void Enemy::EventDispatch()
@@ -109,6 +109,7 @@ void Enemy::EventDispatch()
 void Enemy::Update(const float& deltaTime)
 {
 	deltaTime_ = deltaTime;
+	const Vector3 previousWorldPosition = GetWorldPosition();
 
 	state_->Update(this, deltaTime);
 
@@ -155,6 +156,16 @@ void Enemy::Update(const float& deltaTime)
 
 	object3d_->SetTransform(transform_);
 	object3d_->Update();
+	const Vector3 currentWorldPosition = GetWorldPosition();
+	if (hasWorldVelocitySample_ && deltaTime_ > 0.000001f)
+	{
+		worldVelocity_ = (currentWorldPosition - previousWorldPosition) / deltaTime_;
+	}
+	else
+	{
+		worldVelocity_ = {};
+	}
+	hasWorldVelocitySample_ = true;
 
 	objectRightHand_->SetTransform(rightHandTransform_);
 	objectRightHand_->Update();
@@ -182,6 +193,14 @@ void Enemy::Update(const float& deltaTime)
 			.enemyID = enemyID_,
 			.screenPosition = GetScreenPosition(),
 			.isVisible = !isDead_
+		}
+	);
+
+	eventBus_->Publish(EnemyBattlePhaseEvent
+		{
+			.enemyID = enemyID_,
+			.phase = battlePhase_,
+			.canReceiveMeleeApproach = CanReceiveMeleeApproach(),
 		}
 	);
 }
@@ -317,6 +336,12 @@ void Enemy::Decelerate()
 
 void Enemy::Shot()
 {
+	FireProjectile();
+	ChangeState(std::make_unique<EnemyShotState>());
+}
+
+void Enemy::FireProjectile()
+{
 	Vector3 bulletDirection = { 0.0f, 0.0f, -1.0f };
 	Vector3 toPlayer = playerWorldPosition_ - GetWorldPosition();
 	if (Length(toPlayer) > 0.0001f)
@@ -327,12 +352,18 @@ void Enemy::Shot()
 	/*bulletDirection = Normalize(TransformNormal(bulletDirection, object3d_->GetWorldTransform()->worldMatrix_));
 	*/
 	BulletManager::GetInstance()->CreateEnemyBullet(GetWorldPosition(), bulletDirection * bulletSpeed_);
-	ChangeState(std::make_unique<EnemyShotState>());
 }
 
 void Enemy::Attack()
 {
 	ChangeState(std::make_unique<EnemyAttackState>());
+}
+
+bool Enemy::CanReceiveMeleeApproach() const
+{
+	return battlePhase_ == EnemyBattlePhase::CloseWait ||
+		battlePhase_ == EnemyBattlePhase::CloseAttack ||
+		battlePhase_ == EnemyBattlePhase::Recovery;
 }
 
 const Vector3 Enemy::GetWorldPosition() const

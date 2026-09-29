@@ -40,6 +40,7 @@ public:	// Command
 	void Move(const float& directionX, const float& directionY);
 	void Decelerate();
 	void Shot();
+	void FireProjectile();
 	void Attack();
 
 public: // Command対応
@@ -61,6 +62,7 @@ public:	//外部入出力
 	Vector3& GetLocalPositionReference() { return transform_.translate; }
 	const EulerTransform& GetTransform() const { return transform_; }
 	const Vector3& GetVelocity() const { return velocity_; }
+	const Vector3& GetWorldVelocity() const { return worldVelocity_; }
 
 	const Vector3 GetWorldPosition() const;
 	const Vector2 GetScreenPosition() const;
@@ -72,6 +74,8 @@ public:	//外部入出力
 	Collider* GetCollider() { return collider_.get(); }
 	Collider* GetAttackCollider() { return colliderAttack_.get(); }
 	bool GetIsAttackColliderActive() const { return isAttackColliderActive_; }
+	EnemyBattlePhase GetBattlePhase() const { return battlePhase_; }
+	bool CanReceiveMeleeApproach() const;
 
 	// HP
 	const int& GetHitPoint() const { return hitPoint_; }
@@ -107,6 +111,7 @@ public:	//外部入出力
 
 	// Collider設定
 	void SetAttackColliderActive(bool isActive) { isAttackColliderActive_ = isActive; }
+	void SetBattlePhase(EnemyBattlePhase phase) { battlePhase_ = phase; }
 	
 	// 描画設定
 	void SetEnvironmentTextureIndex(const uint32_t& srvIndex){ environmentTextureIndex_ = srvIndex; }
@@ -158,6 +163,8 @@ private:
 	EulerTransform transform_;
 
 	Vector3 velocity_ = { 0.0f, 0.0f, 0.0f };
+	Vector3 worldVelocity_ = { 0.0f, 0.0f, 0.0f };
+	bool hasWorldVelocitySample_ = false;
 	Vector3 maxSpeed_ = { 12.0f, 12.0f, 12.0f }; // スティック全倒し時の最高速度
 	float lerpFactor_ = 0.2f;                  // 追従の滑らかさ（0〜1）
 	Vector3 targetRoll_ = { 0.0f, 0.0f, 0.0f };                   // 目標のロール角Z（回転の傾き）
@@ -174,11 +181,12 @@ private:
 
 	std::unique_ptr<Collider> colliderAttack_;
 	bool isAttackColliderActive_ = false;
+	EnemyBattlePhase battlePhase_ = EnemyBattlePhase::Ranged;
 
 	// HP
 	int hitPoint_;
 	// 最大HP
-	static inline const int kMaxHitPoint = 10;
+	static inline const int kMaxHitPoint = 60;
 
 	float damageTimer_;
 	const float kDamageInvincible_ = 0.1f;

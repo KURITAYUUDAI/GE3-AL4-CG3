@@ -60,6 +60,201 @@ void EnemyMoveState::Finalize(Enemy * enemy)
 	(void)enemy;
 }
 
+void EnemyBossBattleState::Initialize(Enemy* enemy)
+{
+	phase_ = EnemyBattlePhase::MoveToRanged;
+	timer_ = 0.0f;
+	shotCount_ = 0;
+	idlePosition_ = enemy->GetTranslate();
+	rangedPosition_ = idlePosition_ + kRangedOffset_;
+	closePosition_ = idlePosition_;
+	phaseStartPosition_ = idlePosition_;
+	trackedPlayerPosition_ = GetHorizontalTrackingTarget(enemy);
+	handStartPosition_ = enemy->GetRightHandTransform().translate;
+	enemy->SetVelocity({ 0.0f, 0.0f, 0.0f });
+	enemy->SetAttackColliderActive(false);
+	enemy->SetBattlePhase(phase_);
+}
+
+void EnemyBossBattleState::Update(Enemy* enemy, const float& deltaTime)
+{
+	timer_ += deltaTime;
+
+	switch (phase_)
+	{
+	case EnemyBattlePhase::MoveToRanged:
+		enemy->SetTranslate(Lerp(
+			phaseStartPosition_, rangedPosition_,
+			std::min(timer_ / kMoveToRangedDuration_, 1.0f)));
+		if (timer_ >= kMoveToRangedDuration_)
+		{
+			ChangePhase(enemy, EnemyBattlePhase::Ranged);
+		}
+		break;
+
+	case EnemyBattlePhase::Ranged:
+		enemy->SetTranslate(rangedPosition_);
+		while (shotCount_ < 4 && timer_ >= (shotCount_ + 1) * kShotInterval_)
+		{
+			enemy->FireProjectile();
+			++shotCount_;
+		}
+		if (timer_ >= kRangedDuration_)
+		{
+			ChangePhase(enemy, EnemyBattlePhase::ReturnToIdle);
+		}
+		break;
+
+	case EnemyBattlePhase::ReturnToIdle:
+		enemy->SetTranslate(Lerp(
+			phaseStartPosition_, idlePosition_,
+			std::min(timer_ / kReturnToIdleDuration_, 1.0f)));
+		if (timer_ >= kReturnToIdleDuration_)
+		{
+			ChangePhase(enemy, EnemyBattlePhase::Approach);
+		}
+		break;
+
+	case EnemyBattlePhase::Approach:
+		// 奥へ接近しつつ、PlayerのX座標だけを少し遅れて追従する。
+		trackedPlayerPosition_ = Lerp(
+			trackedPlayerPosition_, GetHorizontalTrackingTarget(enemy),
+			std::min(deltaTime * kApproachHomingSpeed_, 1.0f));
+		closePosition_ = trackedPlayerPosition_ + kCloseOffset_;
+		enemy->SetTranslate(Lerp(
+			phaseStartPosition_, closePosition_,
+			std::min(timer_ / kApproachDuration_, 1.0f)));
+		if (timer_ >= kApproachDuration_)
+		{
+			ChangePhase(enemy, EnemyBattlePhase::CloseWait);
+		}
+		break;
+
+	case EnemyBattlePhase::CloseWait:
+		// 攻撃前の隙も間合いから外れないよう、接近時と同じ遅さで追従を続ける。
+		trackedPlayerPosition_ = Lerp(
+			trackedPlayerPosition_, GetHorizontalTrackingTarget(enemy),
+			std::min(deltaTime * kApproachHomingSpeed_, 1.0f));
+		closePosition_ = trackedPlayerPosition_ + kCloseOffset_;
+		enemy->SetTranslate(closePosition_);
+		if (timer_ >= kCloseWaitDuration_)
+		{
+			ChangePhase(enemy, EnemyBattlePhase::CloseAttack);
+		}
+		break;
+
+	case EnemyBattlePhase::CloseAttack:
+	{
+		// 近距離攻撃中もPlayerのX座標だけを追従する。
+		// 共通のbattleWorldTransform_上のローカル座標同士で計算する。
+		const Vector3 homingTarget =
+			GetHorizontalTrackingTarget(enemy) + kCloseOffset_;
+		closePosition_ = Lerp(
+			closePosition_, homingTarget,
+			std::min(deltaTime * kCloseAttackHomingSpeed_, 1.0f));
+		enemy->SetTranslate(closePosition_);
+		const float attackT = std::min(timer_ / kCloseAttackDuration_, 1.0f);
+		if (attackT < kCloseAttackWindupRate_)
+		{
+			enemy->SetRightHandTranslate(Lerp(
+				handStartPosition_, { 0.0f, 5.0f, 0.0f },
+				attackT / kCloseAttackWindupRate_));
+		}
+		else if (attackT < kCloseAttackHitEndRate_)
+		{
+			enemy->SetAttackColliderActive(true);
+			enemy->SetRightHandTranslate(Lerp(
+				{ 0.0f, 5.0f, 0.0f }, { 0.0f, -5.0f, 0.0f },
+				(attackT - kCloseAttackWindupRate_) /
+				(kCloseAttackHitEndRate_ - kCloseAttackWindupRate_)));
+		}
+		else
+		{
+			enemy->SetAttackColliderActive(false);
+			enemy->SetRightHandTranslate(Lerp(
+				{ 0.0f, -5.0f, 0.0f }, handStartPosition_,
+				(attackT - kCloseAttackHitEndRate_) /
+				(1.0f - kCloseAttackHitEndRate_)));
+		}
+		if (timer_ >= kCloseAttackDuration_)
+		{
+			ChangePhase(enemy, EnemyBattlePhase::Recovery);
+		}
+		break;
+	}
+
+	case EnemyBattlePhase::Recovery:
+		enemy->SetTranslate(closePosition_);
+		if (timer_ >= kRecoveryDuration_)
+		{
+			ChangePhase(enemy, EnemyBattlePhase::Retreat);
+		}
+		break;
+
+	case EnemyBattlePhase::Retreat:
+		enemy->SetTranslate(Lerp(
+			phaseStartPosition_, idlePosition_,
+			std::min(timer_ / kRetreatDuration_, 1.0f)));
+		if (timer_ >= kRetreatDuration_)
+		{
+			ChangePhase(enemy, EnemyBattlePhase::MoveToRanged);
+		}
+		break;
+	}
+}
+
+void EnemyBossBattleState::Draw(Enemy* enemy)
+{
+	(void)enemy;
+}
+
+void EnemyBossBattleState::Finalize(Enemy* enemy)
+{
+	enemy->SetAttackColliderActive(false);
+	enemy->SetVelocity({ 0.0f, 0.0f, 0.0f });
+}
+
+void EnemyBossBattleState::ChangePhase(Enemy* enemy, EnemyBattlePhase phase)
+{
+	phase_ = phase;
+	timer_ = 0.0f;
+	enemy->SetBattlePhase(phase_);
+	enemy->SetAttackColliderActive(false);
+
+	if (phase_ == EnemyBattlePhase::Approach)
+	{
+		phaseStartPosition_ = enemy->GetTranslate();
+		trackedPlayerPosition_ = GetHorizontalTrackingTarget(enemy);
+		closePosition_ = trackedPlayerPosition_ + kCloseOffset_;
+	}
+	if (phase_ == EnemyBattlePhase::Retreat)
+	{
+		phaseStartPosition_ = enemy->GetTranslate();
+	}
+	if (phase_ == EnemyBattlePhase::MoveToRanged ||
+		phase_ == EnemyBattlePhase::ReturnToIdle)
+	{
+		phaseStartPosition_ = enemy->GetTranslate();
+	}
+	if (phase_ == EnemyBattlePhase::CloseAttack)
+	{
+		handStartPosition_ = enemy->GetRightHandTransform().translate;
+	}
+	if (phase_ == EnemyBattlePhase::Ranged)
+	{
+		shotCount_ = 0;
+		enemy->SetRightHandTranslate(handStartPosition_);
+	}
+}
+
+Vector3 EnemyBossBattleState::GetHorizontalTrackingTarget(Enemy* enemy) const
+{
+	Vector3 target = enemy->GetPlayerLocalPosition();
+	// 追尾で上下には動かさず、Enemyの初期Y座標を維持する。
+	target.y = idlePosition_.y;
+	return target;
+}
+
 
 
 void EnemyShotState::Initialize(Enemy* enemy)

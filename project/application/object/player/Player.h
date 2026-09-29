@@ -17,6 +17,7 @@
 
 #include "ParticleEmitter.h"
 #include "JustAvoidDarken.h"
+#include <unordered_map>
 #include <unordered_set>
 
 #include "AnimationUtility.h"
@@ -50,10 +51,12 @@ public:	// Command
 	void LockOn();
 	void Shot();
 	void ChargedShot();
+	void MeleeFollowUpShot();
 	void StartChargeEffect();
 	void UpdateChargeEffect(float deltaTime);
 	void StopChargeEffect();
 	void MeleeAttack();
+	void CounterMeleeAttack();
 	void Avoid(const Vector2& direction);
 	void JustAvoid(const Vector3& avoidDirection);
 	void StopJustAvoid(const float& returnRate);
@@ -84,6 +87,7 @@ public:	//外部入出力
 	bool GetIsAttackColliderActive() const { return isAttackColliderActive_; }
 	bool HasNearestEnemy() const { return hasNearestEnemy_; }
 	const Vector3& GetNearestEnemyPosition() const { return cachedNearestEnemyPosition_; }
+	bool CanApproachNearestEnemy() const;
 	WorldTransform* GetParentWorldTransform() const { return parentTransform_; }
 
 	// HP
@@ -100,7 +104,6 @@ public:	//外部入出力
 	void SetScale(const Vector3& scale) { transform_.scale = scale; }
 	void SetRotate(const Vector3& rotate) { transform_.rotate = rotate; }
 	void SetTranslate(const Vector3& translate) { transform_.translate = translate; }
-	void SetWorldPosition(const Vector3& worldPosition);
 	void SetTransform(const EulerTransform& transform) { transform_ = transform; }
 	void SetVelocity(const Vector3& velocity) { velocity_ = velocity; }
 
@@ -123,6 +126,7 @@ public:	//外部入出力
 	void SetMeleeHandTranslate(const Vector3& translate) { meleeHandTransform_.translate = translate; }
 
 private:
+	Vector3 CalculateShotDirection();
 
 	// 入力ハンドル
 	InputHandlerSelector selector_;
@@ -190,6 +194,7 @@ private:
 	EnemyID cachedNearestEnemyID_ = 0;
 	Vector3 cachedNearestEnemyPosition_{};
 	bool hasNearestEnemy_ = false;
+	std::unordered_map<EnemyID, bool> meleeApproachAvailability_;
 
 	bool isLockOnHeld_ = false;
 	EnemyID lockOnEnemyID_ = 0;

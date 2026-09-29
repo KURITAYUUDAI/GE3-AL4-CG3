@@ -10,6 +10,10 @@
 #include "PlayerEvent.h"
 #include "enemy/EnemyEvent.h"
 #include "enemy/Enemy.h"
+#include "enemy/EnemyManager.h"
+
+#include <cmath>
+#include <limits>
 
 #include "Dict_Engine/tool/effect/DissolveManager.h"
 #include "time/DeltaTimeManager.h"
@@ -76,7 +80,7 @@ void Player::Initialize()
 
 	transform_.scale = { 1.0f, 1.0f, 1.0f };
 	transform_.rotate = { 0.0f, 0.0f, 0.0f };
-	transform_.translate = { 0.0f, 0.0f, -7.5f };
+	transform_.translate = { 0.0f, -3.0f, -7.5f };
 
 	hitPoint_ = kMaxHitPoint;
 
@@ -140,6 +144,13 @@ void Player::EventDispatch()
 			hasNearestEnemy_ = event.isValid;
 			cachedNearestEnemyID_ = event.enemyID;
 			cachedNearestEnemyPosition_ = event.worldPosition;
+		}
+	);
+	eventSubscriber_.Subscribe<EnemyBattlePhaseEvent>(
+		[this](const EnemyBattlePhaseEvent& event)
+		{
+			meleeApproachAvailability_[event.enemyID] =
+				event.canReceiveMeleeApproach;
 		}
 	);
 
@@ -282,7 +293,8 @@ void Player::Update(const float& deltaTime)
 	}
 
 	collider_->SetWorldPosition(GetWorldPosition());
-	colliderAttack_->SetWorldPosition(GetWorldPosition() + meleeAttackDirection_ * 2.0f);
+	// 大型Enemyの近接停止位置まで届くよう、攻撃判定を前方へ伸ばす。
+	colliderAttack_->SetWorldPosition(GetWorldPosition() + meleeAttackDirection_ * 4.0f);
 }
 
 void Player::Draw()
@@ -479,20 +491,7 @@ void Player::LockOn()
 
 void Player::Shot()
 {
-	Vector3 bulletDirection = { 0.0f, 0.0f, 1.0f };
-	if (lockOnEnemyID_ != 0 && lockOnEnemyID_ == cachedNearestEnemyID_)
-	{
-		Vector3 toTarget = cachedNearestEnemyPosition_ - GetWorldPosition();
-		if (Length(toTarget) > 0.0001f)
-		{
-			bulletDirection = Normalize(toTarget);
-		}
-	} 
-	else
-	{
-		bulletDirection = Normalize(TransformNormal(
-			bulletDirection, object3d_->GetWorldTransform()->worldMatrix_));
-	}
+	const Vector3 bulletDirection = CalculateShotDirection();
 
 	if (BulletManager::GetInstance() == nullptr)
 	{
@@ -513,24 +512,109 @@ void Player::Shot()
 
 void Player::ChargedShot()
 {
-	Vector3 bulletDirection = { 0.0f, 0.0f, 1.0f };
-	if (lockOnEnemyID_ != 0 && lockOnEnemyID_ == cachedNearestEnemyID_)
-	{
-		Vector3 toTarget = cachedNearestEnemyPosition_ - GetWorldPosition();
-		if (Length(toTarget) > 0.0001f)
-		{
-			bulletDirection = Normalize(toTarget);
-		}
-	}
-	else
-	{
-		bulletDirection = Normalize(TransformNormal(
-			bulletDirection, object3d_->GetWorldTransform()->worldMatrix_));
-	}
+	const Vector3 bulletDirection = CalculateShotDirection();
 
 	BulletManager::GetInstance()->CreateChargedPlayerBullet(
 		GetWorldPosition(), bulletDirection * bulletSpeed_);
 	ChangeState(std::make_unique<PlayerShotState>());
+}
+
+void Player::MeleeFollowUpShot()
+{
+	Vector3 bulletDirection = meleeAttackDirection_;
+	if (Length(bulletDirection) <= 0.0001f)
+	{
+		bulletDirection = CalculateShotDirection();
+	}
+	else
+	{
+		bulletDirection = Normalize(bulletDirection);
+	}
+
+	BulletManager::GetInstance()->CreatePlayerBullet(
+		GetWorldPosition(), bulletDirection * bulletSpeed_);
+}
+
+Vector3 Player::CalculateShotDirection()
+{
+	Vector3 forward = TransformNormal(
+		{ 0.0f, 0.0f, 1.0f }, object3d_->GetWorldTransform()->worldMatrix_);
+	if (Length(forward) <= 0.0001f)
+	{
+		forward = { 0.0f, 0.0f, 1.0f };
+	}
+	else
+	{
+		forward = Normalize(forward);
+	}
+
+	if (lockOnEnemyID_ == 0)
+	{
+		return forward;
+	}
+
+	Enemy* target = EnemyManager::GetInstance()->FindEnemy(lockOnEnemyID_);
+	if (!target || target->GetIsDead())
+	{
+		ClearLockOn();
+		return forward;
+	}
+
+	const Vector3 shooterPosition = GetWorldPosition();
+	const Vector3 targetPosition = target->GetWorldPosition();
+	const Vector3 targetOffset = targetPosition - shooterPosition;
+	if (Length(targetOffset) <= 0.0001f)
+	{
+		return forward;
+	}
+
+	const Vector3 targetVelocity = target->GetWorldVelocity();
+	const float speedSquared = bulletSpeed_ * bulletSpeed_;
+	const float a = Dot(targetVelocity, targetVelocity) - speedSquared;
+	const float b = 2.0f * Dot(targetOffset, targetVelocity);
+	const float c = Dot(targetOffset, targetOffset);
+	constexpr float kEpsilon = 0.000001f;
+	constexpr float kMaxInterceptTime = 5.0f;
+	float interceptTime = std::numeric_limits<float>::infinity();
+
+	if (std::abs(a) <= kEpsilon)
+	{
+		if (std::abs(b) > kEpsilon)
+		{
+			const float candidate = -c / b;
+			if (candidate > kEpsilon)
+			{
+				interceptTime = candidate;
+			}
+		}
+	}
+	else
+	{
+		const float discriminant = b * b - 4.0f * a * c;
+		if (discriminant >= 0.0f && std::isfinite(discriminant))
+		{
+			const float sqrtDiscriminant = std::sqrt(discriminant);
+			const float denominator = 2.0f * a;
+			const float t0 = (-b - sqrtDiscriminant) / denominator;
+			const float t1 = (-b + sqrtDiscriminant) / denominator;
+			if (t0 > kEpsilon)
+			{
+				interceptTime = t0;
+			}
+			if (t1 > kEpsilon && t1 < interceptTime)
+			{
+				interceptTime = t1;
+			}
+		}
+	}
+
+	Vector3 aimOffset = targetOffset;
+	if (std::isfinite(interceptTime) && interceptTime <= kMaxInterceptTime)
+	{
+		aimOffset = targetPosition + targetVelocity * interceptTime - shooterPosition;
+	}
+
+	return Length(aimOffset) > 0.0001f ? Normalize(aimOffset) : forward;
 }
 
 void Player::StartChargeEffect()
@@ -551,6 +635,28 @@ void Player::StopChargeEffect()
 void Player::MeleeAttack()
 {
 	ChangeState(std::make_unique<PlayerMeleeAttackState>());
+}
+
+void Player::CounterMeleeAttack()
+{
+	justAvoidEmitter_->Emit();
+	if (!CanApproachNearestEnemy())
+	{
+		MeleeAttack();
+		return;
+	}
+	ChangeState(std::make_unique<PlayerCounterMeleeState>());
+}
+
+bool Player::CanApproachNearestEnemy() const
+{
+	if (!hasNearestEnemy_)
+	{
+		return false;
+	}
+	const auto availability =
+		meleeApproachAvailability_.find(cachedNearestEnemyID_);
+	return availability != meleeApproachAvailability_.end() && availability->second;
 }
 
 void Player::SetAttackColliderActive(bool active)
@@ -628,18 +734,6 @@ const Vector3 Player::GetWorldRotate() const
 	}
 
 	return worldRotEuler;
-}
-
-void Player::SetWorldPosition(const Vector3& worldPosition)
-{
-	if (parentTransform_)
-	{
-		transform_.translate = TransformPosition(
-			worldPosition, Inverse(parentTransform_->worldMatrix_));
-		return;
-	}
-
-	transform_.translate = worldPosition;
 }
 
 void Player::SetParent(WorldTransform* worldTransform)

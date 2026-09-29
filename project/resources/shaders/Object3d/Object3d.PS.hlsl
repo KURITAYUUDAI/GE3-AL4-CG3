@@ -82,7 +82,9 @@ PixelShaderOutput main(GeometryShaderOutput input)
     
     float alpha = gMaterial.color.a * textureColor.a;
 
-    if (alpha < gMaterial.alphaReference)
+    // alphaReferenceが0でも完全透過ピクセルを破棄し、深度を書き込ませない。
+    // これにより背面にある別の板ポリが透過部分から見える。
+    if (alpha <= gMaterial.alphaReference)
     {
         discard;
     }
