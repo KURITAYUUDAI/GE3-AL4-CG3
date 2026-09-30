@@ -7,6 +7,7 @@
 #include "DebugDrawManager.h"
 #include "EnemyEvent.h"
 #include "PlayerEvent.h"
+#include "Player.h"
 
 #include "Dict_Engine/tool/effect/DissolveManager.h"
 
@@ -274,6 +275,14 @@ void Enemy::OnCollision(Collider* self, Collider* other)
 	if (other->GetAttribute() == static_cast<uint32_t>(CollisionAttribute::Player))
 	{
 		isAttackColliderActive_ = false;
+		return;
+	}
+
+	// Player本体の近接攻撃はPlayer::OnCollisionで一度だけ処理する。
+	// 同じPlayerAttack属性を持つ弾は、従来どおり下の処理でダメージを受ける。
+	if (other->GetAttribute() == static_cast<uint32_t>(CollisionAttribute::PlayerAttack) &&
+		dynamic_cast<Player*>(other->GetOwner()) != nullptr)
+	{
 		return;
 	}
 

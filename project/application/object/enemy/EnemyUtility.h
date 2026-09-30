@@ -7,10 +7,8 @@ enum class EnemyBattlePhase
 {
 	MoveToRanged,
 	Ranged,
-	ReturnToIdle,
 	Approach,
 	CloseWait,
 	CloseAttack,
 	Recovery,
-	Retreat,
 };

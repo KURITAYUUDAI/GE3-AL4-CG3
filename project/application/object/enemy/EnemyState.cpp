@@ -65,10 +65,10 @@ void EnemyBossBattleState::Initialize(Enemy* enemy)
 	phase_ = EnemyBattlePhase::MoveToRanged;
 	timer_ = 0.0f;
 	shotCount_ = 0;
-	idlePosition_ = enemy->GetTranslate();
-	rangedPosition_ = idlePosition_ + kRangedOffset_;
-	closePosition_ = idlePosition_;
-	phaseStartPosition_ = idlePosition_;
+	stageStartPosition_ = enemy->GetTranslate();
+	rangedPosition_ = stageStartPosition_ + kRangedOffset_;
+	closePosition_ = stageStartPosition_;
+	phaseStartPosition_ = stageStartPosition_;
 	trackedPlayerPosition_ = GetHorizontalTrackingTarget(enemy);
 	handStartPosition_ = enemy->GetRightHandTransform().translate;
 	enemy->SetVelocity({ 0.0f, 0.0f, 0.0f });
@@ -100,16 +100,6 @@ void EnemyBossBattleState::Update(Enemy* enemy, const float& deltaTime)
 			++shotCount_;
 		}
 		if (timer_ >= kRangedDuration_)
-		{
-			ChangePhase(enemy, EnemyBattlePhase::ReturnToIdle);
-		}
-		break;
-
-	case EnemyBattlePhase::ReturnToIdle:
-		enemy->SetTranslate(Lerp(
-			phaseStartPosition_, idlePosition_,
-			std::min(timer_ / kReturnToIdleDuration_, 1.0f)));
-		if (timer_ >= kReturnToIdleDuration_)
 		{
 			ChangePhase(enemy, EnemyBattlePhase::Approach);
 		}
@@ -184,18 +174,9 @@ void EnemyBossBattleState::Update(Enemy* enemy, const float& deltaTime)
 	}
 
 	case EnemyBattlePhase::Recovery:
+		// 近接位置を次の遠距離攻撃前のアイドリング位置として使う。
 		enemy->SetTranslate(closePosition_);
 		if (timer_ >= kRecoveryDuration_)
-		{
-			ChangePhase(enemy, EnemyBattlePhase::Retreat);
-		}
-		break;
-
-	case EnemyBattlePhase::Retreat:
-		enemy->SetTranslate(Lerp(
-			phaseStartPosition_, idlePosition_,
-			std::min(timer_ / kRetreatDuration_, 1.0f)));
-		if (timer_ >= kRetreatDuration_)
 		{
 			ChangePhase(enemy, EnemyBattlePhase::MoveToRanged);
 		}
@@ -227,12 +208,7 @@ void EnemyBossBattleState::ChangePhase(Enemy* enemy, EnemyBattlePhase phase)
 		trackedPlayerPosition_ = GetHorizontalTrackingTarget(enemy);
 		closePosition_ = trackedPlayerPosition_ + kCloseOffset_;
 	}
-	if (phase_ == EnemyBattlePhase::Retreat)
-	{
-		phaseStartPosition_ = enemy->GetTranslate();
-	}
-	if (phase_ == EnemyBattlePhase::MoveToRanged ||
-		phase_ == EnemyBattlePhase::ReturnToIdle)
+	if (phase_ == EnemyBattlePhase::MoveToRanged)
 	{
 		phaseStartPosition_ = enemy->GetTranslate();
 	}
@@ -251,7 +227,7 @@ Vector3 EnemyBossBattleState::GetHorizontalTrackingTarget(Enemy* enemy) const
 {
 	Vector3 target = enemy->GetPlayerLocalPosition();
 	// 追尾で上下には動かさず、Enemyの初期Y座標を維持する。
-	target.y = idlePosition_.y;
+	target.y = stageStartPosition_.y;
 	return target;
 }
 

@@ -55,7 +55,7 @@ private:
 	EnemyBattlePhase phase_ = EnemyBattlePhase::MoveToRanged;
 	float timer_ = 0.0f;
 	uint32_t shotCount_ = 0;
-	Vector3 idlePosition_{};
+	Vector3 stageStartPosition_{};
 	Vector3 rangedPosition_{};
 	Vector3 closePosition_{};
 	Vector3 phaseStartPosition_{};
@@ -65,15 +65,13 @@ private:
 	static constexpr float kRangedDuration_ = 8.0f;
 	static constexpr float kShotInterval_ = 1.0f;
 	static constexpr float kMoveToRangedDuration_ = 0.3f;
-	static constexpr float kReturnToIdleDuration_ = 0.3f;
 	static constexpr float kApproachDuration_ = 0.3f;
-	static constexpr float kCloseWaitDuration_ = 0.6f;
+	static constexpr float kCloseWaitDuration_ = 3.0f;
 	static constexpr float kCloseAttackDuration_ = 1.0f;
 	// 攻撃全体の前半を長めの振り上げ予兆にして、ジャスト回避の入力猶予を作る。
 	static constexpr float kCloseAttackWindupRate_ = 0.45f;
 	static constexpr float kCloseAttackHitEndRate_ = 0.75f;
-	static constexpr float kRecoveryDuration_ = 0.3f;
-	static constexpr float kRetreatDuration_ = 0.3f;
+	static constexpr float kRecoveryDuration_ = 3.0f;
 	// 接近中は攻撃中より遅く追従させ、Playerの移動に少し遅れて左右へ動かす。
 	static constexpr float kApproachHomingSpeed_ = 4.0f;
 	static constexpr float kCloseAttackHomingSpeed_ = 8.0f;

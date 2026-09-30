@@ -297,6 +297,7 @@ void PlayerMeleeAttackState::BeginAttack(Player* player)
 	player->SetVelocity({ 0.0f, 0.0f, 0.0f });
 	// 各段でfalseからtrueへ切り替え、同じ敵へのヒット履歴をリセットする。
 	player->SetAttackColliderActive(false);
+	player->ResetMeleeAttackDamage();
 	player->SetMeleeHandTranslate(kRestPosition_);
 	UpdateAttackDirection(player);
 }
@@ -394,8 +395,8 @@ void PlayerMeleeAttackState::Update(Player* player, const float& deltaTime)
 			handler->IsActionTriggerd("shot"))
 		{
 			UpdateAttackDirection(player);
-			player->MeleeFollowUpShot();
-			phase_ = AttackPhase::ComboWindow;
+			player->MeleeFollowUpAttack();
+			phase_ = AttackPhase::FollowUpAttack;
 			timer_ = 0.0f;
 			break;
 		}
@@ -406,6 +407,23 @@ void PlayerMeleeAttackState::Update(Player* player, const float& deltaTime)
 			timer_ = 0.0f;
 		}
 		break;
+	case AttackPhase::FollowUpAttack:
+	{
+		// 短い突き動作に近接判定を持たせ、弾は生成しない。
+		const float progress =
+			std::min(timer_ / kFollowUpAttackDuration_, 1.0f);
+		const float thrust = 1.0f - std::abs(progress * 2.0f - 1.0f);
+		player->SetMeleeHandTranslate(Lerp(
+			kRestPosition_, attackEndPosition, thrust));
+
+		if (timer_ >= kFollowUpAttackDuration_)
+		{
+			player->SetAttackColliderActive(false);
+			phase_ = AttackPhase::ComboWindow;
+			timer_ = 0.0f;
+		}
+		break;
+	}
 	case AttackPhase::ComboWindow:
 		player->SetMeleeHandTranslate(kRestPosition_);
 

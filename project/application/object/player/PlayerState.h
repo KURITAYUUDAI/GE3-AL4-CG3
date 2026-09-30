@@ -57,6 +57,7 @@ private:
 		Windup,
 		Attack,
 		FollowUpWindow,
+		FollowUpAttack,
 		ComboWindow,
 	};
 
@@ -83,6 +84,7 @@ private:
 	// 近接終了直後の0.10秒だけ射撃追撃を受け付ける。
 	static constexpr float kFollowUpInputStart_ = 0.04f;
 	static constexpr float kFollowUpDuration_ = 0.24f;
+	static constexpr float kFollowUpAttackDuration_ = 0.08f;
 	static constexpr float kComboInputDuration_ = 0.60f;
 	static constexpr uint32_t kMaxComboCount_ = 3;
 	static constexpr Vector3 kRestPosition_ = { 0.8f, 0.0f, 0.5f };

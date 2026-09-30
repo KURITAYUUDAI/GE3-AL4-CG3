@@ -40,6 +40,7 @@ void Player::Initialize()
 	ModelManager::GetInstance()->LoadModel("", "sphere.obj");
 	ModelManager::GetInstance()->LoadModel("Animation", "walk.gltf");
 	ModelManager::GetInstance()->LoadModel("RightHand", "RightHand.obj");
+	ModelManager::GetInstance()->LoadModel("playerBullet", "playerBullet.obj");
 
 	object3d_ = std::make_unique<Object3d>();
 	object3d_->Initialize();
@@ -54,6 +55,16 @@ void Player::Initialize()
 	meleeHandTransform_.scale = { 0.35f, 0.35f, 0.35f };
 	meleeHandTransform_.rotate = { 0.0f, pi, 0.0f };
 	meleeHandTransform_.translate = { 0.8f, 0.0f, 0.5f };
+
+	objectMeleeFollowUpEffect_ = std::make_unique<Object3d>();
+	objectMeleeFollowUpEffect_->Initialize();
+	objectMeleeFollowUpEffect_->SetModel("playerBullet.obj");
+	objectMeleeFollowUpEffect_->SetEnableLighting(false);
+	objectMeleeFollowUpEffect_->SetBlendMode(PSOManager::BlendMode::Add);
+	objectMeleeFollowUpEffect_->SetColor({ 2.0f, 2.0f, 2.0f, 0.0f });
+	meleeFollowUpEffectTransform_.scale = { 0.75f, 0.75f, 0.75f };
+	meleeFollowUpEffectTransform_.rotate = { 0.0f, 0.0f, 0.0f };
+	meleeFollowUpEffectTransform_.translate = {};
 
 	animation_ = LoadAnimationFile("Animation", "walk.gltf");
 	animationTime = 0.0f;
@@ -76,7 +87,7 @@ void Player::Initialize()
 	colliderAttack_->SetRadius(2.0f);
 	colliderAttack_->SetAttribute(CollisionAttribute::PlayerAttack);
 	colliderAttack_->SetMask(CollisionAttribute::Player);
-	colliderAttack_->SetDamage(1);
+	colliderAttack_->SetDamage(kMeleeDamage_);
 
 	transform_.scale = { 1.0f, 1.0f, 1.0f };
 	transform_.rotate = { 0.0f, 0.0f, 0.0f };
@@ -264,6 +275,7 @@ void Player::Update(const float& deltaTime)
 	object3d_->Update(nullptr, nullptr, false);
 	objectMeleeHand_->SetTransform(meleeHandTransform_);
 	objectMeleeHand_->Update();
+	UpdateMeleeFollowUpEffect(deltaTime_);
 	Matrix4x4 chargeRingBillboard = CameraManager::GetInstance()->GetMainCamera()->
 		GetBillboardWorldMatrix(chargeRingTransform_.scale, chargeRingTransform_.rotate,
 			GetWorldPosition());
@@ -339,6 +351,10 @@ void Player::Draw()
 	if (isDraw_ && isChargeEffectActive_)
 	{
 		objectChargeRing_->Draw();
+	}
+	if (isDraw_ && isMeleeFollowUpEffectActive_)
+	{
+		objectMeleeFollowUpEffect_->Draw();
 	}
 
 #ifdef _DEBUG
@@ -519,20 +535,47 @@ void Player::ChargedShot()
 	ChangeState(std::make_unique<PlayerShotState>());
 }
 
-void Player::MeleeFollowUpShot()
+void Player::MeleeFollowUpAttack()
 {
-	Vector3 bulletDirection = meleeAttackDirection_;
-	if (Length(bulletDirection) <= 0.0001f)
+	SetAttackColliderDamage(kMeleeFollowUpDamage_);
+	SetAttackColliderActive(true);
+	isMeleeFollowUpEffectActive_ = true;
+	meleeFollowUpEffectTimer_ = 0.0f;
+}
+
+void Player::UpdateMeleeFollowUpEffect(float deltaTime)
+{
+	if (!objectMeleeFollowUpEffect_)
 	{
-		bulletDirection = CalculateShotDirection();
-	}
-	else
-	{
-		bulletDirection = Normalize(bulletDirection);
+		return;
 	}
 
-	BulletManager::GetInstance()->CreatePlayerBullet(
-		GetWorldPosition(), bulletDirection * bulletSpeed_);
+	if (!isMeleeFollowUpEffectActive_)
+	{
+		return;
+	}
+
+	meleeFollowUpEffectTimer_ += deltaTime;
+	const float progress = std::min(
+		meleeFollowUpEffectTimer_ / kMeleeFollowUpEffectDuration_, 1.0f);
+	const float alpha = (1.0f - progress) * (1.0f - progress);
+	const float scale = 0.75f + progress * 0.45f;
+	meleeFollowUpEffectTransform_.scale = { scale, scale, scale };
+	objectMeleeFollowUpEffect_->SetColor({ 2.0f, 2.0f, 2.0f, alpha });
+
+	const Vector3 worldPosition = TransformPosition(
+		kMeleeFollowUpEffectLocalPosition_, object3d_->GetWorldTransform()->worldMatrix_);
+	const Matrix4x4 billboard = CameraManager::GetInstance()->GetMainCamera()->
+		GetBillboardWorldMatrix(
+			meleeFollowUpEffectTransform_.scale,
+			meleeFollowUpEffectTransform_.rotate,
+			worldPosition);
+	objectMeleeFollowUpEffect_->Update(&billboard, nullptr, false);
+
+	if (progress >= 1.0f)
+	{
+		isMeleeFollowUpEffectActive_ = false;
+	}
 }
 
 Vector3 Player::CalculateShotDirection()

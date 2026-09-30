@@ -51,7 +51,7 @@ public:	// Command
 	void LockOn();
 	void Shot();
 	void ChargedShot();
-	void MeleeFollowUpShot();
+	void MeleeFollowUpAttack();
 	void StartChargeEffect();
 	void UpdateChargeEffect(float deltaTime);
 	void StopChargeEffect();
@@ -121,12 +121,15 @@ public:	//外部入出力
 	void SetAvoidDirection(const Vector3& avoidDirection){ avoidDirection_ = avoidDirection; }
 	void SetJustAvoidAccept(const bool justAvoidAccept) { justAvoidAccept_ = justAvoidAccept; }
 	void SetAttackColliderActive(bool active);
+	void SetAttackColliderDamage(int damage) { colliderAttack_->SetDamage(damage); }
+	void ResetMeleeAttackDamage() { SetAttackColliderDamage(kMeleeDamage_); }
 	void SetMeleeAttackDirection(const Vector3& direction) { meleeAttackDirection_ = direction; }
 	void SetMeleeHandVisible(bool visible) { isMeleeHandVisible_ = visible; }
 	void SetMeleeHandTranslate(const Vector3& translate) { meleeHandTransform_.translate = translate; }
 
 private:
 	Vector3 CalculateShotDirection();
+	void UpdateMeleeFollowUpEffect(float deltaTime);
 
 	// 入力ハンドル
 	InputHandlerSelector selector_;
@@ -148,9 +151,16 @@ private:
 	std::unique_ptr<Object3d> object3d_;
 	std::unique_ptr<Object3d> objectMeleeHand_;
 	std::unique_ptr<Object3d> objectChargeRing_;
+	std::unique_ptr<Object3d> objectMeleeFollowUpEffect_;
 	EulerTransform meleeHandTransform_{};
 	EulerTransform chargeRingTransform_{};
+	EulerTransform meleeFollowUpEffectTransform_{};
 	bool isMeleeHandVisible_ = false;
+	bool isMeleeFollowUpEffectActive_ = false;
+	float meleeFollowUpEffectTimer_ = 0.0f;
+	static constexpr float kMeleeFollowUpEffectDuration_ = 0.18f;
+	static constexpr Vector3 kMeleeFollowUpEffectLocalPosition_ =
+		{ -1.0f, 0.2f, 1.5f };
 
 	Animation animation_;
 	float animationTime = 0.0f;
@@ -161,6 +171,8 @@ private:
 	std::unique_ptr<Collider> collider_;
 	std::unique_ptr<Collider> colliderAttack_;
 	bool isAttackColliderActive_ = false;
+	static constexpr int kMeleeDamage_ = 5;
+	static constexpr int kMeleeFollowUpDamage_ = 3;
 	Vector3 meleeAttackDirection_{ 0.0f, 0.0f, 1.0f };
 	std::unordered_set<ICollisionObserver*> meleeHitEnemies_;
 
