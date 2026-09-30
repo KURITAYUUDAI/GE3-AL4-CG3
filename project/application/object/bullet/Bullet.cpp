@@ -114,8 +114,11 @@ void Bullet::Finalize()
 	
 }
 
-void Bullet::OnCollision(Collider* self, Collider* other)
+void Bullet::OnCollision(
+	Collider* self, Collider* other, const CollisionContact& contact)
 {
+	(void)self;
+	(void)contact;
 	/*if (other->GetOwner()->GetIsHit() == false)
 	{
 	}*/

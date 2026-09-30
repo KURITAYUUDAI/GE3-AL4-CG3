@@ -5,6 +5,16 @@
 
 class ICollisionObserver;
 
+struct CollisionContact
+{
+	Vector3 position{};
+	// このColliderから衝突相手へ向かうワールド空間の法線。
+	Vector3 normal{ 1.0f, 0.0f, 0.0f };
+	// 1.0は現在フレーム終端。Sweep時は[0, 1]内の最初の接触時刻。
+	float timeOfImpact = 1.0f;
+	bool isContinuous = false;
+};
+
 enum class CollisionAttribute : uint32_t
 {
 	None = 0,
@@ -24,7 +34,8 @@ class Collider
 {
 public:
 
-	using CollisionCallback = std::function<void(Collider*, Collider*)>;
+	using CollisionCallback =
+		std::function<void(Collider*, Collider*, const CollisionContact&)>;
 
 public:
 
@@ -61,7 +72,7 @@ public:
 	void SetOwner(ICollisionObserver* owner) { owner_ = owner; }
 	void SetOnCollision(CollisionCallback callback) { onCollision_ = std::move(callback); }
 	
-	void OnCollision(Collider* other);
+	void OnCollision(Collider* other, const CollisionContact& contact);
 
 private:
 

@@ -44,9 +44,9 @@ void Enemy::Initialize()
 	colliderAttack_ = std::make_unique<Collider>();
 	colliderAttack_->SetOwner(this);
 	colliderAttack_->SetOnCollision(
-		[this](Collider* self, Collider* other)
+		[this](Collider* self, Collider* other, const CollisionContact& contact)
 		{
-			this->OnCollision(self, other);
+			this->OnCollision(self, other, contact);
 		}
 	);
 	colliderAttack_->SetRadius(2.0f);
@@ -181,10 +181,6 @@ void Enemy::Update(const float& deltaTime)
 		// isPlayHitSE_ = false;
 	}
 
-	Vector3 world = GetWorldPosition();
-	world.z -= 1.5f;
-	slashEmitter_->SetTranslate(world);
-
 	collider_->SetWorldPosition(GetWorldPosition());
 
 	colliderAttack_->UpdateWorldPosition();
@@ -270,7 +266,8 @@ void Enemy::ChangeState(std::unique_ptr<IEnemyState> newState)
 	state_->Initialize(this);
 }
 
-void Enemy::OnCollision(Collider* self, Collider* other)
+void Enemy::OnCollision(
+	Collider* self, Collider* other, const CollisionContact& contact)
 {
 	if (other->GetAttribute() == static_cast<uint32_t>(CollisionAttribute::Player))
 	{
@@ -288,7 +285,7 @@ void Enemy::OnCollision(Collider* self, Collider* other)
 
 	if (damageTimer_ == 0.0f && other->GetDamage() > 0)
 	{
-		Damage(other->GetDamage());
+		Damage(other->GetDamage(), contact.position);
 		damageTimer_ = kDamageInvincible_;
 		//PlaySEHit();
 	}
@@ -299,12 +296,11 @@ void Enemy::OnCollision(Collider* self, Collider* other)
 	}
 }
 
-void Enemy::Damage(int damage)
+void Enemy::Damage(int damage, const Vector3& hitPosition)
 {
 	const int previousHP = hitPoint_;
 
 	hitPoint_ -= damage;
-	slashEmitter_->EmitSlash();
 
 	if (hitPoint_ < 0)
 	{
@@ -315,6 +311,10 @@ void Enemy::Damage(int damage)
 	{
 		return;
 	}
+
+	slashEmitter_->SetTranslate(hitPosition);
+	slashEmitter_->EmitSlash();
+
 	if (eventBus_)
 	{
 		eventBus_->Publish(EnemyHPChangeEvent

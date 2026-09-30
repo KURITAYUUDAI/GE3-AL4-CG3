@@ -32,8 +32,9 @@ public:
 
 	void ChangeState(std::unique_ptr<IEnemyState> newState);
 
-	void OnCollision(Collider* self, Collider* other) override;
-	void Damage(int damage);
+	void OnCollision(
+		Collider* self, Collider* other, const CollisionContact& contact) override;
+	void Damage(int damage, const Vector3& hitPosition);
 
 public:	// Command
 

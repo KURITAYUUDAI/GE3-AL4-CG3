@@ -82,8 +82,9 @@ void Player::Initialize()
 
 	colliderAttack_ = std::make_unique<Collider>();
 	colliderAttack_->SetOwner(this);
-	colliderAttack_->SetOnCollision([this](Collider* self, Collider* other)
-		{ OnCollision(self, other); });
+	colliderAttack_->SetOnCollision(
+		[this](Collider* self, Collider* other, const CollisionContact& contact)
+		{ OnCollision(self, other, contact); });
 	colliderAttack_->SetRadius(2.0f);
 	colliderAttack_->SetAttribute(CollisionAttribute::PlayerAttack);
 	colliderAttack_->SetMask(CollisionAttribute::Player);
@@ -399,14 +400,16 @@ void Player::ChangeState(std::unique_ptr<IPlayerState> newState)
 	state_->Initialize(this);
 }
 
-void Player::OnCollision(Collider* self, Collider* other)
+void Player::OnCollision(
+	Collider* self, Collider* other, const CollisionContact& contact)
 {
 	if (self->GetAttribute() == static_cast<uint32_t>(CollisionAttribute::PlayerAttack))
 	{
 		if (other->GetAttribute() == static_cast<uint32_t>(CollisionAttribute::Enemy) &&
 			meleeHitEnemies_.insert(other->GetOwner()).second)
 		{
-			static_cast<Enemy*>(other->GetOwner())->Damage(self->GetDamage());
+			static_cast<Enemy*>(other->GetOwner())->Damage(
+				self->GetDamage(), contact.position);
 		}
 		return;
 	}

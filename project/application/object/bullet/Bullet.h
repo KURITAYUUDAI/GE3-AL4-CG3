@@ -41,7 +41,8 @@ public:
 
 	/*void OnCollision(const Player* player);*/
 
-	void OnCollision(Collider* self, Collider* other) override;
+	void OnCollision(
+		Collider* self, Collider* other, const CollisionContact& contact) override;
 
 public: // 外部入出力
 	const Vector3& GetScale() { return transform_.scale; }

@@ -36,7 +36,8 @@ public:
 
 	void ChangeState(std::unique_ptr<IPlayerState> newState);
 
-	void OnCollision(Collider* self, Collider* other) override;
+	void OnCollision(
+		Collider* self, Collider* other, const CollisionContact& contact) override;
 
 	void Damage(int damage);
 

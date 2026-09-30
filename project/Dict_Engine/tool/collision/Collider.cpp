@@ -38,17 +38,17 @@ void Collider::SetWorldPosition(const Vector3& position)
 	worldPosition_ = position;
 }
 
-void Collider::OnCollision(Collider* other)
+void Collider::OnCollision(Collider* other, const CollisionContact& contact)
 {
     if (onCollision_)
     {
-		onCollision_(this, other);
+		onCollision_(this, other, contact);
         return;
     }
 
     if (owner_) 
     {
-        owner_->OnCollision(this, other);
+        owner_->OnCollision(this, other, contact);
         return;
     }
 }
