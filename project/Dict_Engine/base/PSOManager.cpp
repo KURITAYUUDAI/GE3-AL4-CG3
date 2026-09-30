@@ -300,6 +300,29 @@ void PSOManager::RegisterPSOConfig(const std::string& name, const PSOConfig& con
 	psoConfigs_[name] = config;
 }
 
+const PSOManager::PSOData& PSOManager::GetComputePSOData(const std::string& name)
+{
+	if (!computePsoDatas_.contains(name))
+	{
+		CreateComputePipelineState(name);
+	}
+
+	return computePsoDatas_.at(name);
+}
+
+void PSOManager::RegisterComputePSOConfig(const std::string& name, const ComputePSOConfig& config)
+{
+	if (computePsoConfigs_.contains(name))
+	{
+		Logger::Log(
+			"Compute PSOConfig is already registered: " + name
+		);
+		return;
+	}
+
+	computePsoConfigs_[name] = config;
+}
+
 void PSOManager::CreatePipeLineState(const std::string& name, BlendMode blend, FillMode fill)
 {
 
@@ -490,4 +513,65 @@ void PSOManager::CompileShader(const std::string& name, Microsoft::WRL::ComPtr<I
 	outVS = vertexShaderBlob;
 	outPS = pixelShaderBlob;
 	outGS = geometryShaderBlob;
+}
+
+void PSOManager::CreateComputePipelineState(const std::string& name)
+{
+	const ComputePSOConfig& config = computePsoConfigs_.at(name);
+
+	// RootSignatureを生成または取得
+	Microsoft::WRL::ComPtr<ID3D12RootSignature> rootSignature;
+
+	if (computeRootSignatureDatas_.contains(name))
+	{
+		rootSignature = computeRootSignatureDatas_.at(name);
+	} else
+	{
+		assert(config.rootSignatureGenerator);
+		rootSignature = config.rootSignatureGenerator();
+		computeRootSignatureDatas_[name] = rootSignature;
+	}
+
+	// Compute Shaderをコンパイルまたは取得
+	Microsoft::WRL::ComPtr<IDxcBlob> computeShaderBlob;
+
+	if (computeShaderDatas_.contains(name))
+	{
+		computeShaderBlob = computeShaderDatas_.at(name);
+	} else
+	{
+		computeShaderBlob =
+			DirectXBase::GetInstance()->CompileShader(
+				config.computeShaderPath,
+				L"cs_6_0"
+			);
+
+		assert(computeShaderBlob);
+		computeShaderDatas_[name] = computeShaderBlob;
+	}
+
+	D3D12_COMPUTE_PIPELINE_STATE_DESC desc{};
+	desc.pRootSignature = rootSignature.Get();
+	desc.CS = {
+		computeShaderBlob->GetBufferPointer(),
+		computeShaderBlob->GetBufferSize()
+	};
+	desc.NodeMask = 0;
+	desc.CachedPSO = {};
+	desc.Flags = D3D12_PIPELINE_STATE_FLAG_NONE;
+
+	PSOData psoData{};
+	psoData.rootSignature = rootSignature;
+
+	HRESULT hr =
+		DirectXBase::GetInstance()->GetDevice()
+		->CreateComputePipelineState(
+			&desc,
+			IID_PPV_ARGS(&psoData.pipelineState)
+		);
+
+	assert(SUCCEEDED(hr) &&
+		   "Failed to create compute pipeline state");
+
+	computePsoDatas_[name] = std::move(psoData);
 }

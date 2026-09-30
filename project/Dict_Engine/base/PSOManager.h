@@ -77,6 +77,16 @@ public:
 	enum class BlendMode { None, Normal, Add, Subtract, Multiply, Screen };
 	enum class FillMode { kSolid, kWireFrame };
 
+	struct ComputePSOConfig
+	{
+		std::wstring computeShaderPath;
+
+		using RootSignatureGenerator =
+			std::function<Microsoft::WRL::ComPtr<ID3D12RootSignature>()>;
+
+		RootSignatureGenerator rootSignatureGenerator;
+	};
+
 	struct PSOData
 	{
 		Microsoft::WRL::ComPtr<ID3D12RootSignature> rootSignature;
@@ -99,6 +109,10 @@ public: // 外部入出力
 	const PSOData& GetPSOData(const std::string& name, BlendMode blendMode, FillMode fillMode);
 
 	void RegisterPSOConfig(const std::string& name, const PSOConfig& config);
+
+	const PSOManager::PSOData& GetComputePSOData(const std::string& name);
+
+	void RegisterComputePSOConfig(const std::string& name, const ComputePSOConfig& config);
 
 private:
 
@@ -132,7 +146,7 @@ private:
 	void CompileShader(const std::string& name, Microsoft::WRL::ComPtr<IDxcBlob>& outVS,
 		Microsoft::WRL::ComPtr<IDxcBlob>& outPS, Microsoft::WRL::ComPtr<IDxcBlob>& outGS);
 
-
+	void CreateComputePipelineState(const std::string& name);
 
 private:
 
@@ -141,5 +155,12 @@ private:
 	std::unordered_map<std::string, Microsoft::WRL::ComPtr<ID3D12RootSignature>> rootSignatureDatas_;
 
 	std::unordered_map<DataKey, PSOData, DataKeyHash> psoDatas_;	
+
+
+	std::unordered_map<std::string, ComputePSOConfig> computePsoConfigs_;
+	std::unordered_map<std::string, Microsoft::WRL::ComPtr<IDxcBlob>> computeShaderDatas_;
+	std::unordered_map<std::string, Microsoft::WRL::ComPtr<ID3D12RootSignature>> computeRootSignatureDatas_;
+
+	std::unordered_map<std::string, PSOData> computePsoDatas_;
 };
 
